@@ -195,7 +195,7 @@ module outputs(input CLK_p,
   reg 				 will_read, really_will_read, about_to_read,
 				 do_read, reading;
 
-  assign DM = 1'b0;
+  assign DM = ~do_deltawrite;
   assign DQ = do_deltawrite ? dq_driver : {{16}1'bz};
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
