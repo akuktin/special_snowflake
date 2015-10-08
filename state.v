@@ -4,7 +4,8 @@ module states(input CLK,
 	      input [2:0]      COMMAND,
 	      output 	       CHANGE_POSSIBLE,
 	      output reg [2:0] STATE,
-	      output reg       CLOCK_COMMAND);
+	      output reg       CLOCK_COMMAND,
+	      output reg       SOME_PAGE_ACTIVE);
   reg [1:0] 	     counter;
   reg 		     state_is_readwrite;
 
@@ -15,6 +16,7 @@ module states(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
+	SOME_PAGE_ACTIVE <= 0;
 	counter <= 2'h3;
 	state_is_readwrite <= 0;
 	CLOCK_COMMAND <= 1'b0;
@@ -29,12 +31,18 @@ module states(input CLK,
 	      state_is_readwrite <= ((COMMAND == `READ) || (COMMAND == `WRTE));
 
 	      if (COMMAND == `ACTV)
-		counter <= 2'h1;
+		begin
+		  counter <= 2'h1;
+		  SOME_PAGE_ACTIVE <= 1;
+		end
 	      else
 		counter <= 2'h0;
 
 	      if (COMMAND == `PRCH)
-		CLOCK_COMMAND <= 1'b1;
+		begin
+		  CLOCK_COMMAND <= 1'b1;
+		  SOME_PAGE_ACTIVE <= 0;
+		end
 	      else
 		CLOCK_COMMAND <= 1'b0;
 	    end
@@ -52,62 +60,99 @@ module states(input CLK,
 endmodule // states
 
 module enter_state(input CLK,
-		   input 	    RST,
-		   input [11:0]     PAGE_REQUEST,
-		   input 	    WE,
-		   input 	    DO_ACT,
-		   input 	    CHANGE_POSSIBLE,
-		   input 	    CLOCK_COMMAND,
-		   output reg [2:0] COMMAND,
-		   output 	    CHANGE_REQUESTED,
-		   output 	    DO_WRITE);
-  reg [11:0] 			    page_current;
-  reg [2:0] 			    command_sequence[2:0];
+		   input 	     RST,
+		   input [27:0]      ADDRESS,
+		   input 	     WE,
+		   input 	     DO_ACT,
+		   input 	     CHANGE_POSSIBLE,
+		   input 	     CLOCK_COMMAND,
+		   input 	     SOME_PAGE_ACTIVE,
+		   output reg [12:0] ADDRESS_REG,
+		   output reg [1:0]  BANK_REG,
+		   output reg [2:0]  COMMAND_REG,
+		   output [2:0]      COMMAND,
+		   output 	     CHANGE_REQUESTED,
+		   output 	     DO_WRITE);
+  reg [14:0] 			    page_current;
+  reg [8:0] 			    command_sequence;
   reg [1:0] 			    command_len;
-  reg 				    we_sequence[2:0];
+  reg [2:0] 			    we_sequence;
+  reg [2:0] 			    isrow_sequence;
 
   wire [2:0] 			    rw_command;
 
+  wire [12:0] 			    row_request;
+  wire [1:0] 			    bank_request;
+  wire [12:0] 			    collumn_request;
+
   assign CHANGE_REQUESTED = (command_len == 2'h3) ? 0 : 1;
   assign rw_command = WE ? `WRTE : `READ;
-  assign DO_WRITE = we_sequence[command_len];
+  assign DO_WRITE = we_sequence[2];
+  assign COMMAND = command_sequence[8:6];
+
+  assign row_request = ADDRESS[27:15];
+  assign bank_request = ADDRESS[14:13];
+  assign collumn_request = ADDRESS[12:0]
 
   always @(posedge CLK)
     if (!RST)
       begin
-	page_current <= 0; /* TODO: will have to be hacked */
-	command_sequence <= {`NOP/*actually PRCH*/,`ACTV,`READ};
+	page_current <= 0;
+	command_sequence <= {`NOP,`NOP,`NOP};
+	we_sequence <= 3'b000;
+	isrow_sequence <= 3'b010;
 	command_len <= 2'h3;
-	COMMAND <= `NOP;
+	COMMAND_REG <= `NOP;
       end
     else
       begin
-	if (CHANGE_REQUESTED)
+	if (CHANGE_REQUESTED) /* note: this UNables back-to-back reads/writes */
 	  begin
 	    if (CHANGE_POSSIBLE)
 	      begin
 		command_len <= command_len +1;
-		COMMAND <= command_sequence[command_len];
-		page_current <= PAGE_REQUEST;
-		/* TODO: setup data receivers/senders here */
+		command_sequence <= {command_sequence[5:0],`NOP};
+		we_sequence <= {we_sequence[1:0],1'b0};
+		isrow_sequence <= {isrow_sequence[1:0],1'b0};
+		if (COMMAND == `PRCH)
+		  COMMAND_REG <= `NOP;
+		else
+		  COMMAND_REG <= COMMAND;
+		if (isrow_sequence[2])
+		  begin
+		    page_current <= {row_request,bank_request};
+		    ADDRESS_REG <= row_request;
+		    BANK_REG <= bank_request;
+		  end
+		else
+		  ADDRESS_REG <= collumn_request;
 	      end
 	    else
 	      if (CLOCK_COMMAND)
-		COMMAND <= `PRCH;
+		begin
+		  COMMAND_REG <= `PRCH;
+		  ADDRESS_REG <= {15'h0200};
+		end
 	      else
-		COMMAND <= `NOP;
+		COMMAND_REG <= `NOP;
 	  end // if (CHANGE_REQUESTED)
 	else
 	  begin
-	    command_sequence <= {`NOP/*actually PRCH*/,`ACTV,rw_command};
-	    we_sequence <= {1'b0,1'b0,WE};
-
 	    if (DO_ACT)
 	      begin
-		if (PAGE_REQUEST == page_current)
-		  command_len <= 2'h2;
+		isrow_sequence <= 3'b010;
+		if ({row_request,bank_request} == page_current)
+		  begin
+		    command_len <= 2'h2;
+		    command_sequence <= {rw_command,`NOP,rw_command};
+		    we_sequence <= {WE,1'b0,WE};
+		  end
 		else
-		  command_len <= 2'h0;
+		  begin
+		    command_len <= 2'h0;
+		    command_sequence <= {`PRCH,`ACTV,rw_command};
+		    we_sequence <= {1'b0,1'b0,WE};
+		  end
 	      end
 	  end // else: !if(CHANGE_REQUESTED)
       end
@@ -125,7 +170,8 @@ module outputs(input CLK_p,
 	       inout [15:0] 	 DQ,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
-	       output reg 	 DATA_VALID);
+	       output reg 	 DATA_VALID,
+	       output 		 DM);
   reg [15:0] 			 dq_driver;
   reg [31:0] 			 dq_driver_pre, dq_driver_holdlong;
   reg 				 dqs_driver, pipe_clk_dqs;
@@ -133,6 +179,7 @@ module outputs(input CLK_p,
   reg 				 will_read, really_will_read, about_to_read,
 				 do_read, reading;
 
+  assign DM = 1'b0;
   assign DQ = do_deltawrite ? dq_driver : {{16}1'bz};
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
