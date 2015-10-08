@@ -6,10 +6,10 @@ module states(input CLK,
 	      output reg [2:0] STATE,
 	      output reg       CLOCK_COMMAND,
 	      output reg       SOME_PAGE_ACTIVE);
-  reg [1:0] 	     counter;
+  reg [3:0] 	     counter;
   reg 		     state_is_readwrite;
 
-  assign CHANGE_POSSIBLE = ((counter == 2'h3) ||
+  assign CHANGE_POSSIBLE = ((counter == 4'hf) ||
 			    (state_is_readwrite && (COMMAND == STATE))) ?
 			   1 : 0;
 
@@ -17,7 +17,7 @@ module states(input CLK,
     if (!RST)
       begin
 	SOME_PAGE_ACTIVE <= 0;
-	counter <= 2'h3;
+	counter <= 4'hf;
 	state_is_readwrite <= 0;
 	CLOCK_COMMAND <= 1'b0;
 	STATE <= `PRCH;
@@ -32,11 +32,13 @@ module states(input CLK,
 
 	      if (COMMAND == `ACTV)
 		begin
-		  counter <= 2'h1;
+		  counter <= 4'hd;
 		  SOME_PAGE_ACTIVE <= 1;
 		end
+	      else if (COMMAND == `ARSR)
+		counter <= 4'h0;
 	      else
-		counter <= 2'h0;
+		counter <= 4'hc;
 
 	      if (COMMAND == `PRCH)
 		begin
@@ -52,7 +54,7 @@ module states(input CLK,
 	  CLOCK_COMMAND <= 1'b0;
 
 	  if ((CHANGE_REQUESTED & state_is_readwrite) && (COMMAND == STATE))
-	    counter <= 2'h0;
+	    counter <= 4'hc;
 	  else
 	    counter <= counter +1;
 	end
@@ -61,6 +63,7 @@ endmodule // states
 
 module enter_state(input CLK,
 		   input 	     RST,
+		   input 	     REFRESH_STROBE,
 		   input [27:0]      ADDRESS,
 		   input 	     WE,
 		   input 	     DO_ACT,
@@ -78,8 +81,10 @@ module enter_state(input CLK,
   reg [1:0] 			    command_len;
   reg [2:0] 			    we_sequence;
   reg [2:0] 			    isrow_sequence;
+  reg 				    refresh_strobe_ack;
 
   wire [2:0] 			    rw_command;
+  wire 				    refresh_time;
 
   wire [12:0] 			    row_request;
   wire [1:0] 			    bank_request;
@@ -89,6 +94,7 @@ module enter_state(input CLK,
   assign rw_command = WE ? `WRTE : `READ;
   assign DO_WRITE = we_sequence[2];
   assign COMMAND = command_sequence[8:6];
+  assign refresh_time = refresh_strobe_ack ^ REFRESH_STROBE;
 
   assign row_request = ADDRESS[27:15];
   assign bank_request = ADDRESS[14:13];
@@ -97,12 +103,13 @@ module enter_state(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
+	refresh_strobe_ack <= REFRESH_STROBE;
 	page_current <= 0;
-	command_sequence <= {`NOP,`NOP,`NOP};
+	command_sequence <= {`NOOP,`NOOP,`NOOP};
 	we_sequence <= 3'b000;
 	isrow_sequence <= 3'b010;
 	command_len <= 2'h3;
-	COMMAND_REG <= `NOP;
+	COMMAND_REG <= `NOOP;
       end
     else
       begin
@@ -111,11 +118,11 @@ module enter_state(input CLK,
 	    if (CHANGE_POSSIBLE)
 	      begin
 		command_len <= command_len +1;
-		command_sequence <= {command_sequence[5:0],`NOP};
+		command_sequence <= {command_sequence[5:0],`NOOP};
 		we_sequence <= {we_sequence[1:0],1'b0};
 		isrow_sequence <= {isrow_sequence[1:0],1'b0};
 		if (COMMAND == `PRCH)
-		  COMMAND_REG <= `NOP;
+		  COMMAND_REG <= `NOOP;
 		else
 		  COMMAND_REG <= COMMAND;
 		if (isrow_sequence[2])
@@ -134,26 +141,35 @@ module enter_state(input CLK,
 		  ADDRESS_REG <= {15'h0200};
 		end
 	      else
-		COMMAND_REG <= `NOP;
+		COMMAND_REG <= `NOOP;
 	  end // if (CHANGE_REQUESTED)
 	else
 	  begin
-	    if (DO_ACT)
+	    if (refresh_time)
 	      begin
-		isrow_sequence <= 3'b010;
-		if ({row_request,bank_request} == page_current)
-		  begin
-		    command_len <= 2'h2;
-		    command_sequence <= {rw_command,`NOP,rw_command};
-		    we_sequence <= {WE,1'b0,WE};
-		  end
-		else
-		  begin
-		    command_len <= 2'h0;
-		    command_sequence <= {`PRCH,`ACTV,rw_command};
-		    we_sequence <= {1'b0,1'b0,WE};
-		  end
+		refresh_strobe_ack <= REFRESH_STROBE;
+		command_len <= 2'h1;
+		command_sequence <= {`PRCH,`ASRS,`NOOP};
+		we_sequence <= 3'b000;
+		/* isrow_sequence doesn't matter */
 	      end
+	    else
+	      if (DO_ACT)
+		begin
+		  isrow_sequence <= 3'b010;
+		  if ({SOME_PAGE_ACTIVE,row_request,bank_request} == {1'b1,page_current})
+		    begin
+		      command_len <= 2'h2;
+		      command_sequence <= {rw_command,`NOOP,rw_command};
+		      we_sequence <= {WE,1'b0,WE};
+		    end
+		  else
+		    begin
+		      command_len <= 2'h0;
+		      command_sequence <= {`PRCH,`ACTV,rw_command};
+		      we_sequence <= {1'b0,1'b0,WE};
+		    end
+		end
 	  end // else: !if(CHANGE_REQUESTED)
       end
 
