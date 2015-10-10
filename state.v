@@ -218,6 +218,8 @@ module outputs(input CLK_p,
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
   always @(CLK_n)
+    /* This needs to result in dqs_driver being
+     * a mirror image of CLKn. */
     dqs_driver <= CLK_n;
 
   always @(posedge CLK_n)
