@@ -1,5 +1,6 @@
 `ifdef COMMANDS_V
 `else
+`define COMMANDS_V 1'b1
 
 /* RASn, CASn, WEn */
 `define NOOP 3'b111 /* no operation */
