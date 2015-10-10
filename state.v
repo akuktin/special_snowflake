@@ -72,7 +72,7 @@ endmodule // states
 module enter_state(input CLK,
 		   input 	     RST,
 		   input 	     REFRESH_STROBE,
-		   input [27:0]      ADDRESS_REQ,
+		   input [26:0]      ADDRESS_REQ,
 		   input 	     WE,
 		   input 	     DO_ACT,
 		   input 	     CHANGE_POSSIBLE,
@@ -85,8 +85,8 @@ module enter_state(input CLK,
 		   output 	     CHANGE_REQUESTED,
 		   output 	     DO_WRITE,
 		   output 	     COMMAND_LATCHED);
-  reg [27:0] 			    address;
-  reg [14:0] 			    page_current;
+  reg [26:0] 			    address;
+  reg [13:0] 			    page_current;
   reg [8:0] 			    command_sequence;
   reg [1:0] 			    command_len;
   reg [2:0] 			    we_sequence;
@@ -96,7 +96,7 @@ module enter_state(input CLK,
   wire [2:0] 			    rw_command;
   wire 				    refresh_time;
 
-  wire [12:0] 			    row_request, row_request_live;
+  wire [11:0] 			    row_request, row_request_live;
   wire [1:0] 			    bank_request, bank_request_live;
   wire [12:0] 			    collumn_request;
 
@@ -108,9 +108,9 @@ module enter_state(input CLK,
   assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
 			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
 
-  assign row_request_live = ADDRESS_REQ[27:15];
+  assign row_request_live = ADDRESS_REQ[26:15];
   assign bank_request_live = ADDRESS_REQ[14:13];
-  assign row_request = address[27:15];
+  assign row_request = address[26:15];
   assign bank_request = address[14:13];
   assign collumn_request = address[12:0]
 
@@ -124,6 +124,7 @@ module enter_state(input CLK,
 	isrow_sequence <= 3'b010;
 	command_len <= 2'h3;
 	COMMAND_REG <= `NOOP;
+	address <= 0;
       end
     else
       begin
@@ -144,7 +145,7 @@ module enter_state(input CLK,
 		if (isrow_sequence[2])
 		  begin
 		    page_current <= {row_request,bank_request};
-		    ADDRESS_REG <= row_request;
+		    ADDRESS_REG <= {row_request[11:10],1'b0,row_request[9:0]};
 		    BANK_REG <= bank_request;
 		  end
 		else
@@ -154,7 +155,7 @@ module enter_state(input CLK,
 	      if (CLOCK_COMMAND)
 		begin
 		  COMMAND_REG <= `PRCH;
-		  ADDRESS_REG <= {15'h0200};
+		  ADDRESS_REG <= 13'h0200;
 		end
 	      else
 		COMMAND_REG <= `NOOP;
