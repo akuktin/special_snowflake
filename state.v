@@ -61,6 +61,14 @@ module states(input CLK,
 
 endmodule // states
 
+/* Push address, data (if any) and we onto wires and assert DO_ACT.
+ * When COMMAND_LATCHED is sensed as asserted, either deassert DO_ACT
+ * or push the next batch of address, data (if any) and we.
+ * Writing is fire-and-forget. When COMMAND_LATCHED is sensed asserted,
+ * you as the memory client are done. If reading, when you sense
+ * COMMAND_LATCHED, set a counter to 0. Afterwards, increment the counter
+ * by one every cycle. When the counter is sensed to equal 4, the
+ * DATA_READ output is valid. */
 module enter_state(input CLK,
 		   input 	     RST,
 		   input 	     REFRESH_STROBE,
