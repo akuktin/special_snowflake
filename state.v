@@ -72,7 +72,7 @@ endmodule // states
 module enter_state(input CLK,
 		   input 	     RST,
 		   input 	     REFRESH_STROBE,
-		   input [27:0]      ADDRESS,
+		   input [27:0]      ADDRESS_REQ,
 		   input 	     WE,
 		   input 	     DO_ACT,
 		   input 	     CHANGE_POSSIBLE,
@@ -85,6 +85,7 @@ module enter_state(input CLK,
 		   output 	     CHANGE_REQUESTED,
 		   output 	     DO_WRITE,
 		   output 	     COMMAND_LATCHED);
+  reg [27:0] 			    address;
   reg [14:0] 			    page_current;
   reg [8:0] 			    command_sequence;
   reg [1:0] 			    command_len;
@@ -107,9 +108,9 @@ module enter_state(input CLK,
   assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
 			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
 
-  assign row_request = ADDRESS[27:15];
-  assign bank_request = ADDRESS[14:13];
-  assign collumn_request = ADDRESS[12:0]
+  assign row_request = address[27:15];
+  assign bank_request = address[14:13];
+  assign collumn_request = address[12:0]
 
   always @(posedge CLK)
     if (!RST)
@@ -170,6 +171,7 @@ module enter_state(input CLK,
 	      if (DO_ACT)
 		begin
 		  isrow_sequence <= 3'b010;
+		  address <= ADDRESS_REQ;
 		  if ({SOME_PAGE_ACTIVE,row_request,bank_request} == {1'b1,page_current})
 		    begin
 		      command_len <= 2'h2;
