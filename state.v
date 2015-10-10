@@ -108,6 +108,8 @@ module enter_state(input CLK,
   assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
 			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
 
+  assign row_request_live = ADDRESS_REQ[27:15];
+  assign bank_request_live = ADDRESS_REQ[14:13];
   assign row_request = address[27:15];
   assign bank_request = address[14:13];
   assign collumn_request = address[12:0]
@@ -172,7 +174,8 @@ module enter_state(input CLK,
 		begin
 		  isrow_sequence <= 3'b010;
 		  address <= ADDRESS_REQ;
-		  if ({SOME_PAGE_ACTIVE,row_request,bank_request} == {1'b1,page_current})
+		  if ({SOME_PAGE_ACTIVE,row_request_live,bank_request_live} ==
+		      {1'b1,page_current})
 		    begin
 		      command_len <= 2'h2;
 		      command_sequence <= {rw_command,`NOOP,rw_command};
