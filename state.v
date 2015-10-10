@@ -96,8 +96,8 @@ module enter_state(input CLK,
   wire [2:0] 			    rw_command;
   wire 				    refresh_time;
 
-  wire [12:0] 			    row_request;
-  wire [1:0] 			    bank_request;
+  wire [12:0] 			    row_request, row_request_live;
+  wire [1:0] 			    bank_request, bank_request_live;
   wire [12:0] 			    collumn_request;
 
   assign CHANGE_REQUESTED = (command_len == 2'h3) ? 0 : 1;
