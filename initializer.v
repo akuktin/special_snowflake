@@ -25,9 +25,9 @@ module initializer(input CLK_n,
   wire 				 step_init;
   wire 				 core_init;
 
-  wire [2:0] 			 command_rom;
-  wire [12:0] 			 address_rom;
-  wire [1:0] 			 bank_rom;
+  reg [2:0] 			 command_rom;
+  reg [12:0] 			 address_rom;
+  reg [1:0] 			 bank_rom;
 
   assign COMMAND_PIN = RST_USER ? COMMAND_USER : COMMAND_ini;
   assign ADDRESS_PIN = RST_USER ? ADDRESS_USER : ADDRESS_ini;
