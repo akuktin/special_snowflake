@@ -75,16 +75,18 @@ module enter_state(input CLK,
 		   output reg [2:0]  COMMAND_REG,
 		   output [2:0]      COMMAND,
 		   output 	     CHANGE_REQUESTED,
-		   output 	     DO_WRITE);
+		   output 	     DO_WRITE,
+		   output 	     DATA_VALID);
   reg [14:0] 			    page_current;
   reg [8:0] 			    command_sequence;
   reg [1:0] 			    command_len;
   reg [2:0] 			    we_sequence;
   reg [2:0] 			    isrow_sequence;
   reg 				    refresh_strobe_ack;
+  reg [4:0] 			    data_is_read_valid;
 
   wire [2:0] 			    rw_command;
-  wire 				    refresh_time;
+  wire 				    refresh_time, read_will_be_valid;
 
   wire [12:0] 			    row_request;
   wire [1:0] 			    bank_request;
@@ -95,6 +97,8 @@ module enter_state(input CLK,
   assign DO_WRITE = we_sequence[2];
   assign COMMAND = command_sequence[8:6];
   assign refresh_time = refresh_strobe_ack ^ REFRESH_STROBE;
+  assign read_will_be_valid = ((COMMAND == `READ) && CHANGE_REQUESTED && CHANGE_POSSIBLE);
+  assign DATA_VALID = data_is_read_valid[4];
 
   assign row_request = ADDRESS[27:15];
   assign bank_request = ADDRESS[14:13];
@@ -113,6 +117,8 @@ module enter_state(input CLK,
       end
     else
       begin
+	data_is_read_valid <= {data_is_read_valid[3:0],read_will_be_valid};
+
 	if (CHANGE_REQUESTED) /* note: this UNables back-to-back reads/writes */
 	  begin
 	    if (CHANGE_POSSIBLE)
@@ -121,10 +127,12 @@ module enter_state(input CLK,
 		command_sequence <= {command_sequence[5:0],`NOOP};
 		we_sequence <= {we_sequence[1:0],1'b0};
 		isrow_sequence <= {isrow_sequence[1:0],1'b0};
+
 		if (COMMAND == `PRCH)
 		  COMMAND_REG <= `NOOP;
 		else
 		  COMMAND_REG <= COMMAND;
+
 		if (isrow_sequence[2])
 		  begin
 		    page_current <= {row_request,bank_request};
@@ -186,11 +194,10 @@ module outputs(input CLK_p,
 	       inout [15:0] 	 DQ,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
-	       output reg 	 DATA_VALID,
 	       output 		 DM);
   reg [15:0] 			 dq_driver;
   reg [31:0] 			 dq_driver_pre, dq_driver_holdlong;
-  reg 				 dqs_driver, pipe_clk_dqs;
+  reg 				 dqs_driver;
   reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
   reg 				 will_read, really_will_read, about_to_read,
 				 do_read, reading;
@@ -256,7 +263,6 @@ module outputs(input CLK_p,
 	do_deltawrite <= 0;
 	dq_driver <= 0;
 	DATA_R <= 0;
-	DATA_VALID <= 0;
       end
     else
       begin
@@ -271,7 +277,6 @@ module outputs(input CLK_p,
 	  begin
 	    dq_driver <= dq_driver_holdlong[31:16];
 	    DATA_R[15:0] <= DQ;
-	    DATA_VALID <= reading;
 	  end
       end
 
