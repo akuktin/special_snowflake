@@ -76,17 +76,16 @@ module enter_state(input CLK,
 		   output [2:0]      COMMAND,
 		   output 	     CHANGE_REQUESTED,
 		   output 	     DO_WRITE,
-		   output 	     DATA_VALID);
+		   output 	     COMMAND_LATCHED);
   reg [14:0] 			    page_current;
   reg [8:0] 			    command_sequence;
   reg [1:0] 			    command_len;
   reg [2:0] 			    we_sequence;
   reg [2:0] 			    isrow_sequence;
   reg 				    refresh_strobe_ack;
-  reg [4:0] 			    data_is_read_valid;
 
   wire [2:0] 			    rw_command;
-  wire 				    refresh_time, read_will_be_valid;
+  wire 				    refresh_time;
 
   wire [12:0] 			    row_request;
   wire [1:0] 			    bank_request;
@@ -97,8 +96,8 @@ module enter_state(input CLK,
   assign DO_WRITE = we_sequence[2];
   assign COMMAND = command_sequence[8:6];
   assign refresh_time = refresh_strobe_ack ^ REFRESH_STROBE;
-  assign read_will_be_valid = ((COMMAND == `READ) && CHANGE_REQUESTED && CHANGE_POSSIBLE);
-  assign DATA_VALID = data_is_read_valid[4];
+  assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
+			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
 
   assign row_request = ADDRESS[27:15];
   assign bank_request = ADDRESS[14:13];
@@ -117,8 +116,6 @@ module enter_state(input CLK,
       end
     else
       begin
-	data_is_read_valid <= {data_is_read_valid[3:0],read_will_be_valid};
-
 	if (CHANGE_REQUESTED) /* note: this UNables back-to-back reads/writes */
 	  begin
 	    if (CHANGE_POSSIBLE)
