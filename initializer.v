@@ -1,6 +1,6 @@
 module initializer(input CLK_n,
 		   input 	 CLK_p,
-		   input 	 RST, 
+		   input 	 RST,
 		   /* ----------------------- */
 		   output reg 	 CKE,
 		   output [2:0]  COMMAND_PIN,
