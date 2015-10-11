@@ -31,14 +31,7 @@ module states(input CLK,
 	      state_is_readwrite <= ((COMMAND == `READ) || (COMMAND == `WRTE));
 
 	      if (COMMAND == `ACTV)
-		begin
-		  counter <= 4'hd;
-		  SOME_PAGE_ACTIVE <= 1;
-		end
-	      else if (COMMAND == `ARSR)
-		counter <= 4'h0;
-	      else
-		counter <= 4'hc;
+		SOME_PAGE_ACTIVE <= 1;
 
 	      if (COMMAND == `PRCH)
 		begin
@@ -47,6 +40,12 @@ module states(input CLK,
 		end
 	      else
 		CLOCK_COMMAND <= 1'b0;
+
+	      case (COMMAND)
+		`ACTV: counter <= 4'hd;
+		`ARSR: counter <= 4'h0;
+		default: counter <= 4'hc;
+	      endcase // case (COMMAND)
 	    end
 	end // if (CHANGE_POSSIBLE)
       else
