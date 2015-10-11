@@ -198,8 +198,7 @@ module outputs(input CLK_p,
 	       input 		 CLK_n,
 	       input 		 CLK_d,
 	       input 		 RST,
-	       input 		 CHANGE_REQUESTED,
-	       input 		 CHANGE_POSSIBLE,
+	       input 		 COMMAND_LATCHED,
 	       input [31:0] 	 DATA_W,
 	       input 		 WE,
 	       inout [15:0] 	 DQ,
@@ -210,8 +209,6 @@ module outputs(input CLK_p,
   reg [31:0] 			 dq_driver_pre, dq_driver_holdlong;
   reg 				 dqs_driver;
   reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
-  reg 				 will_read, really_will_read, about_to_read,
-				 do_read, reading;
 
   assign DM = ~do_deltawrite;
   assign DQ = do_deltawrite ? dq_driver : {{16}1'bz};
@@ -226,49 +223,30 @@ module outputs(input CLK_p,
     if (!RST)
       begin
 	dq_driver_pre <= 0;
-	will_read <= 0;
 	will_write <= 0;
-	do_read <= 0;
-	about_to_read <= 0;
-	really_will_read <= 0;
 	do_write <= 0;
 	dq_driver_holdlong <= 0;
       end
     else
       begin
-	will_write <= 0;
 	do_write <= will_write;
 	dq_driver_holdlong <= dq_driver_pre;
 
-	will_read <= 0;
-	really_will_read <= will_read;
-	about_to_read <= really_will_read;
-	do_read <= about_to_read;
-
-	if (CHANGE_REQUESTED & CHANGE_POSSIBLE)
+	if (COMMAND_LATCHED)
 	  begin
-	    if (WE)
-	      begin
-		will_write <= 1;
-	      end
-	    else
-	      will_read <= 1;
+	    will_write <= WE;
 
 	    dq_driver_pre <= DATA_W;
-	  end // if (CHANGE_REQUESTED & CHANGE_POSSIBLE)
+	  end // if (COMMAND_LATCHED)
+	else
+	  will_write <= 0;
       end // else: !if(!RST)
 
   always @(posedge CLK_p)
     if (!RST)
-      begin
-	do_halfwrite <= 0;
-	reading <= 0;
-      end
+      do_halfwrite <= 0;
     else
-      begin
-	do_halfwrite <= do_write;
-	reading <= do_read;
-      end
+      do_halfwrite <= do_write;
 
   always @(CLK_d)
     if (!RST)
