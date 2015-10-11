@@ -22,3 +22,101 @@ module refresh_timer(input CLK,
       end
 
 endmodule // refresh_timer
+
+module ddr_memory_controler(input CLK_n,
+			    input 	  CLK_p,
+			    input 	  CLK_d,
+			    input 	  RST,
+			    /* ------------------------- */
+			    output 	  CKE,
+			    output [2:0]  COMMAND,
+			    output [12:0] ADDRESS,
+			    output [1:0]  BANK,
+			    inout [15:0]  DQ,
+			    inout 	  DQS,
+			    output 	  DM,
+			    output 	  CS,
+			    /* ------------------------- */
+			    input [26:0]  user_req_address,
+			    input 	  user_req_we,
+			    input 	  user_req,
+			    input [31:0]  user_req_datain,
+			    output 	  user_req_ack,
+			    output [31:0] user_req_dataout);
+/*
+  wire [26:0] 					 user_req_address;
+  wire 						 user_req_we, user_req,
+						 user_req_ack;
+  wire [31:0] 					 user_req_datain,
+						 user_req_dataout;
+ */
+////////
+  wire [2:0] 					 command_user,
+						 command_statechange_req,
+						 cur_state;
+  wire [12:0] 					 address_user;
+  wire [1:0] 					 bank_user;
+  wire 						 rst_user, refresh_strobe,
+						 change_requested,
+						 change_possible,
+						 do_clock_command,
+						 some_page_active,
+						 do_write;
+
+  assign CS = 1'b0; // Always on.
+
+  refresh_timer refresh_strobe_m(.CLK(CLK_n),
+				 .RST(rst_user),
+				 .REFRESH_STROBE(refresh_strobe));
+
+  initializer initializer_m(.CLK_n(CLK_n),
+			    .RST(RST),
+			    .CKE(CKE),
+			    .COMMAND_PIN(COMMAND),
+			    .ADDRESS_PIN(ADDRESS),
+			    .BANK_PIN(BANK),
+			    .COMMAND_USER(command_user),
+			    .ADDRESS_USER(address_user),
+			    .BANK_USER(bank_user),
+			    .RST_USER(rst_user));
+
+  states state_tracker(.CLK(CLK_n),
+		       .RST(rst_user),
+		       .CHANGE_REQUESTED(change_requested),
+		       .COMMAND(command_statechange_req),
+		       .CHANGE_POSSIBLE(change_possible),
+		       .STATE(cur_state),
+		       .CLOCK_COMMAND(do_clock_command),
+		       .SOME_PAGE_ACTIVE(some_page_active));
+
+  enter_state interdictor(.CLK(CLK_n),
+			  .RST(rst_user),
+			  .REFRESH_STROBE(refresh_strobe),
+			  .ADDRESS_REQ(user_req_address),
+			  .WE(user_req_we),
+			  .DO_ACT(user_req),
+			  .CHANGE_POSSIBLE(change_possible),
+			  .CLOCK_COMMAND(do_clock_command),
+			  .SOME_PAGE_ACTIVE(some_page_active),
+			  .ADDRESS_REG(address_user),
+			  .BANK_REG(bank_user),
+			  .COMMAND_REG(command_user),
+			  .COMMAND(command_statechange_req),
+			  .CHANGE_REQUESTED(change_requested),
+			  .DO_WRITE(do_write),
+			  .COMMAND_LATCHED(user_req_ack));
+
+  outputs data_driver(.CLK_p(CLK_p),
+		      .CLK_n(CLK_n),
+		      .CLK_d(CLK_d),
+		      .RST(rst_user),
+		      .CHANGE_REQUESTED(change_requested),
+		      .CHANGE_POSSIBLE(change_possible),
+		      .DATA_W(user_req_datain),
+		      .WE(user_req_we),
+		      .DQ(DQ),
+		      .DQS(DQS),
+		      .DATA_R(user_req_dataout),
+		      .DM(DM));
+
+endmodule // ddr_memory_controler_stage1

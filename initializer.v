@@ -1,5 +1,4 @@
 module initializer(input CLK_n,
-		   input 	 CLK_p,
 		   input 	 RST,
 		   /* ----------------------- */
 		   output reg 	 CKE,
