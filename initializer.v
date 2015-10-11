@@ -40,7 +40,7 @@ module initializer(input CLK_n,
       case (stage_count)
 	3'h0: begin
 	  command_rom = `PRCH;
-	  address_rom = 13'h200;
+	  address_rom = 13'h400;
 	  bank_rom    = 2'h1;
 	end
 	3'h1: begin
@@ -55,17 +55,17 @@ module initializer(input CLK_n,
 	end
 	3'h3: begin
 	  command_rom = `PRCH;
-	  address_rom = 13'h200;
+	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
 	3'h4: begin
 	  command_rom = `ARSR;
-	  address_rom = 13'h200;
+	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
 	3'h5: begin
 	  command_rom = `ARSR;
-	  address_rom = 13'h200;
+	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
 	3'h6: begin
@@ -75,7 +75,7 @@ module initializer(input CLK_n,
 	end
 	3'h7: begin
 	  command_rom = `NOOP;
-	  address_rom = 13'h200;
+	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
       endcase
@@ -86,7 +86,7 @@ module initializer(input CLK_n,
       begin
 	CKE <= 0;
 	RST_USER <= 0;
-	long_counter_0 <= 0;
+	long_counter_o <= 0;
 	long_counter_h <= 0;
 	long_counter_l <= 0;
 	intercommand_count <= 0;

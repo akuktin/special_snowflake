@@ -111,7 +111,7 @@ module enter_state(input CLK,
   assign bank_request_live = ADDRESS_REQ[14:13];
   assign row_request = address[26:15];
   assign bank_request = address[14:13];
-  assign collumn_request = address[12:0]
+  assign collumn_request = address[12:0];
 
   always @(posedge CLK)
     if (!RST)
@@ -154,18 +154,20 @@ module enter_state(input CLK,
 	      if (CLOCK_COMMAND)
 		begin
 		  COMMAND_REG <= `PRCH;
-		  ADDRESS_REG <= 13'h0200;
+		  ADDRESS_REG <= 13'h0400;
 		end
 	      else
 		COMMAND_REG <= `NOOP;
 	  end // if (CHANGE_REQUESTED)
 	else
 	  begin
+	    COMMAND_REG <= `NOOP;
+
 	    if (refresh_time)
 	      begin
 		refresh_strobe_ack <= REFRESH_STROBE;
 		command_len <= 2'h1;
-		command_sequence <= {`PRCH,`ASRS,`NOOP};
+		command_sequence <= {`PRCH,`ARSR,`NOOP};
 		we_sequence <= 3'b000;
 		/* isrow_sequence doesn't matter */
 	      end
@@ -210,7 +212,7 @@ module outputs(input CLK_p,
   reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
 
   assign DM = ~do_deltawrite;
-  assign DQ = do_deltawrite ? dq_driver : {{16}1'bz};
+  assign DQ = do_deltawrite ? dq_driver : {16{1'bz}};
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
   always @(CLK_n)
