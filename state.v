@@ -42,9 +42,9 @@ module states(input CLK,
 		CLOCK_COMMAND <= 1'b0;
 
 	      case (COMMAND)
-		`ACTV: counter <= 4'hd;
+		`ACTV: counter <= 4'hc;
 		`ARSR: counter <= 4'h0;
-		default: counter <= 4'hc;
+		default: counter <= 4'hb;
 	      endcase // case (COMMAND)
 	    end
 	end // if (CHANGE_POSSIBLE)
@@ -210,15 +210,21 @@ module outputs(input CLK_p,
   reg [31:0] 			 dq_driver_pre, dq_driver_holdlong;
   reg 				 dqs_driver;
   reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
+  reg [3:0] 			 do_read;
+  reg 				 reading;
+
+  wire 				 will_read;
 
   assign DM = ~do_deltawrite;
   assign DQ = do_deltawrite ? dq_driver : {16{1'bz}};
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
+  assign will_read = ((~WE) & COMMAND_LATCHED);
+
   always @(CLK_n)
     /* This needs to result in dqs_driver being
      * a mirror image of CLKn. */
-    dqs_driver <= CLK_n;
+    dqs_driver <= ~CLK_n;
 
   always @(posedge CLK_n)
     if (!RST)
@@ -233,6 +239,8 @@ module outputs(input CLK_p,
 	do_write <= will_write;
 	dq_driver_holdlong <= dq_driver_pre;
 
+	do_read <= {do_read[2:0],will_read};
+
 	if (COMMAND_LATCHED)
 	  begin
 	    will_write <= WE;
@@ -245,9 +253,15 @@ module outputs(input CLK_p,
 
   always @(posedge CLK_p)
     if (!RST)
-      do_halfwrite <= 0;
+      begin
+	do_halfwrite <= 0;
+	reading <= 0;
+      end
     else
-      do_halfwrite <= do_write;
+      begin
+	do_halfwrite <= do_write;
+	reading <= do_read[3];
+      end
 
   always @(CLK_d)
     if (!RST)
@@ -260,16 +274,19 @@ module outputs(input CLK_p,
       begin
 	do_deltawrite <= do_write;
 
-	if (dqs_driver)
-	  begin
-	    dq_driver <= dq_driver_holdlong[15:0];
-	    DATA_R[31:16] <= DQ;
-	  end
+	if (DQS)
+	  dq_driver <= dq_driver_holdlong[15:0];
 	else
+	  dq_driver <= dq_driver_holdlong[31:16];
+
+	if (reading)
 	  begin
-	    dq_driver <= dq_driver_holdlong[31:16];
-	    DATA_R[15:0] <= DQ;
+	    if (DQS)
+	      DATA_R[31:16] <= DQ;
+	    else
+	      DATA_R[15:0] <= DQ;
 	  end
+
       end
 
 endmodule // outputs
