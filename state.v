@@ -8,8 +8,9 @@ module states(input CLK,
 	      output reg       SOME_PAGE_ACTIVE);
   reg [3:0] 	     counter;
   reg 		     state_is_readwrite;
+  reg 		     change_possible_counter;
 
-  assign CHANGE_POSSIBLE = ((counter == 4'hf) ||
+  assign CHANGE_POSSIBLE = (change_possible_counter ||
 			    (state_is_readwrite && (COMMAND == STATE))) ?
 			   1 : 0;
 
@@ -25,6 +26,7 @@ module states(input CLK,
     else
       if (CHANGE_POSSIBLE)
 	begin
+	  change_possible_counter <= 0;
 	  if (CHANGE_REQUESTED)
 	    begin
 	      STATE <= COMMAND;
@@ -53,9 +55,18 @@ module states(input CLK,
 	  CLOCK_COMMAND <= 1'b0;
 
 	  if ((CHANGE_REQUESTED & state_is_readwrite) && (COMMAND == STATE))
-	    counter <= 4'hc;
+	    begin
+	      counter <= 4'hc;
+	      change_possible_counter <= 0;
+	    end
 	  else
-	    counter <= counter +1;
+	    begin
+	      if (counter == 4'he)
+		change_possible_counter <= 1;
+	      else
+		change_possible_counter <= 0;
+	      counter <= counter +1;
+	    end
 	end
 
 endmodule // states
@@ -211,15 +222,15 @@ module outputs(input CLK_p,
   reg 				 dqs_driver;
   reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
   reg [3:0] 			 do_read;
-  reg 				 reading;
 
-  wire 				 will_read;
+  wire 				 will_read, reading;
 
   assign DM = ~do_deltawrite;
   assign DQ = do_deltawrite ? dq_driver : {16{1'bz}};
   assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
 
   assign will_read = ((~WE) & COMMAND_LATCHED);
+  assign reading = do_read[3];
 
   always @(CLK_n)
     /* This needs to result in dqs_driver being
@@ -242,26 +253,18 @@ module outputs(input CLK_p,
 	do_read <= {do_read[2:0],will_read};
 
 	if (COMMAND_LATCHED)
-	  begin
-	    will_write <= WE;
-
-	    dq_driver_pre <= DATA_W;
-	  end // if (COMMAND_LATCHED)
+	  will_write <= WE;
 	else
 	  will_write <= 0;
+
+	dq_driver_pre <= DATA_W;
       end // else: !if(!RST)
 
   always @(posedge CLK_p)
     if (!RST)
-      begin
-	do_halfwrite <= 0;
-	reading <= 0;
-      end
+      do_halfwrite <= 0;
     else
-      begin
-	do_halfwrite <= do_write;
-	reading <= do_read[3];
-      end
+      do_halfwrite <= do_write;
 
   always @(CLK_d)
     if (!RST)
