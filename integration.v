@@ -25,7 +25,8 @@ endmodule // refresh_timer
 
 module ddr_memory_controler(input CLK_n,
 			    input 	  CLK_p,
-			    input 	  CLK_d,
+			    input 	  CLK_dp,
+			    input 	  CLK_dn,
 			    input 	  RST,
 			    /* ------------------------- */
 			    output 	  CKE,
@@ -108,7 +109,8 @@ module ddr_memory_controler(input CLK_n,
 
   outputs data_driver(.CLK_p(CLK_p),
 		      .CLK_n(CLK_n),
-		      .CLK_d(CLK_d),
+		      .CLK_dp(CLK_dp),
+		      .CLK_dn(CLK_dn),
 		      .RST(rst_user),
 		      .COMMAND_LATCHED(user_req_ack),
 		      .DATA_W(user_req_datain),

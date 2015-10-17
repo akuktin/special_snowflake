@@ -26,9 +26,9 @@ module states(input CLK,
     else
       if (CHANGE_POSSIBLE)
 	begin
-	  change_possible_counter <= 0;
 	  if (CHANGE_REQUESTED)
 	    begin
+	      change_possible_counter <= 0;
 	      STATE <= COMMAND;
 	      state_is_readwrite <= ((COMMAND == `READ) || (COMMAND == `WRTE));
 
@@ -208,7 +208,8 @@ endmodule // enter_state
 
 module outputs(input CLK_p,
 	       input 		 CLK_n,
-	       input 		 CLK_d,
+	       input 		 CLK_dp,
+	       input 		 CLK_dn,
 	       input 		 RST,
 	       input 		 COMMAND_LATCHED,
 	       input [31:0] 	 DATA_W,
@@ -217,17 +218,22 @@ module outputs(input CLK_p,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
 	       output 		 DM);
-  reg [15:0] 			 dq_driver;
-  reg [31:0] 			 dq_driver_pre, dq_driver_holdlong;
+  reg [15:0] 			 data_r_retention;
+  reg [15:0] 			 dq_driver_h, dq_driver_l, dq_driver_holdlong;
+  reg [31:0] 			 dq_driver_pre;
   reg 				 dqs_driver;
-  reg 				 will_write, do_write, do_deltawrite, do_halfwrite;
+  reg 				 will_write, do_write, do_halfwrite,
+				 do_deltawrite;
   reg [3:0] 			 do_read;
 
+  wire [15:0] 			 dq_sig;
   wire 				 will_read, reading;
 
   assign DM = ~do_deltawrite;
-  assign DQ = do_deltawrite ? dq_driver : {16{1'bz}};
-  assign DQS = (do_write | do_halfwrite) ? dqs_driver : 1'bz;
+  assign DQ = do_deltawrite ? dq_sig : {16{1'bz}};
+  assign DQS = (do_write || do_halfwrite) ? dqs_driver : 1'bz;
+
+  assign dq_sig = CLK_dp ? dq_driver_l : dq_driver_h;
 
   assign will_read = ((~WE) & COMMAND_LATCHED);
   assign reading = do_read[3];
@@ -248,7 +254,8 @@ module outputs(input CLK_p,
     else
       begin
 	do_write <= will_write;
-	dq_driver_holdlong <= dq_driver_pre;
+	dq_driver_pre <= DATA_W;
+	dq_driver_holdlong <= dq_driver_pre[15:0];
 
 	do_read <= {do_read[2:0],will_read};
 
@@ -257,39 +264,42 @@ module outputs(input CLK_p,
 	else
 	  will_write <= 0;
 
-	dq_driver_pre <= DATA_W;
+	dq_driver_h <= dq_driver_pre[31:16];
       end // else: !if(!RST)
 
   always @(posedge CLK_p)
     if (!RST)
-      do_halfwrite <= 0;
-    else
-      do_halfwrite <= do_write;
-
-  always @(CLK_d)
-    if (!RST)
       begin
+	do_halfwrite <= 0;
+	dq_driver_l <= 0;
+      end
+    else
+      begin
+	do_halfwrite <= do_write;
+	dq_driver_l <= dq_driver_holdlong;
+      end
+
+  always @(posedge CLK_dp)
+    begin
+      /* data_r_retention was added because Icarus insisted
+       * DATA_R woudn't be retained long enough to be sampled.
+       * However, on closer inspection, it seems the simulator
+       * got something serious out of order. It even appears
+       * the memory controller is running of the positive
+       * clock side, even though it isn't!
+       * Real life testing will be required, sadly. */
+      data_r_retention <= DQ;
+      DATA_R[31:16] <= data_r_retention;
+    end
+
+  always @(posedge CLK_dn)
+    begin
+      DATA_R[15:0] <= DQ;
+
+      if (!RST)
 	do_deltawrite <= 0;
-	dq_driver <= 0;
-	DATA_R <= 0;
-      end
-    else
-      begin
+      else
 	do_deltawrite <= do_write;
-
-	if (DQS)
-	  dq_driver <= dq_driver_holdlong[15:0];
-	else
-	  dq_driver <= dq_driver_holdlong[31:16];
-
-	if (reading)
-	  begin
-	    if (DQS)
-	      DATA_R[31:16] <= DQ;
-	    else
-	      DATA_R[15:0] <= DQ;
-	  end
-
-      end
+    end
 
 endmodule // outputs
