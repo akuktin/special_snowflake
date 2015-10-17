@@ -279,21 +279,7 @@ module outputs(input CLK_p,
       end
 
   always @(posedge CLK_dp)
-    begin
-      /* data_r_retention (a 16 bit register) was added once
-       * between DQ and DATA_R because Icarus insisted
-       * DATA_R woudn't be retained long enough to be sampled.
-       * However, on closer inspection, it seems the simulator
-       * got something serious out of order. It even appears
-       * the memory controller is running of the positive
-       * clock side, even though it isn't!
-       * Further compounding the confusion, writing seems
-       * completely fine, but reading is totaly confused. It's
-       * as if CLK_dp and CLK_dn are switched when reading!
-       *
-       * Real life testing will be required, sadly. */
-      DATA_R[15:0] <= DQ;
-    end
+    DATA_R[15:0] <= DQ;
 
   always @(posedge CLK_dn)
     begin
