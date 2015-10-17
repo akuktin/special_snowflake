@@ -77,7 +77,7 @@ endmodule // states
  * Writing is fire-and-forget. When COMMAND_LATCHED is sensed asserted,
  * you as the memory client are done. If reading, when you sense
  * COMMAND_LATCHED, set a counter to 0. Afterwards, increment the counter
- * by one every cycle. When the counter is sensed to equal 4, the
+ * by one every cycle. When the counter is sensed to equal 4^H3, the
  * DATA_READ output is valid. */
 module enter_state(input CLK,
 		   input 	     RST,
@@ -218,7 +218,6 @@ module outputs(input CLK_p,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
 	       output 		 DM);
-  reg [15:0] 			 data_r_retention;
   reg [15:0] 			 dq_driver_h, dq_driver_l, dq_driver_holdlong;
   reg [31:0] 			 dq_driver_pre;
   reg 				 dqs_driver;
@@ -281,20 +280,23 @@ module outputs(input CLK_p,
 
   always @(posedge CLK_dp)
     begin
-      /* data_r_retention was added because Icarus insisted
+      /* data_r_retention (a 16 bit register) was added once
+       * between DQ and DATA_R because Icarus insisted
        * DATA_R woudn't be retained long enough to be sampled.
        * However, on closer inspection, it seems the simulator
        * got something serious out of order. It even appears
        * the memory controller is running of the positive
        * clock side, even though it isn't!
+       * Further compounding the confusion, writing seems
+       * completely fine, but reading is totaly confused.
+       * 
        * Real life testing will be required, sadly. */
-      data_r_retention <= DQ;
-      DATA_R[31:16] <= data_r_retention;
+      DATA_R[15:0] <= DQ;
     end
 
   always @(posedge CLK_dn)
     begin
-      DATA_R[15:0] <= DQ;
+      DATA_R[31:16] <= DQ;
 
       if (!RST)
 	do_deltawrite <= 0;
