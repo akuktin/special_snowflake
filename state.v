@@ -288,8 +288,9 @@ module outputs(input CLK_p,
        * the memory controller is running of the positive
        * clock side, even though it isn't!
        * Further compounding the confusion, writing seems
-       * completely fine, but reading is totaly confused.
-       * 
+       * completely fine, but reading is totaly confused. It's
+       * as if CLK_dp and CLK_dn are switched when reading!
+       *
        * Real life testing will be required, sadly. */
       DATA_R[15:0] <= DQ;
     end
