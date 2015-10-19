@@ -30,7 +30,8 @@ module states(input CLK,
 	    begin
 	      change_possible_counter <= 0;
 	      STATE <= COMMAND;
-	      state_is_readwrite <= ((COMMAND == `READ) || (COMMAND == `WRTE));
+	      state_is_readwrite <= ((COMMAND == `READ) ||
+				     (COMMAND == `WRTE));
 
 	      if (COMMAND == `ACTV)
 		SOME_PAGE_ACTIVE <= 1;
@@ -54,19 +55,9 @@ module states(input CLK,
 	begin
 	  CLOCK_COMMAND <= 1'b0;
 
-	  if ((CHANGE_REQUESTED & state_is_readwrite) && (COMMAND == STATE))
-	    begin
-	      counter <= 4'hc;
-	      change_possible_counter <= 0;
-	    end
-	  else
-	    begin
-	      if (counter == 4'he)
-		change_possible_counter <= 1;
-	      else
-		change_possible_counter <= 0;
-	      counter <= counter +1;
-	    end
+	  counter <= counter +1;
+	  if (counter == 4'he)
+	    change_possible_counter <= 1;
 	end
 
 endmodule // states
@@ -77,7 +68,7 @@ endmodule // states
  * Writing is fire-and-forget. When COMMAND_LATCHED is sensed asserted,
  * you as the memory client are done. If reading, when you sense
  * COMMAND_LATCHED, set a counter to 0. Afterwards, increment the counter
- * by one every cycle. When the counter is sensed to equal 4^H3, the
+ * by one every cycle. When the counter is sensed to equal 3, the
  * DATA_READ output is valid. */
 module enter_state(input CLK,
 		   input 	     RST,
