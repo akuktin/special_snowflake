@@ -22,6 +22,7 @@ module states(input CLK,
 	state_is_readwrite <= 0;
 	CLOCK_COMMAND <= 1'b0;
 	STATE <= `PRCH;
+	change_possible_counter <= 0;
       end
     else
       if (CHANGE_POSSIBLE)
@@ -47,6 +48,8 @@ module states(input CLK,
 	      case (COMMAND)
 		`ACTV: counter <= 4'hc;
 		`ARSR: counter <= 4'h0;
+		`READ: counter <= 4'hc;
+		`WRTE: counter <= 4'hb;
 		default: counter <= 4'hb;
 	      endcase // case (COMMAND)
 	    end
@@ -99,22 +102,87 @@ module enter_state(input CLK,
 
   wire [11:0] 			    row_request, row_request_live;
   wire [1:0] 			    bank_request, bank_request_live;
-  wire [12:0] 			    collumn_request;
+  wire [12:0] 			    collumn_request, collumn_request_live;
 
-  assign CHANGE_REQUESTED = (command_len == 2'h3) ? 0 : 1;
-  assign rw_command = WE ? `WRTE : `READ;
-  assign DO_WRITE = we_sequence[2];
-  assign COMMAND = command_sequence[8:6];
+  reg [2:0] 			    command_buf;
+  reg 				    refresh_time_reg;
+//  assign CHANGE_REQUESTED = (command_len == 2'h3) ? 0 : 1;
+//  assign DO_WRITE = we_sequence[2];
+//  assign COMMAND = command_sequence[8:6];
   assign refresh_time = refresh_strobe_ack ^ REFRESH_STROBE;
-  assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
-			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
+//  assign COMMAND_LATCHED = (((COMMAND == `WRTE) || (COMMAND == `READ))
+//			    && CHANGE_REQUESTED && CHANGE_POSSIBLE);
 
   assign row_request_live = ADDRESS_REQ[26:15];
   assign bank_request_live = ADDRESS_REQ[14:13];
+  assign collumn_request_live = ADDRESS_REQ[12:0];
   assign row_request = address[26:15];
   assign bank_request = address[14:13];
   assign collumn_request = address[12:0];
 
+  assign latch_com = DO_ACT && CHANGE_POSSIBLE;
+  assign correct_page = ({refresh_time,SOME_PAGE_ACTIVE,row_request_live,bank_request_live}
+			 == {2'b01,page_current});
+  assign rw_command = WE ? `WRTE : `READ;
+
+  assign CHANGE_REQUESTED = DO_ACT || refresh_time_reg;
+  assign COMMAND = correct_page ? rw_command : command_buf;
+  assign COMMAND_LATCHED = correct_page && latch_com;
+
+  always @(posedge CLK)
+    if (!RST)
+      begin
+	command_buf <= `PRCH;
+	COMMAND_REG <= `NOOP;
+	page_current <= 0;
+	ADDRESS_REG <= 13'h0400;
+	BANK_REG <= 0;
+	refresh_strobe_ack <= REFRESH_STROBE;
+	refresh_time_reg <= 0;
+      end
+    else
+    begin
+      refresh_time_reg <= refresh_time;
+
+      if (correct_page)
+	begin
+	  if (latch_com)
+	    begin
+	      COMMAND_REG <= rw_command;
+	      ADDRESS_REG <= collumn_request_live;
+	    end
+	  else
+	    COMMAND_REG <= `NOOP;
+	end // if (correct_page)
+      else
+	begin
+	  if (CHANGE_POSSIBLE && (DO_ACT || refresh_time_reg))
+	    COMMAND_REG <= command_buf;
+	  else
+	    COMMAND_REG <= `NOOP;
+
+	  if (SOME_PAGE_ACTIVE)
+	    begin
+	      ADDRESS_REG <= 13'h0400;
+	      command_buf <= `PRCH;
+	    end
+	  else
+	    begin
+	      page_current <= {row_request_live,bank_request_live};
+	      ADDRESS_REG <= {row_request_live[11:10],1'b0,row_request_live[9:0]};
+	      BANK_REG <= bank_request_live;
+
+	      if (refresh_time)
+		begin
+		  refresh_strobe_ack <= REFRESH_STROBE;
+		  command_buf <= `ARSR;
+		end
+	      else
+		command_buf <= `ACTV;
+	    end // else: !if(SOME_PAGE_ACTIVE)
+	end // else: !if(correct_page)
+    end
+/*
   always @(posedge CLK)
     if (!RST)
       begin
@@ -129,7 +197,7 @@ module enter_state(input CLK,
       end
     else
       begin
-	if (CHANGE_REQUESTED) /* note: this UNables back-to-back reads/writes */
+	if (CHANGE_REQUESTED) /_* note: this UNables back-to-back reads/writes *_/
 	  begin
 	    if (CHANGE_POSSIBLE)
 	      begin
@@ -171,7 +239,7 @@ module enter_state(input CLK,
 		command_len <= 2'h1;
 		command_sequence <= {`PRCH,`ARSR,`NOOP};
 		we_sequence <= 3'b000;
-		/* isrow_sequence doesn't matter */
+		/_* isrow_sequence doesn't matter *_/
 	      end
 	    else
 	      if (DO_ACT)
@@ -194,7 +262,7 @@ module enter_state(input CLK,
 		end
 	  end // else: !if(CHANGE_REQUESTED)
       end
-
+*/
 endmodule // enter_state
 
 module outputs(input CLK_p,
