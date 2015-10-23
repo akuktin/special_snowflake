@@ -38,14 +38,14 @@ module ddr_memory_controler(input CLK_n,
 			    output 	  DM,
 			    output 	  CS,
 			    /* ------------------------- */
-			    input [26:0]  user_req_address,
+			    input [25:0]  user_req_address,
 			    input 	  user_req_we,
 			    input 	  user_req,
 			    input [31:0]  user_req_datain,
 			    output 	  user_req_ack,
 			    output [31:0] user_req_dataout);
 /*
-  wire [26:0] 					 user_req_address;
+  wire [25:0] 					 user_req_address;
   wire 						 user_req_we, user_req,
 						 user_req_ack;
   wire [31:0] 					 user_req_datain,

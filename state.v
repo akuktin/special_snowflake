@@ -82,7 +82,7 @@ endmodule // states
  * Writing is fire-and-forget. When COMMAND_LATCHED is sensed asserted,
  * you as the memory client are done. If reading, when you sense
  * COMMAND_LATCHED, set a counter to 0. Afterwards, increment the counter
- * by one every cycle. When the counter is sensed to equal (?), the
+ * by one every cycle. When the counter is sensed to equal 3, the
  * DATA_READ output is valid. */
 module enter_state(input CLK,
 		   input 	     RST,
