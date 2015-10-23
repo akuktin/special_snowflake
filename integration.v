@@ -60,9 +60,8 @@ module ddr_memory_controler(input CLK_n,
   wire 						 rst_user, refresh_strobe,
 						 change_requested,
 						 change_possible,
-						 do_clock_command,
 						 some_page_active,
-						 do_write;
+						 refresh_time;
 
   assign CS = 1'b0; // Always on.
 
@@ -87,25 +86,24 @@ module ddr_memory_controler(input CLK_n,
 		       .COMMAND(command_statechange_req),
 		       .CHANGE_POSSIBLE(change_possible),
 		       .STATE(cur_state),
-		       .CLOCK_COMMAND(do_clock_command),
-		       .SOME_PAGE_ACTIVE(some_page_active));
+		       .SOME_PAGE_ACTIVE(some_page_active),
+		       .REFRESH_STROBE(refresh_strobe),
+		       .REFRESH_TIME(refresh_time));
 
   enter_state interdictor(.CLK(CLK_n),
 			  .RST(rst_user),
-			  .REFRESH_STROBE(refresh_strobe),
 			  .ADDRESS_REQ(user_req_address),
 			  .WE(user_req_we),
 			  .DO_ACT(user_req),
 			  .CHANGE_POSSIBLE(change_possible),
-			  .CLOCK_COMMAND(do_clock_command),
 			  .SOME_PAGE_ACTIVE(some_page_active),
 			  .ADDRESS_REG(address_user),
 			  .BANK_REG(bank_user),
 			  .COMMAND_REG(command_user),
 			  .COMMAND(command_statechange_req),
 			  .CHANGE_REQUESTED(change_requested),
-			  .DO_WRITE(do_write),
-			  .COMMAND_LATCHED(user_req_ack));
+			  .COMMAND_LATCHED(user_req_ack),
+			  .REFRESH_TIME(refresh_time));
 
   outputs data_driver(.CLK_p(CLK_p),
 		      .CLK_n(CLK_n),
