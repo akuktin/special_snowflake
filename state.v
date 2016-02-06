@@ -38,7 +38,8 @@ module states(input CLK,
 	begin
 	  if (CHANGE_REQUESTED)
 	    begin
-	      change_possible_counter <= 0;
+	      if (COMMAND != `NOOP)
+		change_possible_counter <= 0;
 	      STATE <= COMMAND;
 	      state_is_readwrite <= ((COMMAND == `READ) ||
 				     (COMMAND == `WRTE));
