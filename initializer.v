@@ -13,8 +13,8 @@ module initializer(input CLK_n,
 		   output reg 	 RST_USER);
   reg 				 long_counter_o;
   reg [7:0] 			 long_counter_h, long_counter_l;
-  reg [3:0] 			 intercommand_count;
-  reg [2:0] 			 stage_count;
+  reg [3:0] 			 intercommand_count,
+				 stage_count;
   reg [7:0] 			 aftercount;
 
   reg [2:0] 			 COMMAND_ini;
@@ -33,47 +33,47 @@ module initializer(input CLK_n,
   assign BANK_PIN    = RST_USER ? BANK_USER    : BANK_ini;
 
   assign step_init = (intercommand_count == 4'hf) ? 1 : 0;
-  assign core_init = (stage_count == 3'h7) ? 0 : 1;
+  assign core_init = (stage_count == 4'hf) ? 0 : 1;
 
   always @(*)
     begin
       case (stage_count)
-	3'h0: begin
+	4'h0: begin
 	  command_rom = `PRCH;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h1;
 	end
-	3'h1: begin
+	4'h1: begin
 	  command_rom = `MRST;
 	  address_rom = 13'h000; // extended mode register
 	  bank_rom    = 2'h1;
 	end
-	3'h2: begin
+	4'h2: begin
 	  command_rom = `MRST;
 	  address_rom = 13'h161; // regular mode register
 	  bank_rom    = 2'h0;
 	end
-	3'h3: begin
+	4'h3: begin
 	  command_rom = `PRCH;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
-	3'h4: begin
+	4'h4: begin
 	  command_rom = `ARSR;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
-	3'h5: begin
+	4'h5: begin
 	  command_rom = `ARSR;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
 	end
-	3'h6: begin
+	4'h6: begin
 	  command_rom = `MRST;
 	  address_rom = 13'h061; // regular mode register
 	  bank_rom    = 2'h0;
 	end
-	3'h7: begin
+	default:
 	  command_rom = `NOOP;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
