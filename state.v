@@ -200,64 +200,82 @@ module outputs(input CLK_p,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
 	       output 		 DM);
-  reg [15:0] 			 dq_driver_h, dq_driver_l, dq_driver_holdlong;
-  reg [31:0] 			 dq_driver_pre;
-  reg 				 dqs_driver;
-  reg 				 will_write, do_write, do_halfwrite,
-				 do_deltawrite;
   reg [3:0] 			 do_read;
 
-  wire [15:0] 			 dq_sig;
-  wire 				 will_read, reading;
+  reg [31:0] 			 dq_driver_pre;
+  reg [15:0] 			 dq_driver_h, dq_driver_l,
+				 dq_driver_holdlong;
 
-  assign DM = ~do_deltawrite;
-  assign DQ = do_deltawrite ? dq_sig : {16{1'bz}};
-  assign DQS = (do_write || do_halfwrite) ? dqs_driver : 1'bz;
+  reg 				 DM_drive, we_save, we_1,
+				 pre_DMs, dDM;
+  reg [1:0]			 command_was_latched;
+  reg [1:0] 			 dq_n;
+  reg 				 dq_p;
 
-  assign dq_sig = CLK_dp ? dq_driver_l : dq_driver_h;
+  wire [15:0] 			 DQ_driver;
+  wire 				 we_0, dq_n_in;
 
-  assign will_read = ((~WE) & COMMAND_LATCHED);
   assign reading = do_read[3];
 
-  always @(CLK_n)
-    /* This needs to result in dqs_driver being
-     * a mirror image of CLKn. */
-    dqs_driver <= ~CLK_n;
+  assign DM = DM_drive;
+  assign DQ = DM_drive ? {16{1'bz}} : DQ_driver;
+  assign DQS = ({dq_n,dq_p} == 0) ? 1'bz : CLK_p;
+
+  assign we_0 = we_save & (command_was_latched[0] | command_was_latched[1]);
+  assign dq_n_in = we_save & command_was_latched[0];
+
+  always @(*)
+    begin
+      case ({we_1,DM_driver,dDM,CLK_dn})
+	4'b0xxx: DQ_driver = dq_driver_l;
+	4'b1000: DQ_driver = dq_driver_l;
+	default: DQ_driver = dq_driver_h;
+      endcase
+    end
 
   always @(posedge CLK_n)
     if (!RST)
       begin
 	dq_driver_pre <= 0;
-	will_write <= 0;
-	do_write <= 0;
+	dq_driver_h <= 0;
 	dq_driver_holdlong <= 0;
+	command_was_latched <= 0;
+	we_save <= 0;
+	we_1 <= 0;
       end
     else
       begin
-	do_write <= will_write;
 	dq_driver_pre <= DATA_W;
+	dq_driver_h <= dq_driver_pre[31:16];
 	dq_driver_holdlong <= dq_driver_pre[15:0];
 
-	do_read <= {do_read[2:0],will_read};
-
-	if (COMMAND_LATCHED)
-	  will_write <= WE;
-	else
-	  will_write <= 0;
-
-	dq_driver_h <= dq_driver_pre[31:16];
+	command_was_latched <= {command_was_latched[0],COMMAND_LATCHED};
+	we_save <= WE;
+	we_1 <= we_0;
       end // else: !if(!RST)
+
+  always @(negedge CLK_p) // important for signal propagation
+    if (!RST)
+      dq_n <= 0;
+    else
+      dq_n <= {dq_n[0],dq_n_in};
 
   always @(posedge CLK_p)
     if (!RST)
       begin
-	do_halfwrite <= 0;
 	dq_driver_l <= 0;
+	pre_DMs <= 0;
+	dDM <= 0;
+	dq_p <= 0;
       end
     else
       begin
-	do_halfwrite <= do_write;
 	dq_driver_l <= dq_driver_holdlong;
+
+	pre_DMs <= ~we_0;
+	dDM <= pre_DMs;
+
+	dq_p <= dq_n[1];
       end
 
   always @(posedge CLK_dp)
@@ -268,9 +286,9 @@ module outputs(input CLK_p,
       DATA_R[31:16] <= DQ;
 
       if (!RST)
-	do_deltawrite <= 0;
+	DM_drive <= 0;
       else
-	do_deltawrite <= do_write;
+	DM_drive <= pre_DMs;
     end
 
 endmodule // outputs
