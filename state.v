@@ -33,6 +33,7 @@ module states(input CLK,
 	change_possible_counter <= 0;
 	miss_beat <= 0;
 	refresh_strobe_ack <= REFRESH_STROBE;
+	second_stroke <= 0;
       end
     else
       if (CHANGE_POSSIBLE)
