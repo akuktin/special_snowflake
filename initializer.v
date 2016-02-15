@@ -50,7 +50,7 @@ module initializer(input CLK_n,
 	end
 	4'h2: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h161; // regular mode register
+	  address_rom = 13'h162; // regular mode register
 	  bank_rom    = 2'h0;
 	end
 	4'h3: begin
@@ -70,7 +70,7 @@ module initializer(input CLK_n,
 	end
 	4'h6: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h061; // regular mode register
+	  address_rom = 13'h062; // regular mode register
 	  bank_rom    = 2'h0;
 	end
 	default:

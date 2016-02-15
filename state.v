@@ -3,43 +3,41 @@ module states(input CLK,
 	      input 	       CHANGE_REQUESTED,
 	      input [2:0]      COMMAND,
 	      input 	       REFRESH_STROBE,
-	      output 	       CHANGE_POSSIBLE,
+	      output reg       CHANGE_POSSIBLE,
 	      output reg [2:0] STATE,
 	      output reg       SOME_PAGE_ACTIVE,
 	      output 	       REFRESH_TIME);
   reg [3:0] 	     counter;
   reg 		     state_is_readwrite,
-		     change_possible_counter,
 		     miss_beat,
 		     refresh_strobe_ack;
 
-  wire 		     do_miss_beat;
+  wire 		     do_miss_beat, counter_end, fast_statechange;
 
-  assign CHANGE_POSSIBLE = (change_possible_counter ||
-			    (state_is_readwrite && (COMMAND == STATE))) ?
-			   1 : 0;
   assign REFRESH_TIME = refresh_strobe_ack ^ REFRESH_STROBE;
 
   assign do_miss_beat = miss_beat && (COMMAND == `PRCH);
+  assign counter_end = counter == {3'h7,do_miss_beat};
+  assign fast_statechange = state_is_readwrite && (COMMAND == STATE);
 
   always @(posedge CLK)
     if (!RST)
       begin
 	SOME_PAGE_ACTIVE <= 0;
-	counter <= 4'hf;
+	counter <= 4'he;
 	state_is_readwrite <= 0;
 	STATE <= `PRCH;
-	change_possible_counter <= 0;
 	miss_beat <= 0;
 	refresh_strobe_ack <= REFRESH_STROBE;
+	CHANGE_POSSIBLE <= 0;
       end
     else
       if (CHANGE_POSSIBLE)
 	begin
 	  if (CHANGE_REQUESTED)
 	    begin
-	      if (COMMAND != `NOOP)
-		change_possible_counter <= 0;
+	      CHANGE_POSSIBLE <= 0;
+
 	      STATE <= COMMAND;
 	      state_is_readwrite <= ((COMMAND == `READ) ||
 				     (COMMAND == `WRTE));
@@ -54,13 +52,13 @@ module states(input CLK,
 		refresh_strobe_ack <= REFRESH_STROBE;
 
 	      case (COMMAND)
-		`ARSR: counter <= 4'h3;
-		`ACTV: counter <= 4'hc;
+		`ARSR: counter <= 4'h4;
+		`ACTV: counter <= 4'hd;
 		`READ: counter <= 4'hc;
 		`WRTE: counter <= 4'hc;
-		`PRCH: counter <= 4'hb;
-		`NOOP: counter <= 4'he;
-		default: counter <= 4'hb;
+		`PRCH: counter <= 4'hc;
+		`NOOP: counter <= 4'hd;
+		default: counter <= 4'hc;
 	      endcase // case (COMMAND)
 	    end
 	end // if (CHANGE_POSSIBLE)
@@ -68,11 +66,11 @@ module states(input CLK,
 	begin
 	  counter <= counter +1;
 
-	  if (counter == {3'h7,do_miss_beat})
-	    begin
-	      miss_beat <= 0;
-	      change_possible_counter <= 1;
-	    end
+	  if (counter_end || fast_statechange)
+	    CHANGE_POSSIBLE <= 1;
+
+	  if (counter_end)
+	    miss_beat <= 0;
 	end
 
 endmodule // states
