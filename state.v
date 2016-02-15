@@ -210,7 +210,7 @@ module outputs(input CLK_p,
   reg [1:0] 			 dq_n;
   reg 				 dq_p;
 
-  wire [15:0] 			 DQ_driver;
+  reg [15:0] 			 DQ_driver;
   wire 				 we_0, dq_n_in;
 
   assign reading = do_read[3];
@@ -224,7 +224,7 @@ module outputs(input CLK_p,
 
   always @(*)
     begin
-      case ({we_1,DM_driver,dDM,CLK_dn})
+      case ({we_1,DM_drive,dDM,CLK_dn})
 	4'b0xxx: DQ_driver = dq_driver_l;
 	4'b1000: DQ_driver = dq_driver_l;
 	default: DQ_driver = dq_driver_h;

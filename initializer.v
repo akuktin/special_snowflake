@@ -73,7 +73,7 @@ module initializer(input CLK_n,
 	  address_rom = 13'h062; // regular mode register
 	  bank_rom    = 2'h0;
 	end
-	default:
+	default: begin
 	  command_rom = `NOOP;
 	  address_rom = 13'h400;
 	  bank_rom    = 2'h0;
