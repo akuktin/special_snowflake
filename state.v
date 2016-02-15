@@ -58,8 +58,8 @@ module states(input CLK,
 	      case (COMMAND)
 		`ARSR: counter <= 4'h3;
 		`ACTV: counter <= 4'hc;
-		`READ: counter <= 4'hc;
-		`WRTE: counter <= 4'hc;
+		`READ: counter <= 4'hb;
+		`WRTE: counter <= 4'hb;
 		`PRCH: counter <= 4'hb;
 		`NOOP: counter <= 4'he;
 		default: counter <= 4'hb;
