@@ -21,7 +21,8 @@
 
 module aeMB_xecu (/*AUTOARG*/
    // Outputs
-   dwb_adr_o, dwb_sel_o, fsl_adr_o, fsl_tag_o, rRESULT, rDWBSEL,
+   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr, dwb_sel_o,
+   fsl_adr_o, fsl_tag_o, rRESULT, rDWBSEL,
    rMSR_IE, rMSR_BIP,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rBRA, rDLY, rALT,
@@ -33,7 +34,8 @@ module aeMB_xecu (/*AUTOARG*/
    parameter BSF=0;   
    
    // DATA WISHBONE
-   output [DW-1:2] dwb_adr_o;
+   output [DW-1:2] aexm_dcache_precycle_addr;
+   output [DW-1:2] aexm_dcache_cycle_addr;
    output [3:0]    dwb_sel_o;
 
    // FSL WISHBONE
@@ -314,8 +316,9 @@ module aeMB_xecu (/*AUTOARG*/
    // --- DATA WISHBONE -----
    
    reg [3:0] 	    rDWBSEL, xDWBSEL;
-   assign 	    dwb_adr_o = rRESULT[DW-1:2];
-   assign 	    dwb_sel_o = rDWBSEL;
+   assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
+   assign           aexm_dcache_cycle_addr = rRESULT[DW-1:2];
+     assign 	    dwb_sel_o = rDWBSEL;
 
    always @(/*AUTOSENSE*/rOPC or wADD)
      case (rOPC[1:0])

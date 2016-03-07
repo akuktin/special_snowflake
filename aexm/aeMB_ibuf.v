@@ -21,9 +21,10 @@
 
 module aeMB_ibuf (/*AUTOARG*/
    // Outputs
-   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL, iwb_stb_o,
+   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
+   aexm_icache_precycle_enable, aexm_icache_cycle_enable,
    // Inputs
-   rBRA, rMSR_IE, rMSR_BIP, iwb_dat_i, iwb_ack_i, sys_int_i, gclk,
+   rBRA, rMSR_IE, rMSR_BIP, aexm_icache_datai, sys_int_i, gclk,
    grst, gena, oena
    );
    // INTERNAL
@@ -41,9 +42,9 @@ module aeMB_ibuf (/*AUTOARG*/
    input 	 rMSR_BIP;   
    
    // INST WISHBONE
-   output 	 iwb_stb_o;
-   input [31:0]  iwb_dat_i;
-   input 	 iwb_ack_i;
+   output 	 aexm_icache_precycle_enable;
+   output 	 aexm_icache_cycle_enable;
+   input [31:0]  aexm_icache_datai;
 
    // SYSTEM
    input 	 sys_int_i;   
@@ -56,11 +57,13 @@ module aeMB_ibuf (/*AUTOARG*/
    reg [5:0] 	 rOPC;
 
    // FIXME: Endian
-   wire [31:0] 	 wIDAT = iwb_dat_i;
+   wire [31:0] 	 wIDAT = aexm_icache_datai;
    assign 	 {rRB, rALT} = rIMM;   
    
    // TODO: Assign to FIFO not full.
-   assign 	iwb_stb_o = 1'b1;
+   assign 	aexm_icache_precycle_enable = 1'b1;
+   assign       aexm_icache_cycle_enable    = 1'b1;
+  // aexm_icache_cycle_we is unused
 
    reg [31:0] 	rSIMM, xSIMM;
    reg 		rSTALL;   

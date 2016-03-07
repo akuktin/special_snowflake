@@ -36,14 +36,17 @@
 
 module aeMB_bpcu (/*AUTOARG*/
    // Outputs
-   iwb_adr_o, rPC, rPCLNK, rBRA, rDLY,
+   aexm_icache_cycle_addr, aexm_icache_precycle_addr, rPC, rPCLNK,
+   rBRA, rDLY,
    // Inputs
    rMXALT, rOPC, rRD, rRA, rRESULT, rDWBDI, rREGA, gclk, grst, gena
    );
    parameter IW = 24;
 
    // INST WISHBONE
-   output [IW-1:2] iwb_adr_o;
+//   output [IW-1:2] iwb_adr_o;
+  output [IW-1:2] aexm_icache_cycle_addr;
+  output [IW-1:2] aexm_icache_precycle_addr;
 
    // INTERNAL
    output [31:2]   rPC, rPCLNK;
@@ -122,7 +125,8 @@ module aeMB_bpcu (/*AUTOARG*/
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
    
-   assign 	   iwb_adr_o = rIPC[IW-1:2];
+   assign 	   aexm_icache_cycle_addr = rIPC[IW-1:2];
+   assign          aexm_icache_precycle_addr = xIPC[IW-1:2];
    
    always @(/*AUTOSENSE*/rBRA or rIPC or rPC or rRESULT) begin
       //xPCLNK <= (^rATOM) ? rPC : rPC;

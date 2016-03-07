@@ -243,7 +243,10 @@ module aeMB_ctrl (/*AUTOARG*/
 
    assign 	 dwb_stb_o = rDWBSTB;
    assign 	 dwb_wre_o = rDWBWRE;
-   
+
+  assign aexm_dcache_precycle_enable = xDWBSTB;
+  assign aexm_dcache_cycle_enable = rDWBSTB;
+  assign aexm_dcache_cycle_we = rDWBWRE;
    
    always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or iwb_ack_i)
      //if (fSKIP | |rXCE) begin

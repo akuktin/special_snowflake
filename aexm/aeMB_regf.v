@@ -31,10 +31,10 @@
 
 module aeMB_regf (/*AUTOARG*/
    // Outputs
-   rREGA, rREGB, rDWBDI, dwb_dat_o, fsl_dat_o,
+   rREGA, rREGB, rDWBDI, aexm_dcache_datao, fsl_dat_o,
    // Inputs
    rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL, rBRA,
-   rDLY, dwb_dat_i, fsl_dat_i, gclk, grst, gena
+   rDLY, aexm_dcache_datai, fsl_dat_i, gclk, grst, gena
    );
    // INTERNAL
    output [31:0] rREGA, rREGB;
@@ -48,8 +48,8 @@ module aeMB_regf (/*AUTOARG*/
    input 	 rBRA, rDLY;   
    
    // DATA WISHBONE
-   output [31:0] dwb_dat_o;   
-   input [31:0]  dwb_dat_i;   
+   output [31:0] aexm_dcache_datao;
+   input [31:0]  aexm_dcache_datai;
 
    // FSL WISHBONE
    output [31:0] fsl_dat_o;
@@ -62,7 +62,7 @@ module aeMB_regf (/*AUTOARG*/
    // Moves the data bytes around depending on the size of the
    // operation.
 
-   wire [31:0] 	 wDWBDI = dwb_dat_i; // FIXME: Endian
+   wire [31:0] 	 wDWBDI = aexm_dcache_datai; // FIXME: Endian
    wire [31:0] 	 wFSLDI = fsl_dat_i; // FIXME: Endian
     
    reg [31:0] 	 rDWBDI;
@@ -190,7 +190,7 @@ module aeMB_regf (/*AUTOARG*/
    wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;
    wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;   
    
-   assign 	 dwb_dat_o = rDWBDO;
+   assign 	 aexm_dcache_datao = rDWBDO;
    assign 	 xDST = (fDFWD_M) ? rDWBDI :
 			(fDFWD_R) ? rRESULT :
 			rREGD;   
