@@ -1,11 +1,24 @@
-module cache ()
+module cache (input [31:0] aexm_cache_cycle_addr,
+	      input [31:0]  aexm_cache_precycle_addr,
+	      input [31:0]  aexm_cache_datao,
+	      output [31:0] aexm_cache_datai,
+	      input 	    aexm_cache_cycle_we,
+	      // One or both of the below two are not needed, I think.
+	      input 	    aexm_cache_precycle_enable,
+	      input 	    aexm_cache_cycle_enable)
   wire [31:0]       data_cache, data_out;
   wire [7:0]        idx, tlb_idx;
   wire              cache_hit;
 
+  assign vaddr = aexm_cache_precycle_addr;
+
   assign idx = vaddr[9:2];
   assign tlb_idx = vaddr[18:10];
-  assign mmu_req = vaddr[31:19];
+
+  assign idx_w = aexm_cache_cycle_addr[9:2];
+  assign tlb_idx_w = aexm_cache_cycle_addr[18:10];
+  assign mmu_req = aexm_cache_cycle_addr[31:19];
+
   assign tlb_in_tag = DATAO_m[31:16];
   assign tlb_in_mmu = DATAO_m[15:0];
 
@@ -15,14 +28,14 @@ module cache ()
   assign we_data = mcu_valid || WE_m_c;
   assign we_ctag = mcu_valid || WE_m_c;
   assign wdata_data = WE_m_c ? DATAO_m : DATA_INTO_CPU;
-  assign waddr_data = WE_m_c ? PH_ADDR_m[9:2] : {idx[7:1],low_bit};
-  assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx};
-  assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx[7:1],low_bit};
-  assign CACHE_DATA = cache_hit ? data_cache : data_out;
+  assign waddr_data = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
+  assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx_w};
+  assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
+  assign aexm_cache_datai = cache_hit ? data_cache : data_out;
 
   assign stall_cache = writing_into_cache != 2'b00;
 
-  assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx}) == {(21){1'b0}};
+  assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx_w}) == {(21){1'b0}};
   assign MMU_FAULT_n = (mmu_vtag ^ mmu_req) == {(12){1'b0}};
 
   iceram32 cache(.RDATA(data_cache),
@@ -92,9 +105,9 @@ module cache ()
           end
 
 	begin
-          writing_into_cache <= {writing_into_cache[0],WE};
-	  DATAO_r <= DATAO;
-	  PH_ADDR_r <= {rsp_tag,vaddr[18:0]};
+          writing_into_cache <= {writing_into_cache[0],aexm_cache_cycle_we};
+	  DATAO_r <= aexm_cache_datao;
+	  PH_ADDR_r <= {rsp_tag,aexm_cache_cycle_addr[18:0]};
 	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
 	end
 
