@@ -15,13 +15,17 @@ module cache (input [31:0] aexm_cache_cycle_addr,
               output [31:0] mem_dataintomem,
               input 	    mem_ack,
               input [31:0]  mem_datafrommem);
-  reg 			    first_word;
+  reg 			    first_word, mem_ack_reg, mem_do_act_reg,
+			    read_counter_NULL_r, request_acted_on_r;
+  reg 			    request_acted_on, mem_ack_reg, mem_do_act_reg,
+			    read_counter_NULL;
+  reg [2:0] 		    read_counter;
   reg [31:0] 		    data_out;
 
-  reg 			    MEM_LOOKUP_r, low_bit;
+  reg 			    MEM_LOOKUP_r_n, low_bit;
   reg [1:0] 		    writing_into_cache, writing_into_tlb;
   reg [31:0] 		    DATAO_r, PH_ADDR_r;
-  reg [1:0] 		    MEM_LOOKUP_m, WE_m, WE_tlb_m;
+  reg [1:0] 		    MEM_LOOKUP_m_n, WE_m, WE_tlb_m;
   reg [31:0] 		    DATAO_m, PH_ADDR_m;
 
   wire [31:0] 		    vaddr, wdata_data, wdata_ctag;
@@ -36,6 +40,11 @@ module cache (input [31:0] aexm_cache_cycle_addr,
   wire [31:0] 		    data_cache;
   wire [21:0] 		    req_tag;
   wire [13:0] 		    rsp_tag, mmu_vtag;
+
+  reg 			    mcu_valid, cachehit_vld;
+
+  assign mem_do_act = (!MEM_LOOKUP_m_n[0]) & dma_mcu_access &
+		      (!request_acted_on);
 
   assign mem_addr = PH_ADDR_m;
   assign mem_we = WE_m_c;
@@ -66,7 +75,8 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 
   assign stall_cache = writing_into_cache != 2'b00;
 
-  assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx_w}) == {(22){1'b0}};
+  assign cache_hit = ({cachehit_vld,req_tag} ^ {1'b1,rsp_tag,tlb_idx_w}) ==
+		     {(23){1'b0}};
   assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}};
 
   iceram32 cache(.RDATA(data_cache),
@@ -117,11 +127,48 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 		  .WCLKE(1'b1),
 		  .WCLK(MCU_CLK));
 
+  always @(read_counter)
+    case (read_counter)
+      3'd6: mcu_valid <= 1;
+      3'd7: mcu_valid <= 1;
+      default: mcu_valid <= 0;
+    endcase // case (read_counter)
+
+  case ({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
+	 request_acted_on_r,read_counter_NULL_r})
+    4'b1xxx: begin
+      cachehit_vld <= 1;
+      // no_action;
+    end
+    4'b000x: begin
+      cachehit_vld <= 0;
+      // read_waiting_for_mcu;
+    end
+    4'b0010: begin
+      cachehit_vld <= 0;
+      // read_mcu_request_in_progress;
+    end
+    4'b0011: begin
+      cachehit_vld <= 1;
+      // read_mcu_request_completed;
+    end
+    4'b010x: begin
+      cachehit_vld <= 0;
+      // write_waiting_for_mcu;
+    end
+    4'b011x: begin
+      cachehit_vld <= 1;
+      // write_mcu_request_completed;
+    end
+    default: cachehit_vld <= 1;
+  endcase
+
   always @(posedge CPU_CLK)
     if (!RST)
       begin
-	MEM_LOOKUP_r <= 0; writing_into_cache <= 0;
+	MEM_LOOKUP_r_n <= 1; writing_into_cache <= 0;
 	DATAO_r <= 0; PH_ADDR_r <= 0; writing_into_tlb <= 0;
+	read_counter_NULL_r <= 0; request_acted_on_r <= 0;
       end
     else
       begin
@@ -130,11 +177,11 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 	    /* A speed hack. Normally, I'm supposed to put a
 	     * conditional depending on two inputs, but that
 	     * just takes too long in the silicon. */
-            MEM_LOOKUP_r <= MMU_FAULT;
+            MEM_LOOKUP_r_n <= MMU_FAULT;
           end
         else
           begin
-            MEM_LOOKUP_r <= 0;
+            MEM_LOOKUP_r_n <= 1;
           end
 
 	begin
@@ -144,6 +191,11 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
 	end
 
+	begin
+	  read_counter_NULL_r <= read_counter_NULL;
+	  request_acted_on_r <= request_acted_on;
+	end
+
 //	if (SET_TLB)
 //	  TLB_BASE_PTR = vaddr;
       end
@@ -151,15 +203,17 @@ module cache (input [31:0] aexm_cache_cycle_addr,
   always @(posedge MCU_CLK)
     if (!RST)
       begin
-	MEM_LOOKUP_m <= 0; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
-	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0;
+	MEM_LOOKUP_m_n <= 2'b11; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
+	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0; request_acted_on <= 0;
+	read_counter <= 0; mem_ack_reg <= 0; mem_do_act_reg <= 0;
+	read_counter_NULL <= 0;
       end
     else
       begin
 	begin
 	  /* Keep in mind that WE_tlb_m_c overrides
 	   * MEM_LOOKUP_m_c. */
-	  MEM_LOOKUP_m <= {MEM_LOOKUP_m[0],MEM_LOOKUP_r};
+	  MEM_LOOKUP_m_n <= {MEM_LOOKUP_m_n[0],MEM_LOOKUP_r_n};
 
 	  WE_m <= {WE_m[0],writing_into_cache[0]};
 	  DATAO_m <= DATAO_r;
@@ -177,16 +231,42 @@ module cache (input [31:0] aexm_cache_cycle_addr,
             low_bit <= PH_ADDR_m[2];
           end
 
-        if (first_word)
+        if (read_counter == 3'd6)
           begin
             data_out <= DATA_INTO_CPU;
           end
+
+	mem_ack_reg <= mem_ack;
+	mem_do_act_reg <= mem_do_act;
+
+	if (mem_do_act_reg & mem_ack_reg)
+	  request_acted_on <= 1;
+	else
+	  if (request_acted_on & (MEM_LOOKUP_m_n[0]))
+	    request_acted_on <= 0;
+
+	if ((!WE_m[1]) && mem_ack_reg && mem_do_act_reg)
+	  begin
+	    read_counter <= 3'd2;
+	    read_counter_NULL <= 0;
+	  end
+	else
+	  begin
+	    if (read_counter != 3'd0)
+	      read_counter +1;
+
+	    case (read_counter)
+	      3'd7: read_counter_NULL <= 1;
+	      3'd0: read_counter_NULL <= 1;
+	      default: read_counter_NULL <= 0;
+	    endcase // case (read_counter)
+	  end
       end
 
   /* MISSING:
-   * 1. aexm_cache_cachebusy logic
-   * 2. dma_mcu_access handling
-   * 3. first_word implementation
+   * 1. aexm_cache_cachebusy logic *CHECK - for the most part*
+   * 2. dma_mcu_access handling *CHECK*
+   * 3. first_word implementation *CHECK*
    *
    * 4. TLB writing
    */
