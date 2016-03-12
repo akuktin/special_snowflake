@@ -120,6 +120,8 @@ module cache (input [31:0] aexm_cache_cycle_addr,
   always @(posedge CPU_CLK)
     if (!RST)
       begin
+	MEM_LOOKUP_r <= 0; writing_into_cache <= 0;
+	DATAO_r <= 0; PH_ADDR_r <= 0; writing_into_tlb <= 0;
       end
     else
       begin
@@ -142,13 +144,15 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
 	end
 
-	if (SET_TLB)
-	  TLB_BASE_PTR = vaddr;
+//	if (SET_TLB)
+//	  TLB_BASE_PTR = vaddr;
       end
 
   always @(posedge MCU_CLK)
     if (!RST)
       begin
+	MEM_LOOKUP_m <= 0; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
+	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0;
       end
     else
       begin
