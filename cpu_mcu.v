@@ -33,13 +33,17 @@ module cache (input [31:0] aexm_cache_cycle_addr,
   wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
 			    cache_hit, stall_cache, MMU_FAULT;
 
+  wire [31:0] 		    data_cache;
+  wire [21:0] 		    req_tag;
+  wire [13:0] 		    rsp_tag, mmu_vtag;
+
   assign mem_addr = PH_ADDR_m;
   assign mem_we = WE_m_c;
   assign mem_dataintomem = DATAO_m;
 
   assign vaddr = aexm_cache_precycle_addr;
 
-  assign idx = vaddr[9:2] ;
+  assign idx = vaddr[9:2];
   assign tlb_idx = vaddr[17:10];
 
   assign idx_w = aexm_cache_cycle_addr[9:2];
@@ -62,8 +66,8 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 
   assign stall_cache = writing_into_cache != 2'b00;
 
-  assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx_w}) == {(21){1'b0}};
-  assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(12){1'b0}};
+  assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx_w}) == {(22){1'b0}};
+  assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}};
 
   iceram32 cache(.RDATA(data_cache),
                  .RADDR(idx),
