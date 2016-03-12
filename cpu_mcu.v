@@ -1,23 +1,50 @@
 module cache (input [31:0] aexm_cache_cycle_addr,
 	      input [31:0]  aexm_cache_precycle_addr,
-	      input [31:0]  aexm_cache_datao,
-	      output [31:0] aexm_cache_datai,
+	      input [31:0]  aexm_cache_datao, // CPU perspective
+	      output [31:0] aexm_cache_datai, // CPU perspective
 	      input 	    aexm_cache_cycle_we,
 	      // One or both of the below two are not needed, I think.
 	      input 	    aexm_cache_precycle_enable,
-	      input 	    aexm_cache_cycle_enable)
-  wire [31:0]       data_cache, data_out;
-  wire [7:0]        idx, tlb_idx;
-  wire              cache_hit;
+	      input 	    aexm_cache_cycle_enable,
+	      output 	    aexm_cache_cachebusy,
+//--------------------------------------------------
+              input 	    dma_mcu_access,
+              output [25:0] mem_addr,
+              output 	    mem_we,
+              output 	    mem_do_act,
+              output [31:0] mem_dataintomem,
+              input 	    mem_ack,
+              input [31:0]  mem_datafrommem);
+  reg 			    first_word;
+  reg [31:0] 		    data_out;
+
+  reg 			    MEM_LOOKUP_r, low_bit;
+  reg [1:0] 		    writing_into_cache, writing_into_tlb;
+  reg [31:0] 		    DATAO_r, PH_ADDR_r, TLB_BASE_PTR;
+  reg [1:0] 		    MEM_LOOKUP_m, WE_m, WE_tlb_m;
+  reg [31:0] 		    DATAO_m, PH_ADDR_m;
+
+  wire [31:0] 		    vaddr, wdata_data, wdata_ctag;
+  wire [7:0] 		    idx, tlb_idx,
+			    idx_w, tlb_idx_w,
+			    waddr_data, waddr_ctag;
+  wire [13:0] 		    mmu_req;
+  wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
+  wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
+			    cache_hit, stall_cache, MMU_FAULT;
+
+  assign mem_addr = PH_ADDR_m;
+  assign mem_we = WE_m_c;
+  assign mem_dataintomem = DATAO_m;
 
   assign vaddr = aexm_cache_precycle_addr;
 
-  assign idx = vaddr[9:2];
-  assign tlb_idx = vaddr[18:10];
+  assign idx = vaddr[9:2] ;
+  assign tlb_idx = vaddr[17:10];
 
   assign idx_w = aexm_cache_cycle_addr[9:2];
-  assign tlb_idx_w = aexm_cache_cycle_addr[18:10];
-  assign mmu_req = aexm_cache_cycle_addr[31:19];
+  assign tlb_idx_w = aexm_cache_cycle_addr[17:10];
+  assign mmu_req = aexm_cache_cycle_addr[31:18];
 
   assign tlb_in_tag = DATAO_m[31:16];
   assign tlb_in_mmu = DATAO_m[15:0];
@@ -36,7 +63,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
   assign stall_cache = writing_into_cache != 2'b00;
 
   assign cache_hit = (req_tag ^ {rsp_tag,tlb_idx_w}) == {(21){1'b0}};
-  assign MMU_FAULT_n = (mmu_vtag ^ mmu_req) == {(12){1'b0}};
+  assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(12){1'b0}};
 
   iceram32 cache(.RDATA(data_cache),
                  .RADDR(idx),
