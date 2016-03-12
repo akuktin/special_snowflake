@@ -20,7 +20,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 
   reg 			    MEM_LOOKUP_r, low_bit;
   reg [1:0] 		    writing_into_cache, writing_into_tlb;
-  reg [31:0] 		    DATAO_r, PH_ADDR_r, TLB_BASE_PTR;
+  reg [31:0] 		    DATAO_r, PH_ADDR_r;
   reg [1:0] 		    MEM_LOOKUP_m, WE_m, WE_tlb_m;
   reg [31:0] 		    DATAO_m, PH_ADDR_m;
 
@@ -130,7 +130,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 	    /* A speed hack. Normally, I'm supposed to put a
 	     * conditional depending on two inputs, but that
 	     * just takes too long in the silicon. */
-            MEM_LOOKUP_r <= MMU_FAULT_n;
+            MEM_LOOKUP_r <= MMU_FAULT;
           end
         else
           begin
@@ -182,5 +182,13 @@ module cache (input [31:0] aexm_cache_cycle_addr,
             data_out <= DATA_INTO_CPU;
           end
       end
+
+  /* MISSING:
+   * 1. aexm_cache_cachebusy logic
+   * 2. dma_mcu_access handling
+   * 3. first_word implementation
+   *
+   * 4. TLB writing
+   */
 
 endmodule
