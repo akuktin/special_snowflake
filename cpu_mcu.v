@@ -1,4 +1,7 @@
-module cache (input [31:0] aexm_cache_cycle_addr,
+module cache (input CPU_CLK,
+	      input 	    MCU_CLK,
+	      input 	    RST,
+	      input [31:0]  aexm_cache_cycle_addr,
 	      input [31:0]  aexm_cache_precycle_addr,
 	      input [31:0]  aexm_cache_datao, // CPU perspective
 	      output [31:0] aexm_cache_datai, // CPU perspective
@@ -17,7 +20,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
               input [31:0]  mem_datafrommem);
   reg 			    first_word, mem_ack_reg, mem_do_act_reg,
 			    read_counter_NULL_r, request_acted_on_r;
-  reg 			    request_acted_on, mem_ack_reg, mem_do_act_reg,
+  reg 			    request_acted_on,
 			    read_counter_NULL;
   reg [2:0] 		    read_counter;
   reg [31:0] 		    data_out;
@@ -91,7 +94,8 @@ module cache (input [31:0] aexm_cache_cycle_addr,
                  .WCLKE(1'b1),
                  .WCLK(MCU_CLK));
 
-  iceram32 cachetag(.RDATA(req_tag),
+  wire [9:0] 		    ignore_cachetag;
+  iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
                     .RADDR(idx),
                     .RE(1'b1),
                     .RCLKE(1'b1),
@@ -103,26 +107,28 @@ module cache (input [31:0] aexm_cache_cycle_addr,
                     .WCLKE(1'b1),
                     .WCLK(MCU_CLK));
 
-  iceram16 tlb(.RDATA(rsp_tag),
+  wire [1:0] 		    ignore_tlb;
+  iceram16 tlb(.RDATA({ignore_tlb,rsp_tag}),
                .RADDR(tlb_idx),
                .RE(1'b1),
                .RCLKE(1'b1),
                .RCLK(CLK_CPU),
 	       .WDATA(tlb_in_tag),
 	       .MASK(0),
-	       .WADDR(PH_ADDR_m[18:10]),
+	       .WADDR(PH_ADDR_m[17:10]),
 	       .WE(WE_tlb_m_c),
 	       .WCLKE(1'b1),
 	       .WCLK(MCU_CLK));
 
-  iceram16 tlbtag(.RDATA(mmu_vtag),
+  wire [1:0] 		    ignore_tlbtag;
+  iceram16 tlbtag(.RDATA({ignore_tlbtag,mmu_vtag}),
 		  .RADDR(tlb_idx),
 		  .RE(1'b1),
 		  .RCLKE(1'b1),
 		  .RCLK(CLK_CPU),
 		  .WDATA(tlb_in_mmu),
 		  .MASK(0),
-		  .WADDR(PH_ADDR_m[18:10]),
+		  .WADDR(PH_ADDR_m[17:10]),
 		  .WE(WE_tlb_m_c),
 		  .WCLKE(1'b1),
 		  .WCLK(MCU_CLK));
@@ -134,34 +140,35 @@ module cache (input [31:0] aexm_cache_cycle_addr,
       default: mcu_valid <= 0;
     endcase // case (read_counter)
 
-  case ({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
-	 request_acted_on_r,read_counter_NULL_r})
-    4'b1xxx: begin
-      cachehit_vld <= 1;
-      // no_action;
-    end
-    4'b000x: begin
-      cachehit_vld <= 0;
-      // read_waiting_for_mcu;
-    end
-    4'b0010: begin
-      cachehit_vld <= 0;
-      // read_mcu_request_in_progress;
-    end
-    4'b0011: begin
-      cachehit_vld <= 1;
-      // read_mcu_request_completed;
-    end
-    4'b010x: begin
-      cachehit_vld <= 0;
-      // write_waiting_for_mcu;
-    end
-    4'b011x: begin
-      cachehit_vld <= 1;
-      // write_mcu_request_completed;
-    end
-    default: cachehit_vld <= 1;
-  endcase
+  always @(*)
+    case ({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
+	   request_acted_on_r,read_counter_NULL_r})
+      4'b1xxx: begin
+	cachehit_vld <= 1;
+	// no_action;
+      end
+      4'b000x: begin
+	cachehit_vld <= 0;
+	// read_waiting_for_mcu;
+      end
+      4'b0010: begin
+	cachehit_vld <= 0;
+	// read_mcu_request_in_progress;
+      end
+      4'b0011: begin
+	cachehit_vld <= 1;
+	// read_mcu_request_completed;
+      end
+      4'b010x: begin
+	cachehit_vld <= 0;
+	// write_waiting_for_mcu;
+      end
+      4'b011x: begin
+	cachehit_vld <= 1;
+	// write_mcu_request_completed;
+      end
+      default: cachehit_vld <= 1;
+    endcase
 
   always @(posedge CPU_CLK)
     if (!RST)
@@ -188,7 +195,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
           writing_into_cache <= {writing_into_cache[0],aexm_cache_cycle_we};
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= {rsp_tag,aexm_cache_cycle_addr[18:0]};
-	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
+//	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
 	end
 
 	begin
@@ -253,7 +260,7 @@ module cache (input [31:0] aexm_cache_cycle_addr,
 	else
 	  begin
 	    if (read_counter != 3'd0)
-	      read_counter +1;
+	      read_counter <= read_counter +1;
 
 	    case (read_counter)
 	      3'd7: read_counter_NULL <= 1;
