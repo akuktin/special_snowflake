@@ -82,24 +82,24 @@ module cache (input CPU_CLK,
 		     {(23){1'b0}};
   assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}};
 
-  iceram32 cache(.RDATA(data_cache),
-                 .RADDR(idx),
-                 .RE(1'b1),
-                 .RCLKE(1'b1),
-                 .RCLK(CLK_CPU),
-                 .WDATA(wdata_data),
-                 .MASK(0),
-                 .WADDR(waddr_data),
-                 .WE(we_data),
-                 .WCLKE(1'b1),
-                 .WCLK(MCU_CLK));
+  iceram32 cachedat(.RDATA(data_cache),
+                    .RADDR(idx),
+                    .RE(1'b1),
+                    .RCLKE(1'b1),
+                    .RCLK(CPU_CLK),
+                    .WDATA(wdata_data),
+                    .MASK(0),
+                    .WADDR(waddr_data),
+                    .WE(we_data),
+                    .WCLKE(1'b1),
+                    .WCLK(MCU_CLK));
 
   wire [9:0] 		    ignore_cachetag;
   iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
                     .RADDR(idx),
                     .RE(1'b1),
                     .RCLKE(1'b1),
-                    .RCLK(CLK_CPU),
+                    .RCLK(CPU_CLK),
                     .WDATA(wdata_ctag),
                     .MASK(0),
                     .WADDR(waddr_ctag),
@@ -112,7 +112,7 @@ module cache (input CPU_CLK,
                .RADDR(tlb_idx),
                .RE(1'b1),
                .RCLKE(1'b1),
-               .RCLK(CLK_CPU),
+               .RCLK(CPU_CLK),
 	       .WDATA(tlb_in_tag),
 	       .MASK(0),
 	       .WADDR(PH_ADDR_m[17:10]),
@@ -125,7 +125,7 @@ module cache (input CPU_CLK,
 		  .RADDR(tlb_idx),
 		  .RE(1'b1),
 		  .RCLKE(1'b1),
-		  .RCLK(CLK_CPU),
+		  .RCLK(CPU_CLK),
 		  .WDATA(tlb_in_mmu),
 		  .MASK(0),
 		  .WADDR(PH_ADDR_m[17:10]),
@@ -184,7 +184,8 @@ module cache (input CPU_CLK,
 	    /* A speed hack. Normally, I'm supposed to put a
 	     * conditional depending on two inputs, but that
 	     * just takes too long in the silicon. */
-            MEM_LOOKUP_r_n <= MMU_FAULT;
+//            MEM_LOOKUP_r_n <= MMU_FAULT;
+            MEM_LOOKUP_r_n <= 0; // for testing only
           end
         else
           begin
