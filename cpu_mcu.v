@@ -11,6 +11,7 @@ module cache (input CPU_CLK,
 	      input 	    aexm_cache_cycle_enable,
 	      output 	    aexm_cache_cachebusy,
 //--------------------------------------------------
+//--------------------------------------------------
               input 	    dma_mcu_access,
               output [25:0] mem_addr,
               output 	    mem_we,
@@ -46,13 +47,17 @@ module cache (input CPU_CLK,
 
   reg 			    mcu_valid, cachehit_vld;
 
+  wire [31:0] 		    DATA_INTO_CPU;
+  assign DATA_INTO_CPU = mem_datafrommem;
+
   assign mem_do_act = (!MEM_LOOKUP_m_n[0]) & dma_mcu_access &
 		      (!request_acted_on);
 
-  assign mem_addr = PH_ADDR_m;
-  assign mem_we = WE_m_c;
+  assign mem_addr = {2'b00,PH_ADDR_m[31:2]};
+  assign mem_we = WE_m[0] && (!mem_ack_reg);
   assign mem_dataintomem = DATAO_m;
 
+  assign aexm_cache_cachebusy = ~cache_hit;
   assign vaddr = aexm_cache_precycle_addr;
 
   assign idx = vaddr[9:2];
@@ -140,14 +145,31 @@ module cache (input CPU_CLK,
       default: mcu_valid <= 0;
     endcase // case (read_counter)
 
-  always @(*)
+  always @({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
+	   request_acted_on_r,read_counter_NULL_r})
     case ({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
 	   request_acted_on_r,read_counter_NULL_r})
-      4'b1xxx: begin
+      4'b10xx: begin
 	cachehit_vld <= 1;
 	// no_action;
       end
-      4'b000x: begin
+      4'b111x: begin
+	cachehit_vld <= 1;
+	// mandatory refraction to write commands after a write;
+      end
+      4'b1101: begin
+	cachehit_vld <= 0;
+	// no_action;
+      end
+      4'b1100: begin
+	cachehit_vld <= 0;
+	// no_action;
+      end
+      4'b0000: begin
+	cachehit_vld <= 0;
+	// read_waiting_for_mcu;
+      end
+      4'b0001: begin
 	cachehit_vld <= 0;
 	// read_waiting_for_mcu;
       end
@@ -159,11 +181,19 @@ module cache (input CPU_CLK,
 	cachehit_vld <= 1;
 	// read_mcu_request_completed;
       end
-      4'b010x: begin
+      4'b0100: begin
 	cachehit_vld <= 0;
 	// write_waiting_for_mcu;
       end
-      4'b011x: begin
+      4'b0101: begin
+	cachehit_vld <= 0;
+	// write_waiting_for_mcu;
+      end
+      4'b0110: begin
+	cachehit_vld <= 1;
+	// write_mcu_request_completed;
+      end
+      4'b0111: begin
 	cachehit_vld <= 1;
 	// write_mcu_request_completed;
       end
@@ -255,7 +285,8 @@ module cache (input CPU_CLK,
 
 	if ((!WE_m[1]) && mem_ack_reg && mem_do_act_reg)
 	  begin
-	    read_counter <= 3'd2;
+//	    read_counter <= 3'd2;
+	    read_counter <= 3'd4; // for testing only
 	    read_counter_NULL <= 0;
 	  end
 	else
