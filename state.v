@@ -171,23 +171,29 @@ module enter_state(input CLK,
 	  if (SOME_PAGE_ACTIVE)
 	    begin
 	      ADDRESS_REG <= 13'h0400;
-	      if (!actv_timeout[2])
-		command_buf <= `NOOP;
-	      else
-		command_buf <= `PRCH;
 	    end
 	  else
 	    begin
 	      page_current <= {row_request_live,bank_request_live};
 	      ADDRESS_REG <= {row_request_live[11:10],1'b0,row_request_live[9:0]};
 	      BANK_REG <= bank_request_live;
-
-	      if (REFRESH_TIME)
-		command_buf <= `ARSR;
-	      else
-		command_buf <= `ACTV;
 	    end // else: !if(SOME_PAGE_ACTIVE)
 	end // else: !if(correct_page)
+
+      if (SOME_PAGE_ACTIVE)
+	begin
+	  if (!actv_timeout[2])
+	    command_buf <= `NOOP;
+	  else
+	    command_buf <= `PRCH;
+	end
+      else
+	begin
+	  if (REFRESH_TIME)
+	    command_buf <= `ARSR;
+	  else
+	    command_buf <= `ACTV;
+	end
     end
 
 endmodule // enter_state
