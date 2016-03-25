@@ -36,6 +36,7 @@ module states(input CLK,
 	second_stroke <= 0;
       end
     else
+      begin
       if (CHANGE_POSSIBLE)
 	begin
 	  if (CHANGE_REQUESTED)
@@ -65,11 +66,17 @@ module states(input CLK,
 		`NOOP: counter <= 4'he;
 		default: counter <= 4'hb;
 	      endcase // case (COMMAND)
-	    end
+	    end // if (CHANGE_REQUESTED)
 	end // if (CHANGE_POSSIBLE)
       else
 	begin
 	  second_stroke <= 1;
+	end // else: !if(CHANGE_POSSIBLE)
+
+      if ((!CHANGE_POSSIBLE) ||
+	  (CHANGE_POSSIBLE && (!CHANGE_REQUESTED) &&
+	   (!change_possible_counter)))
+	begin
 	  counter <= counter +1;
 
 	  if (counter == {3'h7,do_miss_beat})
@@ -78,6 +85,7 @@ module states(input CLK,
               change_possible_counter <= 1;
             end
 	end
+      end // else: !if(!RST)
 
 endmodule // states
 
