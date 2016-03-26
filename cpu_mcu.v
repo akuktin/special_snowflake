@@ -6,10 +6,7 @@ module cache (input CPU_CLK,
 	      input [31:0]  aexm_cache_datao, // CPU perspective
 	      output [31:0] aexm_cache_datai, // CPU perspective
 	      input 	    aexm_cache_cycle_we,
-	      // One or both of the below two are not needed, I think.
-	      input 	    aexm_cache_precycle_enable,
-	      input 	    aexm_cache_cycle_enable,
-	      output 	    aexm_cache_cachebusy,
+	      output 	    aexm_cache_cachebusy_n,
 //--------------------------------------------------
 //--------------------------------------------------
               input 	    dma_mcu_access,
@@ -27,9 +24,10 @@ module cache (input CPU_CLK,
   reg [31:0] 		    data_out;
 
   reg 			    MEM_LOOKUP_r_n, low_bit;
-  reg [1:0] 		    writing_into_cache, writing_into_tlb;
+  reg 			    writing_into_cache, writing_into_tlb;
   reg [31:0] 		    DATAO_r, PH_ADDR_r;
-  reg [1:0] 		    MEM_LOOKUP_m_n, WE_m, WE_tlb_m;
+  reg 			    MEM_LOOKUP_m_n;
+  reg [1:0] 		    WE_m, WE_tlb_m;
   reg [31:0] 		    DATAO_m, PH_ADDR_m;
 
   wire [31:0] 		    vaddr, wdata_data, wdata_ctag;
@@ -39,7 +37,7 @@ module cache (input CPU_CLK,
   wire [13:0] 		    mmu_req;
   wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
   wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
-			    cache_hit, stall_cache, MMU_FAULT;
+			    cache_hit, MMU_FAULT;
 
   wire [31:0] 		    data_cache;
   wire [21:0] 		    req_tag;
@@ -50,14 +48,14 @@ module cache (input CPU_CLK,
   wire [31:0] 		    DATA_INTO_CPU;
   assign DATA_INTO_CPU = mem_datafrommem;
 
-  assign mem_do_act = (!MEM_LOOKUP_m_n[0]) & dma_mcu_access &
+  assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
 		      (!request_acted_on);
 
   assign mem_addr = {2'b00,PH_ADDR_m[31:2]};
   assign mem_we = WE_m[0] && (!mem_ack_reg);
   assign mem_dataintomem = DATAO_m;
 
-  assign aexm_cache_cachebusy = ~cache_hit;
+  assign aexm_cache_cachebusy_n = cache_hit;
   assign vaddr = aexm_cache_precycle_addr;
 
   assign idx = vaddr[9:2];
@@ -80,8 +78,6 @@ module cache (input CPU_CLK,
   assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx_w};
   assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign aexm_cache_datai = cache_hit ? data_cache : data_out;
-
-  assign stall_cache = writing_into_cache != 2'b00;
 
   assign cache_hit = ({cachehit_vld,req_tag} ^ {1'b1,rsp_tag,tlb_idx_w}) ==
 		     {(23){1'b0}};
@@ -223,7 +219,7 @@ module cache (input CPU_CLK,
           end
 
 	begin
-          writing_into_cache <= {writing_into_cache[0],aexm_cache_cycle_we};
+          writing_into_cache <= aexm_cache_cycle_we;
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= {rsp_tag,aexm_cache_cycle_addr[18:0]};
 //	  writing_into_tlb <= {writing_into_tlb[0],WE_TLB};
@@ -241,7 +237,7 @@ module cache (input CPU_CLK,
   always @(posedge MCU_CLK)
     if (!RST)
       begin
-	MEM_LOOKUP_m_n <= 2'b11; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
+	MEM_LOOKUP_m_n <= 1'b1; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
 	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0; request_acted_on <= 0;
 	read_counter <= 0; mem_ack_reg <= 0; mem_do_act_reg <= 0;
 	read_counter_NULL <= 0;
@@ -251,13 +247,13 @@ module cache (input CPU_CLK,
 	begin
 	  /* Keep in mind that WE_tlb_m_c overrides
 	   * MEM_LOOKUP_m_c. */
-	  MEM_LOOKUP_m_n <= {MEM_LOOKUP_m_n[0],MEM_LOOKUP_r_n};
+	  MEM_LOOKUP_m_n <= MEM_LOOKUP_r_n;
 
-	  WE_m <= {WE_m[0],writing_into_cache[0]};
+	  WE_m <= {WE_m[0],writing_into_cache};
 	  DATAO_m <= DATAO_r;
 	  PH_ADDR_m <= PH_ADDR_r;
 
-	  WE_tlb_m <= {WE_tlb_m[0],writing_into_tlb[0]};
+	  WE_tlb_m <= {WE_tlb_m[0],writing_into_tlb};
 	end
 
         if (mcu_valid)
@@ -270,9 +266,7 @@ module cache (input CPU_CLK,
           end
 
         if (read_counter == 3'd6)
-          begin
-            data_out <= DATA_INTO_CPU;
-          end
+          data_out <= DATA_INTO_CPU;
 
 	mem_ack_reg <= mem_ack;
 	mem_do_act_reg <= mem_do_act;
@@ -280,7 +274,7 @@ module cache (input CPU_CLK,
 	if (mem_do_act_reg & mem_ack_reg)
 	  request_acted_on <= 1;
 	else
-	  if (request_acted_on & (MEM_LOOKUP_m_n[0]))
+	  if (request_acted_on & MEM_LOOKUP_m_n)
 	    request_acted_on <= 0;
 
 	if ((!WE_m[1]) && mem_ack_reg && mem_do_act_reg)
@@ -295,6 +289,8 @@ module cache (input CPU_CLK,
 	      read_counter <= read_counter +1;
 
 	    case (read_counter)
+////	      3'd5: read_counter_NULL <= 1;
+//	      3'd6: read_counter_NULL <= 1;
 	      3'd7: read_counter_NULL <= 1;
 	      3'd0: read_counter_NULL <= 1;
 	      default: read_counter_NULL <= 0;
@@ -303,9 +299,6 @@ module cache (input CPU_CLK,
       end
 
   /* MISSING:
-   * 1. aexm_cache_cachebusy logic *CHECK - for the most part*
-   * 2. dma_mcu_access handling *CHECK*
-   * 3. first_word implementation *CHECK*
    *
    * 4. TLB writing
    */
