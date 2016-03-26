@@ -25,7 +25,7 @@ module cache (input CPU_CLK,
 					  of the cycle! Register before
 					  you do anything with it! */
 	      input 	    WE_TLB);
-  reg 			    first_word, mem_ack_reg, mem_do_act_reg,
+  reg 			    mem_ack_reg, mem_do_act_reg,
 			    read_counter_NULL_r, request_acted_on_r;
   reg 			    TLB_write_busy_m,
 			    request_acted_on,
@@ -57,9 +57,6 @@ module cache (input CPU_CLK,
 
   reg 			    mcu_valid_data, cachehit_vld;
 
-  wire [31:0] 		    DATA_INTO_CPU;
-
-  assign DATA_INTO_CPU = mem_datafrommem;
 
   assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
 		      (!request_acted_on);
@@ -86,7 +83,7 @@ module cache (input CPU_CLK,
   assign WE_m_c = (WE_m[0]) & (~(WE_m[1]));
   assign we_data = mcu_valid_data || WE_m_c;
   assign we_ctag = mcu_valid_data || WE_m_c;
-  assign wdata_data = WE_m_c ? DATAO_m : DATA_INTO_CPU;
+  assign wdata_data = WE_m_c ? DATAO_m : mem_datafrommem;
   assign waddr_data = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx_w};
   assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
@@ -292,7 +289,7 @@ module cache (input CPU_CLK,
           end
 
         if (read_counter_data == 3'd6)
-          data_out <= DATA_INTO_CPU;
+          data_out <= mem_datafrommem;
 
 	mem_ack_reg <= mem_ack;
 	mem_do_act_reg <= mem_do_act;
