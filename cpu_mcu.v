@@ -1,3 +1,4 @@
+/* NEVER assert aexm_cache_cycle_we and WE_TLB together on the same cycle! */
 module cache (input CPU_CLK,
 	      input 	    MCU_CLK,
 	      input 	    RST,
@@ -18,6 +19,8 @@ module cache (input CPU_CLK,
               input [31:0]  mem_datafrommem,
 //--------------------------------------------------
 	      input 	    VMEM_ACT,
+	      input [31:0]  aexm_tlb_addr,
+	      output 	    TLB_write_busy, /* Not good enogh: try again! */
 	      input 	    WE_TLB);
   reg 			    first_word, mem_ack_reg, mem_do_act_reg,
 			    read_counter_NULL_r, request_acted_on_r;
@@ -50,6 +53,8 @@ module cache (input CPU_CLK,
   reg 			    mcu_valid_data, cachehit_vld;
 
   wire [31:0] 		    DATA_INTO_CPU;
+
+  assign TLB_write_busy = request_acted_on_r;
   assign DATA_INTO_CPU = mem_datafrommem;
 
   assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
@@ -221,7 +226,7 @@ module cache (input CPU_CLK,
           end
         else
           begin
-            MEM_LOOKUP_r_n <= 1;
+            MEM_LOOKUP_r_n <= ~WE_TLB;
           end
 
 	begin
@@ -230,7 +235,9 @@ module cache (input CPU_CLK,
 	  writing_into_mem <= (aexm_cache_cycle_we || WE_TLB);
 
 	  DATAO_r <= aexm_cache_datao;
-	  PH_ADDR_r <= {rsp_tag,aexm_cache_cycle_addr[18:0]};
+	  PH_ADDR_r <= WE_TLB ?
+		       aexm_tlb_addr :
+		       {rsp_tag,aexm_cache_cycle_addr[18:0]};
 	end
 
 	begin
@@ -253,8 +260,6 @@ module cache (input CPU_CLK,
     else
       begin
 	begin
-	  /* Keep in mind that WE_tlb_m_c overrides
-	   * MEM_LOOKUP_m_c. */
 	  MEM_LOOKUP_m_n <= MEM_LOOKUP_r_n;
 
 	  WE_m <= {WE_m[0],writing_into_cache};
