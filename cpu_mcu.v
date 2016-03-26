@@ -20,14 +20,19 @@ module cache (input CPU_CLK,
 //--------------------------------------------------
 	      input 	    VMEM_ACT,
 	      input [31:0]  aexm_tlb_addr,
-	      output 	    TLB_write_busy, /* Not good enogh: try again! */
+	      output reg    TLB_write_busy,
+	      output 	    MMU_FAULT, /* wire, asserted AT THE END
+					  of the cycle! Register before
+					  you do anything with it! */
 	      input 	    WE_TLB);
   reg 			    first_word, mem_ack_reg, mem_do_act_reg,
 			    read_counter_NULL_r, request_acted_on_r;
-  reg 			    request_acted_on,
+  reg 			    TLB_write_busy_m,
+			    request_acted_on,
 			    read_counter_NULL_data;
   reg [2:0] 		    read_counter_data;
   reg [31:0] 		    data_out;
+  reg [1:0] 		    WE_TLB_prev;
 
   reg 			    MEM_LOOKUP_r_n, low_bit;
   reg 			    writing_into_cache, writing_into_tlb,
@@ -44,7 +49,7 @@ module cache (input CPU_CLK,
   wire [13:0] 		    mmu_req;
   wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
   wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
-			    cache_hit, MMU_FAULT;
+			    cache_hit;
 
   wire [31:0] 		    data_cache;
   wire [21:0] 		    req_tag;
@@ -54,7 +59,6 @@ module cache (input CPU_CLK,
 
   wire [31:0] 		    DATA_INTO_CPU;
 
-  assign TLB_write_busy = request_acted_on_r;
   assign DATA_INTO_CPU = mem_datafrommem;
 
   assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
@@ -212,7 +216,8 @@ module cache (input CPU_CLK,
 	MEM_LOOKUP_r_n <= 1; writing_into_cache <= 0;
 	DATAO_r <= 0; PH_ADDR_r <= 0; writing_into_tlb <= 0;
 	read_counter_NULL_r <= 0; request_acted_on_r <= 0;
-	writing_into_mem <= 0;
+	writing_into_mem <= 0; TLB_write_busy <= 0;
+	WE_TLB_prev <= 0;
       end
     else
       begin
@@ -221,8 +226,7 @@ module cache (input CPU_CLK,
 	    /* A speed hack. Normally, I'm supposed to put a
 	     * conditional depending on two inputs, but that
 	     * just takes too long in the silicon. */
-//            MEM_LOOKUP_r_n <= MMU_FAULT;
-            MEM_LOOKUP_r_n <= 0; // for testing only
+            MEM_LOOKUP_r_n <= MMU_FAULT;
           end
         else
           begin
@@ -245,8 +249,16 @@ module cache (input CPU_CLK,
 	  request_acted_on_r <= request_acted_on;
 	end
 
-//	if (SET_TLB)
-//	  TLB_BASE_PTR = vaddr;
+	begin
+	  WE_TLB_prev <= {WE_TLB_prev[0],WE_TLB};
+	  /* Needs to be wide because otherwise there are some
+	     cycles that would flip-flop. Assuming the assumed
+	     3:2 clock ratio. */
+	  if ((!WE_TLB_prev[1]) && WE_TLB)
+	    TLB_write_busy <= 1;
+	  else
+	    TLB_write_busy <= TLB_write_busy_m;
+	end
       end
 
   always @(posedge MCU_CLK)
@@ -255,7 +267,7 @@ module cache (input CPU_CLK,
 	MEM_LOOKUP_m_n <= 1'b1; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
 	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0; request_acted_on <= 0;
 	read_counter_data <= 0; mem_ack_reg <= 0; mem_do_act_reg <= 0;
-	read_counter_NULL_data <= 0; WE_mm <= 0;
+	read_counter_NULL_data <= 0; WE_mm <= 0; TLB_write_busy_m <= 0;
       end
     else
       begin
@@ -290,6 +302,12 @@ module cache (input CPU_CLK,
 	else
 	  if (request_acted_on & MEM_LOOKUP_m_n)
 	    request_acted_on <= 0;
+
+	if (WE_tlb_m_c)
+	  TLB_write_busy_m <= 1;
+	else
+	  if (mem_do_act_reg & mem_ack_reg)
+	    TLB_write_busy_m <= 0;
 
 	if ((!WE_mm[1]) && mem_ack_reg && mem_do_act_reg && (!WE_m[1]))
 	  begin
