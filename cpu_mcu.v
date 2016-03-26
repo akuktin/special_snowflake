@@ -22,8 +22,8 @@ module cache (input CPU_CLK,
   reg 			    first_word, mem_ack_reg, mem_do_act_reg,
 			    read_counter_NULL_r, request_acted_on_r;
   reg 			    request_acted_on,
-			    read_counter_NULL;
-  reg [2:0] 		    read_counter;
+			    read_counter_NULL_data;
+  reg [2:0] 		    read_counter_data;
   reg [31:0] 		    data_out;
 
   reg 			    MEM_LOOKUP_r_n, low_bit;
@@ -47,7 +47,7 @@ module cache (input CPU_CLK,
   wire [21:0] 		    req_tag;
   wire [13:0] 		    rsp_tag, mmu_vtag;
 
-  reg 			    mcu_valid, cachehit_vld;
+  reg 			    mcu_valid_data, cachehit_vld;
 
   wire [31:0] 		    DATA_INTO_CPU;
   assign DATA_INTO_CPU = mem_datafrommem;
@@ -75,8 +75,8 @@ module cache (input CPU_CLK,
   assign WE_tlb_m_c = WE_tlb_m[0] & (~(WE_tlb_m[1]));
 
   assign WE_m_c = (WE_m[0]) & (~(WE_m[1]));
-  assign we_data = mcu_valid || WE_m_c;
-  assign we_ctag = mcu_valid || WE_m_c;
+  assign we_data = mcu_valid_data || WE_m_c;
+  assign we_ctag = mcu_valid_data || WE_m_c;
   assign wdata_data = WE_m_c ? DATAO_m : DATA_INTO_CPU;
   assign waddr_data = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx_w};
@@ -139,12 +139,12 @@ module cache (input CPU_CLK,
 		  .WCLKE(1'b1),
 		  .WCLK(MCU_CLK));
 
-  always @(read_counter)
-    case (read_counter)
-      3'd6: mcu_valid <= 1;
-      3'd7: mcu_valid <= 1;
-      default: mcu_valid <= 0;
-    endcase // case (read_counter)
+  always @(read_counter_data)
+    case (read_counter_data)
+      3'd6: mcu_valid_data <= 1;
+      3'd7: mcu_valid_data <= 1;
+      default: mcu_valid_data <= 0;
+    endcase // case (read_counter_data)
 
   always @({MEM_LOOKUP_r_n,aexm_cache_cycle_we,
 	   request_acted_on_r,read_counter_NULL_r})
@@ -234,7 +234,7 @@ module cache (input CPU_CLK,
 	end
 
 	begin
-	  read_counter_NULL_r <= read_counter_NULL;
+	  read_counter_NULL_r <= read_counter_NULL_data;
 	  request_acted_on_r <= request_acted_on;
 	end
 
@@ -247,8 +247,8 @@ module cache (input CPU_CLK,
       begin
 	MEM_LOOKUP_m_n <= 1'b1; WE_m <= 0; DATAO_m <= 0; PH_ADDR_m <= 0;
 	WE_tlb_m <= 0; low_bit <= 0; data_out <= 0; request_acted_on <= 0;
-	read_counter <= 0; mem_ack_reg <= 0; mem_do_act_reg <= 0;
-	read_counter_NULL <= 0; WE_mm <= 0;
+	read_counter_data <= 0; mem_ack_reg <= 0; mem_do_act_reg <= 0;
+	read_counter_NULL_data <= 0; WE_mm <= 0;
       end
     else
       begin
@@ -265,7 +265,7 @@ module cache (input CPU_CLK,
 	  PH_ADDR_m <= PH_ADDR_r;
 	end
 
-        if (mcu_valid)
+        if (mcu_valid_data)
           begin
             low_bit <= ~low_bit;
           end
@@ -274,7 +274,7 @@ module cache (input CPU_CLK,
             low_bit <= PH_ADDR_m[2];
           end
 
-        if (read_counter == 3'd6)
+        if (read_counter_data == 3'd6)
           data_out <= DATA_INTO_CPU;
 
 	mem_ack_reg <= mem_ack;
@@ -286,24 +286,24 @@ module cache (input CPU_CLK,
 	  if (request_acted_on & MEM_LOOKUP_m_n)
 	    request_acted_on <= 0;
 
-	if ((!WE_mm[1]) && mem_ack_reg && mem_do_act_reg)
+	if ((!WE_mm[1]) && mem_ack_reg && mem_do_act_reg && (!WE_m[1]))
 	  begin
-//	    read_counter <= 3'd2;
-	    read_counter <= 3'd4; // for testing only
-	    read_counter_NULL <= 0;
+//	    read_counter_data <= 3'd2;
+	    read_counter_data <= 3'd4; // for testing only
+	    read_counter_NULL_data <= 0;
 	  end
 	else
 	  begin
-	    if (read_counter != 3'd0)
-	      read_counter <= read_counter +1;
+	    if (read_counter_data != 3'd0)
+	      read_counter_data <= read_counter_data +1;
 
-	    case (read_counter)
-////	      3'd5: read_counter_NULL <= 1;
-//	      3'd6: read_counter_NULL <= 1;
-	      3'd7: read_counter_NULL <= 1;
-	      3'd0: read_counter_NULL <= 1;
-	      default: read_counter_NULL <= 0;
-	    endcase // case (read_counter)
+	    case (read_counter_data)
+////	      3'd5: read_counter_NULL_data <= 1;
+//	      3'd6: read_counter_NULL_data <= 1;
+	      3'd7: read_counter_NULL_data <= 1;
+	      3'd0: read_counter_NULL_data <= 1;
+	      default: read_counter_NULL_data <= 0;
+	    endcase // case (read_counter_data)
 	  end
       end
 
