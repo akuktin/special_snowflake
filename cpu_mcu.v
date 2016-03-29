@@ -1,4 +1,10 @@
 /* NEVER assert aexm_cache_cycle_we and WE_TLB together on the same cycle! */
+/* On entering kerneland: 1. deassert VMEM_ACT, 2. assert aexm_cache_inhibit
+   When making the first memory lookup, deasert aexm_cache_inhibit together
+   with latching aexm_cache_cycle_* stuffs. */
+/* Also on entering userland, 1. assert VMEM_ACT and 2. assert
+   aexm_cache_inhibit. Deassert cache inhibit when making first memory
+   lookup. */
 module cache (input CPU_CLK,
 	      input 	    MCU_CLK,
 	      input 	    RST,
@@ -11,7 +17,7 @@ module cache (input CPU_CLK,
 //--------------------------------------------------
 //--------------------------------------------------
               input 	    dma_mcu_access,
-              output [25:0] mem_addr,
+              output [31:0] mem_addr,
               output 	    mem_we,
               output 	    mem_do_act,
               output [31:0] mem_dataintomem,
@@ -19,6 +25,8 @@ module cache (input CPU_CLK,
               input [31:0]  mem_datafrommem,
 //--------------------------------------------------
 	      input 	    VMEM_ACT,
+	      input 	    aexm_cache_inhibit,
+//--------------------------------------------------
 	      input [31:0]  aexm_tlb_addr,
 	      output reg    TLB_write_busy,
 	      output 	    MMU_FAULT, /* wire, asserted AT THE END
@@ -89,8 +97,8 @@ module cache (input CPU_CLK,
   assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign aexm_cache_datai = cache_hit ? data_cache : data_out;
 
-  assign cache_hit = ({cachehit_vld,req_tag} ^
-		      {1'b1,rsp_tag,tlb_idx_w}) ==
+  assign cache_hit = ({aexm_cache_inhibit,cachehit_vld,req_tag} ^
+		      {2'b01,rsp_tag,tlb_idx_w}) ==
 		     {(23){1'b0}};
   assign MMU_FAULT = ({VMEM_ACT,mmu_vtag} ^ {1'b1,mmu_req}) != {(15){1'b0}};
 
@@ -329,7 +337,9 @@ module cache (input CPU_CLK,
 
   /* MISSING:
    *
-   * 4. TLB writing (don't forget to deassert MEM_LOOKUP_m_n)
+   * 5. Missing a way to DEACTIVATE virtual memmory!
+   * 6. HAZARD: if there is an outstanding memory read, and WE_TLB cuts in
+   *            before the operation finishes, the MCU will hang.
    */
 
 endmodule
