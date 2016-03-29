@@ -132,7 +132,7 @@ module enter_state(input CLK,
 			 == {2'b01,page_current});
   assign rw_command = WE ? `WRTE : `READ;
 
-  assign CHANGE_REQUESTED = DO_ACT || refresh_time_reg;
+  assign CHANGE_REQUESTED = (DO_ACT && !REFRESH_TIME) || refresh_time_reg;
   assign COMMAND = correct_page ? rw_command : command_buf;
   assign COMMAND_LATCHED = correct_page && latch_com;
 
@@ -170,8 +170,7 @@ module enter_state(input CLK,
       else
 	begin
 	  if (CHANGE_POSSIBLE &&
-	      ((DO_ACT && !REFRESH_TIME) ||
-	       refresh_time_reg))
+	      CHANGE_REQUESTED)
 	    COMMAND_REG <= command_buf;
 	  else
 	    COMMAND_REG <= `NOOP;
