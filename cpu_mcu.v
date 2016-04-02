@@ -42,7 +42,7 @@ module cache (input CPU_CLK,
   reg [31:0] 		    data_out;
   reg [1:0] 		    WE_TLB_prev;
 
-  reg 			    MEM_LOOKUP_r_n, low_bit;
+  reg 			    MEM_LOOKUP_r_n, low_bit, vmem;
   reg 			    writing_into_cache, writing_into_tlb,
 			    writing_into_mem;
   reg [31:0] 		    DATAO_r, PH_ADDR_r;
@@ -80,7 +80,7 @@ module cache (input CPU_CLK,
   assign idx_w = aexm_cache_cycle_addr[9:2];
   assign tlb_idx_w = aexm_cache_cycle_addr[17:10];
   assign mmu_req = aexm_cache_cycle_addr[31:18];
-  assign vmem_rsp_tag = VMEM_ACT ? rsp_tag : mmu_req;
+  assign vmem_rsp_tag = vmem ? rsp_tag : mmu_req;
 
   assign tlb_in_tag = DATAO_m[31:16];
   assign tlb_in_mmu = DATAO_m[15:0];
@@ -92,7 +92,7 @@ module cache (input CPU_CLK,
   assign we_ctag = mcu_valid_data || WE_m_c;
   assign wdata_data = WE_m_c ? DATAO_m : mem_datafrommem;
   assign waddr_data = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
-  assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {rsp_tag,tlb_idx_w};
+  assign wdata_ctag = WE_m_c ? PH_ADDR_m[31:10] : {vmem_rsp_tag,tlb_idx_w};
   assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign aexm_cache_datai = cache_hit ? data_cache : data_out;
 
@@ -102,7 +102,8 @@ module cache (input CPU_CLK,
   assign cache_hit = ({aexm_cache_inhibit,cachehit_vld,req_tag} ^
 		      {2'b01,vmem_rsp_tag,tlb_idx_w}) ==
 		     {(24){1'b0}};
-  assign MMU_FAULT = ({VMEM_ACT,mmu_vtag} ^ {1'b1,mmu_req}) != {(15){1'b0}};
+//  assign MMU_FAULT = ({VMEM_ACT,mmu_vtag} ^ {1'b1,mmu_req}) != {(15){1'b0}};
+  assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
 
   iceram32 cachedat(.RDATA(data_cache),
                     .RADDR(idx),
@@ -224,7 +225,7 @@ module cache (input CPU_CLK,
 	DATAO_r <= 0; PH_ADDR_r <= 0; writing_into_tlb <= 0;
 	read_counter_NULL_r <= 0; request_acted_on_r <= 0;
 	writing_into_mem <= 0; TLB_write_busy <= 0;
-	WE_TLB_prev <= 0;
+	WE_TLB_prev <= 0; vmem <= 0;
       end
     else
       begin
@@ -239,6 +240,7 @@ module cache (input CPU_CLK,
           begin
             MEM_LOOKUP_r_n <= ~WE_TLB;
           end
+	vmem <= VMEM_ACT;
 
 	begin
           writing_into_cache <= aexm_cache_cycle_we;
