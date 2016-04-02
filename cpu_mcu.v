@@ -102,7 +102,6 @@ module cache (input CPU_CLK,
   assign cache_hit = ({aexm_cache_inhibit,cachehit_vld,req_tag} ^
 		      {2'b01,vmem_rsp_tag,tlb_idx_w}) ==
 		     {(24){1'b0}};
-//  assign MMU_FAULT = ({VMEM_ACT,mmu_vtag} ^ {1'b1,mmu_req}) != {(15){1'b0}};
   assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
 
   iceram32 cachedat(.RDATA(data_cache),
