@@ -5,6 +5,10 @@
 /* Also on entering userland, 1. assert VMEM_ACT and 2. assert
    aexm_cache_inhibit. Deassert cache inhibit when making first memory
    lookup. */
+/* Unlike originally, nowdays VMEM_ACT gets latched by the cache itself.
+   Therefore, it is an ASYNCHRONOUS signal. Make sure it is asserted to be
+   latched together with latching aexm_cache_cycle_*, but don't actually
+   latch it yourself. The cache does that. */
 module cache (input CPU_CLK,
 	      input 	    MCU_CLK,
 	      input 	    RST,
