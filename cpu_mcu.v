@@ -54,17 +54,15 @@ module cache (input CPU_CLK,
   wire [7:0] 		    idx, tlb_idx,
 			    idx_w, tlb_idx_w,
 			    waddr_data, waddr_ctag;
-  wire [13:0] 		    mmu_req;
   wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
   wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
 			    cache_hit;
 
   wire [31:0] 		    data_cache;
   wire [21:0] 		    req_tag;
-  wire [13:0] 		    rsp_tag, mmu_vtag;
+  wire [13:0] 		    rsp_tag, mmu_vtag, vmem_rsp_tag, mmu_req;
 
   reg 			    mcu_valid_data, cachehit_vld;
-
 
   assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
 		      (!request_acted_on);
@@ -74,14 +72,15 @@ module cache (input CPU_CLK,
   assign mem_dataintomem = DATAO_m;
 
   assign aexm_cache_cachebusy_n = cache_hit;
-  assign vaddr = aexm_cache_precycle_addr;
 
+  assign vaddr = aexm_cache_precycle_addr;
   assign idx = vaddr[9:2];
   assign tlb_idx = vaddr[17:10];
 
   assign idx_w = aexm_cache_cycle_addr[9:2];
   assign tlb_idx_w = aexm_cache_cycle_addr[17:10];
   assign mmu_req = aexm_cache_cycle_addr[31:18];
+  assign vmem_rsp_tag = VMEM_ACT ? rsp_tag : mmu_req;
 
   assign tlb_in_tag = DATAO_m[31:16];
   assign tlb_in_mmu = DATAO_m[15:0];
@@ -97,9 +96,12 @@ module cache (input CPU_CLK,
   assign waddr_ctag = WE_m_c ? PH_ADDR_m[9:2] : {idx_w[7:1],low_bit};
   assign aexm_cache_datai = cache_hit ? data_cache : data_out;
 
+  /* This bit here can be optimized to perform checking vmem_rsp_tag in a
+   * single gate. That is, a single gate can both compare and switch
+   * what it compares to. I probably didn't code it well enough, though. */
   assign cache_hit = ({aexm_cache_inhibit,cachehit_vld,req_tag} ^
-		      {2'b01,rsp_tag,tlb_idx_w}) ==
-		     {(23){1'b0}};
+		      {2'b01,vmem_rsp_tag,tlb_idx_w}) ==
+		     {(24){1'b0}};
   assign MMU_FAULT = ({VMEM_ACT,mmu_vtag} ^ {1'b1,mmu_req}) != {(15){1'b0}};
 
   iceram32 cachedat(.RDATA(data_cache),
@@ -246,7 +248,7 @@ module cache (input CPU_CLK,
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= WE_TLB ?
 		       aexm_tlb_addr :
-		       {rsp_tag,aexm_cache_cycle_addr[18:0]};
+		       {vmem_rsp_tag,aexm_cache_cycle_addr[18:0]};
 	end
 
 	begin
