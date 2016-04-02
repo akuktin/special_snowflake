@@ -56,7 +56,7 @@ module cache (input CPU_CLK,
 			    waddr_data, waddr_ctag;
   wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
   wire 			    WE_tlb_m_c, WE_m_c, we_data, we_ctag,
-			    cache_hit;
+			    cache_hit, inhibited_we;
 
   wire [31:0] 		    data_cache;
   wire [21:0] 		    req_tag;
@@ -87,6 +87,7 @@ module cache (input CPU_CLK,
 
   assign WE_tlb_m_c = WE_tlb_m[0] & (~(WE_tlb_m[1]));
 
+  assign inhibited_we = aexm_cache_cycle_we & ~aexm_cache_inhibit;
   assign WE_m_c = (WE_m[0]) & (~(WE_m[1]));
   assign we_data = mcu_valid_data || WE_m_c;
   assign we_ctag = mcu_valid_data || WE_m_c;
@@ -99,9 +100,11 @@ module cache (input CPU_CLK,
   /* This bit here can be optimized to perform checking vmem_rsp_tag in a
    * single gate. That is, a single gate can both compare and switch
    * what it compares to. I probably didn't code it well enough, though. */
-  assign cache_hit = ({aexm_cache_inhibit,cachehit_vld,req_tag} ^
-		      {2'b01,vmem_rsp_tag,tlb_idx_w}) ==
-		     {(24){1'b0}};
+  assign cache_hit = (({cachehit_vld,req_tag} ^
+		       {1'b1,vmem_rsp_tag,tlb_idx_w}) ==
+		      {(23){1'b0}}) ? 1 : aexm_cache_inhibit;
+  /* This bit here should be implementable exclusively by hacking the
+   * carry chain. I probably didn't code this well enough also. */
   assign MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
 
   iceram32 cachedat(.RDATA(data_cache),
@@ -220,7 +223,7 @@ module cache (input CPU_CLK,
   always @(posedge CPU_CLK)
     if (!RST)
       begin
-	MEM_LOOKUP_r_n <= 1; writing_into_cache <= 0;
+	MEM_LOOKUP_r_n <= ~WE_TLB; writing_into_cache <= 0;
 	DATAO_r <= 0; PH_ADDR_r <= 0; writing_into_tlb <= 0;
 	read_counter_NULL_r <= 0; request_acted_on_r <= 0;
 	writing_into_mem <= 0; TLB_write_busy <= 0;
@@ -242,9 +245,9 @@ module cache (input CPU_CLK,
 	vmem <= VMEM_ACT;
 
 	begin
-          writing_into_cache <= aexm_cache_cycle_we;
+          writing_into_cache <= inhibited_we;
 	  writing_into_tlb <= WE_TLB;
-	  writing_into_mem <= (aexm_cache_cycle_we || WE_TLB);
+	  writing_into_mem <= (inhibited_we || WE_TLB);
 
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= WE_TLB ?
