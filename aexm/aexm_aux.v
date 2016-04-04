@@ -1,4 +1,4 @@
-module cache_stall(input  cache_busy,
+module cache_stall(input  cache_busy_n,
 		   input  cpu_force,
 		   output cache_enable);
   reg 			  xcache_enable;
@@ -9,7 +9,7 @@ module cache_stall(input  cache_busy,
       if (cpu_force)
 	xcache_enable <= 1;
       else
-	if (cache_busy)
+	if (cache_busy_n)
 	  xcache_enable <= 1;
 	else
 	  xcache_enable <= 0;
