@@ -54,11 +54,12 @@
 
 module aeMB_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dwb_stb_o, dwb_wre_o,
-   fsl_stb_o, fsl_wre_o,
+   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW,
+   aexm_dcache_precycle_enable, aexm_dcache_cycle_enable,
+   aexm_dcache_cycle_we,
    // Inputs
    rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rPC, rBRA, rMSR_IE, xIREG,
-   dwb_ack_i, iwb_ack_i, fsl_ack_i, gclk, grst, gena
+   gclk, grst, gena
    );
    // INTERNAL   
    //output [31:2] rPCLNK;
@@ -76,20 +77,12 @@ module aeMB_ctrl (/*AUTOARG*/
    input 	 rBRA;
    input 	 rMSR_IE;
    input [31:0]  xIREG;   
-   
-   // DATA WISHBONE
-   output 	 dwb_stb_o;
-   output 	 dwb_wre_o;
-   input 	 dwb_ack_i;
 
-   // INST WISHBONE
-   input 	 iwb_ack_i;
-   
-   // FSL WISHBONE
-   output 	 fsl_stb_o;
-   output 	 fsl_wre_o;
-   input 	 fsl_ack_i;   
-   
+   // MCU
+   output aexm_dcache_precycle_enable;
+   output aexm_dcache_cycle_enable;
+   output aexm_dcache_cycle_we;
+
    // SYSTEM
    input 	 gclk, grst, gena;
 
@@ -241,14 +234,12 @@ module aeMB_ctrl (/*AUTOARG*/
    reg 		 rDWBSTB, xDWBSTB;
    reg 		 rDWBWRE, xDWBWRE;
 
-   assign 	 dwb_stb_o = rDWBSTB;
-   assign 	 dwb_wre_o = rDWBWRE;
 
   assign aexm_dcache_precycle_enable = xDWBSTB;
   assign aexm_dcache_cycle_enable = rDWBSTB;
   assign aexm_dcache_cycle_we = rDWBWRE;
    
-   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or iwb_ack_i)
+   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR)
      //if (fSKIP | |rXCE) begin
      if (fSKIP) begin
 	/*AUTORESET*/
@@ -257,8 +248,8 @@ module aeMB_ctrl (/*AUTOARG*/
 	xDWBWRE <= 1'h0;
 	// End of automatics
      end else begin
-	xDWBSTB <= (fLOD | fSTR) & iwb_ack_i;
-	xDWBWRE <= fSTR & iwb_ack_i;	
+	xDWBSTB <= (fLOD | fSTR);
+	xDWBWRE <= fSTR;
      end
    
    always @(posedge gclk)
@@ -274,41 +265,6 @@ module aeMB_ctrl (/*AUTOARG*/
      end
    
 
-   // --- FSL WISHBONE -----------------------------------
-
-   wire 	 fFACK = !(fsl_stb_o ^ fsl_ack_i);   
-	 
-   reg 		 rFSLSTB, xFSLSTB;
-   reg 		 rFSLWRE, xFSLWRE;
-
-   assign 	 fsl_stb_o = rFSLSTB;
-   assign 	 fsl_wre_o = rFSLWRE;   
-
-   always @(/*AUTOSENSE*/fGET or fPUT or fSKIP or iwb_ack_i) 
-     //if (fSKIP | |rXCE) begin
-     if (fSKIP) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	xFSLSTB <= 1'h0;
-	xFSLWRE <= 1'h0;
-	// End of automatics
-     end else begin
-	xFSLSTB <= (fPUT | fGET) & iwb_ack_i;
-	xFSLWRE <= fPUT & iwb_ack_i;	
-     end
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rFSLSTB <= 1'h0;
-	rFSLWRE <= 1'h0;
-	// End of automatics
-     end else if (fFACK) begin
-	rFSLSTB <= #1 xFSLSTB;
-	rFSLWRE <= #1 xFSLWRE;	
-     end
-   
    // --- PIPELINE CONTROL DELAY ----------------------------
 
    always @(posedge gclk)

@@ -31,10 +31,10 @@
 
 module aeMB_regf (/*AUTOARG*/
    // Outputs
-   rREGA, rREGB, rDWBDI, aexm_dcache_datao, fsl_dat_o,
+   rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
    rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL, rBRA,
-   rDLY, aexm_dcache_datai, fsl_dat_i, gclk, grst, gena
+   rDLY, aexm_dcache_datai, gclk, grst, gena
    );
    // INTERNAL
    output [31:0] rREGA, rREGB;
@@ -47,13 +47,9 @@ module aeMB_regf (/*AUTOARG*/
    input [3:0] 	 rDWBSEL;   
    input 	 rBRA, rDLY;   
    
-   // DATA WISHBONE
+   // MCU interface
    output [31:0] aexm_dcache_datao;
    input [31:0]  aexm_dcache_datai;
-
-   // FSL WISHBONE
-   output [31:0] fsl_dat_o;
-   input [31:0]	 fsl_dat_i;   
    
    // SYSTEM
    input 	 gclk, grst, gena;   
@@ -62,52 +58,12 @@ module aeMB_regf (/*AUTOARG*/
    // Moves the data bytes around depending on the size of the
    // operation.
 
-   wire [31:0] 	 wDWBDI = aexm_dcache_datai; // FIXME: Endian
-   wire [31:0] 	 wFSLDI = fsl_dat_i; // FIXME: Endian
+   wire [31:0] 	 wDWBDI = aexm_dcache_datai;
     
    reg [31:0] 	 rDWBDI;
    reg [1:0] 	 rSIZ;
    
-   always @(/*AUTOSENSE*/rDWBSEL or wDWBDI or wFSLDI) begin
-      /* 51.2
-       case (rSIZ)
-        // FSL
-        2'o3: rDWBDI <= wFSLDI;	
-        // 32'bit
-        2'o2: rDWBDI <= wDWBDI;
-	// 16'bit
-	2'o1: case (rRESULT[1])
-		1'b0: rDWBDI <= {16'd0, wDWBDI[31:16]};
-		1'b1: rDWBDI <= {16'd0, wDWBDI[15:0]};		
-	      endcase // case (rRESULT[1])
-	// 8'bit
-	2'o0: case (rRESULT[1:0])
-		2'o0: rDWBDI <= {24'd0, wDWBDI[31:24]};
-		2'o1: rDWBDI <= {24'd0, wDWBDI[23:16]};
-		2'o2: rDWBDI <= {24'd0, wDWBDI[15:8]};
-		2'o3: rDWBDI <= {24'd0, wDWBDI[7:0]};
-	      endcase // case (rRESULT[1:0])
-      endcase // case (rSIZ)
-      */
-      
-      /* 50.6
-      case ({rSIZ, rRESULT[1:0]})
-	// FSL
-	4'hC, 4'hD, 4'hE, 4'hF: rDWBDI <= wFSLDI;	
-	// 32'bit
-	4'h8: rDWBDI <= wDWBDI;
-	// 16'bit
-	4'h4: rDWBDI <= {16'd0, wDWBDI[31:16]};
-	4'h6: rDWBDI <= {16'd0, wDWBDI[15:0]};		
-	// 8'bit
-	4'h0: rDWBDI <= {24'd0, wDWBDI[31:24]};
-	4'h1: rDWBDI <= {24'd0, wDWBDI[23:16]};
-	4'h2: rDWBDI <= {24'd0, wDWBDI[15:8]};
-	4'h3: rDWBDI <= {24'd0, wDWBDI[7:0]};
-	default: rDWBDI <= 32'hX;	
-      endcase // case (rSIZ)
-      */
-
+   always @(/*AUTOSENSE*/rDWBSEL or wDWBDI) begin
       // 52.0
       case (rDWBSEL)
 	// 8'bit
@@ -120,8 +76,6 @@ module aeMB_regf (/*AUTOARG*/
 	4'h3: rDWBDI <= {16'd0, wDWBDI[15:0]};
 	// 32'bit
 	4'hF: rDWBDI <= wDWBDI;
-	// FSL
-	4'h0: rDWBDI <= wFSLDI;       
 	// Undefined
 	default: rDWBDI <= 32'hX;       
       endcase
@@ -177,15 +131,6 @@ module aeMB_regf (/*AUTOARG*/
 
    reg [31:0] 	 rDWBDO, xDWBDO;
    
-   wire [31:0] 	 xFSL;   
-   wire 	 fFFWD_M = (rRA == rRW) & (rMXDST == 2'o2) & fRDWE;
-   wire 	 fFFWD_R = (rRA == rRW) & (rMXDST == 2'o0) & fRDWE;   
-   
-   assign 	 fsl_dat_o = rDWBDO;
-   assign 	 xFSL = (fFFWD_M) ? rDWBDI :
-			(fFFWD_R) ? rRESULT :
-			rREGA;   
-
    wire [31:0] 	 xDST;   
    wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;
    wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;   
@@ -203,9 +148,7 @@ module aeMB_regf (/*AUTOARG*/
        2'h1: xDWBDO <= {(2){xDST[15:0]}};
        // 32'bit
        2'h2: xDWBDO <= xDST;
-       // FSL
-       2'h3: xDWBDO <= xFSL;       
-       //default: xDWBDO <= 32'hX;       
+       default: xDWBDO <= 32'hX;
      endcase // case (rOPC[1:0])   
 
    always @(posedge gclk)

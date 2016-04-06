@@ -112,13 +112,11 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
 	   .rSTALL			(rSTALL),
-	   .iwb_stb_o			(iwb_stb_o),
 	   // Inputs
 	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
 	   .rMSR_BIP			(rMSR_BIP),
-	   .iwb_dat_i			(iwb_dat_i[31:0]),
-	   .iwb_ack_i			(iwb_ack_i),
+	   .aexm_icache_datai           (AEXM_FIXME),
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
 	   .grst			(grst),
@@ -134,10 +132,9 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rMXALT			(rMXALT[1:0]),
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
-	   .dwb_stb_o			(dwb_stb_o),
-	   .dwb_wre_o			(dwb_wre_o),
-	   .fsl_stb_o			(fsl_stb_o),
-	   .fsl_wre_o			(fsl_wre_o),
+	   .aexm_dcache_precycle_enable (AEXM_FIXME),
+	   .aexm_dcache_cycle_enable    (AEXM_FIXME),
+	   .aexm_dcache_cycle_we        (AEXM_FIXME),
 	   // Inputs
 	   .rDLY			(rDLY),
 	   .rIMM			(rIMM[15:0]),
@@ -150,9 +147,6 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
 	   .xIREG			(xIREG[31:0]),
-	   .dwb_ack_i			(dwb_ack_i),
-	   .iwb_ack_i			(iwb_ack_i),
-	   .fsl_ack_i			(fsl_ack_i),
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .gena			(gena));
@@ -160,7 +154,8 @@ module aeMB_edk32 (/*AUTOARG*/
    aeMB_bpcu #(IW)
      bpcu (/*AUTOINST*/
 	   // Outputs
-	   .iwb_adr_o			(iwb_adr_o[IW-1:2]),
+	   .aexm_icache_cycle_addr      (AEXM_FIXME),
+	   .aexm_icache_precycle_addr   (AEXM_FIXME),
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),
 	   .rBRA			(rBRA),
@@ -183,8 +178,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rREGA			(rREGA[31:0]),
 	   .rREGB			(rREGB[31:0]),
 	   .rDWBDI			(rDWBDI[31:0]),
-	   .dwb_dat_o			(dwb_dat_o[31:0]),
-	   .fsl_dat_o			(fsl_dat_o[31:0]),
+	   .aexm_dcache_datao           (AEXM_FIXME),
 	   // Inputs
 	   .rOPC			(rOPC[5:0]),
 	   .rRA				(rRA[4:0]),
@@ -197,8 +191,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rBRA			(rBRA),
 	   .rDLY			(rDLY),
-	   .dwb_dat_i			(dwb_dat_i[31:0]),
-	   .fsl_dat_i			(fsl_dat_i[31:0]),
+	   .aexm_dcache_datai           (AEXM_FIXME),
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .gena			(gena));   
@@ -206,10 +199,8 @@ module aeMB_edk32 (/*AUTOARG*/
    aeMB_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
 	   // Outputs
-	   .dwb_adr_o			(dwb_adr_o[DW-1:2]),
-	   .dwb_sel_o			(dwb_sel_o[3:0]),
-	   .fsl_adr_o			(fsl_adr_o[6:2]),
-	   .fsl_tag_o			(fsl_tag_o[1:0]),
+	   .aexm_dcache_precycle_addr   (AEXM_FIXME),
+	   .aexm_dcache_cycle_addr      (AEXM_FIXME),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rMSR_IE			(rMSR_IE),
@@ -283,4 +274,4 @@ endmodule // aeMB_edk32
  New EDK 3.2 compatible design with optional barrel-shifter and multiplier.
  Fixed various minor data hazard bugs.
  Code compatible with -O0/1/2/3/s generated code.
-*/ 
+*/

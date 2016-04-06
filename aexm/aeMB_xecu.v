@@ -21,9 +21,8 @@
 
 module aeMB_xecu (/*AUTOARG*/
    // Outputs
-   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr, dwb_sel_o,
-   fsl_adr_o, fsl_tag_o, rRESULT, rDWBSEL,
-   rMSR_IE, rMSR_BIP,
+   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
+   rRESULT, rDWBSEL, rMSR_IE, rMSR_BIP,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rBRA, rDLY, rALT,
    rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
@@ -33,14 +32,9 @@ module aeMB_xecu (/*AUTOARG*/
    parameter MUL=0;
    parameter BSF=0;   
    
-   // DATA WISHBONE
-   output [DW-1:2] aexm_dcache_precycle_addr;
-   output [DW-1:2] aexm_dcache_cycle_addr;
-   output [3:0]    dwb_sel_o;
-
-   // FSL WISHBONE
-   output [6:2]   fsl_adr_o;
-   output [1:0]   fsl_tag_o;   
+   // DATA interface
+   output [DW-1:0] aexm_dcache_precycle_addr;
+   output [DW-1:0] aexm_dcache_cycle_addr;
    
    // INTERNAL
    output [31:0]   rRESULT;
@@ -318,7 +312,6 @@ module aeMB_xecu (/*AUTOARG*/
    reg [3:0] 	    rDWBSEL, xDWBSEL;
    assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
    assign           aexm_dcache_cycle_addr = rRESULT[DW-1:2];
-     assign 	    dwb_sel_o = rDWBSEL;
 
    always @(/*AUTOSENSE*/rOPC or wADD)
      case (rOPC[1:0])
@@ -333,16 +326,6 @@ module aeMB_xecu (/*AUTOARG*/
        2'o3: xDWBSEL <= 4'h0; // FSL
      endcase // case (rOPC[1:0])
 
-   // --- FSL WISHBONE --------------------
-
-   reg [14:2] 	    rFSLADR, xFSLADR;   
-   
-   assign 	    {fsl_adr_o, fsl_tag_o} = rFSLADR[8:2];
-
-   always @(/*AUTOSENSE*/rALT or rRB) begin
-      xFSLADR <= {rALT, rRB[3:2]};      
-   end
-   
    // --- SYNC ---
 
    always @(posedge gclk)
