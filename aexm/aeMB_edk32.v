@@ -21,11 +21,14 @@
 
 module aeMB_edk32 (/*AUTOARG*/
    // Outputs
-   iwb_stb_o, iwb_adr_o, fsl_wre_o, fsl_tag_o, fsl_stb_o, fsl_dat_o,
-   fsl_adr_o, dwb_wre_o, dwb_stb_o, dwb_sel_o, dwb_dat_o, dwb_adr_o,
+   aexm_icache_precycle_addr, aexm_icache_cycle_addr,
+   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
+   aexm_dcache_datao, aexm_dcache_cycle_we,
+   aexm_dcache_precycle_enable, aexm_dcache_cycle_enable,
    // Inputs
-   sys_int_i, iwb_dat_i, iwb_ack_i, fsl_dat_i, fsl_ack_i, dwb_dat_i,
-   dwb_ack_i, sys_clk_i, sys_rst_i
+   aexm_icache_datai, aexm_dcache_datai,
+   aexm_icache_cache_busy_n, aexm_dcache_cache_busy_n,
+   sys_int_i, sys_clk_i, sys_rst_i
    );
    // Bus widths
    parameter IW = 32; /// Instruction bus address width
@@ -34,30 +37,23 @@ module aeMB_edk32 (/*AUTOARG*/
    // Optional functions
    parameter MUL = 0; // Multiplier
    parameter BSF = 1; // Barrel Shifter
+
+  output [31:0] aexm_icache_precycle_addr;
+  output [31:0] aexm_icache_cycle_addr;
+  input [31:0]  aexm_icache_datai;
+
+  output [31:0] aexm_dcache_precycle_addr;
+  output [31:0] aexm_dcache_cycle_addr;
+  input [31:0] 	aexm_dcache_datai;
+  output [31:0] aexm_dcache_datao;
+  output        aexm_dcache_cycle_we;
+  output        aexm_dcache_precycle_enable;
+  output        aexm_dcache_cycle_enable;
+
+  input 	aexm_icache_cache_busy_n;
+  input 	aexm_dcache_cache_busy_n;
    
-   /*AUTOOUTPUT*/
-   // Beginning of automatic outputs (from unused autoinst outputs)
-   output [DW-1:2]	dwb_adr_o;		// From xecu of aeMB_xecu.v
-   output [31:0]	dwb_dat_o;		// From regf of aeMB_regf.v
-   output [3:0]		dwb_sel_o;		// From xecu of aeMB_xecu.v
-   output		dwb_stb_o;		// From ctrl of aeMB_ctrl.v
-   output		dwb_wre_o;		// From ctrl of aeMB_ctrl.v
-   output [6:2]		fsl_adr_o;		// From xecu of aeMB_xecu.v
-   output [31:0]	fsl_dat_o;		// From regf of aeMB_regf.v
-   output		fsl_stb_o;		// From ctrl of aeMB_ctrl.v
-   output [1:0]		fsl_tag_o;		// From xecu of aeMB_xecu.v
-   output		fsl_wre_o;		// From ctrl of aeMB_ctrl.v
-   output [IW-1:2]	iwb_adr_o;		// From bpcu of aeMB_bpcu.v
-   output		iwb_stb_o;		// From ibuf of aeMB_ibuf.v
-   // End of automatics
    /*AUTOINPUT*/
-   // Beginning of automatic inputs (from unused autoinst inputs)
-   input		dwb_ack_i;		// To ctrl of aeMB_ctrl.v
-   input [31:0]		dwb_dat_i;		// To regf of aeMB_regf.v
-   input		fsl_ack_i;		// To ctrl of aeMB_ctrl.v
-   input [31:0]		fsl_dat_i;		// To regf of aeMB_regf.v
-   input		iwb_ack_i;		// To ibuf of aeMB_ibuf.v, ...
-   input [31:0]		iwb_dat_i;		// To ibuf of aeMB_ibuf.v
    input		sys_int_i;		// To ibuf of aeMB_ibuf.v
    // End of automatics
    /*AUTOWIRE*/
@@ -95,8 +91,11 @@ module aeMB_edk32 (/*AUTOARG*/
 
    wire 		grst = sys_rst_i;
    wire 		gclk = sys_clk_i;
-   wire 		gena = !((dwb_stb_o ^ dwb_ack_i) | (fsl_stb_o ^ fsl_ack_i) | !iwb_ack_i) & !rSTALL;   
-   wire 		oena = ((dwb_stb_o ^ dwb_ack_i) | (fsl_stb_o ^ fsl_ack_i) | !iwb_ack_i);   
+   wire 		gena = aexm_icache_cache_busy_n &
+			       aexm_dcache_cache_busy_n &
+			       !rSTALL;
+   wire 		oena = (!aexm_icache_cache_busy_n) |
+			       (!aexm_dcache_cache_busy_n);
    
    // --- INSTANTIATIONS -------------------------------------
           
@@ -116,7 +115,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
 	   .rMSR_BIP			(rMSR_BIP),
-	   .aexm_icache_datai           (AEXM_FIXME),
+	   .aexm_icache_datai           (aexm_icache_datai),
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
 	   .grst			(grst),
@@ -132,9 +131,9 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rMXALT			(rMXALT[1:0]),
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
-	   .aexm_dcache_precycle_enable (AEXM_FIXME),
-	   .aexm_dcache_cycle_enable    (AEXM_FIXME),
-	   .aexm_dcache_cycle_we        (AEXM_FIXME),
+	   .aexm_dcache_precycle_enable (aexm_dcache_precycle_enable),
+	   .aexm_dcache_cycle_enable    (aexm_dcache_cycle_enable),
+	   .aexm_dcache_cycle_we        (aexm_dcache_cycle_we),
 	   // Inputs
 	   .rDLY			(rDLY),
 	   .rIMM			(rIMM[15:0]),
@@ -154,8 +153,8 @@ module aeMB_edk32 (/*AUTOARG*/
    aeMB_bpcu #(IW)
      bpcu (/*AUTOINST*/
 	   // Outputs
-	   .aexm_icache_cycle_addr      (AEXM_FIXME),
-	   .aexm_icache_precycle_addr   (AEXM_FIXME),
+	   .aexm_icache_cycle_addr      (aexm_icache_cycle_addr),
+	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),
 	   .rBRA			(rBRA),
@@ -178,7 +177,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rREGA			(rREGA[31:0]),
 	   .rREGB			(rREGB[31:0]),
 	   .rDWBDI			(rDWBDI[31:0]),
-	   .aexm_dcache_datao           (AEXM_FIXME),
+	   .aexm_dcache_datao           (aexm_dcache_datao),
 	   // Inputs
 	   .rOPC			(rOPC[5:0]),
 	   .rRA				(rRA[4:0]),
@@ -191,7 +190,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rBRA			(rBRA),
 	   .rDLY			(rDLY),
-	   .aexm_dcache_datai           (AEXM_FIXME),
+	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .gena			(gena));   
@@ -199,8 +198,8 @@ module aeMB_edk32 (/*AUTOARG*/
    aeMB_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
 	   // Outputs
-	   .aexm_dcache_precycle_addr   (AEXM_FIXME),
-	   .aexm_dcache_cycle_addr      (AEXM_FIXME),
+	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
+	   .aexm_dcache_cycle_addr      (aexm_dcache_cycle_addr),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rMSR_IE			(rMSR_IE),
