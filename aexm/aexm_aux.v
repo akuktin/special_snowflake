@@ -1,18 +1,17 @@
 module cache_stall(input  cache_busy_n,
 		   input  cpu_force,
+		   input  cpu_req,
 		   output cache_enable);
   reg 			  xcache_enable;
   assign cache_enable = xcache_enable;
 
-  always @(cache_busy or cpu_force)
+  always @(cpu_force or cpu_req or cache_busy_n)
     begin
-      if (cpu_force)
-	xcache_enable <= 1;
-      else
-	if (cache_busy_n)
-	  xcache_enable <= 1;
-	else
-	  xcache_enable <= 0;
+      case ({cpu_force,cpu_req,cache_busy_n})
+	3'b1xx: xcache_enable <= 1;
+	3'b011: xcache_enable <= 1;
+	default: xcache_enable <= 0;
+      endcase // case ({cpu_force,cpu_req,cache_busy_n})
     end
 
 endmodule // cache_stall
