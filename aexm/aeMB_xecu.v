@@ -333,7 +333,6 @@ module aeMB_xecu (/*AUTOARG*/
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	rDWBSEL <= 4'h0;
-	rFSLADR <= 13'h0;
 	rMSR_BE <= 1'h0;
 	rMSR_BIP <= 1'h0;
 	rMSR_C <= 1'h0;
@@ -347,7 +346,6 @@ module aeMB_xecu (/*AUTOARG*/
 	rMSR_IE <= #1 xMSR_IE;	
 	rMSR_BE <= #1 xMSR_BE;	
 	rMSR_BIP <= #1 xMSR_BIP;
-	rFSLADR <= #1 xFSLADR;
      end
    
 endmodule // aeMB_xecu

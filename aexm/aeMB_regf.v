@@ -140,7 +140,7 @@ module aeMB_regf (/*AUTOARG*/
 			(fDFWD_R) ? rRESULT :
 			rREGD;   
    
-   always @(/*AUTOSENSE*/rOPC or xDST or xFSL)
+   always @(/*AUTOSENSE*/rOPC or xDST)
      case (rOPC[1:0])
        // 8'bit
        2'h0: xDWBDO <= {(4){xDST[7:0]}};
