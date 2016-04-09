@@ -129,7 +129,7 @@ module aeMB_ibuf (/*AUTOARG*/
 	// End of automatics
      end else if (gena) begin
 	{rOPC, rRD, rRA, rIMM} <= #1 xIREG;
-	rSIMM <= #1 xSIMM;	
+	rSIMM <= #1 xSIMM;
      end
 
    // --- STALL FOR MUL/BSF -----------------------------------
@@ -146,7 +146,7 @@ module aeMB_ibuf (/*AUTOARG*/
 	rSTALL <= 1'h0;
 	// End of automatics
      end else begin
-	rSTALL <= #1 (!rSTALL & (fMUL | fBSF)) | (oena & rSTALL);	
+	rSTALL <= #1 (!rSTALL & (fMUL | fBSF)) | (oena & rSTALL);
      end
    
 endmodule // aeMB_ibuf
