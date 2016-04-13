@@ -137,8 +137,8 @@ module aeMB_ibuf (/*AUTOARG*/
    wire [5:0] wOPC = xIREG[31:26];   
    
    wire       fMUL = (wOPC == 6'o20) | (wOPC == 6'o30);
-   wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);   
-   
+   wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
+
    always @(posedge gclk)
      if (grst) begin
 	/*AUTORESET*/
