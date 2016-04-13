@@ -229,8 +229,6 @@ module aeMB_ctrl (/*AUTOARG*/
 
    // --- DATA WISHBONE ----------------------------------
 
-   wire 	 fDACK = !(dwb_stb_o ^ dwb_ack_i);
-   
    reg 		 rDWBSTB, xDWBSTB;
    reg 		 rDWBWRE, xDWBWRE;
 
@@ -259,7 +257,7 @@ module aeMB_ctrl (/*AUTOARG*/
 	rDWBSTB <= 1'h0;
 	rDWBWRE <= 1'h0;
 	// End of automatics
-     end else if (fDACK) begin
+     end else if (gena) begin
 	rDWBSTB <= #1 xDWBSTB;
 	rDWBWRE <= #1 xDWBWRE;	
      end
