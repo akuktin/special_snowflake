@@ -22,6 +22,7 @@
 module aeMB_ibuf (/*AUTOARG*/
    // Outputs
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
+   aexm_icache_enable,
    // Inputs
    rBRA, rMSR_IE, rMSR_BIP, aexm_icache_datai, sys_int_i, gclk,
    grst, gena, oena
@@ -42,6 +43,7 @@ module aeMB_ibuf (/*AUTOARG*/
    
    // INST WISHBONE
    input [31:0]  aexm_icache_datai;
+   output 	 aexm_icache_enable;
 
    // SYSTEM
    input 	 sys_int_i;   
@@ -138,6 +140,10 @@ module aeMB_ibuf (/*AUTOARG*/
    
    wire       fMUL = (wOPC == 6'o20) | (wOPC == 6'o30);
    wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
+   wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
+   wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
+
+   assign aexm_icache_enable = !rSTALL;
 
    always @(posedge gclk)
      if (grst) begin
@@ -146,7 +152,7 @@ module aeMB_ibuf (/*AUTOARG*/
 	rSTALL <= 1'h0;
 	// End of automatics
      end else begin
-	rSTALL <= #1 (!rSTALL & (fMUL | fBSF)) | (oena & rSTALL);
+	rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR)) | (oena & rSTALL);
      end
    
 endmodule // aeMB_ibuf

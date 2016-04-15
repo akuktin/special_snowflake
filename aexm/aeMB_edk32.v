@@ -25,6 +25,7 @@ module aeMB_edk32 (/*AUTOARG*/
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    aexm_dcache_datao, aexm_dcache_cycle_we,
    aexm_dcache_precycle_enable, aexm_dcache_cycle_enable,
+   aexm_icache_precycle_enable,
    // Inputs
    aexm_icache_datai, aexm_dcache_datai,
    aexm_icache_cache_busy_n, aexm_dcache_cache_busy_n,
@@ -41,6 +42,7 @@ module aeMB_edk32 (/*AUTOARG*/
   output [31:0] aexm_icache_precycle_addr;
   output [31:0] aexm_icache_cycle_addr;
   input [31:0]  aexm_icache_datai;
+  output 	aexm_icache_precycle_enable;
 
   output [31:0] aexm_dcache_precycle_addr;
   output [31:0] aexm_dcache_cycle_addr;
@@ -111,6 +113,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
 	   .rSTALL			(rSTALL),
+	   .aexm_icache_enable          (aexm_icache_precycle_enable),
 	   // Inputs
 	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
