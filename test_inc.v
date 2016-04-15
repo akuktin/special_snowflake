@@ -19,19 +19,21 @@ module ram_dp_true_m(input [31:0] DataInA,
   assign QA = r_data[addr_regA];
   assign QB = r_data[addr_regB];
 
-  always @(posedge ClockA & ClockEnA)
-    begin
-      if (WrA)
-        r_data[AddressA] <= DataInA;
-      addr_regA <= AddressA;
-    end
+  always @(posedge ClockA)
+    if (ClockEnA)
+      begin
+	if (WrA)
+          r_data[AddressA] <= DataInA;
+	addr_regA <= AddressA;
+      end
 
-  always @(posedge ClockB & ClockEnB)
-    begin
-      if (WrB)
-        r_data[AddressB] <= DataInB;
-      addr_regB <= AddressB;
-    end
+  always @(posedge ClockB)
+    if (ClockEnB)
+      begin
+	if (WrB)
+          r_data[AddressB] <= DataInB;
+	addr_regB <= AddressB;
+      end
 
 endmodule
 
@@ -50,10 +52,10 @@ module iceram32(output [31:0] RDATA,
 		    .DataInB(WDATA),
 		    .AddressA(RADDR),
 		    .AddressB(WADDR),
-		    .ClockA(RCLK & RE),
-		    .ClockB(WCLK),
-		    .ClockEnA(RCLKE),
-		    .ClockEnB(WCLKE),
+		    .ClockA(RCLK & RCLKE),
+		    .ClockB(WCLK & WCLKE),
+		    .ClockEnA(RE),
+		    .ClockEnB(WE),
 		    .WrA(1'b0),
 		    .WrB(WE),
 		    .QA(RDATA),
@@ -76,10 +78,10 @@ module iceram16(output [15:0] RDATA,
 		    .DataInB({16'd0,WDATA}),
 		    .AddressA(RADDR),
 		    .AddressB(WADDR),
-		    .ClockA(RCLK & RE),
-		    .ClockB(WCLK),
-		    .ClockEnA(RCLKE),
-		    .ClockEnB(WCLKE),
+		    .ClockA(RCLK & RCLKE),
+		    .ClockB(WCLK & WCLKE),
+		    .ClockEnA(RE),
+		    .ClockEnB(WE),
 		    .WrA(1'b0),
 		    .WrB(WE),
 		    .QA({ignore,RDATA}),
