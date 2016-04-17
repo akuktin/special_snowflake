@@ -24,7 +24,7 @@ module aeMB_edk32 (/*AUTOARG*/
    aexm_icache_precycle_addr, aexm_icache_cycle_addr,
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    aexm_dcache_datao, aexm_dcache_cycle_we,
-   aexm_dcache_precycle_enable, aexm_dcache_cycle_enable,
+   aexm_dcache_precycle_enable,
    aexm_icache_precycle_enable,
    // Inputs
    aexm_icache_datai, aexm_dcache_datai,
@@ -50,7 +50,6 @@ module aeMB_edk32 (/*AUTOARG*/
   output [31:0] aexm_dcache_datao;
   output        aexm_dcache_cycle_we;
   output        aexm_dcache_precycle_enable;
-  output        aexm_dcache_cycle_enable;
 
   input 	aexm_icache_cache_busy_n;
   input 	aexm_dcache_cache_busy_n;
@@ -96,8 +95,8 @@ module aeMB_edk32 (/*AUTOARG*/
    wire 		gena = aexm_icache_cache_busy_n &
 			       aexm_dcache_cache_busy_n &
 			       !rSTALL;
-   wire 		oena = (!aexm_icache_cache_busy_n) |
-			       (!aexm_dcache_cache_busy_n);
+   wire 		oena = !(aexm_icache_cache_busy_n &
+				 aexm_dcache_cache_busy_n);
    
    // --- INSTANTIATIONS -------------------------------------
           
@@ -135,7 +134,6 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
 	   .aexm_dcache_precycle_enable (aexm_dcache_precycle_enable),
-	   .aexm_dcache_cycle_enable    (aexm_dcache_cycle_enable),
 	   .aexm_dcache_cycle_we        (aexm_dcache_cycle_we),
 	   // Inputs
 	   .rDLY			(rDLY),
@@ -151,7 +149,8 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena));
+	   .gena			(gena),
+	   .oena                        (oena));
 
    aeMB_bpcu #(IW)
      bpcu (/*AUTOINST*/

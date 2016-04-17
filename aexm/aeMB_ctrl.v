@@ -55,11 +55,11 @@
 module aeMB_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW,
-   aexm_dcache_precycle_enable, aexm_dcache_cycle_enable,
+   aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
    rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rPC, rBRA, rMSR_IE, xIREG,
-   gclk, grst, gena
+   gclk, grst, gena, oena
    );
    // INTERNAL   
    //output [31:2] rPCLNK;
@@ -80,8 +80,8 @@ module aeMB_ctrl (/*AUTOARG*/
 
    // MCU
    output aexm_dcache_precycle_enable;
-   output aexm_dcache_cycle_enable;
    output aexm_dcache_cycle_we;
+   input oena;
 
    // SYSTEM
    input 	 gclk, grst, gena;
@@ -234,20 +234,20 @@ module aeMB_ctrl (/*AUTOARG*/
 
 
   assign aexm_dcache_precycle_enable = xDWBSTB;
-  assign aexm_dcache_cycle_enable = rDWBSTB;
   assign aexm_dcache_cycle_we = rDWBWRE;
    
-   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR)
+   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or rDWBWRE or xDWBSTB)
      //if (fSKIP | |rXCE) begin
-     if (fSKIP) begin
+//     if (fSKIP) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
-	xDWBSTB <= 1'h0;
-	xDWBWRE <= 1'h0;
+//	xDWBSTB <= 1'h0;
+//	xDWBWRE <= 1'h0;
 	// End of automatics
-     end else begin
-	xDWBSTB <= (fLOD | fSTR);
-	xDWBWRE <= fSTR;
+//     end else begin
+     begin
+       xDWBSTB <= (fLOD | fSTR) & (!rDWBSTB);
+       xDWBWRE <= fSTR & (!rDWBWRE);
      end
    
    always @(posedge gclk)
@@ -257,9 +257,10 @@ module aeMB_ctrl (/*AUTOARG*/
 	rDWBSTB <= 1'h0;
 	rDWBWRE <= 1'h0;
 	// End of automatics
-     end else if (gena) begin
-	rDWBSTB <= #1 xDWBSTB;
-	rDWBWRE <= #1 xDWBWRE;	
+//     end else if (gena) begin
+     end else if (!oena) begin
+       rDWBSTB <= #1 xDWBSTB;
+       rDWBWRE <= #1 xDWBWRE;
      end
    
 

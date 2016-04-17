@@ -143,7 +143,7 @@ module aeMB_ibuf (/*AUTOARG*/
    wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
    wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
 
-   assign aexm_icache_enable = !rSTALL;
+  assign aexm_icache_enable = gena;//!rSTALL;
 
    always @(posedge gclk)
      if (grst) begin
@@ -152,7 +152,8 @@ module aeMB_ibuf (/*AUTOARG*/
 	rSTALL <= 1'h0;
 	// End of automatics
      end else begin
-	rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR)) | (oena & rSTALL);
+//	rSTALL <= #1 (!rSTALL & (fMUL | fBSF)) | (oena & rSTALL);
+       rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR)) | (oena & rSTALL);
      end
    
 endmodule // aeMB_ibuf
