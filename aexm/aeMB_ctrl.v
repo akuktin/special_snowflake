@@ -238,14 +238,13 @@ module aeMB_ctrl (/*AUTOARG*/
    
    always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or rDWBWRE or rDWBSTB)
      //if (fSKIP | |rXCE) begin
-//     if (fSKIP) begin
+     if (fSKIP) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
-//	xDWBSTB <= 1'h0;
-//	xDWBWRE <= 1'h0;
+	xDWBSTB <= 1'h0;
+	xDWBWRE <= 1'h0;
 	// End of automatics
-//     end else begin
-     begin
+     end else begin
        xDWBSTB <= (fLOD | fSTR) & (!rDWBSTB);
        xDWBWRE <= fSTR & (!rDWBWRE);
      end
