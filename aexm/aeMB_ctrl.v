@@ -236,7 +236,7 @@ module aeMB_ctrl (/*AUTOARG*/
   assign aexm_dcache_precycle_enable = xDWBSTB;
   assign aexm_dcache_cycle_we = rDWBWRE;
    
-   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or rDWBWRE or xDWBSTB)
+   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or rDWBWRE or rDWBSTB)
      //if (fSKIP | |rXCE) begin
 //     if (fSKIP) begin
 	/*AUTORESET*/
