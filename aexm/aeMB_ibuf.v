@@ -153,7 +153,11 @@ module aeMB_ibuf (/*AUTOARG*/
 	// End of automatics
      end else begin
 //	rSTALL <= #1 (!rSTALL & (fMUL | fBSF)) | (oena & rSTALL);
-       rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR)) | (oena & rSTALL);
+
+       if (!oena)
+	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR));
+       else
+	 rSTALL <= #1 0;
      end
    
 endmodule // aeMB_ibuf
