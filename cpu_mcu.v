@@ -68,6 +68,7 @@ module cache (input CPU_CLK,
   reg 			    mcu_valid_data, cachehit_vld;
 
   reg [31:0] 		    aexm_cache_cycle_addr;
+  reg 			    aexm_cache_cycle_enable;
 
   assign mem_do_act = (!MEM_LOOKUP_m_n) & dma_mcu_access &
 		      (!request_acted_on);
@@ -233,7 +234,7 @@ module cache (input CPU_CLK,
 	read_counter_NULL_r <= 0; request_acted_on_r <= 0;
 	writing_into_mem <= 0; TLB_write_busy <= 0;
 	WE_TLB_prev <= 0; vmem <= 0;
-	aexm_cache_cycle_addr <= 0;
+	aexm_cache_cycle_addr <= 0; aexm_cache_cycle_enable <= 0;
       end
     else
       begin
@@ -252,6 +253,7 @@ module cache (input CPU_CLK,
 
 	if (aexm_cache_precycle_enable)
 	  aexm_cache_cycle_addr <= aexm_cache_precycle_addr;
+	aexm_cache_cycle_enable <= aexm_cache_precycle_enable;
 
 	begin
           writing_into_cache <= inhibited_we;
@@ -261,7 +263,7 @@ module cache (input CPU_CLK,
 	  DATAO_r <= aexm_cache_datao;
         end
 
-        if (inhibited_we || WE_TLB)
+        if (aexm_cache_cycle_enable || WE_TLB)
 	  PH_ADDR_r <= WE_TLB ?
 		       aexm_cache_precycle_addr :
 		       {vmem_rsp_tag,aexm_cache_cycle_addr[18:0]};
