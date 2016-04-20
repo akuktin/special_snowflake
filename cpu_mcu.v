@@ -31,7 +31,6 @@ module cache (input CPU_CLK,
 	      input 	    VMEM_ACT,
 	      input 	    aexm_cache_inhibit,
 //--------------------------------------------------
-	      input [31:0]  aexm_tlb_addr,
 	      output reg    TLB_write_busy,
 	      output 	    MMU_FAULT, /* wire, asserted AT THE END
 					  of the cycle! Register before
@@ -261,7 +260,7 @@ module cache (input CPU_CLK,
 
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= WE_TLB ?
-		       aexm_tlb_addr :
+		       aexm_cache_cycle_addr :
 		       {vmem_rsp_tag,aexm_cache_cycle_addr[18:0]};
 	end
 
@@ -321,6 +320,7 @@ module cache (input CPU_CLK,
 	if (mem_do_act_reg & mem_ack_reg)
 	  request_acted_on <= 1;
 	else
+	  /* maybe change MEM_LOOKUP_m_n here into request_acted_on_r */
 	  if (request_acted_on & MEM_LOOKUP_m_n)
 	    request_acted_on <= 0;
 

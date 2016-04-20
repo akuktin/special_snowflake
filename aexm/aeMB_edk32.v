@@ -24,8 +24,8 @@ module aeMB_edk32 (/*AUTOARG*/
    aexm_icache_precycle_addr, aexm_icache_cycle_addr,
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    aexm_dcache_datao, aexm_dcache_cycle_we,
-   aexm_dcache_precycle_enable,
-   aexm_icache_precycle_enable,
+   aexm_dcache_precycle_enable, aexm_icache_precycle_enable,
+   aexm_dcache_we_tlb, aexm_icache_we_tlb,
    // Inputs
    aexm_icache_datai, aexm_dcache_datai,
    aexm_icache_cache_busy_n, aexm_dcache_cache_busy_n,
@@ -50,6 +50,9 @@ module aeMB_edk32 (/*AUTOARG*/
   output [31:0] aexm_dcache_datao;
   output        aexm_dcache_cycle_we;
   output        aexm_dcache_precycle_enable;
+
+  output 	aexm_dcache_we_tlb;
+  output 	aexm_icache_we_tlb;
 
   input 	aexm_icache_cache_busy_n;
   input 	aexm_dcache_cache_busy_n;
@@ -89,6 +92,10 @@ module aeMB_edk32 (/*AUTOARG*/
 
    input 		sys_clk_i;
    input 		sys_rst_i;
+
+  assign aexm_dcache_we_tlb = 1'b0;
+  assign aexm_icache_we_tlb = 1'b0;
+
 
    wire 		grst = sys_rst_i;
    wire 		gclk = sys_clk_i;
