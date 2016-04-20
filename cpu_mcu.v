@@ -260,7 +260,7 @@ module cache (input CPU_CLK,
 
 	  DATAO_r <= aexm_cache_datao;
 	  PH_ADDR_r <= WE_TLB ?
-		       aexm_cache_cycle_addr :
+		       aexm_cache_precycle_addr :
 		       {vmem_rsp_tag,aexm_cache_cycle_addr[18:0]};
 	end
 
