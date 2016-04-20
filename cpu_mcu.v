@@ -358,7 +358,6 @@ module cache (input CPU_CLK,
 
   /* MISSING:
    *
-   * 5. Missing a way to DEACTIVATE virtual memmory!
    * 6. HAZARD: if there is an outstanding memory read, and WE_TLB cuts in
    *            before the operation finishes, the MCU will hang.
    */
