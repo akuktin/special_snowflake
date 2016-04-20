@@ -259,10 +259,12 @@ module cache (input CPU_CLK,
 	  writing_into_mem <= (inhibited_we || WE_TLB);
 
 	  DATAO_r <= aexm_cache_datao;
+        end
+
+        if (inhibited_we || WE_TLB)
 	  PH_ADDR_r <= WE_TLB ?
 		       aexm_cache_precycle_addr :
 		       {vmem_rsp_tag,aexm_cache_cycle_addr[18:0]};
-	end
 
 	begin
 	  read_counter_NULL_r <= read_counter_NULL_data;
