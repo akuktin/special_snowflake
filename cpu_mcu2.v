@@ -1,0 +1,238 @@
+module snowball_cache(input CPU_CLK,
+		      input 		MCU_CLK,
+		      input 		RST,
+		      input [31:0] 	cache_precycle_addr,
+		      input [31:0] 	cache_datao, // CPU perspective
+		      output reg [31:0] cache_datai, // CPU perspective
+		      input 		cache_precycle_we,
+		      output reg 	cache_busy,
+		      input 		cache_precycle_enable,
+//--------------------------------------------------
+//--------------------------------------------------
+		      input 		dma_mcu_access,
+		      output reg [31:0] mem_addr,
+		      output 		mem_we,
+		      output 		mem_do_act,
+		      output reg [31:0] mem_dataintomem,
+		      input 		mem_ack,
+		      input [31:0] 	mem_datafrommem,
+//--------------------------------------------------
+		      input 		VMEM_ACT,
+		      input 		cache_inhibit,
+//--------------------------------------------------
+		      output reg 	MMU_FAULT,
+		      input 		WE_TLB);
+  reg 			    vmem;
+  reg 			    mcu_responded_trans, mcu_active_trans;
+  reg 			    cache_vld, cache_tlb,
+			    cache_tlb_trans;
+  reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
+  reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
+  reg 			    cache_cycle_we, tlb_cycle_we;
+  reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
+			    mem_do_act_reg, mem_ack_reg;
+  reg [2:0] 		    read_counter;
+  reg [31:0] 		    data_mcu_trans;
+  reg [7:0] 		    w_addr;
+
+  wire [31:0] 		    data_cache, wdata_data, wctag_data;
+  wire 			    cache_hit, mcu_responded, w_MMU_FAULT;
+
+  wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
+
+  wire [13:0] 		    vmem_rsp_tag, rsp_tag, mmu_req, mmu_vtag;
+  wire [21:0] 		    req_tag;
+  wire [7:0] 		    idx, tlb_idx;
+  wire 			    cache_work, wdata_we, tlb_we;
+
+  reg 			    mcu_valid_data, capture_data;
+
+  assign idx = cache_cycle_addr[9:2];
+  assign tlb_idx = cache_cycle_addr[17:10];
+  assign mmu_req = cache_cycle_addr[31:18];
+  assign cache_work = cache_precycle_enable && (! cache_inhibit);
+
+  assign vmem_rsp_tag = vmem ? rsp_tag : mmu_req;
+
+  assign tlb_in_tag = mem_dataintomem[31:16];
+  assign tlb_in_mmu = mem_dataintomem[15:0];
+
+  /* This bit here can be optimized to perform checking vmem_rsp_tag in a
+   * single gate. That is, a single gate can both compare and switch
+   * what it compares to. I probably didn't code it well enough, though. */
+  assign cache_hit = (({cache_vld,req_tag} ^
+		       {1'b1,vmem_rsp_tag,tlb_idx}) ==
+		      {(23){1'b0}}) ? 1 : 0;
+  /* This bit here should be implementable exclusively by hacking the
+   * carry chain. I probably didn't code this well enough also. */
+  assign w_MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
+
+  iceram32 cachedat(.RDATA(data_cache),
+                    .RADDR(idx),
+                    .RE(cache_work),
+                    .RCLKE(1'b1),
+                    .RCLK(CPU_CLK),
+                    .WDATA(wdata_data),
+                    .MASK(0),
+                    .WADDR(w_addr),
+                    .WE(wdata_we),
+                    .WCLKE(1'b1),
+                    .WCLK(MCU_CLK));
+
+  wire [9:0] 		    ignore_cachetag;
+  iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
+                    .RADDR(idx),
+                    .RE(cache_work),
+                    .RCLKE(1'b1),
+                    .RCLK(CPU_CLK),
+                    .WDATA(wctag_data),
+                    .MASK(0),
+                    .WADDR(w_addr),
+                    .WE(wdata_we),
+                    .WCLKE(1'b1),
+                    .WCLK(MCU_CLK));
+
+  wire [1:0] 		    ignore_tlb;
+  iceram16 tlb(.RDATA({ignore_tlb,rsp_tag}),
+               .RADDR(tlb_idx),
+               .RE(cache_work),
+               .RCLKE(1'b1),
+               .RCLK(CPU_CLK),
+	       .WDATA(tlb_in_tag),
+	       .MASK(0),
+	       .WADDR(mem_addr[9:2]),
+	       .WE(tlb_we),
+	       .WCLKE(1'b1),
+	       .WCLK(MCU_CLK));
+
+  wire [1:0] 		    ignore_tlbtag;
+  iceram16 tlbtag(.RDATA({ignore_tlbtag,mmu_vtag}),
+		  .RADDR(tlb_idx),
+		  .RE(cache_work),
+		  .RCLKE(1'b1),
+		  .RCLK(CPU_CLK),
+		  .WDATA(tlb_in_mmu),
+		  .MASK(0),
+		  .WADDR(mem_addr[9:2]),
+		  .WE(tlb_we),
+		  .WCLKE(1'b1),
+		  .WCLK(MCU_CLK));
+
+  assign mcu_responded = mcu_responded_reg[0] ^ mcu_responded_reg[1];
+
+  always @(posedge CPU_CLK)
+    if (!RST)
+      begin
+	vmem <= 0; MMU_FAULT <= 0; cache_vld <= 0; cache_tlb <= 0;
+	cache_cycle_addr <= 0; cache_cycle_we <= 0;
+	data_tomem_trans <= 0; tlb_cycle_we <= 0; cache_busy <= 0;
+	cache_datai <= 0; mcu_active_trans <= 0; cache_tlb_trans <= 0;
+	mcu_responded_reg <= 0;
+      end
+    else
+      begin
+	vmem <= VMEM_ACT;
+	MMU_FAULT <= w_MMU_FAULT;
+
+	cache_vld <= cache_work;
+	cache_tlb <= WE_TLB;
+
+	if (cache_work || WE_TLB)
+	  begin
+	    cache_cycle_addr <= cache_precycle_addr;
+	    cache_cycle_we <= cache_precycle_we;
+	    data_tomem_trans <= cache_datao;
+	    tlb_cycle_we <= WE_TLB;
+
+	    cache_busy <= 1;
+	  end
+	else
+	  begin
+	    if ((cache_hit && (! cache_cycle_we)) ||
+		mcu_responded || w_MMU_FAULT)
+	      cache_busy <= 0;
+
+	    if (cache_vld)
+	      cache_datai <= data_cache;
+	    else if (mcu_responded)
+	      cache_datai <= data_mcu_trans;
+	  end // else: !if(cache_precycle_enable)
+
+	if ((cache_vld && (!w_MMU_FAULT) &&
+	     ((!cache_hit) || cache_cycle_we)) ||
+	    (cache_tlb))
+	  mcu_active_trans <= 1;
+	else
+	  mcu_active_trans <= 0;
+
+	cache_tlb_trans <= cache_tlb; // needed to create a delay.
+	mcu_responded_reg <= {mcu_responded_reg[0],mcu_responded_trans};
+      end // else: !if(!RST)
+
+  assign mcu_active = mcu_active_reg[0] && (! mcu_active_reg[1] );
+  assign mem_we = (mcu_we || tlb_we_reg) && (!mem_ack_reg);
+  assign mem_do_act = mem_do_act_pre && dma_mcu_access;
+
+  assign wdata_data = mcu_we ? mem_dataintomem : mem_datafrommem;
+  assign wdata_we = (mcu_active && mcu_we) ||
+		    (mcu_valid_data);
+  /* The below wctag_data is sure to cause problems because the p&r tool
+   * will almost certainly get confused by signals belonging to different
+   * clock domains. */
+  assign wctag_data = mcu_we ? mem_addr[31:10] : {vmem_rsp_tag,tlb_idx};
+  assign tlb_we = mcu_active && tlb_we_reg;
+
+  always @(read_counter)
+    case (read_counter)
+      3'd6: begin mcu_valid_data <= 1; capture_data <= 1; end
+      3'd7: begin mcu_valid_data <= 1; capture_data <= 0; end
+      default: begin mcu_valid_data <= 0; capture_data <= 0; end
+    endcase // case (read_counter)
+
+  always @(posedge MCU_CLK)
+    if (!RST)
+      begin
+	mem_dataintomem <= 0; mem_addr <= 0; mcu_we <= 0;
+	mcu_active_reg <= 0; tlb_we_reg <= 0; mem_do_act_pre <= 0;
+	mem_do_act_reg <= 0; mem_ack_reg <= 0; read_counter <= 0;
+	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
+      end
+    else
+      begin
+	mem_dataintomem <= data_tomem_trans;
+	mem_addr <= cache_cycle_addr;
+	mcu_we <= cache_cycle_we;
+	mcu_active_reg <= {mcu_active_reg[0],mcu_active_trans};
+	tlb_we_reg <= tlb_cycle_we;
+
+	if (mcu_active)
+	  mem_do_act_pre <= 1;
+	else
+	  if (mem_do_act_reg && mem_ack_reg)
+	    mem_do_act_pre <= 0;
+
+	mem_do_act_reg <= mem_do_act;
+	mem_ack_reg <= mem_ack;
+
+	if ((mem_do_act_reg && mem_ack_reg) &&
+	    (! (mcu_we || tlb_we_reg)))
+//	  read_counter <= 3'd2;
+	  read_counter <= 3'd4; // for testing only
+	else
+	  if (read_counter != 3'd0)
+	    read_counter <= read_counter +1;
+
+	if (capture_data)
+	  begin
+	    data_mcu_trans <= mem_datafrommem;
+	    w_addr <= {mem_addr[9:3],(~mem_addr[2])};
+	  end
+	else
+	  w_addr <= mem_addr[9:2];
+
+	if ((mem_do_act && mem_ack_reg && (mcu_we || tlb_we_reg)) ||
+	    (capture_data))
+	  mcu_responded_trans <= !mcu_responded_trans;
+      end
+
+endmodule // cache
