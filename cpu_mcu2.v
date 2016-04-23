@@ -36,6 +36,7 @@ module snowball_cache(input CPU_CLK,
   reg [2:0] 		    read_counter;
   reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans;
   reg [7:0] 		    w_addr;
+  reg [21:0] 		    wctag_data_forread_trans, wctag_data_forread;
 
   wire [31:0] 		    data_cache, wdata_data, wctag_data;
   wire 			    cache_hit, mcu_responded, w_MMU_FAULT;
@@ -44,14 +45,16 @@ module snowball_cache(input CPU_CLK,
 
   wire [13:0] 		    vmem_rsp_tag, rsp_tag, mmu_req, mmu_vtag;
   wire [21:0] 		    req_tag;
-  wire [7:0] 		    idx, tlb_idx;
+  wire [7:0] 		    idx_pre, tlb_idx_pre, tlb_idx;
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
 			    tlb_reinit, cache_reinit;
 
   reg 			    mcu_valid_data, capture_data;
 
-  assign idx = cache_cycle_addr[9:2];
+  assign idx_pre = cache_precycle_addr[9:2];
+  assign tlb_idx_pre = cache_precycle_addr[17:10];
+
   assign tlb_idx = cache_cycle_addr[17:10];
   assign mmu_req = cache_cycle_addr[31:18];
   assign cache_work = cache_precycle_enable && (! cache_inhibit);
@@ -71,7 +74,7 @@ module snowball_cache(input CPU_CLK,
   assign w_MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
 
   iceram32 cachedat(.RDATA(data_cache),
-                    .RADDR(idx),
+                    .RADDR(idx_pre),
                     .RE(activate_cache),
                     .RCLKE(1'b1),
                     .RCLK(CPU_CLK),
@@ -84,7 +87,7 @@ module snowball_cache(input CPU_CLK,
 
   wire [9:0] 		    ignore_cachetag;
   iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
-                    .RADDR(idx),
+                    .RADDR(idx_pre),
                     .RE(activate_cache),
                     .RCLKE(1'b1),
                     .RCLK(CPU_CLK),
@@ -97,7 +100,7 @@ module snowball_cache(input CPU_CLK,
 
   wire [1:0] 		    ignore_tlb;
   iceram16 tlb(.RDATA({ignore_tlb,rsp_tag}),
-               .RADDR(tlb_idx),
+               .RADDR(tlb_idx_pre),
                .RE(activate_cache),
                .RCLKE(1'b1),
                .RCLK(CPU_CLK),
@@ -110,7 +113,7 @@ module snowball_cache(input CPU_CLK,
 
   wire [1:0] 		    ignore_tlbtag;
   iceram16 tlbtag(.RDATA({ignore_tlbtag,mmu_vtag}),
-		  .RADDR(tlb_idx),
+		  .RADDR(tlb_idx_pre),
 		  .RE(activate_cache),
 		  .RCLKE(1'b1),
 		  .RCLK(CPU_CLK),
@@ -137,7 +140,7 @@ module snowball_cache(input CPU_CLK,
 	cache_datai <= 0; mcu_active_trans <= 0; cache_tlb_trans <= 0;
 	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
 	w_we_trans <= 0; w_tlb_trans <= 0; w_addr_trans <= 0;
-	w_data_trans <= 0;
+	w_data_trans <= 0; wctag_data_forread_trans <= 0;
       end
     else
       begin
@@ -162,6 +165,7 @@ module snowball_cache(input CPU_CLK,
 	  w_data_trans <= data_tomem_trans;
 	  w_we_trans <= cache_cycle_we;
 	  w_tlb_trans <= tlb_cycle_we;
+	  wctag_data_forread_trans <= {vmem_rsp_tag,tlb_idx};
 	end
 
 	if ((cache_vld && (!w_MMU_FAULT) &&
@@ -209,10 +213,7 @@ module snowball_cache(input CPU_CLK,
   assign wdata_data = mcu_we ? mem_dataintomem : mem_datafrommem;
   assign wdata_we = (mcu_active_delay && mcu_we) ||
 		    (mcu_valid_data);
-  /* The below wctag_data is sure to cause problems because the p&r tool
-   * will almost certainly get confused by signals belonging to different
-   * clock domains. */
-  assign wctag_data = mcu_we ? mem_addr[31:10] : {vmem_rsp_tag,tlb_idx};
+  assign wctag_data = mcu_we ? mem_addr[31:10] : wctag_data_forread;
   assign tlb_we = mcu_active && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
@@ -230,7 +231,7 @@ module snowball_cache(input CPU_CLK,
 	mcu_active_reg <= 0; tlb_we_reg <= 0; mem_do_act_pre <= 0;
 	mem_do_act_reg <= 0; mem_ack_reg <= 0; read_counter <= 0;
 	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
-	mcu_active_delay <= 0;
+	mcu_active_delay <= 0; wctag_data_forread <= 0;
       end
     else
       begin
@@ -245,6 +246,7 @@ module snowball_cache(input CPU_CLK,
 	    mem_addr <= w_addr_trans;
 	    mcu_we <= w_we_trans;
 	    tlb_we_reg <= w_tlb_trans;
+	    wctag_data_forread <= wctag_data_forread_trans;
 	  end
 	else
 	  if (mem_do_act_reg && mem_ack_reg)
