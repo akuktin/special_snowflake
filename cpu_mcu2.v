@@ -136,6 +136,8 @@ module snowball_cache(input CPU_CLK,
 	data_tomem_trans <= 0; tlb_cycle_we <= 0; cache_busy <= 0;
 	cache_datai <= 0; mcu_active_trans <= 0; cache_tlb_trans <= 0;
 	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
+	w_we_trans <= 0; w_tlb_trans <= 0; w_addr_trans <= 0;
+	w_data_trans <= 0;
       end
     else
       begin
