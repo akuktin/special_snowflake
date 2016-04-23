@@ -25,14 +25,16 @@ module snowball_cache(input CPU_CLK,
   reg 			    vmem;
   reg 			    mcu_responded_trans, mcu_active_trans;
   reg 			    cache_vld, cache_tlb,
-			    cache_tlb_trans;
+			    cache_tlb_trans, tlb_en_sticky,
+			    cache_en_sticky;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
-			    mem_do_act_reg, mem_ack_reg;
+			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
+			    w_we_trans, w_tlb_trans;
   reg [2:0] 		    read_counter;
-  reg [31:0] 		    data_mcu_trans;
+  reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans;
   reg [7:0] 		    w_addr;
 
   wire [31:0] 		    data_cache, wdata_data, wctag_data;
@@ -43,7 +45,9 @@ module snowball_cache(input CPU_CLK,
   wire [13:0] 		    vmem_rsp_tag, rsp_tag, mmu_req, mmu_vtag;
   wire [21:0] 		    req_tag;
   wire [7:0] 		    idx, tlb_idx;
-  wire 			    cache_work, wdata_we, tlb_we;
+  wire 			    cache_work, wdata_we, tlb_we, op_type_w,
+			    activate_tlb, activate_cache,
+			    tlb_reinit, cache_reinit;
 
   reg 			    mcu_valid_data, capture_data;
 
@@ -131,7 +135,7 @@ module snowball_cache(input CPU_CLK,
 	cache_cycle_addr <= 0; cache_cycle_we <= 0;
 	data_tomem_trans <= 0; tlb_cycle_we <= 0; cache_busy <= 0;
 	cache_datai <= 0; mcu_active_trans <= 0; cache_tlb_trans <= 0;
-	mcu_responded_reg <= 0;
+	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
       end
     else
       begin
@@ -224,6 +228,7 @@ module snowball_cache(input CPU_CLK,
 	mcu_active_reg <= 0; tlb_we_reg <= 0; mem_do_act_pre <= 0;
 	mem_do_act_reg <= 0; mem_ack_reg <= 0; read_counter <= 0;
 	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
+	mcu_active_delay <= 0;
       end
     else
       begin
