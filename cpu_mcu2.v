@@ -32,11 +32,13 @@ module snowball_cache(input CPU_CLK,
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
 			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
-			    w_we_trans, w_tlb_trans;
+			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv;
   reg [2:0] 		    read_counter;
-  reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans;
+  reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans,
+			    w_addr_recv, w_data_recv;
   reg [7:0] 		    w_addr;
-  reg [21:0] 		    wctag_data_forread_trans, wctag_data_forread;
+  reg [21:0] 		    wctag_data_forread_trans,
+			    wctag_data_forread_recv, wctag_data_forread;
 
   wire [31:0] 		    data_cache, wdata_data, wctag_data;
   wire 			    cache_hit, mcu_responded, w_MMU_FAULT;
@@ -75,7 +77,7 @@ module snowball_cache(input CPU_CLK,
 
   iceram32 cachedat(.RDATA(data_cache),
                     .RADDR(idx_pre),
-                    .RE(activate_cache),
+                    .RE(cache_work),
                     .RCLKE(1'b1),
                     .RCLK(CPU_CLK),
                     .WDATA(wdata_data),
@@ -88,7 +90,7 @@ module snowball_cache(input CPU_CLK,
   wire [9:0] 		    ignore_cachetag;
   iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
                     .RADDR(idx_pre),
-                    .RE(activate_cache),
+                    .RE(cache_work),
                     .RCLKE(1'b1),
                     .RCLK(CPU_CLK),
                     .WDATA(wctag_data),
@@ -101,7 +103,7 @@ module snowball_cache(input CPU_CLK,
   wire [1:0] 		    ignore_tlb;
   iceram16 tlb(.RDATA({ignore_tlb,rsp_tag}),
                .RADDR(tlb_idx_pre),
-               .RE(activate_cache),
+               .RE(cache_work),
                .RCLKE(1'b1),
                .RCLK(CPU_CLK),
 	       .WDATA(tlb_in_tag),
@@ -114,7 +116,7 @@ module snowball_cache(input CPU_CLK,
   wire [1:0] 		    ignore_tlbtag;
   iceram16 tlbtag(.RDATA({ignore_tlbtag,mmu_vtag}),
 		  .RADDR(tlb_idx_pre),
-		  .RE(activate_cache),
+		  .RE(cache_work),
 		  .RCLKE(1'b1),
 		  .RCLK(CPU_CLK),
 		  .WDATA(tlb_in_mmu),
@@ -128,8 +130,12 @@ module snowball_cache(input CPU_CLK,
   assign cache_reinit = cache_en_sticky && mcu_responded;
   assign tlb_reinit = tlb_en_sticky && mcu_responded;
 
-  assign activate_cache = (cache_work && (! cache_busy)) || cache_reinit;
-  assign activate_tlb   = (WE_TLB && (! cache_busy)) || tlb_reinit;
+  assign activate_cache = (cache_work &&
+			   (! (cache_busy || cache_vld || cache_tlb))) ||
+			  cache_reinit;
+  assign activate_tlb   = (WE_TLB &&
+			   (! (cache_busy || cache_vld || cache_tlb))) ||
+			  tlb_reinit;
 
   always @(posedge CPU_CLK)
     if (!RST)
@@ -232,21 +238,31 @@ module snowball_cache(input CPU_CLK,
 	mem_do_act_reg <= 0; mem_ack_reg <= 0; read_counter <= 0;
 	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
 	mcu_active_delay <= 0; wctag_data_forread <= 0;
+	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
+	w_tlb_recv <= 0; wctag_data_forread_recv <= 0;
       end
     else
       begin
 	mcu_active_reg <= {mcu_active_reg[0],mcu_active_trans};
 	mcu_active_delay <= mcu_active_delay;
 
+	begin
+	  w_data_recv <= w_data_trans;
+	  w_addr_recv <= w_addr_trans;
+	  w_we_recv <= w_we_trans;
+	  w_tlb_recv <= w_tlb_trans;
+	  wctag_data_forread_recv <= wctag_data_forread_trans;
+	end
+
 	if (mcu_active)
 	  begin
 	    mem_do_act_pre <= 1;
 
-	    mem_dataintomem <= w_data_trans;
-	    mem_addr <= w_addr_trans;
-	    mcu_we <= w_we_trans;
-	    tlb_we_reg <= w_tlb_trans;
-	    wctag_data_forread <= wctag_data_forread_trans;
+	    mem_dataintomem <= w_data_recv;
+	    mem_addr <= w_addr_recv;
+	    mcu_we <= w_we_recv;
+	    tlb_we_reg <= w_tlb_recv;
+	    wctag_data_forread <= wctag_data_forread_recv;
 	  end
 	else
 	  if (mem_do_act_reg && mem_ack_reg)
