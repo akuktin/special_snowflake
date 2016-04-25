@@ -240,9 +240,11 @@ module GlaDOS;
         counter <= counter +1;
 	cache_en_follow <= cache_en;
 
-/*	case (counter)
+	case (counter)
 	default:
-	endcase*/
+	  begin
+	  end
+	endcase
 
       end // else: !if(!_RST)
 
