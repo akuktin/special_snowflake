@@ -268,7 +268,7 @@ module snowball_cache(input CPU_CLK,
     else
       begin
 	mcu_active_reg <= {mcu_active_reg[0],mcu_active_trans};
-	mcu_active_delay <= mcu_active_delay;
+	mcu_active_delay <= mcu_active;
 	if (mcu_active_delay && mcu_we)
 	  mandatory_lookup_pre_sig <= !mandatory_lookup_pre_sig;
 	/* Delay the response for a cycle to guarrantee no incomplete
