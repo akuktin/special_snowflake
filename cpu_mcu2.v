@@ -32,11 +32,13 @@ module snowball_cache(input CPU_CLK,
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
 			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
-			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv;
+			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv,
+			    mandatory_lookup_sig, mandatory_lookup_sig_recv,
+			    mandatory_lookup_exp, cache_prev_we;
   reg [2:0] 		    read_counter;
   reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv;
-  reg [7:0] 		    w_addr;
+  reg [7:0] 		    w_addr, cache_prev_idx;
   reg [21:0] 		    wctag_data_forread_trans,
 			    wctag_data_forread_recv, wctag_data_forread;
 
@@ -50,7 +52,7 @@ module snowball_cache(input CPU_CLK,
   wire [7:0] 		    idx_pre, tlb_idx_pre, tlb_idx;
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
-			    tlb_reinit, cache_reinit;
+			    tlb_reinit, cache_reinit, mandatory_lookup;
 
   reg 			    mcu_valid_data, capture_data;
 
@@ -129,6 +131,11 @@ module snowball_cache(input CPU_CLK,
   assign mcu_responded = mcu_responded_reg[0] ^ mcu_responded_reg[1];
   assign cache_reinit = cache_en_sticky && mcu_responded;
   assign tlb_reinit = tlb_en_sticky && mcu_responded;
+  assign mandatory_lookup = (mandatory_lookup_sig_recv ^
+			     mandatory_lookup_exp) &&
+			    cache_prev_we &&
+			    ((cache_prev_idx ^ cache_cycle_addr[9:2]) ==
+			     8'h00);
 
   assign activate_cache = (cache_work &&
 			   (! (cache_busy || cache_vld || cache_tlb))) ||
@@ -147,6 +154,8 @@ module snowball_cache(input CPU_CLK,
 	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
 	w_we_trans <= 0; w_tlb_trans <= 0; w_addr_trans <= 0;
 	w_data_trans <= 0; wctag_data_forread_trans <= 0;
+	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
+	cache_prev_we <= 0; cache_prev_idx <= 0;
       end
     else
       begin
@@ -175,11 +184,17 @@ module snowball_cache(input CPU_CLK,
 	end
 
 	if ((cache_vld && (!w_MMU_FAULT) &&
-	     ((! cache_hit) || cache_cycle_we)) ||
+	     ((! cache_hit) ||
+	      cache_cycle_we ||
+	      mandatory_lookup)) ||
 	    cache_tlb)
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
+	    cache_prev_we <= cache_cycle_we;
+	    cache_prev_idx <= cache_cycle_addr[9:2];
+	    if (cache_cycle_we)
+	      mandatory_lookup_exp <= !mandatory_lookup_exp;
 	  end
 	else if (mcu_responded)
 	  cache_busy <= 0;
@@ -210,6 +225,7 @@ module snowball_cache(input CPU_CLK,
 
 	cache_tlb_trans <= cache_tlb; // needed to create a delay.
 	mcu_responded_reg <= {mcu_responded_reg[0],mcu_responded_trans};
+	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
       end // else: !if(!RST)
 
   assign mcu_active = mcu_active_reg[0] ^ mcu_active_reg[1];
@@ -240,11 +256,14 @@ module snowball_cache(input CPU_CLK,
 	mcu_active_delay <= 0; wctag_data_forread <= 0;
 	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
 	w_tlb_recv <= 0; wctag_data_forread_recv <= 0;
+	mandatory_lookup_sig <= 0;
       end
     else
       begin
 	mcu_active_reg <= {mcu_active_reg[0],mcu_active_trans};
 	mcu_active_delay <= mcu_active_delay;
+	if (mcu_active_delay && mcu_we)
+	  mandatory_lookup_sig <= !mandatory_lookup_sig;
 
 	begin
 	  w_data_recv <= w_data_trans;
