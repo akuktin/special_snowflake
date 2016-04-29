@@ -55,7 +55,7 @@ module snowball_cache(input CPU_CLK,
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
 			    tlb_reinit, cache_reinit, mandatory_lookup,
-			    mandatory_lookup_act;
+			    mandatory_lookup_act, mem_lookup;
 
   reg 			    mcu_valid_data, capture_data;
 
@@ -142,12 +142,16 @@ module snowball_cache(input CPU_CLK,
 				((cache_prev_idx ^
 				  cache_cycle_addr[9:2]) == 8'h00);
 
-  assign activate_cache = (cache_work &&
-			   (! (cache_busy || cache_vld || cache_tlb))) ||
+  assign activate_cache = (cache_work && (! (cache_busy || mem_lookup))) ||
 			  cache_reinit;
-  assign activate_tlb   = (WE_TLB &&
-			   (! (cache_busy || cache_vld || cache_tlb))) ||
+  assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
+
+  assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
+		       ((! cache_hit) ||
+			cache_cycle_we ||
+			mandatory_lookup_act)) ||
+		      cache_tlb;
 
   always @(posedge CPU_CLK)
     if (!RST)
@@ -190,11 +194,7 @@ module snowball_cache(input CPU_CLK,
 	  wctag_data_forread_trans <= {vmem_rsp_tag,tlb_idx};
 	end
 
-	if ((cache_vld && (!w_MMU_FAULT) &&
-	     ((! cache_hit) ||
-	      cache_cycle_we ||
-	      mandatory_lookup_act)) ||
-	    cache_tlb) // 4 signals and 3 compounds
+	if (mem_lookup) // 4 signals and 3 compounds
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
@@ -206,7 +206,7 @@ module snowball_cache(input CPU_CLK,
 	else if (mcu_responded)
 	  cache_busy <= 0;
 
-	if (activate_cache || activate_tlb) // 11 signals
+	if (activate_cache || activate_tlb) // 8 signals + mem_lookup
 	  begin
 	    if (activate_cache)
 	      begin
