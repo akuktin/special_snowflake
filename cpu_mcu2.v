@@ -194,7 +194,7 @@ module snowball_cache(input CPU_CLK,
 	     ((! cache_hit) ||
 	      cache_cycle_we ||
 	      mandatory_lookup_act)) ||
-	    cache_tlb)
+	    cache_tlb) // 4 signals and 3 compounds
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
@@ -206,7 +206,7 @@ module snowball_cache(input CPU_CLK,
 	else if (mcu_responded)
 	  cache_busy <= 0;
 
-	if (activate_cache || activate_tlb)
+	if (activate_cache || activate_tlb) // 11 signals
 	  begin
 	    if (activate_cache)
 	      begin
@@ -311,10 +311,11 @@ module snowball_cache(input CPU_CLK,
 	if (capture_data)
 	  begin
 	    data_mcu_trans <= mem_datafrommem;
-	    w_addr <= {mem_addr[9:3],(~mem_addr[2])};
+	    w_addr <= {w_addr[9:3],(~w_addr[2])};
 	  end
 	else
-	  w_addr <= mem_addr[9:2];
+	  if (mcu_active)
+	    w_addr <= w_addr_recv[9:2];
 
 	if ((mem_do_act && mem_ack_reg && op_type_w) ||
 	    (capture_data))
