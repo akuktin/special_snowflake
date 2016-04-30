@@ -1,3 +1,8 @@
+/* README!
+ * For disallowing or fixing ghost reads, probably the best place is
+ * cache_hit, which can be fixed to only assert if another logic determines
+ * there are no timing conflicts between cache memory reads and writes. */
+
 module snowball_cache(input CPU_CLK,
 		      input 		MCU_CLK,
 		      input 		RST,
