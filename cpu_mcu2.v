@@ -132,8 +132,10 @@ module snowball_cache(input CPU_CLK,
 		  .WCLK(MCU_CLK));
 
   assign mcu_responded = mcu_responded_reg[0] ^ mcu_responded_reg[1];
-  assign cache_reinit = cache_en_sticky && mcu_responded;
-  assign tlb_reinit = tlb_en_sticky && mcu_responded;
+  assign cache_reinit = cache_en_sticky && (mcu_responded ||
+					    (! cache_busy));
+  assign tlb_reinit = tlb_en_sticky && (mcu_responded ||
+					(! cache_busy));
   assign mandatory_lookup = ((mandatory_lookup_sig_recv ^
 			      mandatory_lookup_exp) &&
 			     cache_prev_we) ||
