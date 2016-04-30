@@ -39,7 +39,8 @@ module snowball_cache(input CPU_CLK,
 			    mandatory_lookup_capture,
 			    cache_prev_we;
   reg [2:0] 		    read_counter;
-  reg [31:0] 		    data_mcu_trans, w_addr_trans, w_data_trans,
+  reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
+			    w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv;
   reg [7:0] 		    w_addr, cache_prev_idx;
   reg [21:0] 		    wctag_data_forread_trans,
@@ -189,7 +190,12 @@ module snowball_cache(input CPU_CLK,
 	  end
 
 	if (cache_vld && (! cache_cycle_we))
-	  cache_datai <= data_cache;
+	  begin
+	    if (! ghost_hit)
+	      cache_datai <= data_cache;
+	    else
+	      cache_datai <= data_mcu_trans_other;
+	  end
 	else if (mcu_responded)
 	  cache_datai <= data_mcu_trans;
 
@@ -273,6 +279,7 @@ module snowball_cache(input CPU_CLK,
 	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
 	w_tlb_recv <= 0; wctag_data_forread_recv <= 0;
 	mandatory_lookup_sig <= 0; mandatory_lookup_pre_sig <= 0;
+	data_mcu_trans_other <= 0;
       end
     else
       begin
@@ -323,8 +330,13 @@ module snowball_cache(input CPU_CLK,
 	    w_addr <= {w_addr[9:3],(~w_addr[2])};
 	  end
 	else
-	  if (mcu_active)
-	    w_addr <= w_addr_recv[9:2];
+	  begin
+	    if (mcu_active)
+	      w_addr <= w_addr_recv[9:2];
+
+	    if (mcu_valid_data)
+	      data_mcu_trans_other <= mem_datafrommem;
+	  end
 
 	if ((mem_do_act && mem_ack_reg && op_type_w) ||
 	    (capture_data))
