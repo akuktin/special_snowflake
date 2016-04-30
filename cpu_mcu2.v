@@ -29,7 +29,7 @@ module snowball_cache(input CPU_CLK,
 			    cache_en_sticky;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
-  reg [29:0] 		    prev_paddr_peer;
+  reg [28:0] 		    prev_paddr_block;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
 			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
@@ -152,9 +152,9 @@ module snowball_cache(input CPU_CLK,
   assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
 
-  assign ghost_hit = ((prev_paddr_peer ^
-		       {vmem_rsp_tag,cache_cycle_addr[17:2]}) ==
-		      30'd0) ? ghost_hit_vld : 0;
+  assign ghost_hit = ((prev_paddr_block ^
+		       {vmem_rsp_tag,cache_cycle_addr[17:3]}) ==
+		      29'd0) ? ghost_hit_vld : 0;
 
   assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
 		       ((! (cache_hit ^ ghost_hit)) ||
@@ -174,7 +174,7 @@ module snowball_cache(input CPU_CLK,
 	w_data_trans <= 0; wctag_data_forread_trans <= 0;
 	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
 	cache_prev_we <= 0; cache_prev_idx <= 0;
-	mandatory_lookup_capture <= 0; prev_paddr_peer <= 0;
+	mandatory_lookup_capture <= 0; prev_paddr_block <= 0;
 	ghost_hit_vld <= 0;
       end
     else
@@ -213,8 +213,7 @@ module snowball_cache(input CPU_CLK,
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
-	    prev_paddr_peer <= {vmem_rsp_rag,cache_cycle_addr[17:3],
-				~cache_cycle_addr[2]};
+	    prev_paddr_block <= {vmem_rsp_rag,cache_cycle_addr[17:3]};
 	    cache_prev_we <= cache_cycle_we;
 	    cache_prev_idx <= cache_cycle_addr[9:2];
 	    if (cache_cycle_we)
