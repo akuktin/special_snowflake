@@ -172,6 +172,9 @@ module aeMB_regf (/*AUTOARG*/
 	 mBRAM[i] <= $random;
 	 mDRAM[i] <= $random;
       end
+    mARAM[31] <= 32'd1;
+    mBRAM[31] <= 32'd1;
+    mDRAM[31] <= 32'd1;
    end
    
    // synopsys translate_on
