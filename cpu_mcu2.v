@@ -157,7 +157,7 @@ module snowball_cache(input CPU_CLK,
 		      29'd0) ? ghost_hit_vld : 0;
 
   assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
-		       ((! (cache_hit ^ ghost_hit)) ||
+		       ((! (cache_hit || ghost_hit)) ||
 			cache_cycle_we ||
 			mandatory_lookup_act)) ||
 		      cache_tlb;
