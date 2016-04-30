@@ -29,6 +29,7 @@ module snowball_cache(input CPU_CLK,
 			    cache_en_sticky;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
+  reg [29:0] 		    prev_paddr_peer;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
 			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
@@ -55,7 +56,8 @@ module snowball_cache(input CPU_CLK,
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
 			    tlb_reinit, cache_reinit, mandatory_lookup,
-			    mandatory_lookup_act, mem_lookup;
+			    mandatory_lookup_act, mem_lookup,
+			    ghost_hit;
 
   reg 			    mcu_valid_data, capture_data;
 
@@ -149,8 +151,11 @@ module snowball_cache(input CPU_CLK,
   assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
 
+  assign ghost_hit = ((prev_paddr_peer ^
+		       {vmem_rsp_tag,cache_cycle_addr[17:2]}) ==
+		      30'd0) ? cache_busy : 0;
   assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
-		       ((! cache_hit) ||
+		       ((! (cache_hit ^ ghost_hit)) ||
 			cache_cycle_we ||
 			mandatory_lookup_act)) ||
 		      cache_tlb;
@@ -167,7 +172,7 @@ module snowball_cache(input CPU_CLK,
 	w_data_trans <= 0; wctag_data_forread_trans <= 0;
 	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
 	cache_prev_we <= 0; cache_prev_idx <= 0;
-	mandatory_lookup_capture <= 0;
+	mandatory_lookup_capture <= 0; prev_paddr_peer <= 0;
       end
     else
       begin
@@ -189,7 +194,7 @@ module snowball_cache(input CPU_CLK,
 	  cache_datai <= data_mcu_trans;
 
 	begin
-	  w_addr_trans <= cache_cycle_addr;
+	  w_addr_trans <= {vmem_rsp_tag,cache_cycle_addr[17:0]};
 	  w_data_trans <= data_tomem_trans;
 	  w_we_trans <= cache_cycle_we;
 	  w_tlb_trans <= tlb_cycle_we;
@@ -200,6 +205,8 @@ module snowball_cache(input CPU_CLK,
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
+	    prev_paddr_peer <= {vmem_rsp_rag,cache_cycle_addr[17:3],
+				~cache_cycle_addr[2]};
 	    cache_prev_we <= cache_cycle_we;
 	    cache_prev_idx <= cache_cycle_addr[9:2];
 	    if (cache_cycle_we)
