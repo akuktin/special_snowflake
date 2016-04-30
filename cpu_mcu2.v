@@ -213,14 +213,28 @@ module snowball_cache(input CPU_CLK,
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
-	    prev_paddr_block <= {vmem_rsp_rag,cache_cycle_addr[17:3]};
 	    cache_prev_we <= cache_cycle_we;
 	    cache_prev_idx <= cache_cycle_addr[9:2];
+
 	    if (cache_cycle_we)
-	      mandatory_lookup_exp <= !mandatory_lookup_exp;
+	      begin
+		mandatory_lookup_exp <= !mandatory_lookup_exp;
+		ghost_hit_vld <= 0;
+	      end
+	    else
+	      begin
+		prev_paddr_block <= {vmem_rsp_rag,cache_cycle_addr[17:3]};
+		ghost_hit_vld <= 1;
+	      end
 	  end
-	else if (mcu_responded)
-	  cache_busy <= 0;
+	else
+	  begin
+	    if (mcu_responded)
+	      cache_busy <= 0;
+
+	    if (cache_vld)
+	      ghost_hit_vld <= 0;
+	  end
 
 	if (activate_cache || activate_tlb) // 8 signals + mem_lookup
 	  begin
@@ -245,11 +259,6 @@ module snowball_cache(input CPU_CLK,
 	    if (WE_TLB && (! cache_en_sticky))
 	      tlb_en_sticky <= 1;
 	  end
-
-	if ((cache_vld || cache_busy) && cache_work)
-	  ghost_hit_vld <= 1;
-	else if (cache_vld)
-	  ghost_hit_vld <= 0;
 
 	cache_tlb_trans <= cache_tlb; // needed to create a delay.
 	mcu_responded_reg <= {mcu_responded_reg[0],mcu_responded_trans};
