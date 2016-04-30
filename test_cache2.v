@@ -4,35 +4,35 @@
 `define sq5E
 
 module ram_dp_true_m(input [31:0] DataInA,
-                     input [31:0] DataInB,
-                     input [7:0]  AddressA,
-                     input [7:0]  AddressB,
-                     input 	  ClockA,
-                     input 	  ClockB,
-                     input 	  ClockEnA,
-                     input 	  ClockEnB,
-                     input 	  WrA,
-                     input 	  WrB,
-                     output [31:0] QA,
-                     output [31:0] QB);
+                     input [31:0]      DataInB,
+                     input [7:0]       AddressA,
+                     input [7:0]       AddressB,
+		     input 	       REnA,
+		     input 	       REnB,
+                     input 	       ClockA,
+                     input 	       ClockB,
+                     input 	       ClockEnA,
+                     input 	       ClockEnB,
+                     input 	       WrA,
+                     input 	       WrB,
+                     output reg [31:0] QA,
+                     output reg [31:0] QB);
   reg [31:0]            r_data[255:0];
-  reg [7:0] 		addr_regA, addr_regB;
-
-  assign QA = r_data[addr_regA];
-  assign QB = r_data[addr_regB];
 
   always @(posedge ClockA & ClockEnA)
     begin
       if (WrA)
         r_data[AddressA] <= DataInA;
-      addr_regA <= AddressA;
+      if (REnA)
+	QA <= r_data[AddressA];
     end
 
   always @(posedge ClockB & ClockEnB)
     begin
       if (WrB)
         r_data[AddressB] <= DataInB;
-      addr_regB <= AddressB;
+      if (REnB)
+	QB <= r_data[AddressB];
     end
 
 endmodule
@@ -52,7 +52,9 @@ module iceram32(output [31:0] RDATA,
 		    .DataInB(WDATA),
 		    .AddressA(RADDR),
 		    .AddressB(WADDR),
-		    .ClockA(RCLK & RE),
+		    .REnA(RE),
+		    .REnB(1'b0),
+		    .ClockA(RCLK),
 		    .ClockB(WCLK),
 		    .ClockEnA(RCLKE),
 		    .ClockEnB(WCLKE),
@@ -78,7 +80,9 @@ module iceram16(output [15:0] RDATA,
 		    .DataInB({16'd0,WDATA}),
 		    .AddressA(RADDR),
 		    .AddressB(WADDR),
-		    .ClockA(RCLK & RE),
+		    .REnA(RE),
+		    .REnB(1'b0),
+		    .ClockA(RCLK),
 		    .ClockB(WCLK),
 		    .ClockEnA(RCLKE),
 		    .ClockEnB(WCLKE),
@@ -241,11 +245,77 @@ module GlaDOS;
 	cache_en_follow <= cache_en;
 
 	case (counter)
-	default:
-	  begin
-	  end
+	  32'd48_000:
+	    begin
+	      cache_we <= 1;
+	      cache_datao <= 32'h5454_6969;
+	      cache_en <= !cache_en;
+	    end
+	  32'd48_009:
+	    begin
+	      cache_we <= 1;
+	      cache_datao <= 32'h1234_5678;
+	      cache_addr <= 32'h0010_0080;
+	      cache_en <= !cache_en;
+	    end
+	  32'd48_020:
+	    begin
+	      cache_we <= 1;
+	      cache_datao <= 32'h7777_5a5a;
+	      cache_addr <= 32'h0010_0070;
+	      cache_en <= !cache_en;
+	    end
+	  32'd48_025:
+	    begin
+	      cache_we <= 0;
+	      cache_addr <= 32'h0010_0090;
+	      cache_en <= !cache_en;
+	    end
+/*
+	  32'd48_048:
+	    begin
+//	      cache_we <= 1;
+	      cache_datao <= 0;
+	      cache_addr <= 32'h0010_0070;
+	      cache_en <= !cache_en;
+	    end
+ */
+	  default:
+	    begin
+	    end
 	endcase
 
+	if ((counter >= 32'd48_000) &&
+	    (counter <  32'd48_040))
+	  begin
+	    $display("c%d --------------------------------------", counter);
+	    $display("adr %x do %x di %x we %x b %x en %x",
+		     cache_addr, cache_datao, cache_datai,
+		     cache_we, cache_busy, cache_en_decoded);
+	    $display("lookup: %x%x(%x%x%x)/%x rqtg/rstg %x/%x idx %x tdx %x",
+		     cache_under_test.cache_vld,
+		     (!cache_under_test.w_MMU_FAULT),
+		     (!cache_under_test.cache_hit),
+		     cache_under_test.cache_cycle_we,
+		     cache_under_test.mandatory_lookup_act,
+		     cache_under_test.cache_tlb,
+		     cache_under_test.req_tag,
+		     {cache_under_test.vmem_rsp_tag,
+		      cache_under_test.tlb_idx},
+		     cache_under_test.idx_pre,
+		     cache_under_test.tlb_idx_pre);
+/*
+	    $display("data_cache %x req_tag %x mcu_resp %x data_mcu_trans %x p_we %x",
+		     cache_under_test.data_cache,
+		     cache_under_test.req_tag,
+		     cache_under_test.mcu_responded,
+		     cache_under_test.data_mcu_trans,
+		     cache_under_test.cache_prev_we);
+	    $display("actv_cache %x actv_tlb %x",
+		     cache_under_test.activate_cache,
+		     cache_under_test.activate_tlb);
+ */
+	  end
       end // else: !if(!_RST)
 
   always @(posedge CLK_n)
@@ -271,10 +341,10 @@ module GlaDOS;
           cache_under_test.tlb.ram.r_data[i] <= 0;
           cache_under_test.tlbtag.ram.r_data[i] <= 0;
         end
-      cache_under_test.tlbtag.ram.r_data[16] <= 16'h0080;
+//      cache_under_test.tlbtag.ram.r_data[16] <= 16'h0080;
 //      cache_under_test.tlbtag.ram.r_data[32] <= 16'h0080;
-      cache_under_test.tlbtag.ram.r_data[48] <= 16'h0080;
-      cache_under_test.tlbtag.ram.r_data[4] <= 16'h0080;
+//      cache_under_test.tlbtag.ram.r_data[48] <= 16'h0080;
+//      cache_under_test.tlbtag.ram.r_data[4] <= 16'h0080;
     end
 
 endmodule // GlaDOS
