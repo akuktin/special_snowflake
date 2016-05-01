@@ -3,6 +3,87 @@
 `define x16
 `define sq5E
 
+module testsuite(input CLK, // CPU_CLK
+		 input 		   RST,
+		 input [31:0] 	   counter,
+		 input [31:0] 	   cache_datai,
+		 input 		   cache_busy,
+		 input 		   mmu_fault,
+		 output reg [31:0] cache_pc_addr,
+		 output reg [31:0] cache_datao,
+		 output reg 	   cache_pc_we,
+		 output reg 	   cache_pc_en);
+  reg [31:0] 			   test_addr[512:0], test_waittime[512:0],
+				   test_datao[512:0], test_datai[512:0];
+  reg 				   test_we[512:0], test_caredatai[512:0];
+
+  reg [31:0] 			   time_for_next_test, test_num, test_seen,
+				   test_issued, test_num_delay;
+  reg 				   just_issued_test;
+  wire 				   time_to_test, waiting_for_result;
+
+  initial
+    begin
+      test_addr[0]      <= 32'h0000_0000; test_datao[0]    <= 32'h5454_6969;
+      test_we[0]        <= 1'b1;          test_waittime[0] <= 32'd1;
+      test_caredatai[0] <= 1'b0;          test_datai[0]    <= 32'h0000_0000;
+      test_addr[1]      <= 32'h0000_0010; test_datao[1]    <= 32'h5a5a_5454;
+      test_we[1]        <= 1'b1;          test_waittime[1] <= 32'hffff_ffff;
+      test_caredatai[1] <= 1'b0;          test_datai[1]    <= 32'h0000_0000;
+    end
+
+  assign time_to_test = (time_for_next_test == counter);
+  assign waiting_for_result = (test_num != test_seen);
+
+  always @(posedge CLK)
+    if (! RST)
+      begin
+	cache_pc_addr <= 0; cache_datao <= 0;
+	cache_pc_we <= 0; cache_pc_en <= 0;
+	time_for_next_test <= 32'd48_000;
+	test_num <= 0; test_seen <= 0;
+	test_issued <= 0; test_num_delay <= 0;
+	just_issued_test <= 0;
+      end
+    else
+      begin
+	just_issued_test <= cache_pc_en;
+	test_num_delay <= test_num;
+	test_issued <= test_num_delay;
+
+	if (time_to_test)
+	  begin
+	    cache_pc_addr <= test_addr[test_num];
+	    cache_datao <= test_datao[test_num];
+	    cache_pc_we <= test_we[test_num];
+
+	    cache_pc_en <= 1;
+
+	    time_for_next_test <= counter + test_waittime[test_num];
+	    test_num <= test_num +1;
+	  end
+	else
+	  begin
+	    cache_pc_en <= 0;
+	  end // else: !if(time_to_test)
+
+	if ((!cache_busy) &&
+	    (just_issued_test && (test_issued == test_seen)))
+	  begin
+	    test_seen <= test_seen +1;
+	    if (waiting_for_result)
+	      begin
+		if (test_caredatai[test_seen] &&
+		    (cache_datai != test_datai[test_seen]))
+		  begin
+		    $display("XXX bad outcome for test %x", test_seen);
+		  end
+	      end
+	  end
+      end
+
+endmodule // testsuite
+
 module ram_dp_true_m(input [31:0] DataInA,
                      input [31:0]      DataInB,
                      input [7:0]       AddressA,
@@ -127,6 +208,9 @@ module GlaDOS;
   wire [31:0] cache_datai;
   wire 	      cache_en_decoded, cache_busy, cache_MMU_FAULT;
 
+  wire [31:0] test_cache_addr, test_cache_datao;
+  wire 	      test_cache_we, test_cache_en;
+
   reg cache_vmem, cache_inhibit;
 
   assign cache_en_decoded = cache_en ^ cache_en_follow;
@@ -168,12 +252,12 @@ module GlaDOS;
     cache_under_test(.CPU_CLK(CPU_CLK),
 		     .MCU_CLK(CLK_n),
 		     .RST(RST),
-		     .cache_precycle_addr(cache_addr),
-		     .cache_datao(cache_datao), // CPU perspective
+		     .cache_precycle_addr(test_cache_addr),
+		     .cache_datao(test_cache_datao), // CPU perspective
 		     .cache_datai(cache_datai), // CPU perspective
-		     .cache_precycle_we(cache_we),
+		     .cache_precycle_we(test_cache_we),
 		     .cache_busy(cache_busy),
-		     .cache_precycle_enable(cache_en_decoded),
+		     .cache_precycle_enable(test_cache_en),//cache_en_decoded),
 //--------------------------------------------------
 //--------------------------------------------------
 		     .dma_mcu_access(1'b1),
@@ -243,7 +327,7 @@ module GlaDOS;
       begin
         counter <= counter +1;
 	cache_en_follow <= cache_en;
-
+/*
 	case (counter)
 	  32'd48_000:
 	    begin
@@ -271,7 +355,7 @@ module GlaDOS;
 	      cache_addr <= 32'h0010_0090;
 	      cache_en <= !cache_en;
 	    end
-/*
+/ *
 	  32'd48_048:
 	    begin
 //	      cache_we <= 1;
@@ -279,19 +363,23 @@ module GlaDOS;
 	      cache_addr <= 32'h0010_0070;
 	      cache_en <= !cache_en;
 	    end
- */
+ * /
 	  default:
 	    begin
 	    end
 	endcase
-
+*/
 	if ((counter >= 32'd48_000) &&
 	    (counter <  32'd48_040))
 	  begin
 	    $display("c%d --------------------------------------", counter);
 	    $display("adr %x do %x di %x we %x b %x en %x",
-		     cache_addr, cache_datao, cache_datai,
-		     cache_we, cache_busy, cache_en_decoded);
+		     cache_under_test.cache_precycle_addr,
+		     cache_under_test.cache_datao,
+		     cache_under_test.cache_datai,
+		     cache_under_test.cache_precycle_we,
+		     cache_under_test.cache_busy,
+		     cache_under_test.cache_precycle_enable);
 	    $display("lookup: %x%x(%x%x%x)/%x rqtg/rstg %x/%x idx %x tdx %x",
 		     cache_under_test.cache_vld,
 		     (!cache_under_test.w_MMU_FAULT),
@@ -327,6 +415,17 @@ module GlaDOS;
       begin
 	minicounter <= minicounter +1;
       end
+
+  testsuite test_unit(.CLK(CPU_CLK),
+		      .RST(RST),
+		      .counter(counter),
+		      .cache_datai(cache_datai),
+		      .cache_busy(cache_busy),
+		      .mmu_fault(),
+		      .cache_pc_addr(test_cache_addr),
+		      .cache_datao(test_cache_datao),
+		      .cache_pc_we(test_cache_we),
+		      .cache_pc_en(test_cache_en));
 
   integer i;
   initial
