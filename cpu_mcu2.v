@@ -232,7 +232,7 @@ module snowball_cache(input CPU_CLK,
 	      end
 	    else
 	      begin
-		prev_paddr_block <= {vmem_rsp_rag,cache_cycle_addr[17:2]};
+		prev_paddr_block <= {vmem_rsp_tag,cache_cycle_addr[17:2]};
 		ghost_hit_vld <= 1;
 	      end
 	  end
