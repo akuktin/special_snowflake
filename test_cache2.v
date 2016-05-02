@@ -24,16 +24,22 @@ module testsuite(input CLK, // CPU_CLK
 
   initial
     begin
-      test_addr[0]      <= 32'h0000_0000; test_datao[0]    <= 32'h5454_6969;
-      test_we[0]        <= 1'b1;          test_waittime[0] <= 32'd1;
-      test_caredatai[0] <= 1'b0;          test_datai[0]    <= 32'h0000_0000;
-      test_addr[1]      <= 32'h0000_0010; test_datao[1]    <= 32'h5a5a_5454;
-      test_we[1]        <= 1'b1;          test_waittime[1] <= 32'hffff_ffff;
-      test_caredatai[1] <= 1'b0;          test_datai[1]    <= 32'h0000_0000;
+      test_addr[0]      <= 32'h0000_0000;test_datao[0]    <= 32'h5454_6969;
+      test_we[0]        <= 1'b1;         test_waittime[0] <= 32'd1;
+      test_caredatai[0] <= 1'b0;         test_datai[0]    <= 32'h0000_0000;
+      test_addr[1]      <= 32'h0000_0000;test_datao[1]    <= 32'h5a5a_5454;
+      test_we[1]        <= 1'b0;         test_waittime[1] <= 32'h0000_0018;
+      test_caredatai[1] <= 1'b1;         test_datai[1]    <= 32'h5454_6969;
+      test_addr[2]      <= 32'h0000_0010;test_datao[2]    <= 32'h5a5a_5454;
+      test_we[2]        <= 1'b0;         test_waittime[2] <= 32'h0000_0001;
+      test_caredatai[2] <= 1'b1;         test_datai[2]    <= 32'h5a5a_dadd;
+      test_addr[3]      <= 32'h0000_0000;test_datao[3]    <= 32'h5a5a_5454;
+      test_we[3]        <= 1'b0;         test_waittime[3] <= 32'hffff_ffff;
+      test_caredatai[3] <= 1'b1;         test_datai[3]    <= 32'h5a5a_dadd;
     end
 
   assign time_to_test = (time_for_next_test == counter);
-  assign waiting_for_result = (test_num != test_seen);
+  assign waiting_for_result = (test_num_delay != test_seen);
 
   always @(posedge CLK)
     if (! RST)
@@ -67,16 +73,17 @@ module testsuite(input CLK, // CPU_CLK
 	    cache_pc_en <= 0;
 	  end // else: !if(time_to_test)
 
-	if ((!cache_busy) &&
-	    (just_issued_test && (test_issued == test_seen)))
+	if (!(cache_busy ||
+	      (just_issued_test && (test_issued == test_seen))))
 	  begin
-	    test_seen <= test_seen +1;
 	    if (waiting_for_result)
 	      begin
+		test_seen <= test_seen +1;
 		if (test_caredatai[test_seen] &&
 		    (cache_datai != test_datai[test_seen]))
 		  begin
-		    $display("XXX bad outcome for test %x", test_seen);
+		    $display("XXX bad outcome for test %x @counter %d",
+			     test_seen, counter);
 		  end
 	      end
 	  end
