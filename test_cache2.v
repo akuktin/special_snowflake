@@ -14,7 +14,9 @@ module testsuite(input CLK, // CPU_CLK
 		 output reg 	   cache_pc_we,
 		 output reg 	   cache_pc_en);
   reg [31:0] 			   test_addr[512:0], test_waittime[512:0],
-				   test_datao[512:0], test_datai[512:0];
+				   test_datao[512:0], test_datai[512:0],
+				   test_timeout[512:0],
+				   test_timeout_comp[512:0];
   reg 				   test_we[512:0], test_caredatai[512:0];
 
   reg [31:0] 			   time_for_next_test, test_num, test_seen,
@@ -22,20 +24,71 @@ module testsuite(input CLK, // CPU_CLK
   reg 				   just_issued_test;
   wire 				   time_to_test, waiting_for_result;
 
+  integer 			   i;
   initial
     begin
-      test_addr[0]      <= 32'h0000_0000;test_datao[0]    <= 32'h5454_6969;
-      test_we[0]        <= 1'b1;         test_waittime[0] <= 32'd1;
-      test_caredatai[0] <= 1'b0;         test_datai[0]    <= 32'h0000_0000;
-      test_addr[1]      <= 32'h0000_0000;test_datao[1]    <= 32'h5a5a_5454;
-      test_we[1]        <= 1'b0;         test_waittime[1] <= 32'h0000_0018;
-      test_caredatai[1] <= 1'b1;         test_datai[1]    <= 32'h5454_6969;
-      test_addr[2]      <= 32'h0000_0010;test_datao[2]    <= 32'h5a5a_5454;
-      test_we[2]        <= 1'b0;         test_waittime[2] <= 32'h0000_0001;
-      test_caredatai[2] <= 1'b1;         test_datai[2]    <= 32'h5a5a_dadd;
-      test_addr[3]      <= 32'h0000_0000;test_datao[3]    <= 32'h5a5a_5454;
-      test_we[3]        <= 1'b0;         test_waittime[3] <= 32'hffff_ffff;
-      test_caredatai[3] <= 1'b1;         test_datai[3]    <= 32'h5a5a_dadd;
+      i = 0;
+      /* write simple*/ // 0x00
+      test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5454_6900;
+      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'd10;
+      test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
+      test_timeout[i]   <= 32'd10;
+      i = i +1;
+      /* b2b write/read, same idx */ // 0x01
+      test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5454_6901;
+      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'd1;
+      test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
+      test_timeout[i]   <= 32'd10;
+      i = i +1; // 0x02
+      test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
+      test_timeout[i]   <= 32'd20;
+      i = i +1;
+      /* b2b write/read, cache hit */ // 0x03
+      test_addr[i]      <= 32'h0010_0010;test_datao[i]    <= 32'h5454_6902;
+      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'd1;
+      test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
+      test_timeout[i]   <= 32'd20;
+      i = i +1; // 0x04
+      test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
+      test_timeout[i]   <= 32'd20;
+      i = i +1;
+      /* b2b write/read, cache miss */ // 0x05
+      test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5454_6903;
+      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'd1;
+      test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
+      test_timeout[i]   <= 32'd20;
+      i = i +1; // 0x06
+      test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
+      test_timeout[i]   <= 32'd20;
+      i = i +1;
+      /* b2b read, cache hit, cache hit*/ // 0x07
+      test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0001;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
+      test_timeout[i]   <= 32'd3;
+      i = i +1; // 0x08
+      test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0004;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
+      test_timeout[i]   <= 32'd3;
+      i = i +1;
+      /* b2b read, cache hit, cache miss*/ // 0x09
+      test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0001;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
+      test_timeout[i]   <= 32'd3;
+      i = i +1; // 0x0a
+      test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'hffff_ffff;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
+      test_timeout[i]   <= 32'd20;
+      i = i +1;
     end
 
   assign time_to_test = (time_for_next_test == counter);
@@ -46,7 +99,7 @@ module testsuite(input CLK, // CPU_CLK
       begin
 	cache_pc_addr <= 0; cache_datao <= 0;
 	cache_pc_we <= 0; cache_pc_en <= 0;
-	time_for_next_test <= 32'd48_000;
+	time_for_next_test <= 32'd48_200;
 	test_num <= 0; test_seen <= 0;
 	test_issued <= 0; test_num_delay <= 0;
 	just_issued_test <= 0;
@@ -66,7 +119,10 @@ module testsuite(input CLK, // CPU_CLK
 	    cache_pc_en <= 1;
 
 	    time_for_next_test <= counter + test_waittime[test_num];
+	    test_timeout_comp[test_num] <= counter + test_timeout[test_num];
 	    test_num <= test_num +1;
+
+	    $display("--- issue test %x @counter %d", test_num, counter);
 	  end
 	else
 	  begin
@@ -80,9 +136,14 @@ module testsuite(input CLK, // CPU_CLK
 	      begin
 		test_seen <= test_seen +1;
 		if (test_caredatai[test_seen] &&
-		    (cache_datai != test_datai[test_seen]))
+		    !(cache_datai === test_datai[test_seen]))
 		  begin
 		    $display("XXX bad outcome for test %x @counter %d",
+			     test_seen, counter);
+		  end
+		if (counter > test_timeout_comp[test_seen])
+		  begin
+		    $display("XXX timeout on test %x @counter %d",
 			     test_seen, counter);
 		  end
 	      end
@@ -191,7 +252,7 @@ endmodule // iceram16
 module GlaDOS;
   reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, CPU_CLK;
   reg [31:0] counter, minicounter, readcount, readcount2, readcount_r;
-  reg display_intrfc;
+  reg display_intrfc, display_internals;
 
   reg [31:0] data_read, transtest;
 
@@ -300,6 +361,7 @@ module GlaDOS;
   reg [11:0] u;
   initial
     begin
+      display_internals <= 0;
       RST <= 0;
       #14.875 RST <= 1;
       #400000;
@@ -376,8 +438,9 @@ module GlaDOS;
 	    end
 	endcase
 */
-	if ((counter >= 32'd48_000) &&
-	    (counter <  32'd48_040))
+	if (display_internals &&
+	    (counter >= 32'd48_290) &&
+	    (counter <  32'd48_330))
 	  begin
 	    $display("c%d --------------------------------------", counter);
 	    $display("adr %x do %x di %x we %x b %x en %x",
