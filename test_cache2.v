@@ -71,18 +71,18 @@ module testsuite(input CLK, // CPU_CLK
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0001;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
-      test_timeout[i]   <= 32'd3;
+      test_timeout[i]   <= 32'd1;
       i = i +1; // 0x08
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0004;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
-      test_timeout[i]   <= 32'd3;
+      test_timeout[i]   <= 32'd1;
       i = i +1;
       /* b2b read, cache hit, cache miss*/ // 0x09
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0001;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
-      test_timeout[i]   <= 32'd3;
+      test_timeout[i]   <= 32'd1;
       i = i +1; // 0x0a
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= 32'hffff_ffff;
@@ -119,7 +119,8 @@ module testsuite(input CLK, // CPU_CLK
 	    cache_pc_en <= 1;
 
 	    time_for_next_test <= counter + test_waittime[test_num];
-	    test_timeout_comp[test_num] <= counter + test_timeout[test_num];
+	    test_timeout_comp[test_num] <= test_timeout[test_num] +
+					    counter + 2;
 	    test_num <= test_num +1;
 
 	    $display("--- issue test %x @counter %d", test_num, counter);
