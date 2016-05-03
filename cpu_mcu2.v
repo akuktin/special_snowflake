@@ -34,7 +34,7 @@ module snowball_cache(input CPU_CLK,
 			    cache_en_sticky;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
-  reg [29:0] 		    prev_paddr_block;
+  reg [31:0] 		    prev_paddr_block;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
 			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
@@ -48,7 +48,7 @@ module snowball_cache(input CPU_CLK,
 			    w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv;
   reg [7:0] 		    w_addr, cache_prev_idx;
-  reg [21:0] 		    wctag_data_forread_trans,
+  reg [23:0] 		    wctag_data_forread_trans,
 			    wctag_data_forread_recv, wctag_data_forread;
 
   wire [31:0] 		    data_cache, wdata_data, wctag_data;
@@ -56,8 +56,8 @@ module snowball_cache(input CPU_CLK,
 
   wire [15:0] 		    tlb_in_tag, tlb_in_mmu;
 
-  wire [13:0] 		    vmem_rsp_tag, rsp_tag, mmu_req, mmu_vtag;
-  wire [21:0] 		    req_tag;
+  wire [15:0] 		    vmem_rsp_tag, rsp_tag, mmu_req, mmu_vtag;
+  wire [23:0] 		    req_tag;
   wire [7:0] 		    idx_pre, tlb_idx_pre, tlb_idx;
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
@@ -67,11 +67,11 @@ module snowball_cache(input CPU_CLK,
 
   reg 			    mcu_valid_data, capture_data;
 
-  assign idx_pre = cache_precycle_addr[9:2];
-  assign tlb_idx_pre = cache_precycle_addr[17:10];
+  assign idx_pre = cache_precycle_addr[7:0];
+  assign tlb_idx_pre = cache_precycle_addr[15:8];
 
-  assign tlb_idx = cache_cycle_addr[17:10];
-  assign mmu_req = cache_cycle_addr[31:18];
+  assign tlb_idx = cache_cycle_addr[15:8];
+  assign mmu_req = cache_cycle_addr[31:16];
   assign cache_work = cache_precycle_enable && (! cache_inhibit);
 
   assign vmem_rsp_tag = vmem ? rsp_tag : mmu_req;
@@ -83,10 +83,10 @@ module snowball_cache(input CPU_CLK,
    * single gate. That is, a single gate can both compare and switch
    * what it compares to. I probably didn't code it well enough, though. */
   assign cache_hit = ((req_tag ^ {vmem_rsp_tag,tlb_idx}) ==
-		      {(22){1'b0}}) ? 1 : 0;
+		      {(24){1'b0}}) ? 1 : 0;
   /* This bit here should be implementable exclusively by hacking the
    * carry chain. I probably didn't code this well enough also. */
-  assign w_MMU_FAULT = (mmu_vtag ^ mmu_req) != {(14){1'b0}} ? vmem : 0;
+  assign w_MMU_FAULT = (mmu_vtag ^ mmu_req) != {(16){1'b0}} ? vmem : 0;
 
   iceram32 cachedat(.RDATA(data_cache),
                     .RADDR(idx_pre),
@@ -100,7 +100,7 @@ module snowball_cache(input CPU_CLK,
                     .WCLKE(1'b1),
                     .WCLK(MCU_CLK));
 
-  wire [9:0] 		    ignore_cachetag;
+  wire [7:0] 		    ignore_cachetag;
   iceram32 cachetag(.RDATA({ignore_cachetag,req_tag}),
                     .RADDR(idx_pre),
                     .RE(cache_work),
@@ -113,28 +113,26 @@ module snowball_cache(input CPU_CLK,
                     .WCLKE(1'b1),
                     .WCLK(MCU_CLK));
 
-  wire [1:0] 		    ignore_tlb;
-  iceram16 tlb(.RDATA({ignore_tlb,rsp_tag}),
+  iceram16 tlb(.RDATA(rsp_tag),
                .RADDR(tlb_idx_pre),
                .RE(cache_work),
                .RCLKE(1'b1),
                .RCLK(CPU_CLK),
 	       .WDATA(tlb_in_tag),
 	       .MASK(0),
-	       .WADDR(mem_addr[9:2]),
+	       .WADDR(mem_addr[7:0]),
 	       .WE(tlb_we),
 	       .WCLKE(1'b1),
 	       .WCLK(MCU_CLK));
 
-  wire [1:0] 		    ignore_tlbtag;
-  iceram16 tlbtag(.RDATA({ignore_tlbtag,mmu_vtag}),
+  iceram16 tlbtag(.RDATA(mmu_vtag),
 		  .RADDR(tlb_idx_pre),
 		  .RE(cache_work),
 		  .RCLKE(1'b1),
 		  .RCLK(CPU_CLK),
 		  .WDATA(tlb_in_mmu),
 		  .MASK(0),
-		  .WADDR(mem_addr[9:2]),
+		  .WADDR(mem_addr[7:0]),
 		  .WE(tlb_we),
 		  .WCLKE(1'b1),
 		  .WCLK(MCU_CLK));
@@ -150,18 +148,18 @@ module snowball_cache(input CPU_CLK,
 			    (cache_vld && cache_cycle_we);
   assign mandatory_lookup_act = mandatory_lookup_capture &&
 				((cache_prev_idx ^
-				  cache_cycle_addr[9:2]) == 8'h00);
+				  cache_cycle_addr[7:0]) == 8'h00);
 
   assign activate_cache = (cache_work && (! (cache_busy || mem_lookup))) ||
 			  cache_reinit;
   assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
 
-  assign ghost_hit = ((prev_paddr_block[29:1] ^
-		       {vmem_rsp_tag,cache_cycle_addr[17:3]}) ==
-		      29'd0) ? ghost_hit_vld : 0;
+  assign ghost_hit = ((prev_paddr_block[31:1] ^
+		       {vmem_rsp_tag,cache_cycle_addr[15:1]}) ==
+		      31'd0) ? ghost_hit_vld : 0;
   assign cache_same_word_read = prev_paddr_block[0] ==
-				cache_cycle_addr[2];
+				cache_cycle_addr[0];
 
   assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
 		       ((! (cache_hit || ghost_hit)) ||
@@ -211,7 +209,7 @@ module snowball_cache(input CPU_CLK,
 	  cache_datai <= data_mcu_trans;
 
 	begin
-	  w_addr_trans <= {vmem_rsp_tag,cache_cycle_addr[17:0]};
+	  w_addr_trans <= {vmem_rsp_tag,cache_cycle_addr[15:0]};
 	  w_data_trans <= data_tomem_trans;
 	  w_we_trans <= cache_cycle_we;
 	  w_tlb_trans <= tlb_cycle_we;
@@ -223,7 +221,7 @@ module snowball_cache(input CPU_CLK,
 	    mcu_active_trans <= !mcu_active_trans;
 	    cache_busy <= 1;
 	    cache_prev_we <= cache_cycle_we;
-	    cache_prev_idx <= cache_cycle_addr[9:2];
+	    cache_prev_idx <= cache_cycle_addr[7:0];
 
 	    if (cache_cycle_we)
 	      begin
@@ -232,7 +230,7 @@ module snowball_cache(input CPU_CLK,
 	      end
 	    else
 	      begin
-		prev_paddr_block <= {vmem_rsp_tag,cache_cycle_addr[17:2]};
+		prev_paddr_block <= {vmem_rsp_tag,cache_cycle_addr[15:0]};
 		ghost_hit_vld <= 1;
 	      end
 	  end
@@ -281,7 +279,7 @@ module snowball_cache(input CPU_CLK,
   assign wdata_data = mcu_we ? mem_dataintomem : mem_datafrommem;
   assign wdata_we = (mcu_active_delay && mcu_we) ||
 		    (mcu_valid_data);
-  assign wctag_data = mcu_we ? mem_addr[31:10] : wctag_data_forread;
+  assign wctag_data = mcu_we ? mem_addr[31:8] : wctag_data_forread;
   assign tlb_we = mcu_active && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
@@ -351,12 +349,12 @@ module snowball_cache(input CPU_CLK,
 	if (capture_data)
 	  begin
 	    data_mcu_trans <= mem_datafrommem;
-	    w_addr <= {w_addr[9:3],(~w_addr[2])};
+	    w_addr <= {w_addr[7:1],(~w_addr[0])};
 	  end
 	else
 	  begin
 	    if (mcu_active)
-	      w_addr <= w_addr_recv[9:2];
+	      w_addr <= w_addr_recv[7:0];
 
 	    if (mcu_valid_data)
 	      data_mcu_trans_other <= mem_datafrommem;
