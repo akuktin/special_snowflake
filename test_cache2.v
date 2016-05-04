@@ -43,7 +43,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd10;
       i = i +1; // 0x02
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -54,7 +55,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x04
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -65,7 +67,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x06
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0028;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -76,7 +79,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd10;
       i = i +1; // 0x08
       test_addr[i]      <= 32'h0020_0020;test_datao[i]    <= 32'h5a5a_6905;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -87,7 +91,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x0a
       test_addr[i]      <= 32'h0020_0040;test_datao[i]    <= 32'h5a5a_5407;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -98,7 +103,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x0c
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_5409;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -109,7 +115,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x0e
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_540b;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -120,7 +127,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd1;
       i = i +1; // 0x10
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd1;
       i = i +1;
@@ -131,7 +139,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd1;
       i = i +1; // 0x12
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -142,7 +151,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x14
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -153,7 +163,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x16
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0028;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -164,7 +175,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x18
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -175,7 +187,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x1a
       test_addr[i]      <= 32'h0090_0030;test_datao[i]    <= 32'h5a5a_540f;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0020;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0020);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -186,7 +199,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x1c
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_5454;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540b;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -197,7 +211,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x1e
       test_addr[i]      <= 32'h0020_0031;test_datao[i]    <= 32'h5a5a_540e;
-      test_we[i]        <= 1'b0;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540f;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -208,7 +223,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd1;
       i = i +1; // 0x20
       test_addr[i]      <= 32'h0000_0030;test_datao[i]    <= 32'h5a5a_0010;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -219,7 +235,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd1;
       i = i +1; // 0x22
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5454_5454;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0018;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;
       i = i +1;
@@ -230,7 +247,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x24
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_0020;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'h0000_0020;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0020 );
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd30;
       i = i +1;
@@ -241,7 +259,8 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;
       i = i +1; // 0x26
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_0030;
-      test_we[i]        <= 1'b1;         test_waittime[i] <= 32'hf000_0028;
+      test_we[i]        <= 1'b1;         test_waittime[i] <=
+			                  (`delay + 32'hf000_0028);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;
       i = i +1;
