@@ -277,10 +277,13 @@ module snowball_cache(input CPU_CLK,
   assign mem_do_act = mem_do_act_pre && dma_mcu_access;
 
   assign wdata_data = mcu_we ? mem_dataintomem : mem_datafrommem;
+  /* BRAINWAVE: wdata_we could actually be just mcu_active_delay, and
+   *            wctag_data could just be mem_addr[31:8]. Much simpler,
+   *            same overall functionality. */
   assign wdata_we = (mcu_active_delay && mcu_we) ||
 		    (mcu_valid_data);
   assign wctag_data = mcu_we ? mem_addr[31:8] : wctag_data_forread;
-  assign tlb_we = mcu_active && tlb_we_reg;
+  assign tlb_we = mcu_active_delay && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
   always @(read_counter)
