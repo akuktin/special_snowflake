@@ -29,8 +29,7 @@ module snowball_cache(input CPU_CLK,
 		      input 		WE_TLB);
   reg 			    vmem;
   reg 			    mcu_responded_trans, mcu_active_trans;
-  reg 			    cache_vld, cache_tlb,
-			    cache_tlb_trans, tlb_en_sticky,
+  reg 			    cache_vld, cache_tlb, tlb_en_sticky,
 			    cache_en_sticky;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
@@ -173,7 +172,7 @@ module snowball_cache(input CPU_CLK,
 	vmem <= 0; MMU_FAULT <= 0; cache_vld <= 0; cache_tlb <= 0;
 	cache_cycle_addr <= 0; cache_cycle_we <= 0;
 	data_tomem_trans <= 0; tlb_cycle_we <= 0; cache_busy <= 0;
-	cache_datai <= 0; mcu_active_trans <= 0; cache_tlb_trans <= 0;
+	cache_datai <= 0; mcu_active_trans <= 0;
 	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
 	w_we_trans <= 0; w_tlb_trans <= 0; w_addr_trans <= 0;
 	w_data_trans <= 0; wctag_data_forread_trans <= 0;
@@ -267,7 +266,6 @@ module snowball_cache(input CPU_CLK,
 	      tlb_en_sticky <= 1;
 	  end
 
-	cache_tlb_trans <= cache_tlb; // needed to create a delay.
 	mcu_responded_reg <= {mcu_responded_reg[0],mcu_responded_trans};
 	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
       end // else: !if(!RST)
