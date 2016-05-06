@@ -333,7 +333,7 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
       i = i +1;
 
-      /* Remaining to test: intrigues of MMU_FAULT, 
+      /* Remaining to test: intrigues of MMU_FAULT,
        * turning virtual memory mode on and off as well as
        * turning cache inhibition on and off. */
     end
