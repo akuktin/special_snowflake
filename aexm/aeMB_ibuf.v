@@ -24,7 +24,7 @@ module aeMB_ibuf (/*AUTOARG*/
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
    aexm_icache_enable,
    // Inputs
-   rBRA, rMSR_IE, rMSR_BIP, aexm_icache_datai, sys_int_i, gclk,
+   rBRA, rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, gena, oena
    );
    // INTERNAL
@@ -39,7 +39,6 @@ module aeMB_ibuf (/*AUTOARG*/
    input 	 rBRA;
    //input [1:0] 	 rXCE;
    input 	 rMSR_IE;
-   input 	 rMSR_BIP;   
    
    // INST WISHBONE
    input [31:0]  aexm_icache_datai;

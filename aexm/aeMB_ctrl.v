@@ -58,7 +58,7 @@ module aeMB_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
-   rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rPC, rBRA, rMSR_IE, xIREG,
+   rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rPC, rBRA, xIREG,
    gclk, grst, gena, oena
    );
    // INTERNAL   
@@ -75,7 +75,6 @@ module aeMB_ctrl (/*AUTOARG*/
    input [4:0] 	 rRD, rRA, rRB;
    input [31:2]  rPC;
    input 	 rBRA;
-   input 	 rMSR_IE;
    input [31:0]  xIREG;   
 
    // MCU

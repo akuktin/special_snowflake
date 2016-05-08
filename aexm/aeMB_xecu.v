@@ -22,7 +22,7 @@
 module aeMB_xecu (/*AUTOARG*/
    // Outputs
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
-   rRESULT, rDWBSEL, rMSR_IE, rMSR_BIP,
+   rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rBRA, rDLY, rALT,
    rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
@@ -40,7 +40,6 @@ module aeMB_xecu (/*AUTOARG*/
    output [31:0]   rRESULT;
    output [3:0]    rDWBSEL;   
    output 	   rMSR_IE;
-   output 	   rMSR_BIP;
    input [31:0]    rREGA, rREGB;
    input [1:0] 	   rMXSRC, rMXTGT;
    input [4:0] 	   rRA, rRB;

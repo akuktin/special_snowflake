@@ -123,7 +123,6 @@ module aeMB_edk32 (/*AUTOARG*/
 	   // Inputs
 	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
-	   .rMSR_BIP			(rMSR_BIP),
 	   .aexm_icache_datai           (aexm_icache_datai),
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
@@ -152,7 +151,6 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .rRB				(rRB[4:0]),
 	   .rPC				(rPC[31:2]),
 	   .rBRA			(rBRA),
-	   .rMSR_IE			(rMSR_IE),
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
