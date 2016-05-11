@@ -1,9 +1,9 @@
 // $Id: aeMB_bpcu.v,v 1.4 2007-11-14 22:14:34 sybreon Exp $
 //
 // AEMB BRANCH PROGRAMME COUNTER UNIT
-// 
+//
 // Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-//  
+//
 // This file is part of AEMB.
 //
 // AEMB is free software: you can redistribute it and/or modify it
@@ -54,21 +54,21 @@ module aexm_bpcu (/*AUTOARG*/
    output 	   rDLY;
    //output [1:0]    rATOM;
    //output [1:0]    xATOM;
-   
-   input [1:0] 	   rMXALT;   
+
+   input [1:0] 	   rMXALT;
    input [5:0] 	   rOPC;
-   input [4:0] 	   rRD, rRA;  
+   input [4:0] 	   rRD, rRA;
    input [31:0]    rRESULT; // ALU
    input [31:0]    rDWBDI; // RAM
    input [31:0]    rREGA;
-   //input [1:0] 	   rXCE;   
-   
+   //input [1:0] 	   rXCE;
+
    // SYSTEM
    input 	   gclk, grst, gena;
 
    // --- BRANCH CONTROL --------------------------------------------
    // Controls the branch and delay flags
-   
+
    wire 	   fRTD = (rOPC == 6'o55);
    wire 	   fBCC = (rOPC == 6'o47) | (rOPC == 6'o57);
    wire 	   fBRU = (rOPC == 6'o46) | (rOPC == 6'o56);
@@ -76,14 +76,14 @@ module aexm_bpcu (/*AUTOARG*/
    wire [31:0] 	   wREGA;
    assign 	   wREGA = (rMXALT == 2'o2) ? rDWBDI :
 			   (rMXALT == 2'o1) ? rRESULT :
-			   rREGA;   
-   
+			   rREGA;
+
    wire 	   wBEQ = (wREGA == 32'd0);
    wire 	   wBNE = ~wBEQ;
    wire 	   wBLT = wREGA[31];
-   wire 	   wBLE = wBLT | wBEQ;   
+   wire 	   wBLE = wBLT | wBEQ;
    wire 	   wBGE = ~wBLT;
-   wire 	   wBGT = ~wBLE;   
+   wire 	   wBGT = ~wBLE;
 
    reg 		   xXCC;
    always @(/*AUTOSENSE*/rRD or wBEQ or wBGE or wBGT or wBLE or wBLT
@@ -100,8 +100,8 @@ module aexm_bpcu (/*AUTOARG*/
 
    reg 		   rBRA, xBRA;
    reg 		   rDLY, xDLY;
-   wire 	   fSKIP = rBRA & !rDLY;   
-   
+   wire 	   fSKIP = rBRA & !rDLY;
+
    always @(/*AUTOSENSE*/fBCC or fBRU or fRTD or rBRA or rRA or rRD
 	    or xXCC)
      //if (rBRA | |rXCE) begin
@@ -112,7 +112,7 @@ module aexm_bpcu (/*AUTOARG*/
 	xDLY <= 1'h0;
 	// End of automatics
      end else begin
-	xDLY <= (fBRU & rRA[4]) | (fBCC & rRD[4]) | fRTD;      
+	xDLY <= (fBRU & rRA[4]) | (fBCC & rRD[4]) | fRTD;
 	xBRA <= (fRTD | fBRU) ? 1'b1 :
 		(fBCC) ? xXCC :
 		1'b0;
@@ -120,48 +120,48 @@ module aexm_bpcu (/*AUTOARG*/
 
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes
-   
+
    reg [31:2] 	   pre_rIPC, rIPC, xIPC;
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
-   
+
    assign 	   aexm_icache_cycle_addr = rIPC[IW-1:2];
    assign          aexm_icache_precycle_addr = xIPC[IW-1:2];
-   
+
    always @(/*AUTOSENSE*/rBRA or rIPC or rPC or rRESULT) begin
       //xPCLNK <= (^rATOM) ? rPC : rPC;
       xPCLNK <= rPC;
-      //xPC <= (^rATOM) ? rIPC : rRESULT[31:2];	
+      //xPC <= (^rATOM) ? rIPC : rRESULT[31:2];
       xPC <= rIPC;
       //xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
       /*
      case (rXCE)
-       2'o1: xIPC <= 30'h2;       
-       2'o2: xIPC <= 30'h4;       
-       2'o3: xIPC <= 30'h6;       
+       2'o1: xIPC <= 30'h2;
+       2'o2: xIPC <= 30'h4;
+       2'o3: xIPC <= 30'h6;
        default: xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
-     endcase // case (rXCE)      
+     endcase // case (rXCE)
        */
       xIPC <= (rBRA) ? rRESULT[31:2] : (pre_rIPC + 1);
-   end   			   
+   end
 
    // --- ATOMIC CONTROL ---------------------------------------------
    // This is used to indicate 'safe' instruction borders.
-   
+
    wire 	wIMM = (rOPC == 6'o54) & !fSKIP;
    wire 	wRTD = (rOPC == 6'o55) & !fSKIP;
    wire 	wBCC = xXCC & ((rOPC == 6'o47) | (rOPC == 6'o57)) & !fSKIP;
-   wire 	wBRU = ((rOPC == 6'o46) | (rOPC == 6'o56)) & !fSKIP;   
-   
-   wire 	fATOM = ~(wIMM | wRTD | wBCC | wBRU | rBRA);   
+   wire 	wBRU = ((rOPC == 6'o46) | (rOPC == 6'o56)) & !fSKIP;
+
+   wire 	fATOM = ~(wIMM | wRTD | wBCC | wBRU | rBRA);
    reg [1:0] 	rATOM, xATOM;
 
    always @(/*AUTOSENSE*/fATOM or rATOM)
-     xATOM <= {rATOM[0], (rATOM[0] ^ fATOM)};   
-     
-   
+     xATOM <= {rATOM[0], (rATOM[0] ^ fATOM)};
+
+
    // --- SYNC PIPELINE ----------------------------------------------
-    
+
    always @(posedge gclk)
      if (grst) begin
 	/*AUTORESET*/
@@ -181,7 +181,7 @@ module aexm_bpcu (/*AUTOARG*/
 	rPC <= #1 xPC;
 	rPCLNK <= #1 xPCLNK;
 	rDLY <= #1 xDLY;
-	rATOM <= #1 xATOM;	
+	rATOM <= #1 xATOM;
      end
-      
+
 endmodule // aexm_bpcu

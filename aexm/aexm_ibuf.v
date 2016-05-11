@@ -2,7 +2,7 @@
 **
 ** AEMB INSTRUCTION BUFFER
 ** Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-**  
+**
 ** This file is part of AEMB.
 **
 ** AEMB is free software: you can redistribute it and/or modify it
@@ -34,18 +34,18 @@ module aexm_ibuf (/*AUTOARG*/
    output [5:0]  rOPC;
    output [31:0] rSIMM;
    output [31:0] xIREG;
-   output 	 rSTALL;   
-   
+   output 	 rSTALL;
+
    input 	 rBRA;
    //input [1:0] 	 rXCE;
    input 	 rMSR_IE;
-   
+
    // INST WISHBONE
    input [31:0]  aexm_icache_datai;
    output 	 aexm_icache_enable;
 
    // SYSTEM
-   input 	 sys_int_i;   
+   input 	 sys_int_i;
 
    // SYSTEM
    input 	 gclk, grst, gena, oena;
@@ -56,29 +56,29 @@ module aexm_ibuf (/*AUTOARG*/
 
    // FIXME: Endian
    wire [31:0] 	 wIDAT = aexm_icache_datai;
-   assign 	 {rRB, rALT} = rIMM;   
-   
+   assign 	 {rRB, rALT} = rIMM;
+
   // aexm_icache_cycle_we is unused
 
    reg [31:0] 	rSIMM, xSIMM;
-   reg 		rSTALL;   
+   reg 		rSTALL;
 
    wire [31:0] 	wXCEOP = 32'hBA2D0008; // Vector 0x08
    wire [31:0] 	wINTOP = 32'hB9CE0010; // Vector 0x10
    wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
    wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
-   
-   wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};   
+
+   wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
    reg [31:0] 	xIREG;
 
 
    // --- INTERRUPT LATCH --------------------------------------
    // Debounce and latch onto the positive level. This is independent
    // of the pipeline so that stalls do not affect it.
-   
+
    reg 		rFINT;
    reg [1:0] 	rDINT;
-   wire 	wSHOT = rDINT[0];	
+   wire 	wSHOT = rDINT[0];
 
    always @(posedge gclk)
      if (grst) begin
@@ -89,35 +89,35 @@ module aexm_ibuf (/*AUTOARG*/
 	// End of automatics
      end else begin
 	if (rMSR_IE)
-	  rDINT <= #1 
+	  rDINT <= #1
 		   {rDINT[0], sys_int_i};
-	
-	rFINT <= #1 
-		 //(wIREG == wINTOP) ? 1'b0 : 
+
+	rFINT <= #1
+		 //(wIREG == wINTOP) ? 1'b0 :
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
    wire 	fIMM = (rOPC == 6'o54);
    wire 	fRTD = (rOPC == 6'o55);
    wire 	fBRU = ((rOPC == 6'o46) | (rOPC == 6'o56));
-   wire 	fBCC = ((rOPC == 6'o47) | (rOPC == 6'o57));   
-   
+   wire 	fBCC = ((rOPC == 6'o47) | (rOPC == 6'o57));
+
    // --- DELAY SLOT -------------------------------------------
-   
+
    always @(/*AUTOSENSE*/fBCC or fBRU or fIMM or fRTD or rBRA or rFINT
 	    or wBRAOP or wIDAT or wINTOP) begin
-      xIREG <= (rBRA) ? wBRAOP : 
+      xIREG <= (rBRA) ? wBRAOP :
 	       (!fIMM & rFINT & !fRTD & !fBRU & !fBCC) ? wINTOP :
 	       wIDAT;
    end
-   
+
    always @(/*AUTOSENSE*/fIMM or rBRA or rIMM or wIDAT or xIREG) begin
       xSIMM <= (!fIMM | rBRA) ? { {(16){xIREG[15]}}, xIREG[15:0]} :
 	       {rIMM, wIDAT[15:0]};
-   end   
+   end
 
    // --- PIPELINE --------------------------------------------
-   
+
    always @(posedge gclk)
      if (grst) begin
 	/*AUTORESET*/
@@ -135,8 +135,8 @@ module aexm_ibuf (/*AUTOARG*/
 
    // --- STALL FOR MUL/BSF -----------------------------------
 
-   wire [5:0] wOPC = xIREG[31:26];   
-   
+   wire [5:0] wOPC = xIREG[31:26];
+
    wire       fMUL = (wOPC == 6'o20) | (wOPC == 6'o30);
    wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
    wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
@@ -156,7 +156,7 @@ module aexm_ibuf (/*AUTOARG*/
        else
 	 rSTALL <= #1 0;
      end
-   
+
 endmodule // aexm_ibuf
 
 /*

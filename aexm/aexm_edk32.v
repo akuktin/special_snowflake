@@ -2,7 +2,7 @@
 **
 ** AEMB EDK 3.2 Compatible Core
 ** Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-**  
+**
 ** This file is part of AEMB.
 **
 ** AEMB is free software: you can redistribute it and/or modify it
@@ -56,7 +56,7 @@ module aexm_edk32 (/*AUTOARG*/
 
   input 	aexm_icache_cache_busy_n;
   input 	aexm_dcache_cache_busy_n;
-   
+
    /*AUTOINPUT*/
    input		sys_int_i;		// To ibuf of aexm_ibuf.v
    // End of automatics
@@ -104,9 +104,9 @@ module aexm_edk32 (/*AUTOARG*/
 			       !rSTALL;
    wire 		oena = !(aexm_icache_cache_busy_n &
 				 aexm_dcache_cache_busy_n);
-   
+
    // --- INSTANTIATIONS -------------------------------------
-          
+
    aexm_ibuf
      ibuf (/*AUTOINST*/
 	   // Outputs
@@ -128,8 +128,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .gena			(gena),
-	   .oena			(oena));   
-   
+	   .oena			(oena));
+
    aexm_ctrl
      ctrl (/*AUTOINST*/
 	   // Outputs
@@ -200,7 +200,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena));   
+	   .gena			(gena));
 
    aexm_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
@@ -232,8 +232,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .gena			(gena));
-   
-      
+
+
 endmodule // aexm_edk32
 
 /*
@@ -246,7 +246,7 @@ endmodule // aexm_edk32
 
  Revision 1.11  2007/11/30 17:08:29  sybreon
  Moved simulation kernel into code.
- 
+
  Revision 1.10  2007/11/16 21:52:03  sybreon
  Added fsl_tag_o to FSL bus (tag either address or data).
 

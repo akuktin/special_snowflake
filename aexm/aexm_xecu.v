@@ -2,7 +2,7 @@
 **
 ** AEMB MAIN EXECUTION ALU
 ** Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-**  
+**
 ** This file is part of AEMB.
 **
 ** AEMB is free software: you can redistribute it and/or modify it
@@ -30,31 +30,31 @@ module aexm_xecu (/*AUTOARG*/
    parameter DW=32;
 
    parameter MUL=0;
-   parameter BSF=0;   
-   
+   parameter BSF=0;
+
    // DATA interface
    output [DW-1:0] aexm_dcache_precycle_addr;
    output [DW-1:0] aexm_dcache_cycle_addr;
-   
+
    // INTERNAL
    output [31:0]   rRESULT;
-   output [3:0]    rDWBSEL;   
+   output [3:0]    rDWBSEL;
    output 	   rMSR_IE;
    input [31:0]    rREGA, rREGB;
    input [1:0] 	   rMXSRC, rMXTGT;
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
    input 	   rBRA, rDLY;
-   input [10:0]    rALT;   
+   input [10:0]    rALT;
 
-   input 	   rSTALL;   
+   input 	   rSTALL;
    input [31:0]    rSIMM;
    input [15:0]    rIMM;
    input [5:0] 	   rOPC;
-   input [4:0] 	   rRD;   
+   input [4:0] 	   rRD;
    input [31:0]    rDWBDI;
-   input [31:2]    rPC;   
-   
+   input [31:2]    rPC;
+
    // SYSTEM
    input 	   gclk, grst, gena;
 
@@ -62,7 +62,7 @@ module aexm_xecu (/*AUTOARG*/
    reg 		   rMSR_IE, xMSR_IE;
    reg 		   rMSR_BE, xMSR_BE;
    reg 		   rMSR_BIP, xMSR_BIP;
-   
+
    wire 	   fSKIP = rBRA & !rDLY;
 
    // --- OPERAND SELECT
@@ -73,22 +73,22 @@ module aexm_xecu (/*AUTOARG*/
        2'o0: rOPA <= rREGA;
        2'o1: rOPA <= rRESULT;
        2'o2: rOPA <= rDWBDI;
-       2'o3: rOPA <= {rPC, 2'o0};       
+       2'o3: rOPA <= {rPC, 2'o0};
      endcase // case (rMXSRC)
-   
+
    always @(/*AUTOSENSE*/rDWBDI or rMXTGT or rREGB or rRESULT or rSIMM)
      case (rMXTGT)
        2'o0: rOPB <= rREGB;
        2'o1: rOPB <= rRESULT;
        2'o2: rOPB <= rDWBDI;
-       2'o3: rOPB <= rSIMM;       
+       2'o3: rOPB <= rSIMM;
      endcase // case (rMXTGT)
 
    // --- ADD/SUB SELECTOR ----
 
    reg 		    rRES_ADDC;
    reg [31:0] 	    rRES_ADD;
-   
+
    wire [31:0] 		wADD;
    wire 		wADC;
 
@@ -96,16 +96,16 @@ module aexm_xecu (/*AUTOARG*/
    wire 		fSUB = !rOPC[5] & rOPC[0]; // & !rOPC[4]
    wire 		fCMP = !rOPC[3] & rIMM[1]; // unsigned only
    wire 		wCMP = (fCMP) ? !wADC : wADD[31]; // cmpu adjust
-   
+
    wire [31:0] 		wOPA = (fSUB) ? ~rOPA : rOPA;
    wire 		wOPC = (fCCC) ? rMSR_C : fSUB;
-   
+
    assign 		{wADC, wADD} = (rOPB + wOPA) + wOPC; // add carry
-   
+
    always @(/*AUTOSENSE*/wADC or wADD or wCMP) begin
       {rRES_ADDC, rRES_ADD} <= #1 {wADC, wCMP, wADD[30:0]}; // add with carry
    end
-   
+
    // --- LOGIC SELECTOR --------------------------------------
 
    reg [31:0] 	    rRES_LOG;
@@ -114,14 +114,14 @@ module aexm_xecu (/*AUTOARG*/
        2'o0: rRES_LOG <= #1 rOPA | rOPB;
        2'o1: rRES_LOG <= #1 rOPA & rOPB;
        2'o2: rRES_LOG <= #1 rOPA ^ rOPB;
-       2'o3: rRES_LOG <= #1 rOPA & ~rOPB;       
+       2'o3: rRES_LOG <= #1 rOPA & ~rOPB;
      endcase // case (rOPC[1:0])
 
    // --- SHIFTER SELECTOR ------------------------------------
-   
+
    reg [31:0] 	    rRES_SFT;
    reg 		    rRES_SFTC;
-   
+
    always @(/*AUTOSENSE*/rIMM or rMSR_C or rOPA)
      case (rIMM[6:5])
        2'o0: {rRES_SFT, rRES_SFTC} <= #1 {rOPA[31],rOPA[31:0]};
@@ -132,10 +132,10 @@ module aexm_xecu (/*AUTOARG*/
      endcase // case (rIMM[6:5])
 
    // --- MOVE SELECTOR ---------------------------------------
-   
-   wire [31:0] 	    wMSR = {rMSR_C, 3'o0, 
-			    20'h0ED32, 
-			    4'h0, rMSR_BIP, rMSR_C, rMSR_IE, rMSR_BE};      
+
+   wire [31:0] 	    wMSR = {rMSR_C, 3'o0,
+			    20'h0ED32,
+			    4'h0, rMSR_BIP, rMSR_C, rMSR_IE, rMSR_BE};
    wire 	    fMFSR = (rOPC == 6'o45) & !rIMM[14] & rIMM[0];
    wire 	    fMFPC = (rOPC == 6'o45) & !rIMM[14] & !rIMM[0];
    reg [31:0] 	    rRES_MOV;
@@ -143,12 +143,12 @@ module aexm_xecu (/*AUTOARG*/
 	    or wMSR)
      rRES_MOV <= (fMFSR) ? wMSR :
 		 (fMFPC) ? rPC :
-		 (rRA[3]) ? rOPB : 
-		 rOPA;   
-   
+		 (rRA[3]) ? rOPB :
+		 rOPA;
+
    // --- MULTIPLIER ------------------------------------------
    // TODO: 2 stage multiplier
-   
+
    reg [31:0] 	    rRES_MUL, rRES_MUL0, xRES_MUL;
    always @(/*AUTOSENSE*/rOPA or rOPB) begin
       xRES_MUL <= (rOPA * rOPB);
@@ -161,19 +161,19 @@ module aexm_xecu (/*AUTOARG*/
 	rRES_MUL <= 32'h0;
 	// End of automatics
      end else if (rSTALL) begin
-	rRES_MUL <= #1 xRES_MUL;	
+	rRES_MUL <= #1 xRES_MUL;
      end
 
-   
+
    // --- BARREL SHIFTER --------------------------------------
 
    reg [31:0] 	 rRES_BSF;
    reg [31:0] 	 xBSRL, xBSRA, xBSLL;
-   
-   // Infer a logical left barrel shifter.   
+
+   // Infer a logical left barrel shifter.
    always @(/*AUTOSENSE*/rOPA or rOPB)
      xBSLL <= rOPA << rOPB[4:0];
-   
+
    // Infer a logical right barrel shifter.
    always @(/*AUTOSENSE*/rOPA or rOPB)
      xBSRL <= rOPA >> rOPB[4:0];
@@ -228,24 +228,24 @@ module aexm_xecu (/*AUTOARG*/
      end else if (rSTALL) begin
 	rBSRL <= #1 xBSRL;
 	rBSRA <= #1 xBSRA;
-	rBSLL <= #1 xBSLL;	
+	rBSLL <= #1 xBSLL;
      end
-   
+
    always @(/*AUTOSENSE*/rALT or rBSLL or rBSRA or rBSRL)
      case (rALT[10:9])
        2'd0: rRES_BSF <= rBSRL;
-       2'd1: rRES_BSF <= rBSRA;       
+       2'd1: rRES_BSF <= rBSRA;
        2'd2: rRES_BSF <= rBSLL;
-       default: rRES_BSF <= 32'hX;       
+       default: rRES_BSF <= 32'hX;
      endcase // case (rALT[10:9])
-   
-   
+
+
    // --- MSR REGISTER -----------------
-   
+
    // C
    wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !fSKIP;
    wire 	   fADDC = ({rOPC[5:4], rOPC[2]} == 3'o0);
-   
+
    always @(/*AUTOSENSE*/fADDC or fMTS or fSKIP or rMSR_C or rMXALU
 	    or rOPA or rRES_ADDC or rRES_SFTC)
      //if (fSKIP | |rXCE) begin
@@ -253,44 +253,44 @@ module aexm_xecu (/*AUTOARG*/
 	xMSR_C <= rMSR_C;
      end else
        case (rMXALU)
-	 3'o0: xMSR_C <= (fADDC) ? rRES_ADDC : rMSR_C;	 
-	 3'o1: xMSR_C <= rMSR_C; // LOGIC       
+	 3'o0: xMSR_C <= (fADDC) ? rRES_ADDC : rMSR_C;
+	 3'o1: xMSR_C <= rMSR_C; // LOGIC
 	 3'o2: xMSR_C <= rRES_SFTC; // SHIFT
 	 3'o3: xMSR_C <= (fMTS) ? rOPA[2] : rMSR_C;
-	 3'o4: xMSR_C <= rMSR_C;	 
-	 3'o5: xMSR_C <= rMSR_C;	 
-	 default: xMSR_C <= 1'hX;       
+	 3'o4: xMSR_C <= rMSR_C;
+	 3'o5: xMSR_C <= rMSR_C;
+	 default: xMSR_C <= 1'hX;
        endcase // case (rMXALU)
 
    // IE/BIP/BE
-   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !fSKIP;   
+   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !fSKIP;
    wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !fSKIP;
    wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC);
    wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE);
-   
+
    always @(/*AUTOSENSE*/fINT or fMTS or fRTID or rMSR_IE or rOPA)
      xMSR_IE <= (fINT) ? 1'b0 :
-		(fRTID) ? 1'b1 : 
+		(fRTID) ? 1'b1 :
 		(fMTS) ? rOPA[1] :
-		rMSR_IE;      
-   
+		rMSR_IE;
+
    always @(/*AUTOSENSE*/fBRK or fMTS or fRTBD or rMSR_BIP or rOPA)
      xMSR_BIP <= (fBRK) ? 1'b1 :
-		 (fRTBD) ? 1'b0 : 
+		 (fRTBD) ? 1'b0 :
 		 (fMTS) ? rOPA[3] :
-		 rMSR_BIP;      
-   
+		 rMSR_BIP;
+
    always @(/*AUTOSENSE*/fMTS or rMSR_BE or rOPA)
-     xMSR_BE <= (fMTS) ? rOPA[0] : rMSR_BE;      
+     xMSR_BE <= (fMTS) ? rOPA[0] : rMSR_BE;
 
    // --- RESULT SELECTOR -------------------------------------------
-   // Selects results from functional units. 
+   // Selects results from functional units.
    reg [31:0] 	   rRESULT, xRESULT;
 
    // RESULT
    always @(/*AUTOSENSE*/fSKIP or rMXALU or rRES_ADD or rRES_BSF
 	    or rRES_LOG or rRES_MOV or rRES_MUL or rRES_SFT)
-     if (fSKIP) 
+     if (fSKIP)
        /*AUTORESET*/
        // Beginning of autoreset for uninitialized flops
        xRESULT <= 32'h0;
@@ -301,13 +301,13 @@ module aexm_xecu (/*AUTOARG*/
 	 3'o1: xRESULT <= rRES_LOG;
 	 3'o2: xRESULT <= rRES_SFT;
 	 3'o3: xRESULT <= rRES_MOV;
-	 3'o4: xRESULT <= (MUL) ? rRES_MUL : 32'hX;	 
-	 3'o5: xRESULT <= (BSF) ? rRES_BSF : 32'hX;	 
-	 default: xRESULT <= 32'hX;       
+	 3'o4: xRESULT <= (MUL) ? rRES_MUL : 32'hX;
+	 3'o5: xRESULT <= (BSF) ? rRES_BSF : 32'hX;
+	 default: xRESULT <= 32'hX;
        endcase // case (rMXALU)
 
    // --- DATA WISHBONE -----
-   
+
    reg [3:0] 	    rDWBSEL, xDWBSEL;
    assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
    assign           aexm_dcache_cycle_addr = rRESULT[DW-1:2];
@@ -315,10 +315,10 @@ module aexm_xecu (/*AUTOARG*/
    always @(/*AUTOSENSE*/rOPC or wADD)
      case (rOPC[1:0])
        2'o0: case (wADD[1:0]) // 8'bit
-	       2'o0: xDWBSEL <= 4'h8;	       
-	       2'o1: xDWBSEL <= 4'h4;	       
-	       2'o2: xDWBSEL <= 4'h2;	       
-	       2'o3: xDWBSEL <= 4'h1;	       
+	       2'o0: xDWBSEL <= 4'h8;
+	       2'o1: xDWBSEL <= 4'h4;
+	       2'o2: xDWBSEL <= 4'h2;
+	       2'o3: xDWBSEL <= 4'h1;
 	     endcase // case (wADD[1:0])
        2'o1: xDWBSEL <= (wADD[1]) ? 4'h3 : 4'hC; // 16'bit
        2'o2: xDWBSEL <= 4'hF; // 32'bit
@@ -342,11 +342,11 @@ module aexm_xecu (/*AUTOARG*/
 	rRESULT <= #1 xRESULT;
 	rDWBSEL <= #1 xDWBSEL;
 	rMSR_C <= #1 xMSR_C;
-	rMSR_IE <= #1 xMSR_IE;	
-	rMSR_BE <= #1 xMSR_BE;	
+	rMSR_IE <= #1 xMSR_IE;
+	rMSR_BE <= #1 xMSR_BE;
 	rMSR_BIP <= #1 xMSR_BIP;
      end
-   
+
 endmodule // aexm_xecu
 
 /*

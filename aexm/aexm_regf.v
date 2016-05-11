@@ -1,9 +1,9 @@
 // $Id: aeMB_regf.v,v 1.3 2007-11-10 16:39:38 sybreon Exp $
 //
 // AEMB REGISTER FILE
-// 
+//
 // Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-//  
+//
 // This file is part of AEMB.
 //
 // AEMB is free software: you can redistribute it and/or modify it
@@ -39,30 +39,30 @@ module aexm_regf (/*AUTOARG*/
    // INTERNAL
    output [31:0] rREGA, rREGB;
    output [31:0] rDWBDI;
-   input [5:0] 	 rOPC;   
+   input [5:0] 	 rOPC;
    input [4:0] 	 rRA, rRB, rRW, rRD;
    input [1:0] 	 rMXDST;
    input [31:2]  rPCLNK;
    input [31:0]  rRESULT;
-   input [3:0] 	 rDWBSEL;   
-   input 	 rBRA, rDLY;   
-   
+   input [3:0] 	 rDWBSEL;
+   input 	 rBRA, rDLY;
+
    // MCU interface
    output [31:0] aexm_dcache_datao;
    input [31:0]  aexm_dcache_datai;
-   
+
    // SYSTEM
-   input 	 gclk, grst, gena;   
+   input 	 gclk, grst, gena;
 
    // --- LOAD SIZER ----------------------------------------------
    // Moves the data bytes around depending on the size of the
    // operation.
 
    wire [31:0] 	 wDWBDI = aexm_dcache_datai;
-    
+
    reg [31:0] 	 rDWBDI;
    reg [1:0] 	 rSIZ;
-   
+
    always @(/*AUTOSENSE*/rDWBSEL or wDWBDI) begin
       // 52.0
       case (rDWBSEL)
@@ -77,9 +77,9 @@ module aexm_regf (/*AUTOARG*/
 	// 32'bit
 	4'hF: rDWBDI <= wDWBDI;
 	// Undefined
-	default: rDWBDI <= 32'hX;       
+	default: rDWBDI <= 32'hX;
       endcase
-       
+
    end
 
    always @(posedge gclk)
@@ -89,24 +89,24 @@ module aexm_regf (/*AUTOARG*/
 	rSIZ <= 2'h0;
 	// End of automatics
      end else if (gena) begin
-	rSIZ <= rOPC[1:0];	
+	rSIZ <= rOPC[1:0];
      end
-   
+
    // --- GENERAL PURPOSE REGISTERS (R0-R31) -----------------------
    // LUT RAM implementation is smaller and faster. R0 gets written
    // during reset with 0x00 and doesn't change after.
-   
+
    reg [31:0] 	 mARAM[0:31],
 		 mBRAM[0:31],
 		 mDRAM[0:31];
 
-   wire [31:0] 	 rREGW = mDRAM[rRW];   
-   wire [31:0] 	 rREGD = mDRAM[rRD];   
+   wire [31:0] 	 rREGW = mDRAM[rRW];
+   wire [31:0] 	 rREGD = mDRAM[rRD];
    assign 	 rREGA = mARAM[rRA];
    assign 	 rREGB = mBRAM[rRB];
 
-   wire 	 fRDWE = |rRW;   
-   
+   wire 	 fRDWE = |rRW;
+
    reg [31:0] 	 xWDAT;
 
    always @(/*AUTOSENSE*/rDWBDI or rMXDST or rPCLNK or rREGW
@@ -114,15 +114,15 @@ module aexm_regf (/*AUTOARG*/
      case (rMXDST)
        2'o2: xWDAT <= rDWBDI;
        2'o1: xWDAT <= {rPCLNK, 2'o0};
-       2'o0: xWDAT <= rRESULT;       
-       2'o3: xWDAT <= rREGW; // No change       
+       2'o0: xWDAT <= rRESULT;
+       2'o3: xWDAT <= rREGW; // No change
      endcase // case (rMXDST)
-   
+
    always @(posedge gclk)
      if (grst | fRDWE) begin
 	mARAM[rRW] <= xWDAT;
 	mBRAM[rRW] <= xWDAT;
-	mDRAM[rRW] <= xWDAT;	
+	mDRAM[rRW] <= xWDAT;
      end
 
    // --- STORE SIZER ---------------------------------------------
@@ -130,16 +130,16 @@ module aexm_regf (/*AUTOARG*/
    // operation.
 
    reg [31:0] 	 rDWBDO, xDWBDO;
-   
-   wire [31:0] 	 xDST;   
+
+   wire [31:0] 	 xDST;
    wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;
-   wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;   
-   
+   wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;
+
    assign 	 aexm_dcache_datao = rDWBDO;
    assign 	 xDST = (fDFWD_M) ? rDWBDI :
 			(fDFWD_R) ? rRESULT :
-			rREGD;   
-   
+			rREGD;
+
    always @(/*AUTOSENSE*/rOPC or xDST)
      case (rOPC[1:0])
        // 8'bit
@@ -149,7 +149,7 @@ module aexm_regf (/*AUTOARG*/
        // 32'bit
        2'h2: xDWBDO <= xDST;
        default: xDWBDO <= 32'hX;
-     endcase // case (rOPC[1:0])   
+     endcase // case (rOPC[1:0])
 
    always @(posedge gclk)
      if (grst) begin
@@ -158,13 +158,13 @@ module aexm_regf (/*AUTOARG*/
 	rDWBDO <= 32'h0;
 	// End of automatics
      end else if (gena) begin
-	rDWBDO <= #1 xDWBDO;	
+	rDWBDO <= #1 xDWBDO;
      end
-   
+
    // --- SIMULATION ONLY ------------------------------------------
    // Randomise memory to simulate real-world memory
    // synopsys translate_off
-   
+
    integer i;
    initial begin
       for (i=0; i<32; i=i+1) begin
@@ -176,8 +176,8 @@ module aexm_regf (/*AUTOARG*/
     mBRAM[31] <= 32'd1;
     mDRAM[31] <= 32'd1;
    end
-   
+
    // synopsys translate_on
-   
-   
+
+
 endmodule // aexm_regf
