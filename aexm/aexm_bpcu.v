@@ -121,7 +121,7 @@ module aexm_bpcu (/*AUTOARG*/
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes
    
-   reg [31:2] 	   rIPC, xIPC;
+   reg [31:2] 	   pre_rIPC, rIPC, xIPC;
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
    
@@ -142,7 +142,7 @@ module aexm_bpcu (/*AUTOARG*/
        default: xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
      endcase // case (rXCE)      
        */
-      xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
+      xIPC <= (rBRA) ? rRESULT[31:2] : (pre_rIPC + 1);
    end   			   
 
    // --- ATOMIC CONTROL ---------------------------------------------
@@ -170,11 +170,13 @@ module aexm_bpcu (/*AUTOARG*/
 	rBRA <= 1'h0;
 	rDLY <= 1'h0;
 	rIPC <= 30'h0;
+        pre_rIPC <= 30'h0;
 	rPC <= 30'h0;
 	rPCLNK <= 30'h0;
 	// End of automatics
      end else if (gena) begin
-	rIPC <= #1 xIPC;
+	pre_rIPC <= #1 xIPC;
+        rIPC <= #1 pre_rIPC;
 	rBRA <= #1 xBRA;
 	rPC <= #1 xPC;
 	rPCLNK <= #1 xPCLNK;
