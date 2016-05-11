@@ -19,7 +19,7 @@
 ** License along with AEMB. If not, see <http://www.gnu.org/licenses/>.
 */
 
-module aeMB_xecu (/*AUTOARG*/
+module aexm_xecu (/*AUTOARG*/
    // Outputs
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    rRESULT, rDWBSEL, rMSR_IE,
@@ -347,7 +347,7 @@ module aeMB_xecu (/*AUTOARG*/
 	rMSR_BIP <= #1 xMSR_BIP;
      end
    
-endmodule // aeMB_xecu
+endmodule // aexm_xecu
 
 /*
  $Log: not supported by cvs2svn $

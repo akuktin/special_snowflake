@@ -52,7 +52,7 @@
 // Code compatible with -O0/1/2/3/s generated code.
 //
 
-module aeMB_ctrl (/*AUTOARG*/
+module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW,
    aexm_dcache_precycle_enable,
@@ -286,4 +286,4 @@ module aeMB_ctrl (/*AUTOARG*/
      end
 
    
-endmodule // aeMB_ctrl
+endmodule // aexm_ctrl

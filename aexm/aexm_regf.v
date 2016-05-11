@@ -29,7 +29,7 @@
 // Code compatible with -O0/1/2/3/s generated code.
 //
 
-module aeMB_regf (/*AUTOARG*/
+module aexm_regf (/*AUTOARG*/
    // Outputs
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
@@ -180,4 +180,4 @@ module aeMB_regf (/*AUTOARG*/
    // synopsys translate_on
    
    
-endmodule // aeMB_regf
+endmodule // aexm_regf

@@ -19,7 +19,7 @@
 ** License along with AEMB. If not, see <http://www.gnu.org/licenses/>.
 */
 
-module aeMB_edk32 (/*AUTOARG*/
+module aexm_edk32 (/*AUTOARG*/
    // Outputs
    aexm_icache_precycle_addr, aexm_icache_cycle_addr,
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
@@ -58,36 +58,36 @@ module aeMB_edk32 (/*AUTOARG*/
   input 	aexm_dcache_cache_busy_n;
    
    /*AUTOINPUT*/
-   input		sys_int_i;		// To ibuf of aeMB_ibuf.v
+   input		sys_int_i;		// To ibuf of aexm_ibuf.v
    // End of automatics
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [10:0]		rALT;			// From ibuf of aeMB_ibuf.v
-   wire			rBRA;			// From bpcu of aeMB_bpcu.v
-   wire			rDLY;			// From bpcu of aeMB_bpcu.v
-   wire [31:0]		rDWBDI;			// From regf of aeMB_regf.v
-   wire [3:0]		rDWBSEL;		// From xecu of aeMB_xecu.v
-   wire [15:0]		rIMM;			// From ibuf of aeMB_ibuf.v
-   wire			rMSR_BIP;		// From xecu of aeMB_xecu.v
-   wire			rMSR_IE;		// From xecu of aeMB_xecu.v
-   wire [1:0]		rMXALT;			// From ctrl of aeMB_ctrl.v
-   wire [2:0]		rMXALU;			// From ctrl of aeMB_ctrl.v
-   wire [1:0]		rMXDST;			// From ctrl of aeMB_ctrl.v
-   wire [1:0]		rMXSRC;			// From ctrl of aeMB_ctrl.v
-   wire [1:0]		rMXTGT;			// From ctrl of aeMB_ctrl.v
-   wire [5:0]		rOPC;			// From ibuf of aeMB_ibuf.v
-   wire [31:2]		rPC;			// From bpcu of aeMB_bpcu.v
-   wire [31:2]		rPCLNK;			// From bpcu of aeMB_bpcu.v
-   wire [4:0]		rRA;			// From ibuf of aeMB_ibuf.v
-   wire [4:0]		rRB;			// From ibuf of aeMB_ibuf.v
-   wire [4:0]		rRD;			// From ibuf of aeMB_ibuf.v
-   wire [31:0]		rREGA;			// From regf of aeMB_regf.v
-   wire [31:0]		rREGB;			// From regf of aeMB_regf.v
-   wire [31:0]		rRESULT;		// From xecu of aeMB_xecu.v
-   wire [4:0]		rRW;			// From ctrl of aeMB_ctrl.v
-   wire [31:0]		rSIMM;			// From ibuf of aeMB_ibuf.v
-   wire			rSTALL;			// From ibuf of aeMB_ibuf.v
-   wire [31:0]		xIREG;			// From ibuf of aeMB_ibuf.v
+   wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
+   wire			rBRA;			// From bpcu of aexm_bpcu.v
+   wire			rDLY;			// From bpcu of aexm_bpcu.v
+   wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
+   wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
+   wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
+   wire			rMSR_BIP;		// From xecu of aexm_xecu.v
+   wire			rMSR_IE;		// From xecu of aexm_xecu.v
+   wire [1:0]		rMXALT;			// From ctrl of aexm_ctrl.v
+   wire [2:0]		rMXALU;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		rMXDST;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		rMXSRC;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		rMXTGT;			// From ctrl of aexm_ctrl.v
+   wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
+   wire [31:2]		rPC;			// From bpcu of aexm_bpcu.v
+   wire [31:2]		rPCLNK;			// From bpcu of aexm_bpcu.v
+   wire [4:0]		rRA;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		rRB;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		rRD;			// From ibuf of aexm_ibuf.v
+   wire [31:0]		rREGA;			// From regf of aexm_regf.v
+   wire [31:0]		rREGB;			// From regf of aexm_regf.v
+   wire [31:0]		rRESULT;		// From xecu of aexm_xecu.v
+   wire [4:0]		rRW;			// From ctrl of aexm_ctrl.v
+   wire [31:0]		rSIMM;			// From ibuf of aexm_ibuf.v
+   wire			rSTALL;			// From ibuf of aexm_ibuf.v
+   wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
    // End of automatics
 
    input 		sys_clk_i;
@@ -107,7 +107,7 @@ module aeMB_edk32 (/*AUTOARG*/
    
    // --- INSTANTIATIONS -------------------------------------
           
-   aeMB_ibuf
+   aexm_ibuf
      ibuf (/*AUTOINST*/
 	   // Outputs
 	   .rIMM			(rIMM[15:0]),
@@ -130,7 +130,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .gena			(gena),
 	   .oena			(oena));   
    
-   aeMB_ctrl
+   aexm_ctrl
      ctrl (/*AUTOINST*/
 	   // Outputs
 	   .rMXDST			(rMXDST[1:0]),
@@ -157,7 +157,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .gena			(gena),
 	   .oena                        (oena));
 
-   aeMB_bpcu #(IW)
+   aexm_bpcu #(IW)
      bpcu (/*AUTOINST*/
 	   // Outputs
 	   .aexm_icache_cycle_addr      (aexm_icache_cycle_addr),
@@ -178,7 +178,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .grst			(grst),
 	   .gena			(gena));
 
-   aeMB_regf
+   aexm_regf
      regf (/*AUTOINST*/
 	   // Outputs
 	   .rREGA			(rREGA[31:0]),
@@ -202,7 +202,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .grst			(grst),
 	   .gena			(gena));   
 
-   aeMB_xecu #(DW, MUL, BSF)
+   aexm_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
 	   // Outputs
 	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
@@ -234,7 +234,7 @@ module aeMB_edk32 (/*AUTOARG*/
 	   .gena			(gena));
    
       
-endmodule // aeMB_edk32
+endmodule // aexm_edk32
 
 /*
  $Log: not supported by cvs2svn $

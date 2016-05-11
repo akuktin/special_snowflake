@@ -34,7 +34,7 @@
 // Code compatible with -O0/1/2/3/s generated code.
 //
 
-module aeMB_bpcu (/*AUTOARG*/
+module aexm_bpcu (/*AUTOARG*/
    // Outputs
    aexm_icache_cycle_addr, aexm_icache_precycle_addr, rPC, rPCLNK,
    rBRA, rDLY,
@@ -182,4 +182,4 @@ module aeMB_bpcu (/*AUTOARG*/
 	rATOM <= #1 xATOM;	
      end
       
-endmodule // aeMB_bpcu
+endmodule // aexm_bpcu

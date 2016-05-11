@@ -19,7 +19,7 @@
 ** License along with AEMB. If not, see <http://www.gnu.org/licenses/>.
 */
 
-module aeMB_ibuf (/*AUTOARG*/
+module aexm_ibuf (/*AUTOARG*/
    // Outputs
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
    aexm_icache_enable,
@@ -157,7 +157,7 @@ module aeMB_ibuf (/*AUTOARG*/
 	 rSTALL <= #1 0;
      end
    
-endmodule // aeMB_ibuf
+endmodule // aexm_ibuf
 
 /*
  $Log: not supported by cvs2svn $
