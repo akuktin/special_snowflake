@@ -149,7 +149,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
-	   .rPC				(rPC[31:2]),
 	   .rBRA			(rBRA),
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
@@ -160,7 +159,6 @@ module aexm_edk32 (/*AUTOARG*/
    aexm_bpcu #(IW)
      bpcu (/*AUTOINST*/
 	   // Outputs
-	   .aexm_icache_cycle_addr      (aexm_icache_cycle_addr),
 	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),

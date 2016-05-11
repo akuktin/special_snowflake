@@ -36,7 +36,7 @@
 
 module aexm_bpcu (/*AUTOARG*/
    // Outputs
-   aexm_icache_cycle_addr, aexm_icache_precycle_addr, rPC, rPCLNK,
+   aexm_icache_precycle_addr, rPC, rPCLNK,
    rBRA, rDLY,
    // Inputs
    rMXALT, rOPC, rRD, rRA, rRESULT, rDWBDI, rREGA, gclk, grst, gena
@@ -44,8 +44,6 @@ module aexm_bpcu (/*AUTOARG*/
    parameter IW = 24;
 
    // INST WISHBONE
-//   output [IW-1:2] iwb_adr_o;
-  output [IW-1:2] aexm_icache_cycle_addr;
   output [IW-1:2] aexm_icache_precycle_addr;
 
    // INTERNAL
@@ -102,20 +100,12 @@ module aexm_bpcu (/*AUTOARG*/
    reg 		   rDLY, xDLY;
    wire 	   fSKIP = rBRA & !rDLY;
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fRTD or rBRA or rRA or rRD
-	    or xXCC)
-     //if (rBRA | |rXCE) begin
-     if (rBRA) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	xBRA <= 1'h0;
-	xDLY <= 1'h0;
-	// End of automatics
-     end else begin
-	xDLY <= (fBRU & rRA[4]) | (fBCC & rRD[4]) | fRTD;
-	xBRA <= (fRTD | fBRU) ? 1'b1 :
-		(fBCC) ? xXCC :
-		1'b0;
+   always @(fBCC or fBRU or fRTD or rRA or rRD or xXCC)
+     begin
+       xDLY <= (fBRU & rRA[4]) | (fBCC & rRD[4]) | fRTD;
+       xBRA <= (fRTD | fBRU) ? 1'b1 :
+	       (fBCC) ? xXCC :
+	       1'b0;
      end
 
    // --- PC PIPELINE ------------------------------------------------
@@ -125,25 +115,16 @@ module aexm_bpcu (/*AUTOARG*/
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
 
-   assign 	   aexm_icache_cycle_addr = rIPC[IW-1:2];
    assign          aexm_icache_precycle_addr = xIPC[IW-1:2];
 
-   always @(/*AUTOSENSE*/rBRA or rIPC or rPC or rRESULT) begin
-      //xPCLNK <= (^rATOM) ? rPC : rPC;
-      xPCLNK <= rPC;
-      //xPC <= (^rATOM) ? rIPC : rRESULT[31:2];
-      xPC <= rIPC;
-      //xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
-      /*
-     case (rXCE)
-       2'o1: xIPC <= 30'h2;
-       2'o2: xIPC <= 30'h4;
-       2'o3: xIPC <= 30'h6;
-       default: xIPC <= (rBRA) ? rRESULT[31:2] : (rIPC + 1);
-     endcase // case (rXCE)
-       */
-      xIPC <= (rBRA) ? rRESULT[31:2] : (pre_rIPC + 1);
-   end
+   always @(xBRA or rIPC or rPC or rRESULT or pre_rIPC)
+     begin
+       xPCLNK <= rPC;
+       xPC <= rIPC;
+       // This is totaly doable if you hack the living daylight
+       // out of carry chains. :)
+       xIPC <= (xBRA) ? rRESULT[31:2] : (pre_rIPC + 1);
+     end
 
    // --- ATOMIC CONTROL ---------------------------------------------
    // This is used to indicate 'safe' instruction borders.

@@ -58,11 +58,10 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
-   rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rPC, rBRA, xIREG,
+   rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
    gclk, grst, gena, oena
    );
    // INTERNAL
-   //output [31:2] rPCLNK;
    output [1:0]  rMXDST;
    output [1:0]  rMXSRC, rMXTGT, rMXALT;
    output [2:0]  rMXALU;
@@ -73,7 +72,6 @@ module aexm_ctrl (/*AUTOARG*/
    input [10:0]  rALT;
    input [5:0] 	 rOPC;
    input [4:0] 	 rRD, rRA, rRB;
-   input [31:2]  rPC;
    input 	 rBRA;
    input [31:0]  xIREG;
 
@@ -142,7 +140,6 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- BRANCH SLOT REGISTERS ---------------------------
 
-   reg [31:2] 	 rPCLNK, xPCLNK;
    reg [1:0] 	 rMXDST, xMXDST;
    reg [4:0] 	 rRW, xRW;
 
@@ -276,7 +273,6 @@ module aexm_ctrl (/*AUTOARG*/
 	rRW <= 5'h0;
 	// End of automatics
      end else if (gena) begin // if (grst)
-	//rPCLNK <= #1 xPCLNK;
 	rMXDST <= #1 xMXDST;
 	rRW <= #1 xRW;
 	rMXSRC <= #1 xMXSRC;
