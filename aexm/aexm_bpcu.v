@@ -98,7 +98,7 @@ module aexm_bpcu (/*AUTOARG*/
    reg 		   rBRA, xBRA;
    reg 		   rDLY, xDLY;
   reg 		   rSKIP;
-   wire 	   fSKIP = xBRA & !xDLY;
+   wire 	   fSKIP = (xBRA && !xDLY) || (rBRA/* && !rDLY*/);
 
    always @(fBCC or fBRU or fRTD or rRA or rRD or xXCC)
      begin

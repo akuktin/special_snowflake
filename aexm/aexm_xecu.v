@@ -262,8 +262,8 @@ module aexm_xecu (/*AUTOARG*/
    // IE/BIP/BE
    wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !rSKIP;
    wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !rSKIP;
-   wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC);
-   wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE);
+   wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC) & !rSKIP;
+   wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE) & !rSKIP;
 
    always @(/*AUTOSENSE*/fINT or fMTS or fRTID or rMSR_IE or rOPA)
      xMSR_IE <= (fINT) ? 1'b0 :
