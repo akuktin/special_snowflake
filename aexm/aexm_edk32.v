@@ -64,7 +64,7 @@ module aexm_edk32 (/*AUTOARG*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
    wire			rBRA;			// From bpcu of aexm_bpcu.v
-   wire			fSKIP;			// From bpcu of aexm_bpcu.v
+   wire			rSKIP;			// From bpcu of aexm_bpcu.v
    wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
@@ -142,7 +142,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_precycle_enable (aexm_dcache_precycle_enable),
 	   .aexm_dcache_cycle_we        (aexm_dcache_cycle_we),
 	   // Inputs
-	   .fSKIP			(fSKIP),
+	   .rSKIP			(rSKIP),
 	   .rIMM			(rIMM[15:0]),
 	   .rALT			(rALT[10:0]),
 	   .rOPC			(rOPC[5:0]),
@@ -163,7 +163,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),
 	   .rBRA			(rBRA),
-	   .fSKIP			(fSKIP),
+	   .rSKIP			(rSKIP),
 	   // Inputs
 	   .rMXALT			(rMXALT[1:0]),
 	   .rOPC			(rOPC[5:0]),
@@ -215,7 +215,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
 	   .rMXALU			(rMXALU[2:0]),
-	   .fSKIP                       (fSKIP),
+	   .rSKIP                       (rSKIP),
 	   .rALT			(rALT[10:0]),
 	   .rSTALL			(rSTALL),
 	   .rSIMM			(rSIMM[31:0]),

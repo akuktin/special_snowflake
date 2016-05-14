@@ -58,7 +58,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
-   fSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
+   rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
    gclk, grst, gena, oena
    );
    // INTERNAL
@@ -67,7 +67,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [2:0]  rMXALU;
    output [4:0]  rRW;
 
-  input 	 fSKIP;
+  input 	 rSKIP;
    input [15:0]  rIMM;
    input [10:0]  rALT;
    input [5:0] 	 rOPC;
@@ -204,9 +204,9 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DELAY SLOT REGISTERS ------------------------------
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or fSKIP
+   always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or rSKIP
 	    or fSTR or rRD)
-     if (fSKIP) begin
+     if (rSKIP) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	xMXDST <= 2'h0;
@@ -230,9 +230,8 @@ module aexm_ctrl (/*AUTOARG*/
   assign aexm_dcache_precycle_enable = xDWBSTB;
   assign aexm_dcache_cycle_we = rDWBWRE;
 
-   always @(/*AUTOSENSE*/fLOD or fSKIP or fSTR or rDWBWRE or rDWBSTB)
-     //if (fSKIP | |rXCE) begin
-     if (fSKIP) begin
+   always @(/*AUTOSENSE*/fLOD or rSKIP or fSTR or rDWBWRE or rDWBSTB)
+     if (rSKIP) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	xDWBSTB <= 1'h0;

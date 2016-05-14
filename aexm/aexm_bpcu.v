@@ -37,7 +37,7 @@
 module aexm_bpcu (/*AUTOARG*/
    // Outputs
    aexm_icache_precycle_addr, rPC, rPCLNK,
-   rBRA, fSKIP,
+   rBRA, rSKIP,
    // Inputs
    rMXALT, rOPC, rRD, rRA, rRESULT, rDWBDI, rREGA, gclk, grst, gena
    );
@@ -49,7 +49,7 @@ module aexm_bpcu (/*AUTOARG*/
    // INTERNAL
    output [31:2]   rPC, rPCLNK;
    output 	   rBRA;
-  output 	   fSKIP;
+  output 	   rSKIP;
    //output [1:0]    rATOM;
    //output [1:0]    xATOM;
 
@@ -98,7 +98,8 @@ module aexm_bpcu (/*AUTOARG*/
 
    reg 		   rBRA, xBRA;
    reg 		   rDLY, xDLY;
-   wire 	   fSKIP = rBRA & !rDLY;
+  reg 		   rSKIP;
+   wire 	   fSKIP = xBRA & !xDLY;
 
    always @(fBCC or fBRU or fRTD or rRA or rRD or xXCC)
      begin
@@ -154,6 +155,7 @@ module aexm_bpcu (/*AUTOARG*/
         pre_rIPC <= 30'h0;
 	rPC <= 30'h0;
 	rPCLNK <= 30'h0;
+       rSKIP <= 0;
 	// End of automatics
      end else if (gena) begin
 	pre_rIPC <= #1 xIPC;
@@ -163,6 +165,7 @@ module aexm_bpcu (/*AUTOARG*/
 	rPCLNK <= #1 xPCLNK;
 	rDLY <= #1 xDLY;
 	rATOM <= #1 xATOM;
+       rSKIP <= #1 fSKIP;
      end
 
 endmodule // aexm_bpcu

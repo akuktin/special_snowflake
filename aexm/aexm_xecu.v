@@ -24,7 +24,7 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, fSKIP, rALT,
+   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rSKIP, rALT,
    rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
    );
    parameter DW=32;
@@ -45,7 +45,7 @@ module aexm_xecu (/*AUTOARG*/
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
    input [10:0]    rALT;
-  input 	   fSKIP;
+  input 	   rSKIP;
 
    input 	   rSTALL;
    input [31:0]    rSIMM;
@@ -241,13 +241,12 @@ module aexm_xecu (/*AUTOARG*/
    // --- MSR REGISTER -----------------
 
    // C
-   wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !fSKIP;
+   wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !rSKIP;
    wire 	   fADDC = ({rOPC[5:4], rOPC[2]} == 3'o0);
 
-   always @(/*AUTOSENSE*/fADDC or fMTS or fSKIP or rMSR_C or rMXALU
+   always @(/*AUTOSENSE*/fADDC or fMTS or rSKIP or rMSR_C or rMXALU
 	    or rOPA or rRES_ADDC or rRES_SFTC)
-     //if (fSKIP | |rXCE) begin
-     if (fSKIP) begin
+     if (rSKIP) begin
 	xMSR_C <= rMSR_C;
      end else
        case (rMXALU)
@@ -261,8 +260,8 @@ module aexm_xecu (/*AUTOARG*/
        endcase // case (rMXALU)
 
    // IE/BIP/BE
-   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !fSKIP;
-   wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !fSKIP;
+   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !rSKIP;
+   wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !rSKIP;
    wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC);
    wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE);
 
@@ -286,9 +285,9 @@ module aexm_xecu (/*AUTOARG*/
    reg [31:0] 	   rRESULT, xRESULT;
 
    // RESULT
-   always @(/*AUTOSENSE*/fSKIP or rMXALU or rRES_ADD or rRES_BSF
+   always @(/*AUTOSENSE*/rSKIP or rMXALU or rRES_ADD or rRES_BSF
 	    or rRES_LOG or rRES_MOV or rRES_MUL or rRES_SFT)
-     if (fSKIP)
+     if (rSKIP)
        /*AUTORESET*/
        // Beginning of autoreset for uninitialized flops
        xRESULT <= 32'h0;
