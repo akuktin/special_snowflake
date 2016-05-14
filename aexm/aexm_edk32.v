@@ -101,13 +101,16 @@ module aexm_edk32 (/*AUTOARG*/
    wire 		gclk = sys_clk_i;
 
   wire 			d_en, x_en;
-  reg 			d_en_prev;
+  reg 			d_en_prev, grst_prev;
   assign d_en = !aexm_icache_cache_busy;
   always @(posedge gclk)
-    if (!grst)
-      d_en_prev <= 0;
-    else
-      d_en_prev <= d_en;
+    begin
+      grst_prev <= grst;
+      if (!grst)
+	d_en_prev <= 0;
+      else
+	d_en_prev <= d_en && grst_prev;
+    end
   assign x_en = d_en_prev && (!aexm_icache_cache_busy) &&
 		(!fSTALL) && (!aexm_dcache_cache_busy);
 
