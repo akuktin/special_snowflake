@@ -59,7 +59,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_cycle_we,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
-   gclk, grst, d_en, oena
+   gclk, grst, d_en, x_en
    );
    // INTERNAL
    output [1:0]  rMXDST;
@@ -77,10 +77,9 @@ module aexm_ctrl (/*AUTOARG*/
    // MCU
    output aexm_dcache_precycle_enable;
    output aexm_dcache_cycle_we;
-   input oena;
 
    // SYSTEM
-   input 	 gclk, grst, d_en;
+   input 	 gclk, grst, d_en, x_en;
 
    // --- DECODE INSTRUCTIONS
    // TODO: Simplify
@@ -211,32 +210,19 @@ module aexm_ctrl (/*AUTOARG*/
 
 
   assign aexm_dcache_precycle_enable = xDWBSTB;
-  assign aexm_dcache_cycle_we = rDWBWRE;
+  assign aexm_dcache_cycle_we = xDWBWRE;
 
-   always @(/*AUTOSENSE*/fLOD or rSKIP or fSTR or rDWBWRE or rDWBSTB)
-     if (rSKIP) begin
+   always @(/*AUTOSENSE*/fLOD or rSKIP or fSTR or x_en)
+     if (rSKIP || !x_en) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	xDWBSTB <= 1'h0;
 	xDWBWRE <= 1'h0;
 	// End of automatics
-     end else begin
-       xDWBSTB <= (fLOD | fSTR) & (!rDWBSTB);
-       xDWBWRE <= fSTR & (!rDWBWRE);
+     end else if (x_en) begin
+       xDWBSTB <= (fLOD | fSTR);
+       xDWBWRE <= fSTR;
      end
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rDWBSTB <= 1'h0;
-	rDWBWRE <= 1'h0;
-	// End of automatics
-     end else if (!oena) begin
-       rDWBSTB <= #1 xDWBSTB;
-       rDWBWRE <= #1 xDWBWRE;
-     end
-
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 

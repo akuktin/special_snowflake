@@ -21,8 +21,7 @@
 
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
-   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
-   aexm_icache_enable,
+   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, fSTALL,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, d_en, oena
@@ -34,13 +33,12 @@ module aexm_ibuf (/*AUTOARG*/
    output [5:0]  rOPC;
    output [31:0] rSIMM;
    output [31:0] xIREG;
-   output 	 rSTALL;
+   output 	 fSTALL;
 
    input 	 rMSR_IE;
 
    // INST WISHBONE
    input [31:0]  aexm_icache_datai;
-   output 	 aexm_icache_enable;
 
    // SYSTEM
    input 	 sys_int_i;
@@ -136,8 +134,11 @@ module aexm_ibuf (/*AUTOARG*/
 
    wire       fMUL = (wOPC == 6'o20) | (wOPC == 6'o30);
    wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
-   wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
-   wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
+   wire 	 rLOD = ({rOPC[5:4],rOPC[2]} == 3'o6);
+   wire 	 rSTR = ({rOPC[5:4],rOPC[2]} == 3'o7);
+  reg 		 rSTALL_prev;
+  wire 		 fSTALL;
+  assign fSTALL = rSTALL || rSTALL_prev;
 
    always @(posedge gclk)
      if (grst) begin
@@ -146,8 +147,9 @@ module aexm_ibuf (/*AUTOARG*/
 	rSTALL <= 1'h0;
 	// End of automatics
      end else begin
-       if (!oena)
-	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF | wLOD | wSTR));
+       rSTALL_prev <= rSTALL;
+       if (oena)
+	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF | rLOD | rSTR));
        else
 	 rSTALL <= #1 0;
      end

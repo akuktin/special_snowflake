@@ -21,8 +21,8 @@
 
 module aexm_edk32 (/*AUTOARG*/
    // Outputs
-   aexm_icache_precycle_addr, aexm_icache_cycle_addr,
-   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
+   aexm_icache_precycle_addr,
+   aexm_dcache_precycle_addr,
    aexm_dcache_datao, aexm_dcache_cycle_we,
    aexm_dcache_precycle_enable, aexm_icache_precycle_enable,
    aexm_dcache_we_tlb, aexm_icache_we_tlb,
@@ -86,7 +86,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [31:0]		rRESULT;		// From xecu of aexm_xecu.v
    wire [4:0]		rRW;			// From ctrl of aexm_ctrl.v
    wire [31:0]		rSIMM;			// From ibuf of aexm_ibuf.v
-   wire			rSTALL;			// From ibuf of aexm_ibuf.v
+   wire			fSTALL;			// From ibuf of aexm_ibuf.v
    wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
    // End of automatics
 
@@ -100,22 +100,23 @@ module aexm_edk32 (/*AUTOARG*/
    wire 		grst = sys_rst_i;
    wire 		gclk = sys_clk_i;
 
-  wire 			d_en;
-  reg 			x_en;
+  wire 			d_en, x_en;
+  reg 			d_en_prev;
   assign d_en = !aexm_icache_cache_busy;
   always @(posedge gclk)
     if (!grst)
-      x_en <= 0;
+      d_en_prev <= 0;
     else
-      x_en <= d_en & !aexm_icache_cache_busy;
+      d_en_prev <= d_en;
+  assign x_en = d_en_prev && (!aexm_icache_cache_busy) &&
+		(!fSTALL) && (!aexm_dcache_cache_busy);
 
   assign aexm_icache_enable = x_en;
 
-   wire 		gena = aexm_icache_cache_busy_n &
-			       aexm_dcache_cache_busy_n &
-			       !rSTALL;
-   wire 		oena = !(aexm_icache_cache_busy_n &
-				 aexm_dcache_cache_busy_n);
+  wire 			oena;
+  assign oena = d_en_prev &&
+		(!aexm_icache_cache_busy) &&
+		(!aexm_dcache_cache_busy);
 
    // --- INSTANTIATIONS -------------------------------------
 
@@ -130,8 +131,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rOPC			(rOPC[5:0]),
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
-	   .rSTALL			(rSTALL),
-	   .aexm_icache_enable          (aexm_icache_precycle_enable),
+	   .fSTALL			(fSTALL),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
 	   .aexm_icache_datai           (aexm_icache_datai),
@@ -164,7 +164,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .gclk			(gclk),
 	   .grst			(grst),
 	   .d_en			(d_en),
-	   .oena                        (oena));
+	   .x_en                        (x_en));
 
    aexm_bpcu #(IW)
      bpcu (/*AUTOINST*/
@@ -212,7 +212,6 @@ module aexm_edk32 (/*AUTOARG*/
      xecu (/*AUTOINST*/
 	   // Outputs
 	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
-	   .aexm_dcache_cycle_addr      (aexm_dcache_cycle_addr),
 	   .xRESULT			(xRESULT[31:0]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
@@ -228,7 +227,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXALU			(rMXALU[2:0]),
 	   .rSKIP                       (rSKIP),
 	   .rALT			(rALT[10:0]),
-	   .rSTALL			(rSTALL),
+	   .fSTALL			(fSTALL),
 	   .rSIMM			(rSIMM[31:0]),
 	   .rIMM			(rIMM[15:0]),
 	   .rOPC			(rOPC[5:0]),

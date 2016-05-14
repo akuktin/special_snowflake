@@ -122,7 +122,7 @@ module aexm_regf (/*AUTOARG*/
    wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;
    wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;
 
-   assign 	 aexm_dcache_datao = rDWBDO;
+   assign 	 aexm_dcache_datao = xDWBDO;
    assign 	 xDST = (fDFWD_M) ? rDWBDI :
 			(fDFWD_R) ? rRESULT :
 			rREGD;
@@ -137,16 +137,6 @@ module aexm_regf (/*AUTOARG*/
        2'h2: xDWBDO <= xDST;
        default: xDWBDO <= 32'hX;
      endcase // case (rOPC[1:0])
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rDWBDO <= 32'h0;
-	// End of automatics
-     end else if (x_en) begin
-	rDWBDO <= #1 xDWBDO;
-     end
 
    // --- SIMULATION ONLY ------------------------------------------
    // Randomise memory to simulate real-world memory
