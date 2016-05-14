@@ -58,7 +58,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
-   rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
+   rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    gclk, grst, gena, oena
    );
    // INTERNAL
@@ -72,7 +72,6 @@ module aexm_ctrl (/*AUTOARG*/
    input [10:0]  rALT;
    input [5:0] 	 rOPC;
    input [4:0] 	 rRD, rRA, rRB;
-   input 	 rBRA;
    input [31:0]  xIREG;
 
    // MCU
@@ -102,7 +101,6 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 fRTD = (rOPC == 6'o55);
    wire 	 fBCC = (rOPC == 6'o47) | (rOPC == 6'o57);
    wire 	 fBRU = (rOPC == 6'o46) | (rOPC == 6'o56);
-   wire 	 fBRA = fBRU & rRA[3];
 
    wire 	 fIMM = (rOPC == 6'o54);
    wire 	 fMOV = (rOPC == 6'o45);
@@ -156,17 +154,9 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wAFWD_R = (xRW == wRA) & (xMXDST == 2'o0) & wRDWE;
    wire 	 wBFWD_R = (xRW == wRB) & (xMXDST == 2'o0) & wRDWE;
 
-   always @(/*AUTOSENSE*/rBRA or wAFWD_M or wAFWD_R or wBCC or wBFWD_M
+   always @(/*AUTOSENSE*/wAFWD_M or wAFWD_R or wBCC or wBFWD_M
 	    or wBFWD_R or wBRU or wOPC)
-     //if (rBRA | |rXCE) begin
-     if (rBRA) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	xMXALT <= 2'h0;
-	xMXSRC <= 2'h0;
-	xMXTGT <= 2'h0;
-	// End of automatics
-     end else begin
+     begin
 	xMXSRC <= (wBRU | wBCC) ? 2'o3 : // PC
 		  (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
@@ -178,21 +168,15 @@ module aexm_ctrl (/*AUTOARG*/
 	xMXALT <= (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
 		  2'o0; // REG
-     end // else: !if(rBRA)
+     end
 
    // --- ALU CONTROL ---------------------------------------
 
    reg [2:0]     rMXALU, xMXALU;
 
-   always @(/*AUTOSENSE*/rBRA or wBRA or wBSF or wDIV or wLOG or wMOV
+   always @(/*AUTOSENSE*/wBRA or wBSF or wDIV or wLOG or wMOV
 	    or wMUL or wSFT)
-     //if (rBRA | |rXCE) begin
-     if (rBRA) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	xMXALU <= 3'h0;
-	// End of automatics
-     end else begin
+     begin
 	xMXALU <= (wBRA | wMOV) ? 3'o3 :
 		  (wSFT) ? 3'o2 :
 		  (wLOG) ? 3'o1 :
@@ -200,7 +184,7 @@ module aexm_ctrl (/*AUTOARG*/
 		  (wBSF) ? 3'o5 :
 		  (wDIV) ? 3'o6 :
 		  3'o0;
-     end // else: !if(rBRA)
+     end
 
    // --- DELAY SLOT REGISTERS ------------------------------
 

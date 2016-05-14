@@ -63,7 +63,6 @@ module aexm_edk32 (/*AUTOARG*/
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
-   wire			rBRA;			// From bpcu of aexm_bpcu.v
    wire			rSKIP;			// From bpcu of aexm_bpcu.v
    wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
@@ -121,7 +120,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rSTALL			(rSTALL),
 	   .aexm_icache_enable          (aexm_icache_precycle_enable),
 	   // Inputs
-	   .rBRA			(rBRA),
 	   .rMSR_IE			(rMSR_IE),
 	   .aexm_icache_datai           (aexm_icache_datai),
 	   .sys_int_i			(sys_int_i),
@@ -149,7 +147,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
-	   .rBRA			(rBRA),
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
@@ -162,7 +159,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),
-	   .rBRA			(rBRA),
 	   .rSKIP			(rSKIP),
 	   // Inputs
 	   .rMXALT			(rMXALT[1:0]),

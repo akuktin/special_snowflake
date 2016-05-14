@@ -24,7 +24,7 @@ module aexm_ibuf (/*AUTOARG*/
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, rSTALL,
    aexm_icache_enable,
    // Inputs
-   rBRA, rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
+   rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, gena, oena
    );
    // INTERNAL
@@ -36,8 +36,6 @@ module aexm_ibuf (/*AUTOARG*/
    output [31:0] xIREG;
    output 	 rSTALL;
 
-   input 	 rBRA;
-   //input [1:0] 	 rXCE;
    input 	 rMSR_IE;
 
    // INST WISHBONE
@@ -104,15 +102,14 @@ module aexm_ibuf (/*AUTOARG*/
 
    // --- DELAY SLOT -------------------------------------------
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fIMM or fRTD or rBRA or rFINT
-	    or wBRAOP or wIDAT or wINTOP) begin
-      xIREG <= (rBRA) ? wBRAOP :
-	       (!fIMM & rFINT & !fRTD & !fBRU & !fBCC) ? wINTOP :
+   always @(/*AUTOSENSE*/fBCC or fBRU or fIMM or fRTD or rFINT
+	    or wIDAT or wINTOP) begin
+      xIREG <= (!fIMM & rFINT & !fRTD & !fBRU & !fBCC) ? wINTOP :
 	       wIDAT;
    end
 
-   always @(/*AUTOSENSE*/fIMM or rBRA or rIMM or wIDAT or xIREG) begin
-      xSIMM <= (!fIMM | rBRA) ? { {(16){xIREG[15]}}, xIREG[15:0]} :
+   always @(/*AUTOSENSE*/fIMM or rIMM or wIDAT or xIREG) begin
+      xSIMM <= (!fIMM) ? { {(16){xIREG[15]}}, xIREG[15:0]} :
 	       {rIMM, wIDAT[15:0]};
    end
 
