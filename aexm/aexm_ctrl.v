@@ -120,7 +120,6 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
    wire 	 wDIV = (wOPC == 6'o22);
 
-   wire 	 wRTD = (wOPC == 6'o55);
    wire 	 wBCC = (wOPC == 6'o47) | (wOPC == 6'o57);
    wire 	 wBRU = (wOPC == 6'o46) | (wOPC == 6'o56);
    wire 	 wBRA = wBRU & wRA[3];
