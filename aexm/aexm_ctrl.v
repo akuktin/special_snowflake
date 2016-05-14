@@ -58,7 +58,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_enable,
    aexm_dcache_cycle_we,
    // Inputs
-   rDLY, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
+   fSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, rBRA, xIREG,
    gclk, grst, gena, oena
    );
    // INTERNAL
@@ -67,7 +67,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [2:0]  rMXALU;
    output [4:0]  rRW;
 
-   input 	 rDLY;
+  input 	 fSKIP;
    input [15:0]  rIMM;
    input [10:0]  rALT;
    input [5:0] 	 rOPC;
@@ -203,8 +203,6 @@ module aexm_ctrl (/*AUTOARG*/
      end // else: !if(rBRA)
 
    // --- DELAY SLOT REGISTERS ------------------------------
-
-   wire 	 fSKIP = (rBRA & !rDLY);
 
    always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or fSKIP
 	    or fSTR or rRD)

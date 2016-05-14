@@ -24,7 +24,7 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
    rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rBRA, rDLY, rALT,
+   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, fSKIP, rALT,
    rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
    );
    parameter DW=32;
@@ -44,8 +44,8 @@ module aexm_xecu (/*AUTOARG*/
    input [1:0] 	   rMXSRC, rMXTGT;
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
-   input 	   rBRA, rDLY;
    input [10:0]    rALT;
+  input 	   fSKIP;
 
    input 	   rSTALL;
    input [31:0]    rSIMM;
@@ -62,8 +62,6 @@ module aexm_xecu (/*AUTOARG*/
    reg 		   rMSR_IE, xMSR_IE;
    reg 		   rMSR_BE, xMSR_BE;
    reg 		   rMSR_BIP, xMSR_BIP;
-
-   wire 	   fSKIP = rBRA & !rDLY;
 
    // --- OPERAND SELECT
 

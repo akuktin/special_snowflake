@@ -33,8 +33,8 @@ module aexm_regf (/*AUTOARG*/
    // Outputs
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
-   rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL, rBRA,
-   rDLY, aexm_dcache_datai, gclk, grst, gena
+   rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
+   aexm_dcache_datai, gclk, grst, gena
    );
    // INTERNAL
    output [31:0] rREGA, rREGB;
@@ -45,7 +45,6 @@ module aexm_regf (/*AUTOARG*/
    input [31:2]  rPCLNK;
    input [31:0]  rRESULT;
    input [3:0] 	 rDWBSEL;
-   input 	 rBRA, rDLY;
 
    // MCU interface
    output [31:0] aexm_dcache_datao;
