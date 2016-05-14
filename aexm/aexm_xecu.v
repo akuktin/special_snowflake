@@ -21,8 +21,8 @@
 
 module aexm_xecu (/*AUTOARG*/
    // Outputs
-   aexm_dcache_precycle_addr, aexm_dcache_cycle_addr,
-   rRESULT, rDWBSEL, rMSR_IE,
+   aexm_dcache_precycle_addr,
+   xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rSKIP, rALT,
    rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
@@ -34,9 +34,9 @@ module aexm_xecu (/*AUTOARG*/
 
    // DATA interface
    output [DW-1:0] aexm_dcache_precycle_addr;
-   output [DW-1:0] aexm_dcache_cycle_addr;
 
    // INTERNAL
+   output [31:0]   xRESULT;
    output [31:0]   rRESULT;
    output [3:0]    rDWBSEL;
    output 	   rMSR_IE;
@@ -307,7 +307,6 @@ module aexm_xecu (/*AUTOARG*/
 
    reg [3:0] 	    rDWBSEL, xDWBSEL;
    assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
-   assign           aexm_dcache_cycle_addr = rRESULT[DW-1:2];
 
    always @(/*AUTOSENSE*/rOPC or wADD)
      case (rOPC[1:0])

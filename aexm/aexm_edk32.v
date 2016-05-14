@@ -82,6 +82,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [4:0]		rRD;			// From ibuf of aexm_ibuf.v
    wire [31:0]		rREGA;			// From regf of aexm_regf.v
    wire [31:0]		rREGB;			// From regf of aexm_regf.v
+   wire [31:0]		xRESULT;		// From xecu of aexm_xecu.v
    wire [31:0]		rRESULT;		// From xecu of aexm_xecu.v
    wire [4:0]		rRW;			// From ctrl of aexm_ctrl.v
    wire [31:0]		rSIMM;			// From ibuf of aexm_ibuf.v
@@ -165,6 +166,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rOPC			(rOPC[5:0]),
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
+	   .xRESULT			(xRESULT[31:0]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBDI			(rDWBDI[31:0]),
 	   .rREGA			(rREGA[31:0]),
@@ -199,6 +201,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   // Outputs
 	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
 	   .aexm_dcache_cycle_addr      (aexm_dcache_cycle_addr),
+	   .xRESULT			(xRESULT[31:0]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rMSR_IE			(rMSR_IE),
