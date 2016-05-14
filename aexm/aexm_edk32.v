@@ -102,7 +102,7 @@ module aexm_edk32 (/*AUTOARG*/
 
   wire 			d_en, x_en;
   reg 			d_en_prev, grst_prev;
-  assign d_en = !aexm_icache_cache_busy;
+  assign d_en = !aexm_icache_cache_busy && (!fSTALL);
   always @(posedge gclk)
     begin
       grst_prev <= grst;
