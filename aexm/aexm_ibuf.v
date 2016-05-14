@@ -25,7 +25,7 @@ module aexm_ibuf (/*AUTOARG*/
    aexm_icache_enable,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
-   grst, gena, oena
+   grst, d_en, oena
    );
    // INTERNAL
    output [15:0] rIMM;
@@ -46,7 +46,7 @@ module aexm_ibuf (/*AUTOARG*/
    input 	 sys_int_i;
 
    // SYSTEM
-   input 	 gclk, grst, gena, oena;
+   input 	 gclk, grst, d_en, oena;
 
    reg [15:0] 	 rIMM;
    reg [4:0] 	 rRA, rRD;
@@ -125,7 +125,7 @@ module aexm_ibuf (/*AUTOARG*/
 	rRD <= 5'h0;
 	rSIMM <= 32'h0;
 	// End of automatics
-     end else if (gena) begin
+     end else if (d_en) begin
 	{rOPC, rRD, rRA, rIMM} <= #1 xIREG;
 	rSIMM <= #1 xSIMM;
      end
@@ -138,8 +138,6 @@ module aexm_ibuf (/*AUTOARG*/
    wire       fBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
    wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
    wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
-
-  assign aexm_icache_enable = gena;//!rSTALL;
 
    always @(posedge gclk)
      if (grst) begin

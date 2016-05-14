@@ -59,7 +59,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_cycle_we,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
-   gclk, grst, gena, oena
+   gclk, grst, d_en, oena
    );
    // INTERNAL
    output [1:0]  rMXDST;
@@ -80,7 +80,7 @@ module aexm_ctrl (/*AUTOARG*/
    input oena;
 
    // SYSTEM
-   input 	 gclk, grst, gena;
+   input 	 gclk, grst, d_en;
 
    // --- DECODE INSTRUCTIONS
    // TODO: Simplify
@@ -232,7 +232,6 @@ module aexm_ctrl (/*AUTOARG*/
 	rDWBSTB <= 1'h0;
 	rDWBWRE <= 1'h0;
 	// End of automatics
-//     end else if (gena) begin
      end else if (!oena) begin
        rDWBSTB <= #1 xDWBSTB;
        rDWBWRE <= #1 xDWBWRE;
@@ -252,7 +251,7 @@ module aexm_ctrl (/*AUTOARG*/
 	rMXTGT <= 2'h0;
 	rRW <= 5'h0;
 	// End of automatics
-     end else if (gena) begin // if (grst)
+     end else if (d_en) begin // if (grst)
 	rMXDST <= #1 xMXDST;
 	rRW <= #1 xRW;
 	rMXSRC <= #1 xMXSRC;

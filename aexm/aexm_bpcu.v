@@ -40,7 +40,7 @@ module aexm_bpcu (/*AUTOARG*/
    rSKIP,
    // Inputs
    rMXALT, rOPC, rRD, rRA, xRESULT, rRESULT, rDWBDI, rREGA,
-   gclk, grst, gena
+   gclk, grst, x_en
    );
    parameter IW = 24;
 
@@ -63,7 +63,7 @@ module aexm_bpcu (/*AUTOARG*/
    //input [1:0] 	   rXCE;
 
    // SYSTEM
-   input 	   gclk, grst, gena;
+   input 	   gclk, grst, x_en;
 
    // --- BRANCH CONTROL --------------------------------------------
    // Controls the branch and delay flags
@@ -158,7 +158,7 @@ module aexm_bpcu (/*AUTOARG*/
 	rPCLNK <= 30'h0;
        rSKIP <= 0;
 	// End of automatics
-     end else if (gena) begin
+     end else if (x_en) begin
 	pre_rIPC <= #1 xIPC;
         rIPC <= #1 pre_rIPC;
 	rBRA <= #1 xBRA;

@@ -34,7 +34,7 @@ module aexm_regf (/*AUTOARG*/
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
    rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
-   aexm_dcache_datai, gclk, grst, gena
+   aexm_dcache_datai, gclk, grst, x_en
    );
    // INTERNAL
    output [31:0] rREGA, rREGB;
@@ -51,7 +51,7 @@ module aexm_regf (/*AUTOARG*/
    input [31:0]  aexm_dcache_datai;
 
    // SYSTEM
-   input 	 gclk, grst, gena;
+   input 	 gclk, grst, x_en;
 
    // --- LOAD SIZER ----------------------------------------------
    // Moves the data bytes around depending on the size of the
@@ -60,7 +60,6 @@ module aexm_regf (/*AUTOARG*/
    wire [31:0] 	 wDWBDI = aexm_dcache_datai;
 
    reg [31:0] 	 rDWBDI;
-   reg [1:0] 	 rSIZ;
 
    always @(/*AUTOSENSE*/rDWBSEL or wDWBDI) begin
       // 52.0
@@ -78,18 +77,7 @@ module aexm_regf (/*AUTOARG*/
 	// Undefined
 	default: rDWBDI <= 32'hX;
       endcase
-
    end
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rSIZ <= 2'h0;
-	// End of automatics
-     end else if (gena) begin
-	rSIZ <= rOPC[1:0];
-     end
 
    // --- GENERAL PURPOSE REGISTERS (R0-R31) -----------------------
    // LUT RAM implementation is smaller and faster. R0 gets written
@@ -118,7 +106,7 @@ module aexm_regf (/*AUTOARG*/
      endcase // case (rMXDST)
 
    always @(posedge gclk)
-     if (grst | fRDWE) begin
+     if ((grst | fRDWE) && x_en) begin
 	mARAM[rRW] <= xWDAT;
 	mBRAM[rRW] <= xWDAT;
 	mDRAM[rRW] <= xWDAT;
@@ -156,7 +144,7 @@ module aexm_regf (/*AUTOARG*/
 	// Beginning of autoreset for uninitialized flops
 	rDWBDO <= 32'h0;
 	// End of automatics
-     end else if (gena) begin
+     end else if (x_en) begin
 	rDWBDO <= #1 xDWBDO;
      end
 

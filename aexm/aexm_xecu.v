@@ -25,7 +25,7 @@ module aexm_xecu (/*AUTOARG*/
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rSKIP, rALT,
-   rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, gena
+   rSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, x_en
    );
    parameter DW=32;
 
@@ -56,7 +56,7 @@ module aexm_xecu (/*AUTOARG*/
    input [31:2]    rPC;
 
    // SYSTEM
-   input 	   gclk, grst, gena;
+   input 	   gclk, grst, x_en;
 
    reg 		   rMSR_C, xMSR_C;
    reg 		   rMSR_IE, xMSR_IE;
@@ -334,7 +334,7 @@ module aexm_xecu (/*AUTOARG*/
 	rMSR_IE <= 1'h0;
 	rRESULT <= 32'h0;
 	// End of automatics
-     end else if (gena) begin // if (grst)
+     end else if (x_en) begin // if (grst)
 	rRESULT <= #1 xRESULT;
 	rDWBSEL <= #1 xDWBSEL;
 	rMSR_C <= #1 xMSR_C;

@@ -99,6 +99,18 @@ module aexm_edk32 (/*AUTOARG*/
 
    wire 		grst = sys_rst_i;
    wire 		gclk = sys_clk_i;
+
+  wire 			d_en;
+  reg 			x_en;
+  assign d_en = !aexm_icache_cache_busy;
+  always @(posedge gclk)
+    if (!grst)
+      x_en <= 0;
+    else
+      x_en <= d_en & !aexm_icache_cache_busy;
+
+  assign aexm_icache_enable = x_en;
+
    wire 		gena = aexm_icache_cache_busy_n &
 			       aexm_dcache_cache_busy_n &
 			       !rSTALL;
@@ -126,7 +138,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena),
+	   .d_en			(d_en),
 	   .oena			(oena));
 
    aexm_ctrl
@@ -151,7 +163,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena),
+	   .d_en			(d_en),
 	   .oena                        (oena));
 
    aexm_bpcu #(IW)
@@ -172,7 +184,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rREGA			(rREGA[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena));
+	   .x_en			(x_en));
 
    aexm_regf
      regf (/*AUTOINST*/
@@ -194,7 +206,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena));
+	   .x_en			(x_en));
 
    aexm_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
@@ -225,7 +237,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rPC				(rPC[31:2]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .gena			(gena));
+	   .x_en			(x_en));
 
 
 endmodule // aexm_edk32
