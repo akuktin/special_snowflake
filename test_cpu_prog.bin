@@ -1,0 +1,33 @@
+// basic test program to make sure stuff is working
+i_cache.cachedat.ram.r_data[0] <= {6'o42,5'h0,5'h0,5'h0,11'd0};
+i_cache.cachedat.ram.r_data[1] <= {6'o45,5'h1,5'h1,5'h1,11'd0};
+i_cache.cachedat.ram.r_data[2] <= {6'o42,5'h1,5'h1,5'h1,11'd0};
+i_cache.cachedat.ram.r_data[3] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd2};
+i_cache.cachedat.ram.r_data[4] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd3};
+i_cache.cachedat.ram.r_data[5] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd4};
+i_cache.cachedat.ram.r_data[6] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd5};
+i_cache.cachedat.ram.r_data[7] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd6};
+i_cache.cachedat.ram.r_data[8] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd7};
+i_cache.cachedat.ram.r_data[9] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd8};
+i_cache.cachedat.ram.r_data[10] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd9};
+
+/*
+// write some programatic stuff into r1
+i_cache.cachedat.ram.r_data[1]  <= 32'h8800_0000;
+i_cache.cachedat.ram.r_data[2]  <= 32'h2020_ffff;
+i_cache.cachedat.ram.r_data[3]  <= 32'h2040_0000;
+i_cache.cachedat.ram.r_data[4]  <= 32'h2042_4000;
+i_cache.cachedat.ram.r_data[5]  <= 32'hd820_0000;
+i_cache.cachedat.ram.r_data[6]  <= 32'h2021_0000;//d822_0000;
+i_cache.cachedat.ram.r_data[7]  <= 32'hd822_0000;
+i_cache.cachedat.ram.r_data[11]  <= 32'h2021_0000;
+i_cache.cachedat.ram.r_data[9]  <= 32'hc862_0000;//2021_0000;
+i_cache.cachedat.ram.r_data[10] <= 32'hc882_0000;//2021_0000;
+i_cache.cachedat.ram.r_data[8] <= 32'hc860_0000;//2021_0000;
+i_cache.cachedat.ram.r_data[12] <= 32'h2021_0000;
+i_cache.cachedat.ram.r_data[13] <= 32'h2021_0000;
+i_cache.cachedat.ram.r_data[14] <= 32'h2021_0000;
+i_cache.cachedat.ram.r_data[15] <= 32'h2021_0000;
+i_cache.cachedat.ram.r_data[16] <= 32'h8bff_ff00;
+i_cache.cachedat.ram.r_data[17] <= 32'h8bff_ff00;
+*/
