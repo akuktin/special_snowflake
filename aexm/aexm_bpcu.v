@@ -45,7 +45,7 @@ module aexm_bpcu (/*AUTOARG*/
    parameter IW = 24;
 
    // INST WISHBONE
-  output [IW-1:2] aexm_icache_precycle_addr;
+  output [31:0] aexm_icache_precycle_addr;
 
    // INTERNAL
    output [31:2]   rPC, rPCLNK;
@@ -117,7 +117,7 @@ module aexm_bpcu (/*AUTOARG*/
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
 
-   assign          aexm_icache_precycle_addr = xIPC[IW-1:2];
+   assign          aexm_icache_precycle_addr = xIPC;
 
    always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC)
      begin

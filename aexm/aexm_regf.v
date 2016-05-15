@@ -149,6 +149,9 @@ module aexm_regf (/*AUTOARG*/
 	 mBRAM[i] <= $random;
 	 mDRAM[i] <= $random;
       end
+    mARAM[0] <= 32'd0;
+    mBRAM[0] <= 32'd0;
+    mDRAM[0] <= 32'd0;
     mARAM[31] <= 32'd1;
     mBRAM[31] <= 32'd1;
     mDRAM[31] <= 32'd1;

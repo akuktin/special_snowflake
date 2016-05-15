@@ -76,7 +76,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    // MCU
    output aexm_dcache_precycle_enable;
-   output aexm_dcache_cycle_we;
+   output aexm_dcache_precycle_we;
 
    // SYSTEM
    input 	 gclk, grst, d_en, x_en;
@@ -210,7 +210,7 @@ module aexm_ctrl (/*AUTOARG*/
 
 
   assign aexm_dcache_precycle_enable = xDWBSTB;
-  assign aexm_dcache_cycle_we = xDWBWRE;
+  assign aexm_dcache_precycle_we = xDWBWRE;
 
    always @(/*AUTOSENSE*/fLOD or rSKIP or fSTR or x_en)
      if (rSKIP || !x_en) begin

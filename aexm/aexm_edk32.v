@@ -68,7 +68,6 @@ module aexm_edk32 (/*AUTOARG*/
    wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
-   wire			rMSR_BIP;		// From xecu of aexm_xecu.v
    wire			rMSR_IE;		// From xecu of aexm_xecu.v
    wire [1:0]		rMXALT;			// From ctrl of aexm_ctrl.v
    wire [2:0]		rMXALU;			// From ctrl of aexm_ctrl.v
@@ -111,8 +110,8 @@ module aexm_edk32 (/*AUTOARG*/
   assign d_en = !aexm_icache_cache_busy && (!fSTALL);
   always @(posedge gclk)
     begin
-      grst_prev <= {grst_prev[0],grst};
-      if (!grst)
+      grst_prev <= {grst_prev[0],!grst};
+      if (grst)
 	d_en_prev <= 0;
       else
 	d_en_prev <= d_en && grst_prev[1];
@@ -230,7 +229,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .rMSR_IE			(rMSR_IE),
-	   .rMSR_BIP			(rMSR_BIP),
 	   // Inputs
 	   .rREGA			(rREGA[31:0]),
 	   .rREGB			(rREGB[31:0]),
