@@ -144,6 +144,7 @@ module aexm_ibuf (/*AUTOARG*/
      if (grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
+       rSTALL_prev <= 0;
 	rSTALL <= 1'h0;
 	// End of automatics
      end else begin

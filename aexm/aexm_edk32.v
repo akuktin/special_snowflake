@@ -23,12 +23,12 @@ module aexm_edk32 (/*AUTOARG*/
    // Outputs
    aexm_icache_precycle_addr,
    aexm_dcache_precycle_addr,
-   aexm_dcache_datao, aexm_dcache_cycle_we,
+   aexm_dcache_datao, aexm_dcache_precycle_we,
    aexm_dcache_precycle_enable, aexm_icache_precycle_enable,
    aexm_dcache_we_tlb, aexm_icache_we_tlb,
    // Inputs
    aexm_icache_datai, aexm_dcache_datai,
-   aexm_icache_cache_busy_n, aexm_dcache_cache_busy_n,
+   aexm_icache_cache_busy, aexm_dcache_cache_busy,
    sys_int_i, sys_clk_i, sys_rst_i
    );
    // Bus widths
@@ -48,14 +48,14 @@ module aexm_edk32 (/*AUTOARG*/
   output [31:0] aexm_dcache_cycle_addr;
   input [31:0] 	aexm_dcache_datai;
   output [31:0] aexm_dcache_datao;
-  output        aexm_dcache_cycle_we;
+  output        aexm_dcache_precycle_we;
   output        aexm_dcache_precycle_enable;
 
   output 	aexm_dcache_we_tlb;
   output 	aexm_icache_we_tlb;
 
-  input 	aexm_icache_cache_busy_n;
-  input 	aexm_dcache_cache_busy_n;
+  input 	aexm_icache_cache_busy;
+  input 	aexm_dcache_cache_busy;
 
    /*AUTOINPUT*/
    input		sys_int_i;		// To ibuf of aexm_ibuf.v
@@ -120,7 +120,7 @@ module aexm_edk32 (/*AUTOARG*/
   assign x_en = d_en_prev && (!aexm_icache_cache_busy) &&
 		(!fSTALL) && (!aexm_dcache_cache_busy);
 
-  assign aexm_icache_enable = x_en;
+  assign aexm_icache_precycle_enable = x_en;
 
   wire 			oena;
   assign oena = d_en_prev &&
@@ -165,7 +165,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
 	   .aexm_dcache_precycle_enable (aexm_dcache_precycle_enable),
-	   .aexm_dcache_cycle_we        (aexm_dcache_cycle_we),
+	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   // Inputs
 	   .rSKIP			(rSKIP),
 	   .rIMM			(rIMM[15:0]),

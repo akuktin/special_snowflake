@@ -56,7 +56,7 @@ module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW,
    aexm_dcache_precycle_enable,
-   aexm_dcache_cycle_we,
+   aexm_dcache_precycle_we,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    gclk, grst, d_en, x_en
