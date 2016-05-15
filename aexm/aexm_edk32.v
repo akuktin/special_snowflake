@@ -63,6 +63,7 @@ module aexm_edk32 (/*AUTOARG*/
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
+   wire [10:0]		dALT;			// From ibuf of aexm_ibuf.v
    wire			rSKIP;			// From bpcu of aexm_bpcu.v
    wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
@@ -75,11 +76,15 @@ module aexm_edk32 (/*AUTOARG*/
    wire [1:0]		rMXSRC;			// From ctrl of aexm_ctrl.v
    wire [1:0]		rMXTGT;			// From ctrl of aexm_ctrl.v
    wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
+   wire [5:0]		dOPC;			// From ibuf of aexm_ibuf.v
    wire [31:2]		rPC;			// From bpcu of aexm_bpcu.v
    wire [31:2]		rPCLNK;			// From bpcu of aexm_bpcu.v
    wire [4:0]		rRA;			// From ibuf of aexm_ibuf.v
    wire [4:0]		rRB;			// From ibuf of aexm_ibuf.v
    wire [4:0]		rRD;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRA;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRB;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRD;			// From ibuf of aexm_ibuf.v
    wire [31:0]		rREGA;			// From regf of aexm_regf.v
    wire [31:0]		rREGB;			// From regf of aexm_regf.v
    wire [31:0]		xRESULT;		// From xecu of aexm_xecu.v
@@ -132,6 +137,11 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRB				(rRB[4:0]),
 	   .rALT			(rALT[10:0]),
 	   .rOPC			(rOPC[5:0]),
+	   .dRA				(dRA[4:0]),
+	   .dRD				(dRD[4:0]),
+	   .dRB				(dRB[4:0]),
+	   .dALT			(dALT[10:0]),
+	   .dOPC			(dOPC[5:0]),
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
 	   .fSTALL			(fSTALL),
