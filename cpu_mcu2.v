@@ -24,13 +24,14 @@ module snowball_cache(input CPU_CLK,
 //--------------------------------------------------
 		      input 		VMEM_ACT,
 		      input 		cache_inhibit,
+		      input 		fake_miss,
 //--------------------------------------------------
 		      output reg 	MMU_FAULT,
 		      input 		WE_TLB);
   reg 			    vmem;
   reg 			    mcu_responded_trans, mcu_active_trans;
   reg 			    cache_vld, cache_tlb, tlb_en_sticky,
-			    cache_en_sticky;
+			    cache_en_sticky, cache_busy_real;
   reg [1:0] 		    mcu_responded_reg, mcu_active_reg;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
   reg [31:0] 		    prev_paddr_block;
@@ -179,7 +180,7 @@ module snowball_cache(input CPU_CLK,
 	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
 	cache_prev_we <= 0; cache_prev_idx <= 0;
 	mandatory_lookup_capture <= 0; prev_paddr_block <= 0;
-	ghost_hit_vld <= 0;
+	ghost_hit_vld <= 0; cache_busy_real <= 0;
       end
     else
       begin
@@ -218,7 +219,7 @@ module snowball_cache(input CPU_CLK,
 	if (mem_lookup) // 4 signals and 3 compounds
 	  begin
 	    mcu_active_trans <= !mcu_active_trans;
-	    cache_busy <= 1;
+	    cache_busy_real <= 1;
 	    cache_prev_we <= cache_cycle_we;
 	    cache_prev_idx <= cache_cycle_addr[7:0];
 
@@ -236,11 +237,18 @@ module snowball_cache(input CPU_CLK,
 	else
 	  begin
 	    if (mcu_responded)
-	      cache_busy <= 0;
+	      cache_busy_real <= 0;
 
 	    if (cache_vld)
 	      ghost_hit_vld <= 0;
-	  end
+	  end // else: !if(mem_lookup)
+
+	if (mem_lookup || fake_miss)
+	  cache_busy <= 1;
+	else
+	  if ((cache_busy_real && mcu_responded) ||
+	      (! cache_busy_real))
+	    cache_busy <= 0;
 
 	if (activate_cache || activate_tlb) // 8 signals + mem_lookup
 	  begin

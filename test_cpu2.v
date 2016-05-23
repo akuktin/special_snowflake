@@ -161,6 +161,7 @@ module GlaDOS;
 //--------------------------------------------------
 			 .VMEM_ACT(cache_vmem),
 			 .cache_inhibit(cache_inhibit),
+			 .fake_miss(1'b0),
 //--------------------------------------------------
 			 .MMU_FAULT(),
 			 .WE_TLB(icache_we_tlb));
@@ -186,6 +187,7 @@ module GlaDOS;
 //--------------------------------------------------
 			 .VMEM_ACT(cache_vmem),
 			 .cache_inhibit(cache_inhibit),
+			 .fake_miss(1'b0),
 //--------------------------------------------------
 			 .MMU_FAULT(),
 			 .WE_TLB(dcache_we_tlb));
