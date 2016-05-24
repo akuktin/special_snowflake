@@ -15,18 +15,21 @@ module testsuite(input CLK, // CPU_CLK
 		 output reg [31:0] cache_datao,
 		 output reg 	   cache_pc_we,
 		 output reg 	   cache_pc_en,
-		 output reg 	   we_tlb);
+		 output reg 	   we_tlb,
+		 output 	   fake_miss);
   reg [31:0] 			   test_addr[512:0], test_waittime[512:0],
 				   test_datao[512:0], test_datai[512:0],
 				   test_timeout[512:0],
+				   test_fakemissb[512:0], test_fakemisse[512:0],
 				   test_timeout_comp[512:0];
   reg 				   test_we[512:0], test_caredatai[512:0],
 				   test_tlb[512:0];
 
   reg [31:0] 			   time_for_next_test, test_num, test_seen,
-				   test_issued, test_num_delay;
+				   test_issued, test_num_delay,
+				   fake_miss_begin, fake_miss_end;
   reg 				   just_issued_test;
-  wire 				   time_to_test, waiting_for_result;
+  wire 				   time_to_test, waiting_for_result, fake_miss;
 
   integer 			   i;
   initial
@@ -37,300 +40,350 @@ module testsuite(input CLK, // CPU_CLK
       test_we[i]        <= 1'b1;         test_waittime[i] <= 32'd10;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd10;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write/read, same idx */ // 0x01
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5454_6901;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd10;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x02
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write/read, cache hit */ // 0x03
       test_addr[i]      <= 32'h0010_0010;test_datao[i]    <= 32'h5454_6902;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x04
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write/read, cache miss */ // 0x05
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5454_6903;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x06
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write, same page, same idx */ // 0x07
       test_addr[i]      <= 32'h0020_0020;test_datao[i]    <= 32'h5454_6904;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd10;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x08
       test_addr[i]      <= 32'h0020_0020;test_datao[i]    <= 32'h5a5a_6905;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write, same page, other idx */ // 0x09
       test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5454_6906;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x0a
       test_addr[i]      <= 32'h0020_0040;test_datao[i]    <= 32'h5a5a_5407;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write, other page, same idx */ // 0x0b
       test_addr[i]      <= 32'h0030_0050;test_datao[i]    <= 32'h5454_6908;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x0c
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_5409;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b write, other page, other idx */ // 0x0d
       test_addr[i]      <= 32'h0050_0060;test_datao[i]    <= 32'h5454_690a;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x0e
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_540b;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache hit, cache hit*/ // 0x0f
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
       test_timeout[i]   <= 32'd1;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x10
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache hit, cache miss*/ // 0x11
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x12
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache miss, cache hit*/ // 0x13
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x14
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache miss, cache miss*/ // 0x15
       test_addr[i]      <= 32'h0030_0050;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6908;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x16
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, ghosting, snatch*/ // 0x17
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x18
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* write interlude */ // 0x19
       test_addr[i]      <= 32'h0020_0031;test_datao[i]    <= 32'h5a5a_540f;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x1a
       test_addr[i]      <= 32'h0090_0030;test_datao[i]    <= 32'h5a5a_540f;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0020);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, ghosting, same address*/ // 0x1b
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540b;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x1c
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540b;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, ghosting, peer address*/ // 0x1d
       test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6906;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x1e
       test_addr[i]      <= 32'h0020_0031;test_datao[i]    <= 32'h5a5a_540e;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540f;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read/write, cache hit, same idx*/ // 0x1f
       test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6906;
       test_timeout[i]   <= 32'd1;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x20
       test_addr[i]      <= 32'h0000_0030;test_datao[i]    <= 32'h5a5a_0010;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache hit, other idx*/ // 0x21
       test_addr[i]      <= 32'h0000_0030;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_0010;
       test_timeout[i]   <= 32'd1;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x22
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5454_5454;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache miss, same idx*/ // 0x23
       test_addr[i]      <= 32'h0010_0000;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6903;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x24
       test_addr[i]      <= 32'h0000_0010;test_datao[i]    <= 32'h5a5a_0020;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0020 );
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6900;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache miss, other idx*/ // 0x25
       test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6906;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x26
       test_addr[i]      <= 32'h0000_0000;test_datao[i]    <= 32'h5a5a_0030;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0020);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* interlude, b2b write + write + WE_TLB */ // 0x27
       test_addr[i]      <= 32'h0000_2020;test_datao[i]    <= 32'h5454_0400;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x28
       test_addr[i]      <= 32'h0000_1010;test_datao[i]    <= 32'h5a5a_0440;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0020);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x29
       test_addr[i]      <= 32'h0010_1010;test_datao[i]    <= 32'h5a5a_0450;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0020);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2a
       test_addr[i]      <= 32'h0000_0110;test_datao[i]    <= 32'h0000_0180;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0500);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b1;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* vmem b2b read, cache hit, cache miss*/ // 0x2b
       test_addr[i]      <= 32'h0178_2020;test_datao[i]    <= 32'h5454_1400;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_0400;
       test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2c
       test_addr[i]      <= 32'h0180_1010;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_0440;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* vmem b2b write, same page, other idx + write */ // 0x2d
       test_addr[i]      <= 32'h0282_3030;test_datao[i]    <= 32'h0001_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2e
       test_addr[i]      <= 32'h0100_0404;test_datao[i]    <= 32'h0200_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2f
       test_addr[i]      <= 32'h0000_ff04;test_datao[i]    <= 32'hfdff_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0400);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* pmem b2b read, cache hit, cache miss*/ // 0x30
       test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0001_5a5a;
       test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x31
       test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'hff00_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
 
       /* Remaining to test: intrigues of MMU_FAULT,
@@ -340,6 +393,8 @@ module testsuite(input CLK, // CPU_CLK
 
   assign time_to_test = (time_for_next_test == counter);
   assign waiting_for_result = (test_num_delay != test_seen);
+  assign fake_miss = ((counter >= fake_miss_begin) &&
+		      (counter <  fake_miss_end)) ? 1 : 0;
 
   always @(posedge CLK)
     if (! RST)
@@ -350,6 +405,7 @@ module testsuite(input CLK, // CPU_CLK
 	test_num <= 0; test_seen <= 0;
 	test_issued <= 0; test_num_delay <= 0;
 	just_issued_test <= 0; we_tlb <= 0;
+	fake_miss_begin <= 0; fake_miss_end <= 0;
       end
     else
       begin
@@ -365,6 +421,8 @@ module testsuite(input CLK, // CPU_CLK
 
 	    cache_pc_en <= !test_tlb[test_num];
 	    we_tlb <= test_tlb[test_num];
+	    fake_miss_begin <= counter + test_fakemissb[test_num];
+	    fake_miss_end <= counter + test_fakemisse[test_num];
 
 	    time_for_next_test <= counter + test_waittime[test_num];
 	    test_timeout_comp[test_num] <= test_timeout[test_num] +
@@ -528,7 +586,8 @@ module GlaDOS;
   wire 	      cache_en_decoded, cache_busy, cache_MMU_FAULT;
 
   wire [31:0] test_cache_addr, test_cache_datao;
-  wire 	      test_cache_we, test_cache_en, test_cache_we_tlb;
+  wire 	      test_cache_we, test_cache_en, test_cache_we_tlb,
+	      test_fake_miss;
 
   reg cache_vmem, cache_inhibit;
 
@@ -589,7 +648,7 @@ module GlaDOS;
 //--------------------------------------------------
 		     .VMEM_ACT(cache_vmem),
 		     .cache_inhibit(cache_inhibit),
-		     .fake_miss(1'b0),
+		     .fake_miss(test_fake_miss),
 //--------------------------------------------------
 		     .MMU_FAULT(cache_MMU_FAULT),
 		     .WE_TLB(test_cache_we_tlb));
@@ -719,7 +778,8 @@ module GlaDOS;
 		      .cache_datao(test_cache_datao),
 		      .cache_pc_we(test_cache_we),
 		      .cache_pc_en(test_cache_en),
-		      .we_tlb(test_cache_we_tlb));
+		      .we_tlb(test_cache_we_tlb),
+		      .fake_miss(test_fake_miss));
 
   integer i;
   initial
