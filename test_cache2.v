@@ -371,7 +371,7 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
-      /* pmem b2b read, cache hit, cache miss*/ // 0x30
+      /* pmem b2b read, cache hit, cache miss */ // 0x30
       test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0001_5a5a;
@@ -380,15 +380,77 @@ module testsuite(input CLK, // CPU_CLK
       i = i +1; // 0x31
       test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
-			                  (`delay + 32'hff00_0018);
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
+      i = i +1;
+      /* read, cache hit, fake_miss simulataneous */ // 0x32
+      test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
+      test_timeout[i]   <= 32'd4;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd5;
+      i = i +1;
+      /* read, cache miss, fake_miss simulataneous, prolonged */ // 0x33
+      test_addr[i]      <= 32'h0000_ff04;test_datao[i]    <= 32'hfdff_5a5a;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'hfdff_5a5a;
+      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd18;
+      i = i +1;
+      /* read, cache miss, fake_miss simulataneous, subsumed */ // 0x34
+      test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'hfdff_5a5a;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
+      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd5;
+      i = i +1;
+      /* b2b read, cache hit, cache hit, fake_miss simulatanous */ // 0x35
+      test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
+      test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0001_5a5a;
+      test_timeout[i]   <= 32'd5;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <=
+					  (`delay + 32'd32);
+      i = i +1; // 0x36
+      test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'h0000_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
+      test_timeout[i]   <= 32'd5;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd5;
+      i = i +1;
+      /* read, cache hit, fake_miss previous */ // 0x37
+      test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+					  (`delay + 32'd10);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0001_5a5a;
+      test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd4;        test_fakemisse[i] <=
+					  (`delay + 32'd32);
+      i = i +1; // 0x38
+      // This test falsely fails.
+      test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'hff00_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
+      test_timeout[i]   <= 32'd4;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd5;
       i = i +1;
 
       /* Remaining to test: intrigues of MMU_FAULT,
        * turning virtual memory mode on and off as well as
        * turning cache inhibition on and off. */
+
+      /* The big problem is the behaviour of cache in cases when a command
+       * gets issued on the exact same cycle that fake_miss gets deasserted
+       * which results in a result coming one cycle later than expected.
+       * The cache client simply needs to pay attention to cache_busy.
+       * There is no other way. */
     end
 
   assign time_to_test = (time_for_next_test == counter);
@@ -721,17 +783,20 @@ module GlaDOS;
 
 //	display_internals <= 1;
 	if (display_internals &&
-	    (counter >= 32'd48_825) &&
-	    (counter <  32'd48_850))
+//	    (counter >= 32'd48_459) &&
+//	    (counter <  32'd48_486))
+	    (counter >= 32'd51_320) &&
+	    (counter <  32'd51_333))
 	  begin
 	    $display("c%d --------------------------------------", counter);
-	    $display("adr %x do %x di %x we %x b %x en %x",
+	    $display("adr %x do %x di %x we %x b %x en %x fm %x",
 		     cache_under_test.cache_precycle_addr,
 		     cache_under_test.cache_datao,
 		     cache_under_test.cache_datai,
 		     cache_under_test.cache_precycle_we,
 		     cache_under_test.cache_busy,
-		     cache_under_test.cache_precycle_enable);
+		     cache_under_test.cache_precycle_enable,
+		     cache_under_test.fake_miss);
 	    $display("lookup: %x%x(%x%x%x)/%x rqtg/rstg %x/%x idx %x tdx %x",
 		     cache_under_test.cache_vld,
 		     (!cache_under_test.w_MMU_FAULT),
@@ -751,10 +816,10 @@ module GlaDOS;
 		     cache_under_test.mcu_responded,
 		     cache_under_test.data_mcu_trans,
 		     cache_under_test.cache_prev_we);
+ */
 	    $display("actv_cache %x actv_tlb %x",
 		     cache_under_test.activate_cache,
 		     cache_under_test.activate_tlb);
- */
 	  end
       end // else: !if(!_RST)
 
