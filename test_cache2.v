@@ -424,7 +424,24 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd5;        test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd5;
       i = i +1;
-      /* read, cache hit, fake_miss previous */ // 0x37
+      /* read, cache hit, fake_miss tet-a-tet */ // 0x37
+      test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+					  (`delay + 32'd2);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0001_5a5a;
+      test_timeout[i]   <= (`delay + 32'd2); test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <=
+					  (`delay + 32'd3);
+      i = i +1; // 0x38
+      // Tet-a-tet. Failure will be tolerated.
+      test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
+      test_we[i]        <= 1'b0;         test_waittime[i] <=
+			                  (`delay + 32'hff00_0018);
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h0200_5a5a;
+      test_timeout[i]   <= 32'd2;        test_tlb[i]      <= 1'b0;
+      test_fakemissb[i] <= 32'd3;        test_fakemisse[i] <= 32'd3;
+      i = i +1;
+      /* read, cache hit, fake_miss previous */ // 0x38
       test_addr[i]      <= 32'h0000_3030;test_datao[i]    <= 32'h5454_1400;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 					  (`delay + 32'd10);
@@ -432,7 +449,7 @@ module testsuite(input CLK, // CPU_CLK
       test_timeout[i]   <= 32'd1;        test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd4;        test_fakemisse[i] <=
 					  (`delay + 32'd32);
-      i = i +1; // 0x38
+      i = i +1; // 0x39
       // This test falsely fails.
       test_addr[i]      <= 32'h0000_0404;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
@@ -781,12 +798,12 @@ module GlaDOS;
 	    cache_vmem <= 0;
 	  end
 
-//	display_internals <= 1;
+	display_internals <= 1;
 	if (display_internals &&
 //	    (counter >= 32'd48_459) &&
 //	    (counter <  32'd48_486))
-	    (counter >= 32'd51_320) &&
-	    (counter <  32'd51_333))
+	    (counter >= 32'd51_310) &&
+	    (counter <  32'd51_325))
 	  begin
 	    $display("c%d --------------------------------------", counter);
 	    $display("adr %x do %x di %x we %x b %x en %x fm %x",
