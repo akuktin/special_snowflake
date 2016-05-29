@@ -150,7 +150,7 @@ module aexm_ibuf (/*AUTOARG*/
      end else begin
        rSTALL_prev <= rSTALL;
        if (oena)
-	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF | rLOD | rSTR));
+	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF));
        else
 	 rSTALL <= #1 0;
      end

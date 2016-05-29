@@ -92,6 +92,9 @@ module aexm_edk32 (/*AUTOARG*/
    wire [31:0]		rSIMM;			// From ibuf of aexm_ibuf.v
    wire			fSTALL;			// From ibuf of aexm_ibuf.v
    wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
+  wire 			dSTRLOD;
+  wire 			cpu_enable;
+  wire 			cpu_mode_memop;
    // End of automatics
 
    input 		sys_clk_i;
@@ -104,29 +107,18 @@ module aexm_edk32 (/*AUTOARG*/
    wire 		grst = sys_rst_i;
    wire 		gclk = sys_clk_i;
 
-  wire 			d_en, x_en;
-  reg 			d_en_prev;
-  reg [1:0] 		grst_prev;
-  assign d_en = !aexm_icache_cache_busy && (!fSTALL);
-  always @(posedge gclk)
-    begin
-      grst_prev <= {grst_prev[0],!grst};
-      if (grst)
-	d_en_prev <= 0;
-      else
-	d_en_prev <= d_en && grst_prev[1];
-    end
-  assign x_en = d_en_prev && (!aexm_icache_cache_busy) &&
-		(!fSTALL) && (!aexm_dcache_cache_busy);
-
-  assign aexm_icache_precycle_enable = x_en;
-
-  wire 			oena;
-  assign oena = d_en_prev &&
-		(!aexm_icache_cache_busy) &&
-		(!aexm_dcache_cache_busy);
 
    // --- INSTANTIATIONS -------------------------------------
+
+  aexm_enable enable(.CLK(gclk),
+		     .grst(grst),
+		     .icache_busy(aexm_icache_cache_busy),
+		     .dcache_busy(aexm_dcache_cache_busy),
+		     .dSTRLOD(dSTRLOD),
+		     .cpu_mode_memop(cpu_mode_memop),
+		     .cpu_enable(cpu_enable),
+		     .icache_enable(aexm_icache_precycle_enable),
+		     .dcache_enable(aexm_dcache_precycle_enable));
 
    aexm_ibuf
      ibuf (/*AUTOINST*/
@@ -151,8 +143,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .d_en			(d_en),
-	   .oena			(oena));
+	   .d_en			(cpu_enable),
+	   .oena			(1'b0));
 
    aexm_ctrl
      ctrl (/*AUTOINST*/
@@ -163,7 +155,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXALT			(rMXALT[1:0]),
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
-	   .aexm_dcache_precycle_enable (aexm_dcache_precycle_enable),
+	   .dSTRLOD                     (dSTRLOD),
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   // Inputs
 	   .rSKIP			(rSKIP),
@@ -176,8 +168,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xIREG			(xIREG[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .d_en			(d_en),
-	   .x_en                        (x_en));
+	   .d_en			(cpu_enable),
+	   .x_en                        (cpu_enable));
 
    aexm_bpcu #(IW)
      bpcu (/*AUTOINST*/
@@ -187,6 +179,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rPCLNK			(rPCLNK[31:2]),
 	   .rSKIP			(rSKIP),
 	   // Inputs
+	   .cpu_mode_memop              (cpu_mode_memop),
 	   .rMXALT			(rMXALT[1:0]),
 	   .rOPC			(rOPC[5:0]),
 	   .rRD				(rRD[4:0]),
@@ -197,7 +190,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rREGA			(rREGA[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .x_en			(x_en));
+	   .x_en			(cpu_enable));
 
    aexm_regf
      regf (/*AUTOINST*/
@@ -219,7 +212,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .x_en			(x_en));
+	   .x_en			(cpu_enable));
 
    aexm_xecu #(DW, MUL, BSF)
      xecu (/*AUTOINST*/
@@ -248,7 +241,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rPC				(rPC[31:2]),
 	   .gclk			(gclk),
 	   .grst			(grst),
-	   .x_en			(x_en));
+	   .x_en			(cpu_enable));
 
 
 endmodule // aexm_edk32

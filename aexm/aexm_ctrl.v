@@ -54,8 +54,7 @@
 
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW,
-   aexm_dcache_precycle_enable,
+   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD,
    aexm_dcache_precycle_we,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
@@ -75,7 +74,7 @@ module aexm_ctrl (/*AUTOARG*/
    input [31:0]  xIREG;
 
    // MCU
-   output aexm_dcache_precycle_enable;
+  output 	 dSTRLOD;
    output aexm_dcache_precycle_we;
 
    // SYSTEM
@@ -132,7 +131,6 @@ module aexm_ctrl (/*AUTOARG*/
 
    wire          wPUT = (wOPC == 6'o33) & wRB[4];
    wire 	 wGET = (wOPC == 6'o33) & !wRB[4];
-
 
    // --- BRANCH SLOT REGISTERS ---------------------------
 
@@ -205,24 +203,12 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DATA WISHBONE ----------------------------------
 
-   reg 		 rDWBSTB, xDWBSTB;
    reg 		 rDWBWRE, xDWBWRE;
 
 
-  assign aexm_dcache_precycle_enable = xDWBSTB;
-  assign aexm_dcache_precycle_we = xDWBWRE;
+  assign dSTRLOD = wLOD || wSTR;
 
-   always @(/*AUTOSENSE*/fLOD or rSKIP or fSTR or x_en)
-     if (rSKIP || !x_en) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	xDWBSTB <= 1'h0;
-	xDWBWRE <= 1'h0;
-	// End of automatics
-     end else if (x_en) begin
-       xDWBSTB <= (fLOD | fSTR);
-       xDWBWRE <= fSTR;
-     end
+  assign aexm_dcache_precycle_we = fSTR;
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 

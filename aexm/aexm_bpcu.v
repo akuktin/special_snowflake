@@ -40,6 +40,7 @@ module aexm_bpcu (/*AUTOARG*/
    rSKIP,
    // Inputs
    rMXALT, rOPC, rRD, rRA, xRESULT, rRESULT, rDWBDI, rREGA,
+   cpu_mode_memop,
    gclk, grst, x_en
    );
    parameter IW = 24;
@@ -61,6 +62,8 @@ module aexm_bpcu (/*AUTOARG*/
    input [31:0]    rDWBDI; // RAM
    input [31:0]    rREGA;
    //input [1:0] 	   rXCE;
+
+  input 	   cpu_mode_memop;
 
    // SYSTEM
    input 	   gclk, grst, x_en;
@@ -116,8 +119,10 @@ module aexm_bpcu (/*AUTOARG*/
    reg [31:2] 	   pre_rIPC, rIPC, xIPC;
    reg [31:2] 	   rPC, xPC;
    reg [31:2] 	   rPCLNK, xPCLNK;
+  wire [31:2] 	   pc_inc;
 
    assign          aexm_icache_precycle_addr = xIPC;
+  assign pc_inc = {(29){1'b0},cpu_mode_memop};
 
    always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC)
      begin
@@ -125,7 +130,7 @@ module aexm_bpcu (/*AUTOARG*/
        xPC <= rIPC;
        // This is totaly doable if you hack the living daylight
        // out of carry chains. :)
-       xIPC <= (xBRA) ? xRESULT[31:2] : (pre_rIPC + 1);
+       xIPC <= (xBRA) ? xRESULT[31:2] : (pre_rIPC + pc_inc);
      end
 
    // --- ATOMIC CONTROL ---------------------------------------------
