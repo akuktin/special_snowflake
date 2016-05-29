@@ -12,6 +12,7 @@
 `include "cpu_mcu2.v"
 
 // CPU
+`include "aexm/aexm_enable.v"
 `include "aexm/aexm_bpcu.v"
 `include "aexm/aexm_regf.v"
 `include "aexm/aexm_ctrl.v"
@@ -299,10 +300,10 @@ module GlaDOS;
 		   i_cache_enable);
  */
 
-	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x d_en %x x_en %x fSTALL %x rOP %x",
+	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x cpu_en %x fSTALL %x rOP %x",
 		   i_cache_pc_addr, i_cache_datai,
 		   i_cache_enable, i_cache_busy,
-		   cpu.d_en, cpu.x_en, cpu.ibuf.fSTALL,
+		   cpu.cpu_enable, cpu.ibuf.fSTALL,
 		   {cpu.ibuf.rOPC,2'h0});
 
 	  $display("rRESULT %x rRW %x rSIMM %x rOPA %x rOPB %x",

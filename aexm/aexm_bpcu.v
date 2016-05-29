@@ -122,7 +122,7 @@ module aexm_bpcu (/*AUTOARG*/
   wire [31:2] 	   pc_inc;
 
    assign          aexm_icache_precycle_addr = xIPC;
-  assign pc_inc = {(29){1'b0},cpu_mode_memop};
+  assign pc_inc = {{(29){1'b0}},cpu_mode_memop};
 
    always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC)
      begin
