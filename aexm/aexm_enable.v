@@ -33,7 +33,7 @@ module aexm_enable(input CLK,
     if (grst)
       begin
 	starter <= 1;
-	cpu_mode_memop <= 1; cpu_enable <= 0;
+	cpu_mode_memop <= 1;
 	just_issued_dcache_command <= 0;
       end
     else
