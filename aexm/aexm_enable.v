@@ -3,6 +3,7 @@ module aexm_enable(input CLK,
 		   input      icache_busy,
 		   input      dcache_busy,
 		   input      dSTRLOD,
+		   input      dLOD,
 		   output reg cpu_mode_memop, // 0: stall, 1: normal
 		   output     cpu_enable,
 		   output     icache_enable,
@@ -18,6 +19,7 @@ module aexm_enable(input CLK,
 				 dSTRLOD &&
 				 cpu_enable;
 
+  // BUG: incorrect! Fails with scalar LOAD instruction.
   assign exit_memop_criterion = (!cpu_mode_memop) &&
 				(!icache_busy) &&
 				(!dcache_busy) &&

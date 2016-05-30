@@ -54,7 +54,7 @@
 
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD,
+   rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD, dLOD,
    aexm_dcache_precycle_we,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
@@ -74,7 +74,7 @@ module aexm_ctrl (/*AUTOARG*/
    input [31:0]  xIREG;
 
    // MCU
-  output 	 dSTRLOD;
+  output 	 dSTRLOD, dLOD;
    output aexm_dcache_precycle_we;
 
    // SYSTEM
@@ -201,12 +201,10 @@ module aexm_ctrl (/*AUTOARG*/
      end // else: !if(fSKIP)
 
 
-   // --- DATA WISHBONE ----------------------------------
-
-   reg 		 rDWBWRE, xDWBWRE;
-
+   // --- DATA MEMORY INTERFACE ----------------------------------
 
   assign dSTRLOD = wLOD || wSTR;
+  assign dLOD = wLOD;
 
   assign aexm_dcache_precycle_we = fSTR;
 

@@ -93,6 +93,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire			fSTALL;			// From ibuf of aexm_ibuf.v
    wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
   wire 			dSTRLOD;
+  wire 			dLOD;
   wire 			cpu_enable;
   wire 			cpu_mode_memop;
    // End of automatics
@@ -115,6 +116,7 @@ module aexm_edk32 (/*AUTOARG*/
 		     .icache_busy(aexm_icache_cache_busy),
 		     .dcache_busy(aexm_dcache_cache_busy),
 		     .dSTRLOD(dSTRLOD),
+		     .dLOD(dLOD),
 		     .cpu_mode_memop(cpu_mode_memop),
 		     .cpu_enable(cpu_enable),
 		     .icache_enable(aexm_icache_precycle_enable),
@@ -156,6 +158,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
 	   .dSTRLOD                     (dSTRLOD),
+	   .dLOD                        (dLOD),
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   // Inputs
 	   .rSKIP			(rSKIP),
