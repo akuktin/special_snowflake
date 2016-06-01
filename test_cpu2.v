@@ -305,15 +305,18 @@ module GlaDOS;
 		   i_cache_enable, i_cache_busy,
 		   cpu.cpu_enable, cpu.ibuf.fSTALL,
 		   {cpu.ibuf.rOPC,2'h0});
+	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
+		   cpu.bpcu.pre_rIPC, cpu.bpcu.pc_inc, cpu.bpcu.xIPC,
+		   cpu.cpu_mode_memop);
 
 	  $display("rRESULT %x rRW %x rSIMM %x rOPA %x rOPB %x",
 		   cpu.rRESULT, cpu.rRW, cpu.rSIMM,
 		   cpu.xecu.rOPA, cpu.xecu.rOPB);
-
+/*
 	  $display("dpcadr %x dwe %x dbsy %x",
 		   {d_cache_pc_addr,2'b00},
 		   d_cache_we, d_cache_busy);
-
+*/
 	  $display("---------------------------------------------------");
 	end // if (CPU_RST)
     end
