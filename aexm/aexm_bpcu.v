@@ -124,7 +124,7 @@ module aexm_bpcu (/*AUTOARG*/
    assign          aexm_icache_precycle_addr = xIPC;
   assign pc_inc = {{(29){1'b0}},cpu_mode_memop};
 
-   always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC)
+   always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC or pc_inc)
      begin
        xPCLNK <= rPC;
        xPC <= rIPC;
