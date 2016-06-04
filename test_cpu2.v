@@ -305,6 +305,7 @@ module GlaDOS;
 		   i_cache_enable, i_cache_busy,
 		   cpu.cpu_enable, cpu.ibuf.fSTALL,
 		   {cpu.ibuf.rOPC,2'h0});
+/*
 	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
 		   cpu.bpcu.pre_rIPC, cpu.bpcu.pc_inc, cpu.bpcu.xIPC,
 		   cpu.cpu_mode_memop);
@@ -312,11 +313,16 @@ module GlaDOS;
 	  $display("rRESULT %x rRW %x rSIMM %x rOPA %x rOPB %x",
 		   cpu.rRESULT, cpu.rRW, cpu.rSIMM,
 		   cpu.xecu.rOPA, cpu.xecu.rOPB);
-/*
-	  $display("dpcadr %x dwe %x dbsy %x",
-		   {d_cache_pc_addr,2'b00},
-		   d_cache_we, d_cache_busy);
-*/
+ */
+	  $display("xWDAT %x en %x rDWBDI %x rRW %x",
+		   cpu.regf.xWDAT,
+		   {cpu.regf.grst,cpu.regf.fRDWE,cpu.regf.w_en},
+		   cpu.regf.rDWBDI, cpu.regf.rRW);
+
+	  $display("dpcadr %x ddi %x ddo %x den %x dwe %x dbsy %x",
+		   {d_cache_pc_addr,2'b00}, d_cache_datai, d_cache_datao,
+		   d_cache_enable, d_cache_we, d_cache_busy);
+
 	  $display("---------------------------------------------------");
 	end // if (CPU_RST)
     end
