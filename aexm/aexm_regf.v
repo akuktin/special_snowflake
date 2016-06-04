@@ -59,29 +59,31 @@ module aexm_regf (/*AUTOARG*/
 
    wire [31:0] 	 wDWBDI = aexm_dcache_datai;
 
-   reg [31:0] 	 rDWBDI;
+   reg [31:0] 	 rDWBDI, xDWBDI;
 
-   always @(/*AUTOSENSE*/rDWBSEL or wDWBDI) begin
+   always @(rDWBSEL or wDWBDI) begin
       // 52.0
       case (rDWBSEL)
 	// 8'bit
-	4'h8: rDWBDI <= {24'd0, wDWBDI[31:24]};
-	4'h4: rDWBDI <= {24'd0, wDWBDI[23:16]};
-	4'h2: rDWBDI <= {24'd0, wDWBDI[15:8]};
-	4'h1: rDWBDI <= {24'd0, wDWBDI[7:0]};
+	4'h8: xDWBDI <= {24'd0, wDWBDI[31:24]};
+	4'h4: xDWBDI <= {24'd0, wDWBDI[23:16]};
+	4'h2: xDWBDI <= {24'd0, wDWBDI[15:8]};
+	4'h1: xDWBDI <= {24'd0, wDWBDI[7:0]};
 	// 16'bit
-	4'hC: rDWBDI <= {16'd0, wDWBDI[31:16]};
-	4'h3: rDWBDI <= {16'd0, wDWBDI[15:0]};
+	4'hC: xDWBDI <= {16'd0, wDWBDI[31:16]};
+	4'h3: xDWBDI <= {16'd0, wDWBDI[15:0]};
 	// 32'bit
-	4'hF: rDWBDI <= wDWBDI;
+	4'hF: xDWBDI <= wDWBDI;
 	// Undefined
-	default: rDWBDI <= 32'hX;
+	default: xDWBDI <= 32'hX;
       endcase
    end
 
    // --- GENERAL PURPOSE REGISTERS (R0-R31) -----------------------
    // LUT RAM implementation is smaller and faster. R0 gets written
    // during reset with 0x00 and doesn't change after.
+
+  reg 		 w_en;
 
    reg [31:0] 	 mARAM[0:31],
 		 mBRAM[0:31],
@@ -106,10 +108,14 @@ module aexm_regf (/*AUTOARG*/
      endcase // case (rMXDST)
 
    always @(posedge gclk)
-     if ((grst | fRDWE) && x_en) begin
-	mARAM[rRW] <= xWDAT;
-	mBRAM[rRW] <= xWDAT;
-	mDRAM[rRW] <= xWDAT;
+     begin
+       rDWBDI <= xDWBDI;
+       w_en <= x_en;
+       if ((grst | fRDWE) && w_en) begin
+	 mARAM[rRW] <= xWDAT;
+	 mBRAM[rRW] <= xWDAT;
+	 mDRAM[rRW] <= xWDAT;
+       end
      end
 
    // --- STORE SIZER ---------------------------------------------
