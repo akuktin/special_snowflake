@@ -40,12 +40,10 @@ module aexm_edk32 (/*AUTOARG*/
    parameter BSF = 1; // Barrel Shifter
 
   output [31:0] aexm_icache_precycle_addr;
-  output [31:0] aexm_icache_cycle_addr;
   input [31:0]  aexm_icache_datai;
   output 	aexm_icache_precycle_enable;
 
   output [31:0] aexm_dcache_precycle_addr;
-  output [31:0] aexm_dcache_cycle_addr;
   input [31:0] 	aexm_dcache_datai;
   output [31:0] aexm_dcache_datao;
   output        aexm_dcache_precycle_we;
