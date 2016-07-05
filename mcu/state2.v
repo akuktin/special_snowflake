@@ -83,8 +83,8 @@ module enter_state(input CLK,
       3'b00x: command_non_wr <= `ACTV;
       default: command_non_wr <= `NOOP;
     endcase // case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
-  assign want_PRCH_delayable = SOME_PAGE_ACTIVE && actv_timeout[2] &&
-			       state_is_write;
+
+  assign want_PRCH_delayable = SOME_PAGE_ACTIVE && state_is_write;
 
   // Actually not a mux, but a single gate, like command_non_wr.
   assign command_wr = write_match ? `WRTE : `READ;
@@ -111,10 +111,6 @@ module enter_state(input CLK,
 
   assign change_possible_w_n = correct_page_any ? timeout_norm_comp_n :
 			       (want_PRCH_delayable ?
-				// WHATIF `ACTV has not yet cleared, a
-				// write has been issued and we want to
-				// make a `PRCH ?
-				// FIXME
 				timeout_dlay_comp_n : timeout_norm_comp_n);
 
   always @(posedge CLK)
