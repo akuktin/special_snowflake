@@ -7,41 +7,56 @@
 `define ARSR 3'b001 /* auto refresh/self refresh */
 `define MRST 3'b000 /* mode register set */
 
-module enter_state(input CLK,
-		   input 	     RST,
-		   input 	     REFRESH_TIME,
-		   /* random port */
-		   input [25:0]      ADDRESS_RAND,
-		   input 	     WE_RAND,
-		   input 	     REQUEST_ACCESS_RAND,
-		   /* bulk_port */
-		   input [25:0]      ADDRESS_BULK,
-		   input 	     WE_BULK,
-		   input 	     REQUEST_ACCESS_BULK,
-		   /* end */
-		   input 	     CHANGE_POSSIBLE,
-		   input 	     SOME_PAGE_ACTIVE,
-		   output reg [12:0] ADDRESS_REG,
-		   output reg [1:0]  BANK_REG,
-		   output reg [2:0]  COMMAND_REG,
-		   output [2:0]      COMMAND,
-		   output 	     CHANGE_REQUESTED,
-		   output 	     COMMAND_LATCHED);
-  reg [13:0] 			    page_current;
-  reg [2:0] 			    actv_timeout,
-				    command_buf;
-  reg 				    refresh_time_reg,
-				    active_page_delay;
+module state2(input CLK,
+	      input 		RST,
+	      input 		REFRESH_STROBE,
+	      /* random port */
+	      input [25:0] 	ADDRESS_RAND,
+	      input 		WE_RAND,
+	      input 		REQUEST_ACCESS_RAND,
+	      output reg 	GRANT_ACCESS_RAND,
+	      /* bulk_port */
+	      input [25:0] 	ADDRESS_BULK,
+	      input 		WE_BULK,
+	      input 		REQUEST_ACCESS_BULK,
+	      output reg 	GRANT_ACCESS_BULK,
+	      /* end ports */
+	      output reg [12:0] ADDRESS_REG,
+	      output reg [1:0] 	BANK_REG,
+	      output reg [2:0] 	COMMAND_REG,
+	      output 		INTERNAL_COMMAND_LATCHED);
+  reg 				     change_possible_n, state_is_readwrite,
+				     refresh_strobe_ack, state_is_write,
+				     SOME_PAGE_ACTIVE, second_stroke,
+				     REFRESH_TIME;
+  reg [2:0] 			     command_reg2, actv_timeout;
+  reg [3:0] 			     counter;
+  reg [13:0] 			     page_current;
 
-  wire [2:0] 			    rw_command;
+  wire 				     issue_com, correct_page_any,
+				     correct_page_rand, correct_page_bulk,
+				     change_possible_w_n, write_match,
+				     timeout_norm_comp_n,
+				     timeout_dlay_comp_n,
+				     want_PRCH_delayable,
+				     issue_enable_override,
+				     issue_enable_on_page,;
+  wire [1:0] 			     bank_addr,
+				     bank_request_live_bulk,
+				     bank_request_live_rand;
+  wire [2:0] 			     command, command_wr;
+  wire [11:0] 			     row_request_live_bulk,
+				     row_request_live_rand;
+  wire [12:0] 			     address;
+  wire [13:0] 			     page;
+  wire [25:0] 			     address_in;
 
-  wire [11:0] 			    row_request_live;
-  wire [1:0] 			    bank_request_live;
-  wire [12:0] 			    collumn_request_live;
+  reg [2:0] 			     command_non_wr;
+
+  assign INTERNAL_COMMAND_LATCHED = issue_com;
 
   assign row_request_live_rand = ADDRESS_RAND[25:14];
   assign bank_request_live_rand = ADDRESS_RAND[13:12];
-  assign collumn_request_live_rand = {ADDRESS_RAND[11:0],1'b0};
 
   assign correct_page_rand = ({REQUEST_ACCESS_RAND,REQUEST_ACCESS_BULK,
 			       REFRESH_TIME,SOME_PAGE_ACTIVE,
@@ -50,7 +65,6 @@ module enter_state(input CLK,
 
   assign row_request_live_bulk = ADDRESS_BULK[25:14];
   assign bank_request_live_bulk = ADDRESS_BULK[13:12];
-  assign collumn_request_live_bulk = {ADDRESS_BULK[11:0],1'b0};
 
   assign correct_page_bulk = ({REQUEST_ACCESS_BULK,
 			       REFRESH_TIME,SOME_PAGE_ACTIVE,
@@ -78,9 +92,18 @@ module enter_state(input CLK,
 
   always @(SOME_PAGE_ACTIVE or REFRESH_TIME or actv_timeout[2])
     case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
+      /*
+       Short form:
       3'b1x1: command_non_wr <= `PRCH;
       3'b01x: command_non_wr <= `ARSR;
       3'b00x: command_non_wr <= `ACTV;
+       */
+      3'b101: command_non_wr <= `PRCH;
+      3'b111: command_non_wr <= `PRCH;
+      3'b010: command_non_wr <= `ARSR;
+      3'b011: command_non_wr <= `ARSR;
+      3'b000: command_non_wr <= `ACTV;
+      3'b001: command_non_wr <= `ACTV;
       default: command_non_wr <= `NOOP;
     endcase // case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
 
@@ -101,7 +124,7 @@ module enter_state(input CLK,
 		   {address_in[25:24],1'b0,address_in[23:14]};
   assign page = correct_page_any ?
 		page_current :
-		address_in[25:14];
+		address_in[25:12];
   assign bank_addr = correct_page_any ?
 		     BANK_REG :
 		     address_in[13:12];
@@ -116,20 +139,23 @@ module enter_state(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	COMMAND_REG <= `NOOP;
-	miss_beat <= 0;
-	ADDRESS_REG <= 13'h0400;
+	COMMAND_REG <= `NOOP; ADDRESS_REG <= 13'h0400; BANK_REG <= 0;
+	GRANT_ACCESS_RAND <= 0; GRANT_ACCESS_BULK <= 0;
+	change_possible_n <= 1; state_is_readwrite <= 0;
+	refresh_strobe_ack <= 0; state_is_write <= 0; SOME_PAGE_ACTIVE <= 0;
+	second_stroke <= 1; REFRESH_TIME <= 0;
+	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
+	page_current <= 0;
       end
     else
       begin
-	refresh_time_reg <= REFRESH_TIME;
-	active_page_delay <= SOME_PAGE_ACTIVE; // FIXME: this used to have
-                                               // a lower latency.
-	if ((!active_page_delay) & SOME_PAGE_ACTIVE)
+	REFRESH_TIME <= refresh_strobe_ack ^ REFRESH_STROBE;
+	if ((!second_stoke) && (command_reg2 == `ACTV))
 	  actv_timeout <= 3'h0;
 	else
 	  if (!actv_timeout[2])
 	    actv_timeout <= actv_timeout +1;
+
 
 	if (issue_com)
 	  begin
@@ -143,7 +169,7 @@ module enter_state(input CLK,
 	  end
 
 	if (SOME_PAGE_ACTIVE &&
-	    (! correct_page_any))
+	    (! correct_page_any)) // FIXME: will be a problem for aligning
 	  ADDRESS_REG <= 13'h0400;
 	else
 	  if (issue_com)
@@ -184,10 +210,18 @@ module enter_state(input CLK,
 	  begin
 	    change_possible_n <= 0;
 	    state_is_readwrite <= correct_page_any;
+
+	    GRANT_ACCESS_RAND <= correct_page_rand;
+	    GRANT_ACCESS_BULK <= correct_page_bulk;
 	  end
 
 	if (!issue_com)
-	  change_possible_n <= change_possible_w_n;
+	  begin
+	    change_possible_n <= change_possible_w_n;
+
+	    GRANT_ACCESS_RAND <= 0;
+	    GRANT_ACCESS_BULK <= 0;
+	  end
       end
 
 endmodule // enter_state
