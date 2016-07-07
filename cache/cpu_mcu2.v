@@ -294,6 +294,9 @@ module snowball_cache(input CPU_CLK,
   assign tlb_we = mcu_active_delay && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
+  always @(mem_ack)
+    mem_ack_reg <= mem_ack;
+
   always @(read_counter)
     case (read_counter)
       3'd6: begin mcu_valid_data <= 1; capture_data <= 1; end
@@ -306,7 +309,7 @@ module snowball_cache(input CPU_CLK,
       begin
 	mem_dataintomem <= 0; mem_addr <= 0; mcu_we <= 0;
 	mcu_active_reg <= 0; tlb_we_reg <= 0; mem_do_act_pre <= 0;
-	mem_do_act_reg <= 0; mem_ack_reg <= 0; read_counter <= 0;
+	mem_do_act_reg <= 0; /*mem_ack_reg <= 0;*/ read_counter <= 0;
 	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
 	mcu_active_delay <= 0; wctag_data_forread <= 0;
 	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
@@ -347,7 +350,7 @@ module snowball_cache(input CPU_CLK,
 	    mem_do_act_pre <= 0;
 
 	mem_do_act_reg <= mem_do_act;
-	mem_ack_reg <= mem_ack;
+//	mem_ack_reg <= mem_ack;
 
 	if ((mem_do_act_reg && mem_ack_reg) &&
 	    (! op_type_w))
