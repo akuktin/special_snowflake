@@ -40,7 +40,7 @@ module state2(input CLK,
 				     timeout_dlay_comp_n,
 				     want_PRCH_delayable,
 				     issue_enable_override,
-				     issue_enable_on_page,;
+				     issue_enable_on_page;
   wire [1:0] 			     bank_addr,
 				     bank_request_live_bulk,
 				     bank_request_live_rand;
@@ -150,7 +150,7 @@ module state2(input CLK,
     else
       begin
 	REFRESH_TIME <= refresh_strobe_ack ^ REFRESH_STROBE;
-	if ((!second_stoke) && (command_reg2 == `ACTV))
+	if ((!second_stroke) && (command_reg2 == `ACTV))
 	  actv_timeout <= 3'h0;
 	else
 	  if (!actv_timeout[2])

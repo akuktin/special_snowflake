@@ -92,9 +92,9 @@ module ddr_memory_controler(input CLK_n,
 			     .WE_BULK(0),
 			     .REQUEST_ACCESS_BULK(0),
 			     .GRANT_ACCESS_BULK(),
-			     .ADDRESS_REQ(address_user),
-			     .BANK_REQ(bank_user),
-			     .COMMAND_REQ(command_user),
+			     .ADDRESS_REG(address_user),
+			     .BANK_REG(bank_user),
+			     .COMMAND_REG(command_user),
 			     .INTERNAL_COMMAND_LATCHED(internal_com_lat));
 
   outputs data_driver(.CLK_p(CLK_p),
