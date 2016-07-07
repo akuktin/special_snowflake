@@ -3,22 +3,22 @@
 `include "test_inc.v"
 
 // Memory module
-`include "commands.v"
-`include "state.v"
-`include "initializer.v"
-`include "integration.v"
+`include "../mcu/commands.v"
+`include "../mcu/state2.v"
+`include "../mcu/initializer.v"
+`include "../mcu/integration2.v"
 
 // Cache
-`include "cpu_mcu2.v"
+`include "../cache/cpu_mcu2.v"
 
 // CPU
-`include "aexm/aexm_enable.v"
-`include "aexm/aexm_bpcu.v"
-`include "aexm/aexm_regf.v"
-`include "aexm/aexm_ctrl.v"
-`include "aexm/aexm_xecu.v"
-`include "aexm/aexm_ibuf.v"
-`include "aexm/aexm_edk32.v"
+`include "../aexm/aexm_enable.v"
+`include "../aexm/aexm_bpcu.v"
+`include "../aexm/aexm_regf.v"
+`include "../aexm/aexm_ctrl.v"
+`include "../aexm/aexm_xecu.v"
+`include "../aexm/aexm_ibuf.v"
+`include "../aexm/aexm_edk32.v"
 //`include "aexm/aexm_aux.v"
 
 module GlaDOS;
