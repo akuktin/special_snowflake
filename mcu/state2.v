@@ -88,7 +88,8 @@ module state2(input CLK,
   // Signals from `states' module.
   assign issue_enable_override = second_stroke && (!change_possible_n) &&
 				 (REQUEST_ACCESS_RAND ||
-				  REQUEST_ACCESS_BULK);
+				  REQUEST_ACCESS_BULK ||
+				  REFRESH_TIME);
 
   always @(SOME_PAGE_ACTIVE or REFRESH_TIME or actv_timeout[2])
     case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
@@ -129,10 +130,13 @@ module state2(input CLK,
 		     BANK_REG :
 		     address_in[13:12];
 
-  assign timeout_norm_comp_n = counter != 4'he;
-  assign timeout_dlay_comp_n = counter != 4'hf;
+  assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
+  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'he));
 
-  assign change_possible_w_n = correct_page_any ? timeout_norm_comp_n :
+  /* Fully synthetizable in three gates, may need to be rewritten to help
+   * the synthetizer. */
+  assign change_possible_w_n = ~second_stroke ? 1 :
+			       correct_page_any ? timeout_norm_comp_n :
 			       (want_PRCH_delayable ?
 				timeout_dlay_comp_n : timeout_norm_comp_n);
 
@@ -197,10 +201,10 @@ module state2(input CLK,
 	      refresh_strobe_ack <= REFRESH_STROBE;
 
 	    case (command_reg2)
-	      `ARSR: counter <= 4'h4;
-	      `ACTV: counter <= 4'hd;
+	      `ARSR: counter <= 4'h3;
+	      `ACTV: counter <= 4'hc;
 	      `NOOP: counter <= 4'he;
-	      default: counter <= 4'hc;
+	      default: counter <= 4'hb;
 	    endcase // case (command_reg2)
 	  end // if (!second_stroke)
 	else
@@ -208,7 +212,7 @@ module state2(input CLK,
 
 	if (issue_com)
 	  begin
-	    change_possible_n <= 0;
+	    change_possible_n <= 1;
 	    state_is_readwrite <= correct_page_any;
 
 	    GRANT_ACCESS_RAND <= correct_page_rand;
