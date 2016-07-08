@@ -130,8 +130,8 @@ module state2(input CLK,
 		     BANK_REG :
 		     address_in[13:12];
 
-  assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
-  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'he));
+  assign timeout_norm_comp_n = !((counter == 4'hd) || (counter == 4'he));
+  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'h0)); // sped up
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
    * the synthetizer. */
@@ -203,6 +203,9 @@ module state2(input CLK,
 	    case (command_reg2)
 	      `ARSR: counter <= 4'h3;
 	      `ACTV: counter <= 4'hc;
+	      `PRCH: counter <= 4'hc; // sped up
+	      `READ: counter <= 4'hc; // sped up
+	      `WRTE: counter <= 4'hc; // sped up
 	      `NOOP: counter <= 4'he;
 	      default: counter <= 4'hb;
 	    endcase // case (command_reg2)
