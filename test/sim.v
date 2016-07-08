@@ -150,7 +150,7 @@ inhibit_ack <= 1;
 	  user_req <= 0;
 	readcount_r <= 0;
 
-	
+
 //	  $display("user_req_ack asserted, user_req_address: %x, readcount: %x", user_req_address, readcount);
 //	  user_req <= 0;
 
