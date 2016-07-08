@@ -20,6 +20,8 @@ module state2(input CLK,
 	      input 		WE_BULK,
 	      input 		REQUEST_ACCESS_BULK,
 	      output reg 	GRANT_ACCESS_BULK,
+	      input 		REQUEST_ALIGN_BULK,
+	      output reg 	GRANT_ALIGN_BULK,
 	      /* end ports */
 	      output reg [12:0] ADDRESS_REG,
 	      output reg [1:0] 	BANK_REG,
@@ -35,6 +37,7 @@ module state2(input CLK,
 
   wire 				     issue_com, correct_page_any,
 				     correct_page_rand, correct_page_bulk,
+				     correct_page_align,
 				     change_possible_w_n, write_match,
 				     timeout_norm_comp_n,
 				     timeout_dlay_comp_n,
@@ -58,7 +61,7 @@ module state2(input CLK,
   assign row_request_live_rand = ADDRESS_RAND[25:14];
   assign bank_request_live_rand = ADDRESS_RAND[13:12];
 
-  assign correct_page_rand = ({REQUEST_ACCESS_RAND,REQUEST_ACCESS_BULK,
+  assign correct_page_rand = ({REQUEST_ACCESS_RAND,REQUEST_ALIGN_BULK,
 			       REFRESH_TIME,SOME_PAGE_ACTIVE,
                                row_request_live_rand,bank_request_live_rand}
 			      == {4'b1001,page_current});
@@ -68,6 +71,11 @@ module state2(input CLK,
 
   assign correct_page_bulk = ({REQUEST_ACCESS_BULK,
 			       REFRESH_TIME,SOME_PAGE_ACTIVE,
+                               row_request_live_bulk,bank_request_live_bulk}
+			      == {3'b101,page_current});
+
+  assign correct_page_algn = ({REQUEST_ALIGN_BULK,
+                               REFRESH_TIME,SOME_PAGE_ACTIVE,
                                row_request_live_bulk,bank_request_live_bulk}
 			      == {3'b101,page_current});
 
@@ -89,7 +97,10 @@ module state2(input CLK,
   assign issue_enable_override = second_stroke && (!change_possible_n) &&
 				 (REQUEST_ACCESS_RAND ||
 				  REQUEST_ACCESS_BULK ||
-				  REFRESH_TIME);
+				  REFRESH_TIME ||
+				  // FIXME: not good enough
+				  (REQUEST_ALIGN_BULK &&
+				   (!GRANT_ALIGN_BULK)));
 
   always @(SOME_PAGE_ACTIVE or REFRESH_TIME or actv_timeout[2])
     case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
@@ -150,6 +161,7 @@ module state2(input CLK,
 	second_stroke <= 1; REFRESH_TIME <= 0;
 	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
 	page_current <= 0;
+	GRANT_ALIGN_BULK <= 0;
       end
     else
       begin
@@ -229,6 +241,8 @@ module state2(input CLK,
 	    GRANT_ACCESS_RAND <= 0;
 	    GRANT_ACCESS_BULK <= 0;
 	  end
+
+	GRANT_ALIGN_BULK <= correct_page_algn;
       end
 
 endmodule // enter_state
