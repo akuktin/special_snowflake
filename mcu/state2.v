@@ -274,7 +274,7 @@ module outputs(input CLK_p,
   reg 				 DM_drive, we_1,
 				 pre_DMs, dDM;
   reg 				 command_was_latched;
-  reg [1:0] 			 dq_n;
+  reg [1:0] 			 dq_n, we_array_save;
   reg 				 dq_p;
   wire 				 did_issue_write;
 
@@ -284,7 +284,7 @@ module outputs(input CLK_p,
   assign reading = do_read[3];
 
   assign DM = DM_drive;
-  assign DQ = DM_drive ? {16{1'bz}} : DQ_driver;
+  assign DQ = DM_drive ? {16{1'bz}} : DQ_driver; // may be a bad idea
   assign DQS = ({dq_n,dq_p} == 0) ? 1'bz : CLK_p;
 
   assign we_0 = (did_issue_write | command_was_latched);
@@ -338,9 +338,10 @@ module outputs(input CLK_p,
       begin
 	dq_driver_l <= dq_driver_holdlong;
 
-	pre_DMs <= did_issue_write ?
-		   (WE_ARRAY[0] || WE_ARRAY[1]) :
-		   (WE_ARRAY[2] || WE_ARRAY[3]);
+	we_array_save <= WE_ARRAY[1:0];
+	pre_DMs <= !(did_issue_write ?
+		     (WE_ARRAY[2] || WE_ARRAY[3]) :
+		     (we_array_save[0] || we_array_save[1]));
 	dDM <= pre_DMs;
 
 	dq_p <= dq_n[1];
