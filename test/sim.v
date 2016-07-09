@@ -20,6 +20,8 @@ module GlaDOS;
   wire 	      user_req_ack;
   wire [31:0] user_req_dataout;
 
+  reg 	      rand_user_req;
+
   wire 	      CKE, DQS, DM, CS;
   wire [2:0]  COMMAND;
   wire [12:0] ADDRESS;
@@ -52,12 +54,19 @@ module GlaDOS;
 			      .DQS(DQS),
 			      .DM(DM),
 			      .CS(CS),
-			      .user_req_address(user_req_address),
-			      .user_req_we(user_req_we),
-			      .user_req_we_array(4'b1111),
-			      .user_req(user_req),
+			      .rand_req_address(0),
+			      .rand_req_we(1),
+			      .rand_req_we_array(4'b1111),
+			      .rand_req(rand_user_req),
+			      .rand_req_ack(),
+			      .bulk_req_address(user_req_address),
+			      .bulk_req_we(user_req_we),
+			      .bulk_req_we_array(4'b1111),
+			      .bulk_req(user_req),
+			      .bulk_req_ack(user_req_ack),
+			      .bulk_req_algn(user_req),
+			      .bulk_req_algn_ack(),
 			      .user_req_datain(user_req_datain),
-			      .user_req_ack(user_req_ack),
 			      .user_req_dataout(user_req_dataout));
 
   initial
@@ -79,6 +88,7 @@ module GlaDOS;
       user_req <= 0;
       user_req_datain <= 32'h5a5ab00b;
       readcount_r <= 0;
+      rand_user_req <= 0;
       #14.875 RST <= 1;
 
       #400000;
@@ -107,7 +117,9 @@ inhibit_ack <= 1;
 //  user_req_we <= 0;//1;
       #6;
       user_req <= 1;
-      #200  user_req_address <= 32'h0010_1100;
+      #100;
+      rand_user_req <= 1;
+      #100  user_req_address <= 32'h0010_1100;
       #100  user_req_we <= 0;
 //      #300 user_req_we <= 0;
 #100 $finish;
