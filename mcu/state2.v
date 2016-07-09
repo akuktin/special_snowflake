@@ -26,7 +26,7 @@ module state2(input CLK,
 	      output reg [12:0] ADDRESS_REG,
 	      output reg [1:0] 	BANK_REG,
 	      output reg [2:0] 	COMMAND_REG,
-	      output 		INTERNAL_COMMAND_LATCHED);
+	      output [3:0] 	INTERNAL_COMMAND_LATCHED);
   reg 				     change_possible_n, state_is_readwrite,
 				     refresh_strobe_ack, state_is_write,
 				     SOME_PAGE_ACTIVE, second_stroke,
@@ -56,7 +56,7 @@ module state2(input CLK,
 
   reg [2:0] 			     command_non_wr;
 
-  assign INTERNAL_COMMAND_LATCHED = issue_com;
+  assign INTERNAL_COMMAND_LATCHED = {second_stroke,command_reg2};
 
   assign row_request_live_rand = ADDRESS_RAND[25:14];
   assign bank_request_live_rand = ADDRESS_RAND[13:12];
@@ -251,7 +251,7 @@ module outputs(input CLK_p,
 	       input 		 CLK_dp,
 	       input 		 CLK_dn,
 	       input 		 RST,
-	       input 		 COMMAND_LATCHED,
+	       input [3:0] 	 COMMAND_LATCHED,
 	       input [31:0] 	 DATA_W,
 	       input 		 WE,
 	       inout [15:0] 	 DQ,
@@ -266,9 +266,10 @@ module outputs(input CLK_p,
 
   reg 				 DM_drive, we_save, we_1,
 				 pre_DMs, dDM;
-  reg [1:0]			 command_was_latched;
+  reg 				 command_was_latched;
   reg [1:0] 			 dq_n;
   reg 				 dq_p;
+  wire 				 did_issue_write;
 
   reg [15:0] 			 DQ_driver;
   wire 				 we_0, dq_n_in;
@@ -279,8 +280,10 @@ module outputs(input CLK_p,
   assign DQ = DM_drive ? {16{1'bz}} : DQ_driver;
   assign DQS = ({dq_n,dq_p} == 0) ? 1'bz : CLK_p;
 
-  assign we_0 = we_save & (command_was_latched[0] | command_was_latched[1]);
-  assign dq_n_in = we_save & command_was_latched[0];
+  assign we_0 = we_save & (did_issue_write | command_was_latched);
+  assign dq_n_in = we_save & did_issue_write;
+
+  assign did_issue_write = COMMAND_LATCHED == {1'b0,`WRTE};
 
   always @(*)
     begin
@@ -307,7 +310,7 @@ module outputs(input CLK_p,
 	dq_driver_h <= dq_driver_pre[31:16];
 	dq_driver_holdlong <= dq_driver_pre[15:0];
 
-	command_was_latched <= {command_was_latched[0],COMMAND_LATCHED};
+	command_was_latched <= did_issue_write;
 	we_save <= WE;
 	we_1 <= we_0;
       end // else: !if(!RST)
