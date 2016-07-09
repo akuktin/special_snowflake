@@ -98,7 +98,9 @@ module state2(input CLK,
 				 (!write_match));
 
   assign issue_enable_override = second_stroke && (!change_possible_n) &&
-				 (REQUEST_ACCESS_RAND ||
+				 ((REQUEST_ACCESS_RAND &&
+				   (!(REQUEST_ACCESS_BULK ||
+				      REQUEST_ALIGN_BULK))) ||
 				  REQUEST_ACCESS_BULK ||
 				  REFRESH_TIME ||
 				  // FIXME: not good enough
