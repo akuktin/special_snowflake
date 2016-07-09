@@ -342,8 +342,8 @@ module outputs(input CLK_p,
 
 	we_array_save <= WE_ARRAY[1:0];
 	pre_DMs <= !(did_issue_write ?
-		     (WE_ARRAY[2] || WE_ARRAY[3]) :
-		     (we_array_save[0] || we_array_save[1]));
+		     (WE_ARRAY[3] || WE_ARRAY[2]) :
+		     (we_array_save[1] || we_array_save[0]));
 	dDM <= pre_DMs;
 
 	dq_p <= dq_n[1];
