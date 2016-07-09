@@ -54,6 +54,7 @@ module GlaDOS;
 			      .CS(CS),
 			      .user_req_address(user_req_address),
 			      .user_req_we(user_req_we),
+			      .user_req_we_array(4'b1111),
 			      .user_req(user_req),
 			      .user_req_datain(user_req_datain),
 			      .user_req_ack(user_req_ack),
