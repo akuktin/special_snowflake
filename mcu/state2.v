@@ -37,7 +37,7 @@ module state2(input CLK,
 
   wire 				     issue_com, correct_page_any,
 				     correct_page_rand, correct_page_bulk,
-				     correct_page_align,
+				     correct_page_algn, correct_page_rdy,
 				     change_possible_w_n, write_match,
 				     timeout_norm_comp_n,
 				     timeout_dlay_comp_n,
@@ -80,6 +80,7 @@ module state2(input CLK,
 			      == {3'b101,page_current});
 
   assign correct_page_any = correct_page_rand || correct_page_bulk;
+  assign correct_page_rdy = correct_page_rand || correct_page_algn;
 
   assign write_match = REQUEST_ACCESS_BULK ? WE_BULK :
 		       (REQUEST_ACCESS_RAND && WE_RAND);
@@ -87,13 +88,11 @@ module state2(input CLK,
   assign issue_com = (correct_page_any && issue_enable_on_page) ||
 		     issue_enable_override;
 
-  // Signals from `states' module.
   assign issue_enable_on_page = second_stroke && state_is_readwrite &&
 				(state_is_write ?
 				 write_match :
 				 (!write_match));
 
-  // Signals from `states' module.
   assign issue_enable_override = second_stroke && (!change_possible_n) &&
 				 (REQUEST_ACCESS_RAND ||
 				  REQUEST_ACCESS_BULK ||
@@ -126,18 +125,18 @@ module state2(input CLK,
 
   assign command = correct_page_any ? command_wr : command_non_wr;
 
-  assign address_in = REQUEST_ACCESS_BULK ? ADDRESS_BULK : ADDRESS_RAND;
+  assign address_in = REQUEST_ALIGN_BULK ? ADDRESS_BULK : ADDRESS_RAND;
 
   /* The below three are ported from an earlier iteration. They probably
    * could not be developed with this module microarchitecture if the
    * module were to be developed from scratch. */
-  assign address = correct_page_any ?
+  assign address = correct_page_rdy ?
 		   {address_in[11:0],1'b0} :
 		   {address_in[25:24],1'b0,address_in[23:14]};
-  assign page = correct_page_any ?
+  assign page = correct_page_rdy ?
 		page_current :
 		address_in[25:12];
-  assign bank_addr = correct_page_any ?
+  assign bank_addr = correct_page_rdy ?
 		     BANK_REG :
 		     address_in[13:12];
 
@@ -185,7 +184,7 @@ module state2(input CLK,
 	  end
 
 	if (SOME_PAGE_ACTIVE &&
-	    (! correct_page_any)) // FIXME: will be a problem for aligning
+	    (! correct_page_rdy))
 	  ADDRESS_REG <= 13'h0400;
 	else
 	  if (issue_com)
