@@ -40,6 +40,7 @@ module ddr_memory_controler(input CLK_n,
 			    /* ------------------------- */
 			    input [25:0]  user_req_address,
 			    input 	  user_req_we,
+			    input [3:0]   user_req_we_array,
 			    input 	  user_req,
 			    input [31:0]  user_req_datain,
 			    output 	  user_req_ack,
@@ -62,7 +63,8 @@ module ddr_memory_controler(input CLK_n,
 						 change_possible,
 						 some_page_active,
 						 refresh_time;
-  wire [3:0] 					 internal_com_lat;
+  wire [3:0] 					 internal_com_lat,
+						 internal_we_array;
 
   assign CS = 1'b0; // Always on.
 
@@ -89,12 +91,14 @@ module ddr_memory_controler(input CLK_n,
 			     .WE_RAND(0),
 			     .REQUEST_ACCESS_RAND(0),
 			     .GRANT_ACCESS_RAND(),
+			     .WE_ARRAY_RAND(0),
 			     .ADDRESS_BULK(user_req_address),
 			     .WE_BULK(user_req_we),
 			     .REQUEST_ACCESS_BULK(user_req),
 			     .GRANT_ACCESS_BULK(user_req_ack),
 			     .REQUEST_ALIGN_BULK(user_req),
 			     .GRANT_ALIGN_BULK(),
+			     .WE_ARRAY_BULK(user_req_we_array),
 
 /*
 			     .ADDRESS_RAND(user_req_address),
@@ -111,7 +115,8 @@ module ddr_memory_controler(input CLK_n,
 			     .ADDRESS_REG(address_user),
 			     .BANK_REG(bank_user),
 			     .COMMAND_REG(command_user),
-			     .INTERNAL_COMMAND_LATCHED(internal_com_lat));
+			     .INTERNAL_COMMAND_LATCHED(internal_com_lat),
+			     .INTERNAL_WE_ARRAY(internal_we_array));
 
   outputs data_driver(.CLK_p(CLK_p),
 		      .CLK_n(CLK_n),
@@ -119,8 +124,8 @@ module ddr_memory_controler(input CLK_n,
 		      .CLK_dn(CLK_dn),
 		      .RST(RST),
 		      .COMMAND_LATCHED(internal_com_lat),
+		      .WE_ARRAY(internal_we_array),
 		      .DATA_W(user_req_datain),
-		      .WE(user_req_we),
 		      .DQ(DQ),
 		      .DQS(DQS),
 		      .DATA_R(user_req_dataout),

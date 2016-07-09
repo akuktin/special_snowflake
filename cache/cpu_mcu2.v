@@ -17,6 +17,7 @@ module snowball_cache(input CPU_CLK,
 		      input 		dma_mcu_access,
 		      output reg [31:0] mem_addr,
 		      output 		mem_we,
+		      output [3:0] 	mem_we_array,
 		      output 		mem_do_act,
 		      output reg [31:0] mem_dataintomem,
 		      input 		mem_ack,
@@ -66,6 +67,8 @@ module snowball_cache(input CPU_CLK,
 			    ghost_hit, cache_same_word_read;
 
   reg 			    mcu_valid_data, capture_data;
+
+  assign mem_we_array = 4'b1100;
 
   assign idx_pre = cache_precycle_addr[7:0];
   assign tlb_idx_pre = cache_precycle_addr[15:8];

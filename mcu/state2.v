@@ -15,6 +15,7 @@ module state2(input CLK,
 	      input 		WE_RAND,
 	      input 		REQUEST_ACCESS_RAND,
 	      output reg 	GRANT_ACCESS_RAND,
+	      input [3:0] 	WE_ARRAY_RAND,
 	      /* bulk_port */
 	      input [25:0] 	ADDRESS_BULK,
 	      input 		WE_BULK,
@@ -22,11 +23,13 @@ module state2(input CLK,
 	      output reg 	GRANT_ACCESS_BULK,
 	      input 		REQUEST_ALIGN_BULK,
 	      output reg 	GRANT_ALIGN_BULK,
+	      input [3:0] 	WE_ARRAY_BULK,
 	      /* end ports */
 	      output reg [12:0] ADDRESS_REG,
 	      output reg [1:0] 	BANK_REG,
 	      output reg [2:0] 	COMMAND_REG,
-	      output [3:0] 	INTERNAL_COMMAND_LATCHED);
+	      output [3:0] 	INTERNAL_COMMAND_LATCHED,
+	      output reg [3:0] 	INTERNAL_WE_ARRAY);
   reg 				     change_possible_n, state_is_readwrite,
 				     refresh_strobe_ack, state_is_write,
 				     SOME_PAGE_ACTIVE, second_stroke,
@@ -48,6 +51,7 @@ module state2(input CLK,
 				     bank_request_live_bulk,
 				     bank_request_live_rand;
   wire [2:0] 			     command, command_wr;
+  wire [3:0] 			     we_array;
   wire [11:0] 			     row_request_live_bulk,
 				     row_request_live_rand;
   wire [12:0] 			     address;
@@ -150,6 +154,8 @@ module state2(input CLK,
 			       (want_PRCH_delayable ?
 				timeout_dlay_comp_n : timeout_norm_comp_n);
 
+  assign we_array = REQUEST_ACCESS_BULK ? WE_ARRAY_BULK : WE_ARRAY_RAND;
+
   always @(posedge CLK)
     if (!RST)
       begin
@@ -159,8 +165,7 @@ module state2(input CLK,
 	refresh_strobe_ack <= 0; state_is_write <= 0; SOME_PAGE_ACTIVE <= 0;
 	second_stroke <= 1; REFRESH_TIME <= 0;
 	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
-	page_current <= 0;
-	GRANT_ALIGN_BULK <= 0;
+	page_current <= 0; GRANT_ALIGN_BULK <= 0; INTERNAL_WE_ARRAY <= 0;
       end
     else
       begin
@@ -231,6 +236,8 @@ module state2(input CLK,
 
 	    GRANT_ACCESS_RAND <= correct_page_rand;
 	    GRANT_ACCESS_BULK <= correct_page_bulk;
+
+	    INTERNAL_WE_ARRAY <= we_array;
 	  end
 
 	if (!issue_com)
@@ -252,8 +259,8 @@ module outputs(input CLK_p,
 	       input 		 CLK_dn,
 	       input 		 RST,
 	       input [3:0] 	 COMMAND_LATCHED,
+	       input [3:0] 	 WE_ARRAY,
 	       input [31:0] 	 DATA_W,
-	       input 		 WE,
 	       inout [15:0] 	 DQ,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
@@ -264,7 +271,7 @@ module outputs(input CLK_p,
   reg [15:0] 			 dq_driver_h, dq_driver_l,
 				 dq_driver_holdlong;
 
-  reg 				 DM_drive, we_save, we_1,
+  reg 				 DM_drive, we_1,
 				 pre_DMs, dDM;
   reg 				 command_was_latched;
   reg [1:0] 			 dq_n;
@@ -280,8 +287,8 @@ module outputs(input CLK_p,
   assign DQ = DM_drive ? {16{1'bz}} : DQ_driver;
   assign DQS = ({dq_n,dq_p} == 0) ? 1'bz : CLK_p;
 
-  assign we_0 = we_save & (did_issue_write | command_was_latched);
-  assign dq_n_in = we_save & did_issue_write;
+  assign we_0 = (did_issue_write | command_was_latched);
+  assign dq_n_in = did_issue_write;
 
   assign did_issue_write = COMMAND_LATCHED == {1'b0,`WRTE};
 
@@ -301,7 +308,6 @@ module outputs(input CLK_p,
 	dq_driver_h <= 0;
 	dq_driver_holdlong <= 0;
 	command_was_latched <= 0;
-	we_save <= 0;
 	we_1 <= 0;
       end
     else
@@ -311,7 +317,6 @@ module outputs(input CLK_p,
 	dq_driver_holdlong <= dq_driver_pre[15:0];
 
 	command_was_latched <= did_issue_write;
-	we_save <= WE;
 	we_1 <= we_0;
       end // else: !if(!RST)
 
@@ -333,7 +338,9 @@ module outputs(input CLK_p,
       begin
 	dq_driver_l <= dq_driver_holdlong;
 
-	pre_DMs <= ~we_0;
+	pre_DMs <= did_issue_write ?
+		   (WE_ARRAY[0] || WE_ARRAY[1]) :
+		   (WE_ARRAY[2] || WE_ARRAY[3]);
 	dDM <= pre_DMs;
 
 	dq_p <= dq_n[1];
