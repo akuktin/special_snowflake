@@ -15,7 +15,7 @@ module hyper_mvblck_todram(input CLK,
 			   input [4:0] 	     COUNT, // must be <= 5'h18
 			   input [1:0] 	     SECTION,
 			   input 	     ISSUE,
-			   output reg [4:0]  COUNT_LEFT,
+			   output reg [4:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
@@ -75,7 +75,7 @@ module hyper_mvblck_todram(input CLK,
 	    LSAB_READ <= 0;
 	    am_working <= 0;
 
-	    COUNT_LEFT <= 5'h18 - len_left;
+	    COUNT_SENT <= 5'h18 - len_left;
 	  end
 	empty_prev_n <= empty_n;
 
