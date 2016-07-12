@@ -12,7 +12,7 @@ module hyper_mvblck_todram(input CLK,
 			   //------------------------
 			   /* begin DRAM */
 			   input [11:0]      START_ADDRESS,
-			   input [4:0] 	     COUNT, // must be <= 5'h18
+			   input [4:0] 	     COUNT,
 			   input [1:0] 	     SECTION,
 			   input 	     ISSUE,
 			   output reg [4:0]  COUNT_SENT,
@@ -30,7 +30,7 @@ module hyper_mvblck_todram(input CLK,
   wire 					     trriger, read_more;
 
   assign trigger = track_addr[0];
-  assign read_more = len_left != 5'h18;
+  assign read_more = len_left != 5'h1f;
 
   always @(LSAB_0_EMPTY or LSAB_1_EMPTY or
 	   LSAB_2_EMPTY or LSAB_3_EMPTY or LSAB_SECTION)
@@ -56,7 +56,7 @@ module hyper_mvblck_todram(input CLK,
       if (! am_working)
 	begin
 	  LSAB_SECTION <= SECTION;
-	  len_left <= 5'h18 - COUNT;
+	  len_left <= 5'h1f - COUNT;
 	  track_addr <= START_ADDRESS;
 	  empty_prev_n <= 0; pre_request_access <= 0;
 	  am_working <= ISSUE;
@@ -75,7 +75,7 @@ module hyper_mvblck_todram(input CLK,
 	    LSAB_READ <= 0;
 	    am_working <= 0;
 
-	    COUNT_SENT <= 5'h18 - len_left;
+	    COUNT_SENT <= 5'h1f - len_left;
 	  end
 	empty_prev_n <= empty_n;
 
