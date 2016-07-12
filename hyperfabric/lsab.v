@@ -1,15 +1,18 @@
 module lsab_cr(input CLK,
-              input             RST,
-              input             READ,
-              input             WRITE,
-              input [1:0]       READ_FIFO,
-              input [1:0]       WRITE_FIFO,
-              input [31:0]      IN_0,
-              input [31:0]      IN_1,
-              input [31:0]      IN_2,
-              input [31:0]      IN_3,
-              output reg [31:0] OUT);
-  reg               empty_0, empty_1, empty_2, empty_3;
+              input 		RST,
+              input 		READ,
+              input 		WRITE,
+              input [1:0] 	READ_FIFO,
+              input [1:0] 	WRITE_FIFO,
+              input [31:0] 	IN_0,
+              input [31:0] 	IN_1,
+              input [31:0] 	IN_2,
+              input [31:0] 	IN_3,
+              output reg [31:0] OUT,
+	      output reg 	EMPTY_0,
+	      output reg 	EMPTY_1,
+	      output reg 	EMPTY_2,
+	      output reg 	EMPTY_3);
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
@@ -49,45 +52,45 @@ module lsab_cr(input CLK,
   assign do_write_2 = full_2 ? 0 : write_2;
   assign do_write_3 = full_3 ? 0 : write_3;
 
-  assign do_read_0 = empty_0 ? 0 : read_0;
-  assign do_read_1 = empty_1 ? 0 : read_1;
-  assign do_read_2 = empty_2 ? 0 : read_2;
-  assign do_read_3 = empty_3 ? 0 : read_3;
+  assign do_read_0 = EMPTY_0 ? 0 : read_0;
+  assign do_read_1 = EMPTY_1 ? 0 : read_1;
+  assign do_read_2 = EMPTY_2 ? 0 : read_2;
+  assign do_read_3 = EMPTY_3 ? 0 : read_3;
 
-  always @(len_0 or do_read_0 or do_write_0 or full_0 or empty_0)
+  always @(len_0 or do_read_0 or do_write_0 or full_0 or EMPTY_0)
     case ({len_0,do_read_0,do_write_0})
       {6'h3f,2'b10}: begin become_full_0 <= 0; become_empty_0 <= 0; end
       {6'h3e,2'b01}: begin become_full_0 <= 1; become_empty_0 <= 0; end
       {6'h01,2'b10}: begin become_full_0 <= 0; become_empty_0 <= 1; end
       {6'h00,2'b01}: begin become_full_0 <= 0; become_empty_0 <= 0; end
-      default: begin become_full_0 <= full_0; become_empty_0 <= empty_0; end
+      default: begin become_full_0 <= full_0; become_empty_0 <= EMPTY_0; end
     endcase // case ({len_0,do_read_0,do_write_0})
 
-  always @(len_1 or do_read_1 or do_write_1 or full_1 or empty_1)
+  always @(len_1 or do_read_1 or do_write_1 or full_1 or EMPTY_1)
     case ({len_1,do_read_1,do_write_1})
       {6'h3f,2'b10}: begin become_full_1 <= 0; become_empty_1 <= 0; end
       {6'h3e,2'b01}: begin become_full_1 <= 1; become_empty_1 <= 0; end
       {6'h01,2'b10}: begin become_full_1 <= 0; become_empty_1 <= 1; end
       {6'h00,2'b01}: begin become_full_1 <= 0; become_empty_1 <= 0; end
-      default: begin become_full_1 <= full_1; become_empty_1 <= empty_1; end
+      default: begin become_full_1 <= full_1; become_empty_1 <= EMPTY_1; end
     endcase // case ({len_1,do_read_1,do_write_1})
 
-  always @(len_2 or do_read_2 or do_write_2 or full_2 or empty_2)
+  always @(len_2 or do_read_2 or do_write_2 or full_2 or EMPTY_2)
     case ({len_2,do_read_2,do_write_2})
       {6'h3f,2'b10}: begin become_full_2 <= 0; become_empty_2 <= 0; end
       {6'h3e,2'b01}: begin become_full_2 <= 1; become_empty_2 <= 0; end
       {6'h01,2'b10}: begin become_full_2 <= 0; become_empty_2 <= 1; end
       {6'h00,2'b01}: begin become_full_2 <= 0; become_empty_2 <= 0; end
-      default: begin become_full_2 <= full_2; become_empty_2 <= empty_2; end
+      default: begin become_full_2 <= full_2; become_empty_2 <= EMPTY_2; end
     endcase // case ({len_2,do_read_2,do_write_2})
 
-  always @(len_3 or do_read_3 or do_write_3 or full_3 or empty_3)
+  always @(len_3 or do_read_3 or do_write_3 or full_3 or EMPTY_3)
     case ({len_3,do_read_3,do_write_3})
       {6'h3f,2'b10}: begin become_full_3 <= 0; become_empty_3 <= 0; end
       {6'h3e,2'b01}: begin become_full_3 <= 1; become_empty_3 <= 0; end
       {6'h01,2'b10}: begin become_full_3 <= 0; become_empty_3 <= 1; end
       {6'h00,2'b01}: begin become_full_3 <= 0; become_empty_3 <= 0; end
-      default: begin become_full_3 <= full_3; become_empty_3 <= empty_3; end
+      default: begin become_full_3 <= full_3; become_empty_3 <= EMPTY_3; end
     endcase // case ({len_3,do_read_3,do_write_3})
 
   always @(do_read_0 or do_write_0 or len_0)
@@ -182,7 +185,7 @@ module lsab_cr(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-       empty_0 <= 1; empty_1 <= 1; empty_2 <= 1; empty_3 <= 1;
+       EMPTY_0 <= 1; EMPTY_1 <= 1; EMPTY_2 <= 1; EMPTY_3 <= 1;
        full_0 <= 0; full_1 <= 0; full_2 <= 0; full_3 <= 0;
        len_0 <= 0; len_1 <= 0; len_2 <= 0; len_3 <= 0;
        write_addr_0 <= 0; write_addr_1 <= 0;
@@ -193,13 +196,13 @@ module lsab_cr(input CLK,
       end
     else
       begin
-       empty_0 <= become_empty_0;
+       EMPTY_0 <= become_empty_0;
        full_0 <= become_full_0;
-       empty_1 <= become_empty_1;
+       EMPTY_1 <= become_empty_1;
        full_1 <= become_full_1;
-       empty_2 <= become_empty_2;
+       EMPTY_2 <= become_empty_2;
        full_2 <= become_full_2;
-       empty_3 <= become_empty_3;
+       EMPTY_3 <= become_empty_3;
        full_3 <= become_full_3;
        len_0 <= become_len_0;
        len_1 <= become_len_1;
