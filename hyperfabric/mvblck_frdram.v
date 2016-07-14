@@ -49,7 +49,7 @@ module hyper_mvblck_frdram(input CLK,
 		am_working <= 1;
 		len_left <= assign_len;
 
-		MCU_COLL_ADDRESS <= START_ADDRESS;
+		MCU_COLL_ADDRESS <= {START_ADDRESS[11:1],1'b0};
 		LSAB_SECTION <= SECTION;
 
 		if (START_ADDRESS[0])
