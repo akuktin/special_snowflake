@@ -77,7 +77,8 @@ module hyper_mvblck_frdram(input CLK,
 
 		MCU_REQUEST_ACCESS <= 1;
 	      end // if (ISSUE)
-	    // else: rest position
+	    else
+	      MCU_REQUEST_ACCESS <= 0; // because of abrupt_stop_n
 	  end
 	else
 	  begin
@@ -96,6 +97,8 @@ module hyper_mvblck_frdram(input CLK,
 		                               //          of pollution.
 		    else
 		      release_counter <= 3'h2;
+
+		    MCU_REQUEST_ACCESS <= 0;
 		  end
 		else
 		  begin
@@ -103,13 +106,20 @@ module hyper_mvblck_frdram(input CLK,
 		     * the same time. Also requires LSAB to assert
 		     * the `I'm full' signal with AT LEAST 8 words
 		     * left to go. */
+		    /* This (woobly release counters) works because the
+		     * fact we are in this branch proves the block mover
+		     * was having the intention of moving AT LEAST 1 word
+		     * before the full signal was asserted. To control for
+		     * the option of a very bad edge case, we keep the
+		     * MCU_REQUEST_ACCESS asserted for one more cycle. We
+		     * the behave (regarding release_counter) the same as
+		     * we would if we were going to read an additional
+		     * word. */
 		    if (uneven_len)
 		      release_counter <= 3'h2; // Also pollutes a bit.
 		    else
 		      release_counter <= 3'h1;
 		  end
-
-		MCU_REQUEST_ACCESS <= 0;
 	      end // else: !if(read_more)
 	  end // else: !if(! am_working)
 
