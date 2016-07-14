@@ -22,7 +22,7 @@ module hyper_lsab_dram(input CLK,
   reg [3:0] 				   state;
   reg [31:0] 				   old_addr, new_addr;
 
-  wire 					   go;
+  wire 					   go, do_go;
   wire [4:0] 				   rest_of_the_way;
   wire [12:0] 				   end_addr;
 
@@ -31,6 +31,8 @@ module hyper_lsab_dram(input CLK,
   assign end_addr = BLCK_START + `block_length;
   assign rest_of_the_way = (~BLCK_START[4:0]) + 1; // Supports arbitrary
   //  block lengths.
+
+  assign do_go = go && (state == 4'b1000);
 
   always @(posedge CLK)
     if (!RST)
@@ -44,9 +46,9 @@ module hyper_lsab_dram(input CLK,
       begin
 	blck_working_prev <= BLCK_WORKING;
 
-	if ((go && (state == 4'b1000)) || state[0] || state[1] ||
+	if (do_go || state[0] || state[1] ||
 	    (state[2] && blck_working_prev && !BLCK_WORKING))
-	  state <= {state[2:0],go};
+	  state <= {state[2:0],do_go};
 
 	if (state[0])
 	  begin
