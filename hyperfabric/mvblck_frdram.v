@@ -2,8 +2,14 @@
 module hyper_mvblck_frdram(input CLK,
 			   input 	     RST,
 			   /* begin LSAB */
+			   input 	     LSAB_0_FULL,
+			   input 	     LSAB_1_FULL,
+			   input 	     LSAB_2_FULL,
+			   input 	     LSAB_3_FULL,
+			   // -----------------------
 			   output reg 	     LSAB_WRITE,
 			   output reg [1:0]  LSAB_SECTION,
+			   // -----------------------
 			   /* begin DRAM */
 			   input [11:0]      START_ADDRESS,
 			   input [4:0] 	     COUNT_REQ,
@@ -14,7 +20,7 @@ module hyper_mvblck_frdram(input CLK,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg 	     MCU_REQUEST_ACCESS);
-  reg 					     am_working;
+  reg 					     am_working, abrupt_stop_n;
   reg [3:0] 				     we_counter, release_counter;
   reg [4:0] 				     len_left;
 
@@ -33,6 +39,16 @@ module hyper_mvblck_frdram(input CLK,
   assign assign_len = {compute_len[4:1],1'b0};
 
   assign read_more = len_left != 5'h1;
+
+  always @(LSAB_0_FULL or LSAB_1_FULL or
+	   LSAB_2_FULL or LSAB_3_FULL or LSAB_SECTION)
+    case (LSAB_SECTION)
+      2'b00: abrupt_stop_n <= ~LSAB_0_FULL;
+      2'b01: abrupt_stop_n <= ~LSAB_1_FULL;
+      2'b10: abrupt_stop_n <= ~LSAB_2_FULL;
+      2'b11: abrupt_stop_n <= ~LSAB_3_FULL;
+      default: abrupt_stop_n <= 1'bx;
+    endcase
 
   always @(posedge CLK)
     if (!RST)
@@ -65,7 +81,7 @@ module hyper_mvblck_frdram(input CLK,
 	  end
 	else
 	  begin
-	    if (read_more)
+	    if (read_more && abrupt_stop_n)
 	      begin
 		MCU_COLL_ADDRESS <= MCU_COLL_ADDRESS +1;
 		len_left <= len_left -1;
@@ -73,11 +89,25 @@ module hyper_mvblck_frdram(input CLK,
 	    else
 	      begin
 		am_working <= 0;
-		if (uneven_len)
-		  release_counter <= 3'h3; // CAUTION! Leaves a bit
-		                           //          of pollution.
+		if (! read_more)
+		  begin
+		    if (uneven_len)
+		      release_counter <= 3'h3; // CAUTION! Leaves a bit
+		                               //          of pollution.
+		    else
+		      release_counter <= 3'h2;
+		  end
 		else
-		  release_counter <= 3'h2;
+		  begin
+		    /* Guarranties the triggers will not trigger at
+		     * the same time. Also requires LSAB to assert
+		     * the `I'm full' signal with AT LEAST 8 words
+		     * left to go. */
+		    if (uneven_len)
+		      release_counter <= 3'h2; // Also pollutes a bit.
+		    else
+		      release_counter <= 3'h1;
+		  end
 
 		MCU_REQUEST_ACCESS <= 0;
 	      end // else: !if(read_more)
