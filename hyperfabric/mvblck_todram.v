@@ -27,7 +27,7 @@ module hyper_mvblck_todram(input CLK,
   reg [4:0] 				     len_left;
   reg [11:0] 				     track_addr;
 
-  wire 					     trriger, read_more;
+  wire 					     trigger, read_more;
 
   assign trigger = track_addr[0];
   assign read_more = len_left != 0;
