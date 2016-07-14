@@ -103,6 +103,8 @@ module hyper_mvblck_todram(input CLK,
 
 endmodule // hyper_mvblck_todram
 
+`define block_length 5'h18
+
 module hyper_lsab_todram(input CLK,
 			 input 		   RST,
 			 /* begin BLOCK MOVER */
@@ -117,7 +119,8 @@ module hyper_lsab_todram(input CLK,
 			 output reg 	   MCU_REQUEST_ALIGN,
 			 input 		   MCU_GRANT_ALIGN);
 
-  // Need to do/handle: state[3], go, new_addr, new_section, old_addr.
+  // Need to do/handle: state[3], go, new_addr, new_section, old_addr,
+  //                    transfer length
 
   reg 					   blck_working_prev;
   reg [1:0] 				   issue_op, new_section;
@@ -130,7 +133,7 @@ module hyper_lsab_todram(input CLK,
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
-  assign end_addr = BLCK_START + 5'h18;
+  assign end_addr = BLCK_START + `block_length;
   assign rest_of_the_way = (~BLCK_START[4:0]) + 1; // Supports arbitrary
   //  block lengths.
 
@@ -165,7 +168,7 @@ module hyper_lsab_todram(input CLK,
 	    if (end_addr[12])
 	      BLCK_COUNT_REQ <= rest_of_the_way;
 	    else
-	      BLCK_COUNT_REQ <= 5'h18;
+	      BLCK_COUNT_REQ <= `block_length;
 	  end
 
 	if (state[2] && blck_working_prev && !BLCK_WORKING)

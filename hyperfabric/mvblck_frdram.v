@@ -105,6 +105,8 @@ module hyper_mvblck_frdram(input CLK,
 
 endmodule // hyper_mvblck_frdram
 
+`define block_length 5'h18
+
 module hyper_lsab_frdram(input CLK,
 			 input 		   RST,
 			 /* begin BLOCK MOVER */
@@ -132,7 +134,7 @@ module hyper_lsab_frdram(input CLK,
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
-  assign end_addr = BLCK_START + 5'h18;
+  assign end_addr = BLCK_START + `block_length;
   assign rest_of_the_way = (~BLCK_START[4:0]) + 1; // Supports arbitrary
   //  block lengths.
 
@@ -167,7 +169,7 @@ module hyper_lsab_frdram(input CLK,
 	    if (end_addr[12])
 	      BLCK_COUNT_REQ <= rest_of_the_way;
 	    else
-	      BLCK_COUNT_REQ <= 5'h18;
+	      BLCK_COUNT_REQ <= `block_length;
 	  end
 
 	if (state[2] && blck_working_prev && !BLCK_WORKING)
