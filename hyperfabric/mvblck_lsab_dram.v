@@ -14,7 +14,7 @@ module hyper_lsab_dram(input CLK,
 		       output reg 	 MCU_REQUEST_ALIGN,
 		       input 		 MCU_GRANT_ALIGN);
 
-  // Need to do/handle: state[3], go, new_addr, new_section, old_addr,
+  // Need to do/handle: go, new_addr, new_section, old_addr,
   //                    transfer length
 
   reg 					   blck_working_prev;
@@ -44,7 +44,7 @@ module hyper_lsab_dram(input CLK,
       begin
 	blck_working_prev <= BLCK_WORKING;
 
-	if (go || state[0] || state[1] ||
+	if ((go && (state == 4'b1000)) || state[0] || state[1] ||
 	    (state[2] && blck_working_prev && !BLCK_WORKING))
 	  state <= {state[2:0],go};
 
