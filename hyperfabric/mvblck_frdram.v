@@ -9,7 +9,7 @@ module hyper_mvblck_frdram(input CLK,
 			   input [4:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
 			   input 	     ISSUE,
-			   output [4:0]      COUNT_SENT,
+			   output reg [4:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
@@ -21,8 +21,6 @@ module hyper_mvblck_frdram(input CLK,
   wire 					     release_trigger, we_trigger,
 					     read_more, uneven_len;
   wire [4:0] 				     compute_len, assign_len;
-
-  assign COUNT_SENT = COUNT_REQ;
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;
@@ -42,6 +40,7 @@ module hyper_mvblck_frdram(input CLK,
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
 	WORKING <= 0; am_working <= 0; MCU_REQUEST_ACCESS <= 0;
 	len_left <= 5'h1; MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0;
+	COUNT_SENT <= 0;
       end
     else
       begin
@@ -94,7 +93,13 @@ module hyper_mvblck_frdram(input CLK,
 	    WORKING <= 1;
 
 	if (we_trigger)
-	  LSAB_WRITE <= 1;
+	  begin
+	    LSAB_WRITE <= 1;
+	    COUNT_SENT <= 0;
+	  end
+	else
+	  if (LSAB_WRITE)
+	    COUNT_SENT <= COUNT_SENT +1;
 
 	/* The below two are VERY IMPORTANT! The counter MUST pass through
 	 * the trigger condition! Otherwise, the circuit will be stuck,
