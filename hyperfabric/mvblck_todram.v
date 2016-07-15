@@ -12,10 +12,10 @@ module hyper_mvblck_todram(input CLK,
 			   //------------------------
 			   /* begin DRAM */
 			   input [11:0]      START_ADDRESS,
-			   input [4:0] 	     COUNT_REQ,
+			   input [5:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
 			   input 	     ISSUE,
-			   output reg [4:0]  COUNT_SENT,
+			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
@@ -24,7 +24,7 @@ module hyper_mvblck_todram(input CLK,
   reg 					     empty_prev_n, empty_n,
 					     pre_request_access,
 					     am_working;
-  reg [4:0] 				     len_left;
+  reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
 
   wire 					     trigger, read_more;

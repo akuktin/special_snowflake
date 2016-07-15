@@ -12,21 +12,21 @@ module hyper_mvblck_frdram(input CLK,
 			   // -----------------------
 			   /* begin DRAM */
 			   input [11:0]      START_ADDRESS,
-			   input [4:0] 	     COUNT_REQ,
+			   input [5:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
 			   input 	     ISSUE,
-			   output reg [4:0]  COUNT_SENT,
+			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg 	     MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n;
   reg [3:0] 				     we_counter, release_counter;
-  reg [4:0] 				     len_left;
+  reg [5:0] 				     len_left;
 
   wire 					     release_trigger, we_trigger,
 					     read_more, uneven_len;
-  wire [4:0] 				     compute_len, assign_len;
+  wire [5:0] 				     compute_len, assign_len;
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;
@@ -35,10 +35,10 @@ module hyper_mvblck_frdram(input CLK,
    * May not fit in 3 LUT4s, depending on just
    * how (non)aggresive the optimizer is. */
   assign uneven_len = COUNT_REQ[0] ^ START_ADDRESS[0];
-  assign compute_len = COUNT_REQ + {4'h0,uneven_len} + 1;
-  assign assign_len = {compute_len[4:1],1'b0};
+  assign compute_len = COUNT_REQ + {5'h0,uneven_len} + 1;
+  assign assign_len = {compute_len[5:1],1'b0};
 
-  assign read_more = len_left != 5'h1;
+  assign read_more = len_left != 6'h1;
 
   always @(LSAB_0_FULL or LSAB_1_FULL or
 	   LSAB_2_FULL or LSAB_3_FULL or LSAB_SECTION)
@@ -55,7 +55,7 @@ module hyper_mvblck_frdram(input CLK,
       begin
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
 	WORKING <= 0; am_working <= 0; MCU_REQUEST_ACCESS <= 0;
-	len_left <= 5'h1; MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0;
+	len_left <= 6'h1; MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0;
 	COUNT_SENT <= 0;
       end
     else

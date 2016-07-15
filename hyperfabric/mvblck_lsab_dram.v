@@ -1,20 +1,18 @@
-`define block_length 5'h18
-
 module hyper_lsab_dram(input CLK,
 		       input 		 RST,
 		         /* begin COMMAND INTERFACE */
 		       input 		 GO,
-		       input [4:0] 	 BLOCK_LENGTH,
+		       input [5:0] 	 BLOCK_LENGTH,
 		       input [31:0] 	 NEW_ADDR,
 		       input [1:0] 	 NEW_SECTION,
 		       output reg [31:0] OLD_ADDR,
 		       output 		 READY,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
-		       output reg [4:0]  BLCK_COUNT_REQ,
+		       output reg [5:0]  BLCK_COUNT_REQ,
 		       output 		 BLCK_ISSUE,
 		       output reg [1:0]  BLCK_SECTION,
-		       input [4:0] 	 BLCK_COUNT_SENT,
+		       input [5:0] 	 BLCK_COUNT_SENT,
 		       input 		 BLCK_WORKING,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
@@ -25,13 +23,13 @@ module hyper_lsab_dram(input CLK,
   reg [3:0] 				   state;
 
   wire 					   do_go;
-  wire [4:0] 				   rest_of_the_way;
+  wire [5:0] 				   rest_of_the_way;
   wire [12:0] 				   end_addr;
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
   assign end_addr = BLCK_START + BLOCK_LENGTH;
-  assign rest_of_the_way = (~BLCK_START[4:0]) + 1; // Supports arbitrary
+  assign rest_of_the_way = (~BLCK_START[5:0]) + 1; // Supports arbitrary
                                                    // block lengths.
 
   assign do_go = GO && (state == 4'b1000);
