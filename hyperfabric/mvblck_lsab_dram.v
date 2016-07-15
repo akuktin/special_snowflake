@@ -2,6 +2,13 @@
 
 module hyper_lsab_dram(input CLK,
 		       input 		 RST,
+		         /* begin COMMAND INTERFACE */
+		       input 		 GO,
+		       input [4:0] 	 BLOCK_LENGTH,
+		       input [31:0] 	 NEW_ADDR,
+		       input [1:0] 	 NEW_SECTION,
+		       output reg [31:0] OLD_ADDR,
+		       output 		 READY,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
 		       output reg [4:0]  BLCK_COUNT_REQ,
@@ -13,33 +20,29 @@ module hyper_lsab_dram(input CLK,
 		       output reg [19:0] MCU_PAGE_ADDR,
 		       output reg 	 MCU_REQUEST_ALIGN,
 		       input 		 MCU_GRANT_ALIGN);
-
-  // Need to do/handle: go, new_addr, new_section, old_addr,
-  //                    transfer length
-
   reg 					   blck_working_prev;
-  reg [1:0] 				   issue_op, new_section;
+  reg [1:0] 				   issue_op;
   reg [3:0] 				   state;
-  reg [31:0] 				   old_addr, new_addr;
 
-  wire 					   go, do_go;
+  wire 					   do_go;
   wire [4:0] 				   rest_of_the_way;
   wire [12:0] 				   end_addr;
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
-  assign end_addr = BLCK_START + `block_length;
+  assign end_addr = BLCK_START + BLOCK_LENGTH;
   assign rest_of_the_way = (~BLCK_START[4:0]) + 1; // Supports arbitrary
-  //  block lengths.
+                                                   // block lengths.
 
-  assign do_go = go && (state == 4'b1000);
+  assign do_go = GO && (state == 4'b1000);
+  assign READY = state[3];
 
   always @(posedge CLK)
     if (!RST)
       begin
-	old_addr <= 0; new_addr <= 0; MCU_PAGE_ADDR <= 0; BLCK_START <= 0;
+	OLD_ADDR <= 0; MCU_PAGE_ADDR <= 0; BLCK_START <= 0;
 	MCU_REQUEST_ALIGN <= 0; blck_working_prev <= 0; issue_op <= 0;
-	BLCK_COUNT_REQ <= 0; new_section <= 0;
+	BLCK_COUNT_REQ <= 0;
 	state <= 4'b1000;
       end
     else
@@ -54,10 +57,10 @@ module hyper_lsab_dram(input CLK,
 	  begin
 	    MCU_REQUEST_ALIGN <= 1;
 
-	    MCU_PAGE_ADDR <= new_addr[31:12];
-	    BLCK_START <= new_addr[11:0];
+	    MCU_PAGE_ADDR <= NEW_ADDR[31:12];
+	    BLCK_START <= NEW_ADDR[11:0];
 
-	    BLCK_SECTION <= new_section;
+	    BLCK_SECTION <= NEW_SECTION;
 	  end
 
 	if (state[1])
@@ -65,14 +68,14 @@ module hyper_lsab_dram(input CLK,
 	    if (end_addr[12])
 	      BLCK_COUNT_REQ <= rest_of_the_way;
 	    else
-	      BLCK_COUNT_REQ <= `block_length;
+	      BLCK_COUNT_REQ <= BLOCK_LENGTH;
 	  end
 
 	if (state[2] && blck_working_prev && !BLCK_WORKING)
 	  begin
 	    MCU_REQUEST_ALIGN <= 0; // maybe?
 
-	    old_addr <= {MCU_PAGE_ADDR,BLCK_START} + BLCK_COUNT_SENT;
+	    OLD_ADDR <= {MCU_PAGE_ADDR,BLCK_START} + BLCK_COUNT_SENT;
 	  end
 
 	if (MCU_REQUEST_ALIGN && MCU_GRANT_ALIGN && //FIXME propagation time
