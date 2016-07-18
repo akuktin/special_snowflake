@@ -39,8 +39,10 @@ module hyper_scheduler(input CLK,
   assign posedge_EXEC_READY = EXEC_READY && (!EXEC_READY_prev);
   assign counters_mismatch = trans_req != trans_ack;
   assign refresh_ctr_mismatch = refresh_req != refresh_ack;
+  // 11 signals
   assign enter_stage_1 = EXEC_READY && counters_mismatch && (!GO) &&
 			 (!posedge_EXEC_READY) && (!refresh_ctr_mismatch);
+  // 9 signals
   assign exec_refresh = EXEC_READY && refresh_ctr_mismatch && (!GO) &&
 			(!posedge_EXEC_READY);
 
@@ -117,7 +119,8 @@ module hyper_scheduler(input CLK,
 	    EXEC_BLOCK_LENGTH <= 6'h3f; // WRONG! should be max of
                                         // `block_length and len_remaining.
 
-	    trans_ack <= trans_ack +1;
+	    trans_ack <= trans_ack +1; // if aborting the opportunity, this
+                                       // is one of the places to do it
 	  end
 
 	if ((enter_stage_1) ||
@@ -140,6 +143,7 @@ module hyper_lsab_dram(input CLK,
 		       output reg [31:0] OLD_ADDR,
 		       output 		 READY,
 		       output reg 	 ENDOF_PAGE,
+		       output reg [5:0]  COUNT_SENT,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
 		       output reg [5:0]  BLCK_COUNT_REQ,
@@ -173,7 +177,7 @@ module hyper_lsab_dram(input CLK,
       begin
 	OLD_ADDR <= 0; MCU_PAGE_ADDR <= 0; BLCK_START <= 0;
 	MCU_REQUEST_ALIGN <= 0; blck_working_prev <= 0; issue_op <= 0;
-	BLCK_COUNT_REQ <= 0; ENDOF_PAGE <= 0;
+	BLCK_COUNT_REQ <= 0; ENDOF_PAGE <= 0; COUNT_SENT <= 0;
 	state <= 4'b1000;
       end
     else
@@ -212,6 +216,7 @@ module hyper_lsab_dram(input CLK,
 	    OLD_ADDR <= {MCU_PAGE_ADDR,BLCK_START} + BLCK_COUNT_SENT;
 	    ENDOF_PAGE <= end_addr[12] && (BLCK_COUNT_REQ ==
 					   BLCK_COUNT_SENT);
+	    COUNT_SENT <= BLCK_COUNT_SENT;
 	  end
 
 //	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
