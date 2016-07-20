@@ -19,7 +19,7 @@ module hyper_mvblck_frdram(input CLK,
 			   output reg 	     WORKING,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
-			   output reg 	     MCU_REQUEST_ACCESS);
+			   output 	     MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n;
   reg [3:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
@@ -27,6 +27,16 @@ module hyper_mvblck_frdram(input CLK,
   wire 					     release_trigger, we_trigger,
 					     read_more, uneven_len;
   wire [5:0] 				     compute_len, assign_len;
+
+  /* This signal used to be a normal, proper register whose logic was
+   * easy to follow. But then I started using multiple movers against a
+   * single MCU and thus needed to OR all their requests for access. To
+   * maintian the speed requirements, I now need to assert and deassert
+   * request signals one cycle earlier then I normally would.
+   * For the easy-to-read variant, look back in the git repository. */
+  assign MCU_REQUEST_ACCESS = am_working ?
+			      read_more : // because of abrupt_stop_n
+			      ISSUE;
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;
@@ -54,9 +64,8 @@ module hyper_mvblck_frdram(input CLK,
     if (!RST)
       begin
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
-	WORKING <= 0; am_working <= 0; MCU_REQUEST_ACCESS <= 0;
-	len_left <= 6'h1; MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0;
-	COUNT_SENT <= 0;
+	WORKING <= 0; am_working <= 0; len_left <= 6'h1;
+	MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0;
       end
     else
       begin
@@ -74,11 +83,7 @@ module hyper_mvblck_frdram(input CLK,
 		  we_counter <= 3'h1;
 		else
 		  we_counter <= 3'h2;
-
-		MCU_REQUEST_ACCESS <= 1;
 	      end // if (ISSUE)
-	    else
-	      MCU_REQUEST_ACCESS <= 0; // because of abrupt_stop_n
 	  end
 	else
 	  begin
@@ -97,8 +102,6 @@ module hyper_mvblck_frdram(input CLK,
 		                               //          of pollution.
 		    else
 		      release_counter <= 3'h2;
-
-		    MCU_REQUEST_ACCESS <= 0;
 		  end
 		else
 		  begin

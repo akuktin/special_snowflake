@@ -22,7 +22,6 @@ module hyper_mvblck_todram(input CLK,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg 	     MCU_REQUEST_ACCESS);
   reg 					     empty_prev_n, empty_n,
-					     pre_request_access,
 					     am_working;
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
@@ -48,7 +47,7 @@ module hyper_mvblck_todram(input CLK,
 	am_working <= 0;
 	LSAB_READ <= 0; LSAB_SECTION <= 0; COUNT_LEFT <= 0; WORKING <= 0;
 	MCU_COLL_ADDRESS <= 0; MCU_WE_ARRAY <= 0; MCU_REQUEST_ACCESS <= 0;
-	emputy_prev_n <= 0; pre_request_access <= 0; len_left <= 0;
+	emputy_prev_n <= 0; len_left <= 0;
 	track_addr <= 0;
       end
     else
@@ -58,8 +57,9 @@ module hyper_mvblck_todram(input CLK,
 	  LSAB_SECTION <= SECTION;
 	  len_left <= COUNT_REQ;
 	  track_addr <= START_ADDRESS;
-	  empty_prev_n <= 0; pre_request_access <= 0;
+	  empty_prev_n <= 0;
 	  am_working <= ISSUE;
+	  MCU_REQUEST_ACCESS <= 0;
 
 	  /* FIXME: fails if the LSAB is empty at the start of exection */
 	end
@@ -85,17 +85,14 @@ module hyper_mvblck_todram(input CLK,
 	  begin
 	    MCU_WE_ARRAY <= {empty_prev_n,empty_prev_n,empty_n,empty_n};
 	    MCU_COLL_ADDRESS <= {track_addr[11:1],1'b0};
-	    pre_request_access <= 1;
+	    MCU_REQUEST_ACCESS <= 1;
 	  end
 	else
 	  begin
-	    pre_request_access <= 0;
+	    MCU_REQUEST_ACCESS <= 0;
 	  end
 
 	end
-
-	// Slow it down one cycle to allow the data to clear the switch.
-	MCU_REQUEST_ACCESS <= pre_request_access;
 	// Slow it down one cycle to prevent the driver circuit from
 	// interferring with issuing commands to the MCU.
 	WORKING <= am_working;
