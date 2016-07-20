@@ -1,3 +1,52 @@
+module hyper_scheduler_mem(input CLK,
+			   input RST);
+  reg [47:0] 			 mem[7:0];
+
+  // Actually, this is supposed to be a rotating access device. Like those
+  // old memory blocks for Steelhorse.
+
+  assign read_dma_w = READ_DMA;
+  assign read_cpu_w = (READ_CPU || READ_CPU_save) && ! READ_DMA;
+
+  assign out = mem[read_addr];
+  assign in = WRITE_DMA ? IN_DMA : IN_CPU;
+  assign write_addr = WRITE_DMA ? ADDR_DMA : ADDR_CPU;
+  assign we = WRITE_DMA || WRITE_CPU;
+
+  always @(posedge CLK)
+    if (!RST)
+      begin
+      end
+    else
+      begin
+	if (read_dma_r)
+	  OUT_DMA <= out;
+	if (read_cpu_r)
+	  begin
+	    OUT_CPU <= out;
+	    ACK_CPU <= 1;
+	    READ_CPU_save <= 0;
+	  end
+	else
+	  begin
+	    ACK_CPU <= 0;
+	    READ_CPU_save <= READ_CPU;
+	  end
+
+	read_dma_r <= read_dma_w;
+	read_cpu_r <= read_cpu_w;
+
+	if (read_dma_w)
+	  read_addr <= R_ADDR_DMA;
+	else
+	  read_addr <= R_ADDR_CPU;
+
+	if (we)
+	  mem[write_addr] <= in;
+      end
+
+endmodule // hyper_scheduler_mem
+
 module hyper_scheduler(input CLK,
 		       input RST);
   reg [1:0] 		     trans_req, trans_ack,
