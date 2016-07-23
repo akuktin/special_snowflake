@@ -122,6 +122,12 @@ module hyper_scheduler(input CLK,
   assign new_addr = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
 		    EXEC_OLD_ADDR : mem_new_addr;
 
+  assign BL1 = ((remaining_len[31:6] ^ 0) == 0) ?
+	       remaining_len[5:0] : 6'h3f;
+  assign BL2 = EXEC_BLOCK_LENGTH - EXEC_COUNT_SENT;
+  assign new_block_length = (posedge_EXEC_READY && !EXEC_ENDOF_PAGE) ?
+			    BL2 : BL1;
+
   always @(posedge CLK)
     if (!RST)
       begin
@@ -163,7 +169,6 @@ module hyper_scheduler(input CLK,
 		mem_trans[this_trans] <= EXEC_OLD_ADDRESS; // probably not
                                                            // good enough
 		EXEC_BLOCK_LENGTH <= new_block_len;
-		/* FIXME: also calculate remaining stuff for transfer. */
 	      end
 	  end // if (posedge_EXEC_READY)
 
@@ -189,8 +194,7 @@ module hyper_scheduler(input CLK,
 	  begin
 	    EXEC_NEW_ADDR <= new_addr;
 	    EXEC_NEW_SECTION <= new_section;
-	    EXEC_BLOCK_LENGTH <= 6'h3f; // WRONG! should be max of
-                                        // `block_length and len_remaining.
+	    EXEC_BLOCK_LENGTH <= new_block_length;
 
 	    trans_ack <= trans_ack +1; // if aborting the opportunity, this
                                        // is one of the places to do it
