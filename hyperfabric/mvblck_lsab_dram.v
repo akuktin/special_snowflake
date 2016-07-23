@@ -157,20 +157,12 @@ module hyper_scheduler(input CLK,
 	if (trg_gb_1)
 	  trans_req <= trans_req +1;
 
-	if (posedge_EXEC_READY)
+	if (posedge_EXEC_READY && !EXEC_ENDOF_PAGE)
 	  begin
-	    if (EXEC_ENDOF_PAGE)
-	      begin
-		EXEC_NEW_ADDR <= new_addr;
-		EXEC_BLOCK_LENGTH <= new_block_len;
-	      end
-	    else
-	      begin
-		trans_ack <= trans_ack +1;
-		mem_trans[this_trans] <= EXEC_OLD_ADDRESS; // probably not
-                                                           // good enough
-	      end
-	  end // if (posedge_EXEC_READY)
+	    trans_ack <= trans_ack +1;
+	    mem_trans[this_trans] <= EXEC_OLD_ADDRESS; // probably not
+                                                       // good enough
+	  end
 
 	if (GO)
 	  begin
@@ -179,10 +171,7 @@ module hyper_scheduler(input CLK,
 	  end
 	else
 	  if (posedge_EXEC_READY && (!EXEC_ENDOF_PAGE))
-	    begin
-	      RST_mvblck <= 0;
-	      $unconfigure_switch();
-	    end
+	    RST_mvblck <= 0;
 
 	if (exec_refresh)
 	  begin
@@ -192,9 +181,7 @@ module hyper_scheduler(input CLK,
 
 	if (enter_stage_1)
 	  begin
-	    EXEC_NEW_ADDR <= new_addr;
 	    EXEC_NEW_SECTION <= new_section;
-	    EXEC_BLOCK_LENGTH <= new_block_length;
 
 	    trans_ack <= trans_ack +1; // if aborting the opportunity, this
                                        // is one of the places to do it
@@ -202,7 +189,11 @@ module hyper_scheduler(input CLK,
 
 	if ((enter_stage_1) ||
 	    (posedge_EXEC_READY && EXEC_ENDOF_PAGE))
-	  GO <= 1;
+	  begin
+	    GO <= 1;
+	    EXEC_BLOCK_LENGTH <= new_block_length;
+	    EXEC_NEW_ADDR <= new_addr;
+	  end
 	else
 	  if (! EXEC_READY)
 	    GO <= 0;
