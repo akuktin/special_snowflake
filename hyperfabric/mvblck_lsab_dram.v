@@ -1,19 +1,19 @@
 module hyper_scheduler_mem(input CLK,
 			   input 	     RST,
 			   // ---------------------
-			   input 	     READ_DMA,
-			   input 	     WRITE_DMA,
-			   input [2:0] 	     ADDR_DMA,
-			   input [31:0]      IN_DMA,
-			   output reg [31:0] OUT_DMA,
-			   // ---------------------
 			   input 	     READ_CPU,
 			   input 	     WRITE_CPU,
 			   output 	     READ_CPU_ACK,
 			   output reg 	     WRITE_CPU_ACK
 			   input [2:0] 	     ADDR_CPU,
 			   input [31:0]      IN_CPU,
-			   output reg [31:0] OUT_CPU);
+			   output reg [31:0] OUT_CPU,
+			   // ---------------------
+			   input 	     READ_DMA,
+			   input 	     WRITE_DMA,
+			   input [2:0] 	     ADDR_DMA,
+			   input [31:0]      IN_DMA,
+			   output reg [31:0] OUT_DMA);
   reg [31:0] 				     mem[7:0]; // not wide enough
   reg 					     read_cpu_r, read_dma_r;
   reg [2:0] 				     read_addr;
@@ -125,7 +125,7 @@ module hyper_scheduler(input CLK,
   assign BL1 = ((remaining_len[31:6] ^ 0) == 0) ?
 	       remaining_len[5:0] : 6'h3f;
   assign BL2 = EXEC_BLOCK_LENGTH - EXEC_COUNT_SENT;
-  assign new_block_length = (posedge_EXEC_READY && !EXEC_ENDOF_PAGE) ?
+  assign new_block_length = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
 			    BL2 : BL1;
 
   always @(posedge CLK)
@@ -162,13 +162,13 @@ module hyper_scheduler(input CLK,
 	    if (EXEC_ENDOF_PAGE)
 	      begin
 		EXEC_NEW_ADDR <= new_addr;
+		EXEC_BLOCK_LENGTH <= new_block_len;
 	      end
 	    else
 	      begin
 		trans_ack <= trans_ack +1;
 		mem_trans[this_trans] <= EXEC_OLD_ADDRESS; // probably not
                                                            // good enough
-		EXEC_BLOCK_LENGTH <= new_block_len;
 	      end
 	  end // if (posedge_EXEC_READY)
 
