@@ -11,7 +11,8 @@ module hyper_scheduler_mem(input CLK,
 			   // ---------------------
 			   input 	     READ_DMA,
 			   input 	     WRITE_DMA,
-			   input [2:0] 	     ADDR_DMA,
+			   input [2:0] 	     R_ADDR_DMA,
+			   input [2:0] 	     W_ADDR_DMA,
 			   input [31:0]      IN_DMA,
 			   output reg [31:0] OUT_DMA);
   reg [31:0] 				     mem[7:0]; // not wide enough
@@ -29,7 +30,7 @@ module hyper_scheduler_mem(input CLK,
   assign read_cpu_w = READ_CPU && !(READ_DMA || READ_CPU_ACK);
 
   assign in = WRITE_DMA ? IN_DMA : IN_CPU;
-  assign write_addr = WRITE_DMA ? ADDR_DMA : ADDR_CPU;
+  assign write_addr = WRITE_DMA ? W_ADDR_DMA : ADDR_CPU;
   assign we = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
 
   initial
@@ -55,7 +56,7 @@ module hyper_scheduler_mem(input CLK,
 	read_cpu_r <= read_cpu_w;
 
 	if (read_dma_w)
-	  read_addr <= ADDR_DMA;
+	  read_addr <= R_ADDR_DMA;
 	else
 	  if (read_cpu_w)
 	    read_addr <= ADDR_CPU;
@@ -78,19 +79,27 @@ module hyper_scheduler(input CLK,
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
+  // properly buffer the address used to perform the read - for the write
+  // double buffer the read signal to get trg_post_post
+
+  // Should fit in two gates. Otherwise, register the wires and use those.
+  assign READ_MEM = trg_gb_0 || trg_gb_1 || (trg_mb && time_mb);
+
   assign small_carousel_reset = small_carousel == 8'hbf;
 
   // Up to a maximum of 2 simultaneous 1 Gbps transactions.
+  // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
+
   assign trg_gb_0 = small_carousel == 8'h00;
   assign trg_gb_1 = small_carousel == 8'h60;
+  assign trg_mb   = small_carousel == 8'h02;
 
-  // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
-  assign time_mb_0 = big_carousel == 4'h0;
-  assign time_mb_1 = big_carousel == 4'h2;
-  assign time_mb_2 = big_carousel == 4'h4;
-  assign time_mb_3 = big_carousel == 4'h6;
-  assign time_mb_4 = big_carousel == 4'h8;
-  assign time_mb_5 = big_carousel == 4'ha;
+  assign time_mb = (big_carousel == 4'h4) ||
+		   (big_carousel == 4'h6) ||
+		   (big_carousel == 4'h8) ||
+		   (big_carousel == 4'ha) ||
+		   (big_carousel == 4'hc) ||
+		   (big_carousel == 4'he);
 
   assign time_rfrs = (big_carousel == 4'h1) ||
 		     (big_carousel == 4'h3) ||
@@ -101,13 +110,12 @@ module hyper_scheduler(input CLK,
 		     (big_carousel == 4'hd) ||
 		     (big_carousel == 4'hf);
 
-  assign trg_mb_0 = do_gb_0 && done_gb_0 && time_mb_0;
-  assign trg_mb_1 = do_gb_0 && done_gb_0 && time_mb_1;
-  assign trg_mb_2 = do_gb_0 && done_gb_0 && time_mb_2;
-  assign trg_mb_3 = do_gb_0 && done_gb_0 && time_mb_3;
-  assign trg_mb_4 = do_gb_0 && done_gb_0 && time_mb_4;
-  assign trg_mb_5 = do_gb_0 && done_gb_0 && time_mb_5;
+  assign transaction_active = MEM_R_DATA[66]; // dummy address
+  assign remaining_len = MEM_R_DATA[63:32]; // dummy address
+  assign new_section = MEM_R_DATA[65:64]; // dummy address
 
+  // should fit in two gates
+  assign MEM_R_ADDR = trg_gb_0 ? 0 : (trg_gb_1 ? 1 : big_carousel[3:1]);
 
   assign posedge_EXEC_READY = EXEC_READY && (!EXEC_READY_prev);
   assign counters_mismatch = trans_req != trans_ack;
@@ -120,7 +128,7 @@ module hyper_scheduler(input CLK,
 			(!posedge_EXEC_READY);
 
   assign new_addr = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
-		    EXEC_OLD_ADDR : mem_new_addr;
+		    EXEC_OLD_ADDR : MEM_R_DATA[31:0]; // dummy_address
 
   assign BL1 = ((remaining_len[31:6] ^ 0) == 0) ?
 	       remaining_len[5:0] : 6'h3f;
@@ -147,14 +155,12 @@ module hyper_scheduler(input CLK,
 	  small_carousel <= small_carousel +1;
 	EXEC_READY_prev <= EXEC_READY;
 
-	if (trg_gb_0)
-	  begin
-	    trans_req <= trans_req +1;
+        if (trg_gb_0 && time_rfrs)
+          refresh_req <= refresh_req +1;
 
-	    if (time_rfrs)
-	      refresh_req <= refresh_req +1;
-	  end
-	if (trg_gb_1)
+	trg_post <= READ_MEM;
+	trg_post_post <= trg_post;
+	if (trg_post_post && transaction_active)
 	  trans_req <= trans_req +1;
 
 	if (posedge_EXEC_READY && !EXEC_ENDOF_PAGE)
@@ -182,9 +188,7 @@ module hyper_scheduler(input CLK,
 	if (enter_stage_1)
 	  begin
 	    EXEC_NEW_SECTION <= new_section;
-
-	    trans_ack <= trans_ack +1; // if aborting the opportunity, this
-                                       // is one of the places to do it
+	    trans_ack <= trans_ack +1;
 	  end
 
 	if ((enter_stage_1) ||
