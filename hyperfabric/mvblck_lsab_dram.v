@@ -79,8 +79,7 @@ module hyper_scheduler(input CLK,
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
-  // properly buffer the address used to perform the read - for the write
-  // double buffer the read signal to get trg_post_post
+  assign MEM_W_DATA = {cont_trans_r,EXEC_OLD_ADDRESS};
 
   // Should fit in two gates. Otherwise, register the wires and use those.
   assign READ_MEM = trg_gb_0 || trg_gb_1 || (trg_mb && time_mb);
@@ -94,21 +93,17 @@ module hyper_scheduler(input CLK,
   assign trg_gb_1 = small_carousel == 8'h60;
   assign trg_mb   = small_carousel == 8'h02;
 
-  assign time_mb = (big_carousel == 4'h4) ||
-		   (big_carousel == 4'h6) ||
-		   (big_carousel == 4'h8) ||
-		   (big_carousel == 4'ha) ||
-		   (big_carousel == 4'hc) ||
-		   (big_carousel == 4'he);
+  assign time_mb = (big_carousel == 4'h4) || (big_carousel == 4'h6) ||
+		   (big_carousel == 4'h8) || (big_carousel == 4'ha) ||
+		   (big_carousel == 4'hc) || (big_carousel == 4'he);
 
-  assign time_rfrs = (big_carousel == 4'h1) ||
-		     (big_carousel == 4'h3) ||
-		     (big_carousel == 4'h5) ||
-		     (big_carousel == 4'h7) ||
-		     (big_carousel == 4'h9) ||
-		     (big_carousel == 4'hb) ||
-		     (big_carousel == 4'hd) ||
-		     (big_carousel == 4'hf);
+  /* There are one or two instances in the code where having mb and rfrs
+   * on the same big_carousel cycle is simply not supported. At least on
+   * the gb_0 side of the cycle. */
+  assign time_rfrs = (big_carousel == 4'h1) || (big_carousel == 4'h3) ||
+		     (big_carousel == 4'h5) || (big_carousel == 4'h7) ||
+		     (big_carousel == 4'h9) || (big_carousel == 4'hb) ||
+		     (big_carousel == 4'hd) || (big_carousel == 4'hf);
 
   assign transaction_active = MEM_R_DATA[66]; // dummy address
   assign remaining_len = MEM_R_DATA[63:32]; // dummy address
@@ -128,10 +123,11 @@ module hyper_scheduler(input CLK,
 			(!posedge_EXEC_READY);
 
   assign new_addr = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
-		    EXEC_OLD_ADDR : MEM_R_DATA[31:0]; // dummy_address
+		    EXEC_OLD_ADDR : addr_from_mem;
 
-  assign BL1 = ((remaining_len[31:6] ^ 0) == 0) ?
-	       remaining_len[5:0] : 6'h3f;
+  assign last_block_w = (remaining_len[31:6] ^ 0) == 0;
+
+  assign BL1 = last_block_w ? remaining_len[5:0] : 6'h3f;
   assign BL2 = EXEC_BLOCK_LENGTH - EXEC_COUNT_SENT;
   assign new_block_length = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
 			    BL2 : BL1;
@@ -155,23 +151,40 @@ module hyper_scheduler(input CLK,
 	  small_carousel <= small_carousel +1;
 	EXEC_READY_prev <= EXEC_READY;
 
+	addr_from_mem <= MEM_R_DATA[31:0]; // dummy_address
+
+	if (READ_MEM)
+	  save0_MEM_R_ADDR <= MEM_R_ADDR;
+
         if (trg_gb_0 && time_rfrs)
           refresh_req <= refresh_req +1;
 
 	trg_post <= READ_MEM;
 	trg_post_post <= trg_post;
-	if (trg_post_post && transaction_active)
-	  trans_req <= trans_req +1;
+	if (trg_post_post && transaction_active &&
+	    // A suggestion. Note that for writing to a periphery,
+	    // you want periph_can_take_it[save0_MEM_R_ADDR].
+	    periph_has_something[save0_MEM_R_ADDR])
+	  begin
+	    trans_req <= trans_req +1;
+	    save1_MEM_R_ADDR <= save0_MEM_R_ADDR;
+	  end
 
 	if (posedge_EXEC_READY && !EXEC_ENDOF_PAGE)
 	  begin
 	    trans_ack <= trans_ack +1;
-	    mem_trans[this_trans] <= EXEC_OLD_ADDRESS; // probably not
-                                                       // good enough
+	    MEM_W_ADDR <= save2_MEM_R_ADDR;
+	    WRITE_MEM <= 1;
+	    cont_trans_r <= !(last_block_r && (EXEC_BLOCK_LENGTH ==
+					       EXEC_COUNT_SENT));
+	    // Maybe also raise an interrupt if cont_trans_r?
 	  end
+	else
+	  WRITE_MEM <= 0;
 
 	if (GO)
 	  begin
+	    EXEC_NEW_ADDR <= new_addr;
 	    RST_mvblck <= 1;
 	    $configure_switch();
 	  end
@@ -189,6 +202,8 @@ module hyper_scheduler(input CLK,
 	  begin
 	    EXEC_NEW_SECTION <= new_section;
 	    trans_ack <= trans_ack +1;
+	    save2_MEM_R_ADDR <= save1_MEM_R_ADDR;
+	    last_block_r <= last_block_w;
 	  end
 
 	if ((enter_stage_1) ||
@@ -196,7 +211,6 @@ module hyper_scheduler(input CLK,
 	  begin
 	    GO <= 1;
 	    EXEC_BLOCK_LENGTH <= new_block_length;
-	    EXEC_NEW_ADDR <= new_addr;
 	  end
 	else
 	  if (! EXEC_READY)
@@ -212,7 +226,7 @@ module hyper_lsab_dram(input CLK,
 		       input [5:0] 	 BLOCK_LENGTH,
 		       input [31:0] 	 NEW_ADDR,
 		       input [1:0] 	 NEW_SECTION,
-		       output reg [31:0] OLD_ADDR,
+		       output [31:0] 	 OLD_ADDR,
 		       output 		 READY,
 		       output reg 	 ENDOF_PAGE,
 		       output reg [5:0]  COUNT_SENT,
@@ -227,6 +241,11 @@ module hyper_lsab_dram(input CLK,
 		       output reg [19:0] MCU_PAGE_ADDR,
 		       output reg 	 MCU_REQUEST_ALIGN,
 		       input 		 MCU_GRANT_ALIGN);
+  reg [23:0] 				 OLD_ADDR_high;
+  reg [7:0] 				 OLD_ADDR_low;
+  reg 					 carry_old_addr_calc,
+					 add_old_addr_high;
+
   reg 					   blck_working_prev;
   reg [1:0] 				   issue_op;
   reg [3:0] 				   state;
@@ -234,6 +253,8 @@ module hyper_lsab_dram(input CLK,
   wire 					   do_go;
   wire [5:0] 				   rest_of_the_way;
   wire [12:0] 				   end_addr;
+
+  assign OLD_ADDR = {OLD_ADDR_high,OLD_ADDR_low};
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
@@ -247,9 +268,10 @@ module hyper_lsab_dram(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	OLD_ADDR <= 0; MCU_PAGE_ADDR <= 0; BLCK_START <= 0;
-	MCU_REQUEST_ALIGN <= 0; blck_working_prev <= 0; issue_op <= 0;
-	BLCK_COUNT_REQ <= 0; ENDOF_PAGE <= 0; COUNT_SENT <= 0;
+	OLD_ADDR_high <= 0; OLD_ADDR_low <= 0; carry_old_addr_calc <= 0;
+	MCU_PAGE_ADDR <= 0; BLCK_START <= 0; MCU_REQUEST_ALIGN <= 0;
+	blck_working_prev <= 0; issue_op <= 0; BLCK_COUNT_REQ <= 0;
+	ENDOF_PAGE <= 0; COUNT_SENT <= 0; add_old_addr_high <= 0;
 	state <= 4'b1000;
       end
     else
@@ -262,7 +284,7 @@ module hyper_lsab_dram(input CLK,
 
 	if (state[0])
 	  begin
-	    MCU_REQUEST_ALIGN <= 1; // Change this for supporting multple
+	    MCU_REQUEST_ALIGN <= 1; // Change this for supporting multiple
                                     // DRAMs.
 
 	    MCU_PAGE_ADDR <= NEW_ADDR[31:12];
@@ -283,13 +305,19 @@ module hyper_lsab_dram(input CLK,
 	  begin
 	    MCU_REQUEST_ALIGN <= 0; // maybe?
 
-	    // Split calculating OLD_ADDR accoding to the following formula:
-	    // 8 lower bits in the first cycle, 24 higher in the second.
-	    OLD_ADDR <= {MCU_PAGE_ADDR,BLCK_START} + BLCK_COUNT_SENT;
+	    {carry_old_addr_calc,OLD_ADDR_low} <= BLCK_START[7:0] +
+						  {2'b00,BLCK_COUNT_SENT};
 	    ENDOF_PAGE <= end_addr[12] && (BLCK_COUNT_REQ ==
 					   BLCK_COUNT_SENT);
 	    COUNT_SENT <= BLCK_COUNT_SENT;
+	    add_old_addr_high <= 1;
 	  end
+	else
+	  add_old_addr_high <= 0;
+
+	if (add_old_addr_high)
+	  OLD_ADDR_high <= {MCU_PAGE_ADDR,BLCK_START[11:8]} +
+			   {23'd0,carry_old_addr_calc};
 
 //	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
 //	     (MCU_REQUEST_ALIGN[1] && MCU_GRANT_ALIGN[1])) && // also FIXME
