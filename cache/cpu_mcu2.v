@@ -23,6 +23,12 @@ module snowball_cache(input CPU_CLK,
 		      input 		mem_ack,
 		      input [31:0] 	mem_datafrommem,
 //--------------------------------------------------
+		      output reg 	dma_wrte,
+		      output reg 	dma_read,
+		      input 		dma_wrte_ack,
+		      input 		dma_read_ack,
+		      input [31:0] 	dma_data_read,
+//--------------------------------------------------
 		      input 		VMEM_ACT,
 		      input 		cache_inhibit,
 		      input 		fake_miss,
@@ -318,7 +324,7 @@ module snowball_cache(input CPU_CLK,
 	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
 	w_tlb_recv <= 0; wctag_data_forread_recv <= 0;
 	mandatory_lookup_sig <= 0; mandatory_lookup_pre_sig <= 0;
-	data_mcu_trans_other <= 0;
+	data_mcu_trans_other <= 0; dma_wrte <= 0; dma_read <= 0;
       end
     else
       begin

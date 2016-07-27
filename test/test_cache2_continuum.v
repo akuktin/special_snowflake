@@ -461,12 +461,19 @@ module GlaDOS;
 			      .DQS(DQS),
 			      .DM(DM),
 			      .CS(CS),
-			      .user_req_address(user_req_address),
-			      .user_req_we(user_req_we),
-			      .user_req_we_array(user_req_we_array),
-			      .user_req(user_req),
+			      .rand_req_address(user_req_address),
+			      .rand_req_we(user_req_we),
+			      .rand_req_we_array(user_req_we_array),
+			      .rand_req(user_req),
+			      .rand_req_ack(user_req_ack),
+			      .bulk_req_address(0),
+			      .bulk_req_we(0),
+			      .bulk_req_we_array(0),
+			      .bulk_req(0),
+			      .bulk_req_ack (),
+			      .bulk_req_algn(0),
+			      .bulk_req_algn_ack(),
 			      .user_req_datain(user_req_datain),
-			      .user_req_ack(user_req_ack),
 			      .user_req_dataout(user_req_dataout));
 
   snowball_cache
@@ -489,6 +496,12 @@ module GlaDOS;
 		     .mem_dataintomem(user_req_datain),
 		     .mem_ack(user_req_ack),
 		     .mem_datafrommem(user_req_dataout),
+//--------------------------------------------------
+		     .dma_wrte(),
+		     .dma_read(),
+		     .dma_wrte_ack(1'b0),
+		     .dma_read_ack(1'b0),
+		     .dma_data_read(0),
 //--------------------------------------------------
 		     .VMEM_ACT(cache_vmem),
 		     .cache_inhibit(cache_inhibit),

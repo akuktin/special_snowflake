@@ -164,7 +164,7 @@ module hyper_scheduler(input CLK,
 	if (trg_post_post && transaction_active &&
 	    // A suggestion. Note that for writing to a periphery,
 	    // you want periph_can_take_it[save0_MEM_R_ADDR].
-	    periph_has_something[save0_MEM_R_ADDR])
+	    periph_has_something[save0_MEM_R_ADDR]) // WIP
 	  begin
 	    trans_req <= trans_req +1;
 	    save1_MEM_R_ADDR <= save0_MEM_R_ADDR;
