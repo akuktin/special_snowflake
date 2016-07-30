@@ -353,6 +353,7 @@ module snowball_cache(input CPU_CLK,
 	    mem_do_act_pre <= (w_addr_recv[31:30] == 2'b00);
 	    dma_wrte <= (w_addr_recv[31:30] == 2'b11) && ( w_we_recv);
 	    dma_read <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
+	    datain_mux_dma <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
 
 	    mem_dataintomem <= w_data_recv;
 	    mem_addr <= w_addr_recv;
