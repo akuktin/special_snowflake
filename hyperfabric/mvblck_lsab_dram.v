@@ -13,13 +13,17 @@ module hyper_scheduler_mem(input CLK,
 			   input 	     WRITE_DMA,
 			   input [2:0] 	     R_ADDR_DMA,
 			   input [2:0] 	     W_ADDR_DMA,
-			   input [63:0]      IN_DMA, // to-be-done
+			   input [25:0]      IN_DMA,
 			   output reg [63:0] OUT_DMA);
+  // This module implemets an attempt at a statically masked read.
+  // The attempt may not be the best possible.
+
   reg [63:0] 				     mem[7:0];
   reg 					     read_cpu_r, read_dma_r;
   reg [2:0] 				     read_addr;
 
-  wire 					     read_cpu_w, read_dma_w, we;
+  wire 					     read_cpu_w, read_dma_w,
+					     we_dual, we_simp;
   wire [2:0] 				     write_addr;
   wire [63:0] 				     out, in;
 
@@ -29,9 +33,10 @@ module hyper_scheduler_mem(input CLK,
   assign read_dma_w = READ_DMA;
   assign read_cpu_w = READ_CPU && !(READ_DMA || READ_CPU_ACK);
 
-  assign in = WRITE_DMA ? IN_DMA : IN_CPU;
+  assign in = WRITE_DMA ? {6'd0,IN_DMA,32'd0} : IN_CPU;
   assign write_addr = WRITE_DMA ? W_ADDR_DMA : ADDR_CPU;
-  assign we = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
+  assign we_dual = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
+  assign we_simp = (WRITE_CPU && !(WRITE_DMA || WRITE_CPU_ACK));
 
   initial
     begin
@@ -61,8 +66,13 @@ module hyper_scheduler_mem(input CLK,
 	  if (read_cpu_w)
 	    read_addr <= ADDR_CPU;
 
-	if (we)
-	  mem[write_addr] <= in;
+	if (we_dual)
+	  mem[write_addr][57:32] <= in[57:32];
+	if (we_simp)
+	  begin
+	    mem[write_addr][63:58] <= in[63:58];
+	    mem[write_addr][31:0]  <= in[31:0];
+	  end
 
 	if (WRITE_CPU && !(WRITE_DMA || WRITE_CPU_ACK))
 	  WRITE_CPU_ACK <= 1;
