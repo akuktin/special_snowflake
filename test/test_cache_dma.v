@@ -529,7 +529,7 @@ module GlaDOS;
 	    dma_r_addr <= 3;
 	    dma_w_addr <= 5;
 //	    dma_wrte_data <= 32'hfda0_5a5a;
-	    dma_wrte_data <= 64'hffff_ffff_ffff_ffff;
+	    dma_wrte_data <= 64'hdfff_ffff_ffff_ffff;
 
 	    dma_dma_wrte_drv <= 1;
 	    dma_dma_read_drv <= 1;
