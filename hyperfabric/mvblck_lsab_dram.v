@@ -4,24 +4,24 @@ module hyper_scheduler_mem(input CLK,
 			   input 	     READ_CPU,
 			   input 	     WRITE_CPU,
 			   output 	     READ_CPU_ACK,
-			   output reg 	     WRITE_CPU_ACK
+			   output reg 	     WRITE_CPU_ACK,
 			   input [2:0] 	     ADDR_CPU,
-			   input [31:0]      IN_CPU,
+			   input [63:0]      IN_CPU,
 			   output reg [31:0] OUT_CPU,
 			   // ---------------------
 			   input 	     READ_DMA,
 			   input 	     WRITE_DMA,
 			   input [2:0] 	     R_ADDR_DMA,
 			   input [2:0] 	     W_ADDR_DMA,
-			   input [31:0]      IN_DMA,
-			   output reg [31:0] OUT_DMA);
-  reg [31:0] 				     mem[7:0]; // not wide enough
+			   input [63:0]      IN_DMA, // to-be-done
+			   output reg [63:0] OUT_DMA);
+  reg [63:0] 				     mem[7:0];
   reg 					     read_cpu_r, read_dma_r;
   reg [2:0] 				     read_addr;
 
   wire 					     read_cpu_w, read_dma_w, we;
   wire [2:0] 				     write_addr;
-  wire [31:0] 				     out, in;
+  wire [63:0] 				     out, in;
 
   assign READ_CPU_ACK = read_cpu_r;
 
@@ -50,7 +50,7 @@ module hyper_scheduler_mem(input CLK,
 	if (read_dma_r)
 	  OUT_DMA <= out;
 	if (read_cpu_r)
-	  OUT_CPU <= out;
+	  OUT_CPU <= out[31:0]; // to-be-done
 
 	read_dma_r <= read_dma_w;
 	read_cpu_r <= read_cpu_w;
