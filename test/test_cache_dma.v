@@ -61,13 +61,13 @@ module testsuite(input CLK, // CPU_CLK
       i = i +1; // 0x03
       test_addr[i]      <= 32'hc020_0020;test_datao[i]    <= 32'h5a5a_5402;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
-			                  (`delay + 32'hf000_0018);
+			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd11;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       test_timein[i]    <= 32'd0;
       i = i +1; // 0x04
-/*      test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5454_6903;
+      test_addr[i]      <= 32'hc020_0032;test_datao[i]    <= 32'h5454_6903;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
@@ -76,12 +76,12 @@ module testsuite(input CLK, // CPU_CLK
       i = i +1; // 0x05
       test_addr[i]      <= 32'h0020_0040;test_datao[i]    <= 32'h5a5a_5404;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
-			                  (`delay + 32'h0000_0018);
+			                  (`delay + 32'hc000_0018);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
       test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       test_timein[i]    <= 32'd0;
-      i = i +1; // 0x06
+/*      i = i +1; // 0x06
       test_addr[i]      <= 32'h0020_0050;test_datao[i]    <= 32'h5454_6905;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
@@ -311,7 +311,7 @@ endmodule // iceram16
 module GlaDOS;
   reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, CPU_CLK;
   reg [31:0] counter, minicounter, readcount, readcount2, readcount_r;
-  reg display_intrfc, display_internals;
+  reg display_intrfc, display_internals, display_fast_internals;
 
   reg [31:0] data_read, transtest;
 
@@ -339,6 +339,11 @@ module GlaDOS;
   wire 	      dma_cpu_wrte_w, dma_cpu_read_w,
 	      dma_cpu_wrte_ack_w, dma_cpu_read_ack_w;
   wire [31:0] dma_data_cpu;
+  reg 	      dma_dma_read, dma_dma_wrte,
+	      dma_dma_read_drv, dma_dma_wrte_drv;
+  reg [2:0]   dma_r_addr, dma_w_addr;
+  reg [63:0]  dma_wrte_data;
+  wire [63:0] dma_read_data;
 
   wire [31:0] test_cache_addr, test_cache_datao;
   wire 	      test_cache_we, test_cache_en, test_cache_we_tlb,
@@ -435,12 +440,12 @@ module GlaDOS;
 				      user_req_address[29:3],
 				      3'h0}),
 			     .OUT_CPU(dma_data_cpu),
-			     .READ_DMA(1'b0),
-			     .WRITE_DMA(1'b0),
-			     .R_ADDR_DMA(0),
-			     .W_ADDR_DMA(0),
-			     .IN_DMA(0),
-			     .OUT_DMA());
+			     .READ_DMA(dma_dma_read),
+			     .WRITE_DMA(dma_dma_wrte),
+			     .R_ADDR_DMA(dma_r_addr),
+			     .W_ADDR_DMA(dma_w_addr),
+			     .IN_DMA(dma_wrte_data),
+			     .OUT_DMA(dma_read_data));
 
   initial
     forever
@@ -461,7 +466,7 @@ module GlaDOS;
   reg [11:0] u;
   initial
     begin
-      display_internals <= 0;
+      display_internals <= 0; display_fast_internals <= 0;
       RST <= 0;
       #14.875 RST <= 1;
       #400000;
@@ -491,8 +496,9 @@ module GlaDOS;
 	cache_addr <= 0; cache_datao <= 0;
 	cache_we <= 0; tlb_we <= 0;
 	cache_en <= 0; cache_en_follow <= 0;
-
         cache_vmem <= 0; cache_inhibit <= 0; counter <= 0;
+	dma_dma_read_drv <= 0; dma_dma_wrte_drv <= 0;
+	dma_r_addr <= 0; dma_w_addr <= 5; dma_wrte_data <= 32'hfda0_5a5a;
       end
     else
       begin
@@ -516,11 +522,29 @@ module GlaDOS;
 	    $finish;
 	  end
 
-//	display_internals <= 1;
-	if (display_internals &&
-	    (counter >= 32'd48_226) &&
-	    (counter <  32'd48_240))
+	// FIXME: automate this test.
+	if ((counter >= 32'd48_254) &&
+	    (counter <  32'd48_255))
 	  begin
+	    dma_r_addr <= 3;
+	    dma_w_addr <= 5;
+	    dma_wrte_data <= 32'hfda0_5a5a;
+
+	    dma_dma_wrte_drv <= 0;//1;
+	    dma_dma_read_drv <= 1;
+	  end
+	else
+	  begin
+	    dma_dma_wrte_drv <= 0;
+	    dma_dma_read_drv <= 0;
+	  end
+
+	display_internals <= 1;
+	if (display_internals &&
+	    (counter >= 32'd48_252) &&
+	    (counter <  32'd48_262))
+	  begin
+	    display_fast_internals <= 1;
 	    $display("c%d --------------------------------------", counter);
 	    $display("adr %x do %x di %x we %x b %x en %x fm %x",
 		     cache_under_test.cache_precycle_addr,
@@ -530,21 +554,32 @@ module GlaDOS;
 		     cache_under_test.cache_busy,
 		     cache_under_test.cache_precycle_enable,
 		     cache_under_test.fake_miss);
-	    $display("dmcpudt %x dm{cpw,cpr,cpwa,cpra} %x",
-		     dma_data_cpu,
-		     {dma_cpu_wrte_w,dma_cpu_read_w,
-		      dma_cpu_wrte_ack_w,dma_cpu_read_ack_w});
-	  end
+	  end // if (display_internals &&...
+	else
+	  display_fast_internals <= 0;
       end // else: !if(!_RST)
 
   always @(posedge CLK_n)
     if (!RST)
       begin
-        minicounter <= 0;
+        minicounter <= 0; dma_dma_wrte <= 0; dma_dma_read <= 0;
       end
     else
       begin
 	minicounter <= minicounter +1;
+
+	dma_dma_wrte <= dma_dma_wrte_drv;
+	dma_dma_read <= dma_dma_read_drv;
+
+	if (display_fast_internals)
+	  begin
+	    $display("dmcpudo %x dm{dw,dr}{cw,cr,cwa,cra} %x%x dmdmado %x",
+		     dma_data_cpu,
+		     {dma_dma_read,dma_dma_wrte},
+		     {dma_cpu_wrte_w,dma_cpu_read_w,
+		      dma_cpu_wrte_ack_w,dma_cpu_read_ack_w},
+		     dma_read_data);
+	  end
       end
 
   testsuite test_unit(.CLK(CPU_CLK),
