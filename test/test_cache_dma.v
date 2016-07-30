@@ -54,7 +54,7 @@ module testsuite(input CLK, // CPU_CLK
       i = i +1; // 0x02
       test_addr[i]      <= 32'hc020_0013;test_datao[i]    <= 32'h5454_6901;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
-      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'hc000_0060;
+      test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5400_ff06;
       test_timeout[i]   <= 32'd7;        test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       test_timein[i]    <= 32'd0;

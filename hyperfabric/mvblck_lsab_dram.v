@@ -50,7 +50,7 @@ module hyper_scheduler_mem(input CLK,
 	if (read_dma_r)
 	  OUT_DMA <= out;
 	if (read_cpu_r)
-	  OUT_CPU <= out[31:0]; // to-be-done
+	  OUT_CPU <= out[63:32];
 
 	read_dma_r <= read_dma_w;
 	read_cpu_r <= read_cpu_w;
