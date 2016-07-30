@@ -5,30 +5,21 @@ module lsab_cr(input CLK,
               input [1:0] 	READ_FIFO,
               input [1:0] 	WRITE_FIFO,
               input [31:0] 	IN_0,
-	      input 		INT_0,
               input [31:0] 	IN_1,
-	      input 		INT_1,
               input [31:0] 	IN_2,
-	      input 		INT_2,
               input [31:0] 	IN_3,
-	      input 		INT_3,
               output reg [31:0] OUT,
-	      output reg 	INT,
 	      output reg 	EMPTY_0,
 	      output reg 	EMPTY_1,
 	      output reg 	EMPTY_2,
 	      output reg 	EMPTY_3);
-  reg 		    int_mem[255:0];
-
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
                     write_addr_2, write_addr_3;
-  reg [5:0] 	    write_addr_r;
   reg [5:0]         read_addr_0, read_addr_1,
                     read_addr_2, read_addr_3;
-  reg [5:0] 	    read_addr_r;
-  reg               re_prev, we_prev, int_r;
+  reg               re_prev;
 
   wire                      read_0, read_1, read_2, read_3;
   wire                      write_0, write_1, write_2, write_3;
@@ -44,7 +35,7 @@ module lsab_cr(input CLK,
 
   reg [31:0]        in_mem, out_mem;
   reg [7:0]         write_addr, read_addr;
-  reg               we, re, int_w;
+  reg               we, re;
 
   assign read_0 = READ && (READ_FIFO == 2'h0);
   assign read_1 = READ && (READ_FIFO == 2'h1);
@@ -139,25 +130,21 @@ module lsab_cr(input CLK,
        in_mem <= IN_0;
        write_addr <= {2'b00,write_addr_0};
        we <= do_write_0;
-	int_w <= INT_0;
       end
       2'b01: begin
        in_mem <= IN_1;
        write_addr <= {2'b01,write_addr_1};
        we <= do_write_1;
-	int_w <= INT_1;
       end
       2'b10: begin
        in_mem <= IN_2;
        write_addr <= {2'b10,write_addr_2};
        we <= do_write_2;
-	int_w <= INT_2;
       end
       2'b11: begin
        in_mem <= IN_3;
        write_addr <= {2'b11,write_addr_3};
        we <= do_write_3;
-	int_w <= INT_3;
       end
     endcase // case (WRITE_FIFO)
 
@@ -195,13 +182,6 @@ module lsab_cr(input CLK,
                      .WCLKE(1'b1),
                      .WCLK(CLK));
 
-  initial
-    begin
-      integer i;
-      for (i=0;i<256;i=i+1)
-	int_mem[i] <= 0;
-    end
-
   always @(posedge CLK)
     if (!RST)
       begin
@@ -212,8 +192,7 @@ module lsab_cr(input CLK,
        write_addr_2 <= 0; write_addr_3 <= 0;
        read_addr_0 <= 0; read_addr_1 <= 0;
        read_addr_2 <= 0; read_addr_3 <= 0;
-       re_prev <= 0; OUT <= 0; INT <= 0; read_addr_r <= 0;
-	we_prev <= 0; write_addr_r <= 0; int_r <= 0;
+       re_prev <= 0; OUT <= 0;
       end
     else
       begin
@@ -248,18 +227,8 @@ module lsab_cr(input CLK,
          read_addr_3 <= read_addr_3 + 1;
 
        re_prev <= re;
-       read_addr_r <= read_addr;
        if (re_prev)
-	 begin
-           OUT <= out_mem;
-	   INT <= int_mem[read_addr_r];
-	 end
-
-	we_prev <= we;
-	write_addr_r <= write_addr;
-	int_r <= int_w;
-	if (we_prev)
-	  int_mem[write_addr_r] <= int_r;
+         OUT <= out_mem;
       end
 
 endmodule // lsab_cr
