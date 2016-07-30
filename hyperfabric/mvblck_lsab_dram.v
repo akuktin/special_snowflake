@@ -15,7 +15,7 @@ module hyper_scheduler_mem(input CLK,
 			   input [2:0] 	     W_ADDR_DMA,
 			   input [25:0]      IN_DMA,
 			   output reg [63:0] OUT_DMA);
-  // This module implemets an attempt at a statically masked read.
+  // This module implemets an attempt at a statically masked write.
   // The attempt may not be the best possible.
 
   reg [63:0] 				     mem[7:0];
