@@ -4,12 +4,12 @@
 
 // Memory module
 `include "commands.v"
-`include "state.v"
+`include "state2.v"
 `include "initializer.v"
-`include "integration.v"
+`include "integration2.v"
 
 // Cache
-`include "cpu_mcu.v"
+`include "cpu_mcu2.v"
 
 module GlaDOS;
   reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, CPU_CLK;
