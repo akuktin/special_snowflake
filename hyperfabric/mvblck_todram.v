@@ -2,10 +2,10 @@
 module hyper_mvblck_todram(input CLK,
 			   input 	     RST,
 			   /* begin LSAB */
-			   input 	     LSAB_0_EMPTY,
-			   input 	     LSAB_1_EMPTY,
-			   input 	     LSAB_2_EMPTY,
-			   input 	     LSAB_3_EMPTY,
+			   input 	     LSAB_0_STOP,
+			   input 	     LSAB_1_STOP,
+			   input 	     LSAB_2_STOP,
+			   input 	     LSAB_3_STOP,
 			   // -----------------------
 			   output reg 	     LSAB_READ,
 			   output reg [1:0]  LSAB_SECTION
@@ -21,7 +21,7 @@ module hyper_mvblck_todram(input CLK,
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg 	     MCU_REQUEST_ACCESS);
-  reg 					     empty_prev_n, empty_n,
+  reg 					     stop_prev_n, stop_n,
 					     am_working;
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
@@ -31,14 +31,14 @@ module hyper_mvblck_todram(input CLK,
   assign trigger = track_addr[0];
   assign read_more = len_left != 0;
 
-  always @(LSAB_0_EMPTY or LSAB_1_EMPTY or
-	   LSAB_2_EMPTY or LSAB_3_EMPTY or LSAB_SECTION)
+  always @(LSAB_0_STOP or LSAB_1_STOP or
+	   LSAB_2_STOP or LSAB_3_STOP or LSAB_SECTION)
     case (LSAB_SECTION)
-      2'b00: empty_n <= ~LSAB_0_EMPTY;
-      2'b01: empty_n <= ~LSAB_1_EMPTY;
-      2'b10: empty_n <= ~LSAB_2_EMPTY;
-      2'b11: empty_n <= ~LSAB_3_EMPTY;
-      default: empty_n <= 1'bx;
+      2'b00: stop_n <= ~LSAB_0_STOP;
+      2'b01: stop_n <= ~LSAB_1_STOP;
+      2'b10: stop_n <= ~LSAB_2_STOP;
+      2'b11: stop_n <= ~LSAB_3_STOP;
+      default: stop_n <= 1'bx;
     endcase
 
   always @(posedge CLK)
@@ -57,7 +57,7 @@ module hyper_mvblck_todram(input CLK,
 	  LSAB_SECTION <= SECTION;
 	  len_left <= COUNT_REQ;
 	  track_addr <= START_ADDRESS;
-	  empty_prev_n <= 0;
+	  stop_prev_n <= 0;
 	  am_working <= ISSUE;
 	  MCU_REQUEST_ACCESS <= 0;
 
@@ -65,7 +65,7 @@ module hyper_mvblck_todram(input CLK,
 	end
       else
 	begin
-	if (empty_n && read_more)
+	if (stop_n && read_more)
 	  begin
 	    track_addr <= track_addr +1;
 	    len_left <= len_left -1;
@@ -79,11 +79,11 @@ module hyper_mvblck_todram(input CLK,
 
 	    COUNT_SENT <= COUNT_REQ - len_left;
 	  end
-	empty_prev_n <= empty_n;
+	stop_prev_n <= stop_n;
 
 	if (trigger)
 	  begin
-	    MCU_WE_ARRAY <= {empty_prev_n,empty_prev_n,empty_n,empty_n};
+	    MCU_WE_ARRAY <= {stop_prev_n,stop_prev_n,stop_n,stop_n};
 	    MCU_COLL_ADDRESS <= {track_addr[11:1],1'b0};
 	    MCU_REQUEST_ACCESS <= 1;
 	  end
