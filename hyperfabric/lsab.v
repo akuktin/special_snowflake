@@ -8,11 +8,23 @@ module lsab_cr(input CLK,
               input [31:0] 	IN_1,
               input [31:0] 	IN_2,
               input [31:0] 	IN_3,
+	      input 		INT_IN_0,
+	      input 		INT_IN_1,
+	      input 		INT_IN_2,
+	      input 		INT_IN_3,
+	      input 		CAREOF_INT_0,
+	      input 		CAREOF_INT_1,
+	      input 		CAREOF_INT_2,
+	      input 		CAREOF_INT_3,
               output reg [31:0] OUT,
 	      output reg 	EMPTY_0,
 	      output reg 	EMPTY_1,
 	      output reg 	EMPTY_2,
-	      output reg 	EMPTY_3);
+	      output reg 	EMPTY_3,
+	      output reg 	STOP_0,
+	      output reg 	STOP_1,
+	      output reg 	STOP_2,
+	      output reg 	STOP_3);
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
@@ -33,6 +45,19 @@ module lsab_cr(input CLK,
   reg [5:0]         become_len_0, become_len_1,
                     become_len_2, become_len_3;
 
+  reg [1:0] 	    intbuff_raddr_0, intbuff_raddr_trail_0, intbuff_waddr_0,
+		    intbuff_raddr_1, intbuff_raddr_trail_1, intbuff_waddr_1,
+		    intbuff_raddr_2, intbuff_raddr_trail_2, intbuff_waddr_2,
+		    intbuff_raddr_3, intbuff_raddr_trail_3, intbuff_waddr_3;
+  wire 		    intbuff_int_det_0, intbuff_int_0,
+		    intbuff_empty_0, intbuff_full_0,
+		    intbuff_int_det_1, intbuff_int_1,
+		    intbuff_empty_1, intbuff_full_1,
+		    intbuff_int_det_2, intbuff_int_2,
+		    intbuff_empty_2, intbuff_full_2,
+		    intbuff_int_det_3, intbuff_int_3,
+		    intbuff_empty_3, intbuff_full_3;
+
   reg [31:0]        in_mem, out_mem;
   reg [7:0]         write_addr, read_addr;
   reg               we, re;
@@ -52,10 +77,10 @@ module lsab_cr(input CLK,
   assign do_write_2 = full_2 ? 0 : write_2;
   assign do_write_3 = full_3 ? 0 : write_3;
 
-  assign do_read_0 = EMPTY_0 ? 0 : read_0;
-  assign do_read_1 = EMPTY_1 ? 0 : read_1;
-  assign do_read_2 = EMPTY_2 ? 0 : read_2;
-  assign do_read_3 = EMPTY_3 ? 0 : read_3;
+  assign do_read_0 = STOP_0 ? 0 : read_0;
+  assign do_read_1 = STOP_1 ? 0 : read_1;
+  assign do_read_2 = STOP_2 ? 0 : read_2;
+  assign do_read_3 = STOP_3 ? 0 : read_3;
 
   always @(len_0 or do_read_0 or do_write_0 or full_0 or EMPTY_0)
     case ({len_0,do_read_0,do_write_0})
@@ -182,6 +207,59 @@ module lsab_cr(input CLK,
                      .WCLKE(1'b1),
                      .WCLK(CLK));
 
+  // With the carry chain and performing the ENTIRE XOR in a single gate,
+  // both of below two fit in two gates.
+  assign intbuff_int_det_0 = ((intbuff_0[intbuff_raddr_0] ^
+			       read_addr_0) == 0) &&
+			     do_read_0 &&
+			     !intbuff_empty_0;
+  assign intbuff_int_0 = intbuff_int_det_0 && CAREOF_INT_0;
+  assign intbuff_empty_0 = intbuff_raddr_0 == intbuff_waddr_0;
+  assign intbuff_full_0 = intbuff_raddr_trail_0 == intbuff_waddr_0;
+
+  // With the carry chain and performing the ENTIRE XOR in a single gate,
+  // both of below two fit in two gates.
+  assign intbuff_int_det_1 = ((intbuff_1[intbuff_raddr_1] ^
+			       read_addr_1) == 0) &&
+			     do_read_1 &&
+			     !intbuff_empty_1;
+  assign intbuff_int_1 = intbuff_int_det_1 && CAREOF_INT_1;
+  assign intbuff_empty_1 = intbuff_raddr_1 == intbuff_waddr_1;
+  assign intbuff_full_1 = intbuff_raddr_trail_1 == intbuff_waddr_1;
+
+  // With the carry chain and performing the ENTIRE XOR in a single gate,
+  // both of below two fit in two gates.
+  assign intbuff_int_det_2 = ((intbuff_2[intbuff_raddr_2] ^
+			       read_addr_2) == 0) &&
+			     do_read_2 &&
+			     !intbuff_empty_2;
+  assign intbuff_int_2 = intbuff_int_det_2 && CAREOF_INT_2;
+  assign intbuff_empty_2 = intbuff_raddr_2 == intbuff_waddr_2;
+  assign intbuff_full_2 = intbuff_raddr_trail_2 == intbuff_waddr_2;
+
+  // With the carry chain and performing the ENTIRE XOR in a single gate,
+  // both of below two fit in two gates.
+  assign intbuff_int_det_3 = ((intbuff_3[intbuff_raddr_3] ^
+			       read_addr_3) == 0) &&
+			     do_read_3 &&
+			     !intbuff_empty_3;
+  assign intbuff_int_3 = intbuff_int_det_3 && CAREOF_INT_3;
+  assign intbuff_empty_3 = intbuff_raddr_3 == intbuff_waddr_3;
+  assign intbuff_full_3 = intbuff_raddr_trail_3 == intbuff_waddr_3;
+
+  // To help the simulation. Not actually needed for silicon.
+  initial
+    begin
+      integer i;
+      for (i=0;i<4;i=i+1)
+	begin
+	  intbuff_0[i] <= 0;
+	  intbuff_1[i] <= 0;
+	  intbuff_2[i] <= 0;
+	  intbuff_3[i] <= 0;
+	end
+    end
+
   always @(posedge CLK)
     if (!RST)
       begin
@@ -193,15 +271,28 @@ module lsab_cr(input CLK,
        read_addr_0 <= 0; read_addr_1 <= 0;
        read_addr_2 <= 0; read_addr_3 <= 0;
        re_prev <= 0; OUT <= 0;
+	STOP_0 <= 1; STOP_1 <= 1; STOP_2 <= 1; STOP_3 <= 1;
+	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
+	intbuff_waddr_0 <= 1;
+	intbuff_raddr_1 <= 1; intbuff_raddr_trail_1 <= 0;
+	intbuff_waddr_1 <= 1;
+	intbuff_raddr_2 <= 1; intbuff_raddr_trail_2 <= 0;
+	intbuff_waddr_2 <= 1;
+	intbuff_raddr_3 <= 1; intbuff_raddr_trail_3 <= 0;
+	intbuff_waddr_3 <= 1;
       end
     else
       begin
+	STOP_0 <= become_empty_0 || intbuff_int_0; // three gates deep
        EMPTY_0 <= become_empty_0;
        full_0 <= become_full_0;
+	STOP_1 <= become_empty_1 || intbuff_int_1; // three gates deep
        EMPTY_1 <= become_empty_1;
        full_1 <= become_full_1;
+	STOP_2 <= become_empty_2 || intbuff_int_2; // three gates deep
        EMPTY_2 <= become_empty_2;
        full_2 <= become_full_2;
+	STOP_3 <= become_empty_3 || intbuff_int_3; // three gates deep
        EMPTY_3 <= become_empty_3;
        full_3 <= become_full_3;
        len_0 <= become_len_0;
@@ -229,6 +320,50 @@ module lsab_cr(input CLK,
        re_prev <= re;
        if (re_prev)
          OUT <= out_mem;
+
+	if (intbuff_int_det_0)
+	  begin
+	    intbuff_raddr_0 <= intbuff_raddr_0 +1;
+	    intbuff_raddr_trail_0 <= intbuff_raddr_trail_0 +1;
+	  end
+	if (INT_IN_0 && do_write_0 && (!intbuff_full_0))
+	  begin
+	    intbuff_0[intbuff_waddr_0] <= write_addr_0;
+	    intbuff_waddr_0 <= intbuff_waddr_0 +1;
+	  end
+
+	if (intbuff_int_det_1)
+	  begin
+	    intbuff_raddr_1 <= intbuff_raddr_1 +1;
+	    intbuff_raddr_trail_1 <= intbuff_raddr_trail_1 +1;
+	  end
+	if (INT_IN_1 && do_write_1 && (!intbuff_full_1))
+	  begin
+	    intbuff_1[intbuff_waddr_1] <= write_addr_1;
+	    intbuff_waddr_1 <= intbuff_waddr_1 +1;
+	  end
+
+	if (intbuff_int_det_2)
+	  begin
+	    intbuff_raddr_2 <= intbuff_raddr_2 +1;
+	    intbuff_raddr_trail_2 <= intbuff_raddr_trail_2 +1;
+	  end
+	if (INT_IN_2 && do_write_2 && (!intbuff_full_2))
+	  begin
+	    intbuff_2[intbuff_waddr_2] <= write_addr_2;
+	    intbuff_waddr_2 <= intbuff_waddr_2 +1;
+	  end
+
+	if (intbuff_int_det_3)
+	  begin
+	    intbuff_raddr_3 <= intbuff_raddr_3 +1;
+	    intbuff_raddr_trail_3 <= intbuff_raddr_trail_3 +1;
+	  end
+	if (INT_IN_3 && do_write_3 && (!intbuff_full_3))
+	  begin
+	    intbuff_3[intbuff_waddr_3] <= write_addr_3;
+	    intbuff_waddr_3 <= intbuff_waddr_3 +1;
+	  end
       end
 
 endmodule // lsab_cr
