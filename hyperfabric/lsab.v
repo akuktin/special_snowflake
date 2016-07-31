@@ -57,8 +57,11 @@ module lsab_cr(input CLK,
 		    intbuff_empty_2, intbuff_full_2,
 		    intbuff_int_det_3, intbuff_int_3,
 		    intbuff_empty_3, intbuff_full_3;
+  reg [5:0] 	    intbuff_0[3:0], intbuff_1[3:0], intbuff_2[3:0],
+		    intbuff_3[3:0];
 
-  reg [31:0]        in_mem, out_mem;
+  wire [31:0] 	    out_mem;
+  reg [31:0] 	    in_mem;
   reg [7:0]         write_addr, read_addr;
   reg               we, re;
 
@@ -250,14 +253,14 @@ module lsab_cr(input CLK,
   // To help the simulation. Not actually needed for silicon.
   initial
     begin
-      integer i;
-      for (i=0;i<4;i=i+1)
-	begin
-	  intbuff_0[i] <= 0;
-	  intbuff_1[i] <= 0;
-	  intbuff_2[i] <= 0;
-	  intbuff_3[i] <= 0;
-	end
+      intbuff_0[0] <= 0; intbuff_0[1] <= 0;
+      intbuff_0[2] <= 0; intbuff_0[3] <= 0;
+      intbuff_1[0] <= 0; intbuff_1[1] <= 0;
+      intbuff_1[2] <= 0; intbuff_1[3] <= 0;
+      intbuff_2[0] <= 0; intbuff_2[1] <= 0;
+      intbuff_2[2] <= 0; intbuff_2[3] <= 0;
+      intbuff_3[0] <= 0; intbuff_3[1] <= 0;
+      intbuff_3[2] <= 0; intbuff_3[3] <= 0;
     end
 
   always @(posedge CLK)
@@ -407,7 +410,7 @@ module lsab_cw(input CLK,
   reg [5:0]         become_len_0, become_len_1,
                     become_len_2, become_len_3;
 
-  reg [31:0]        out_mem;
+  wire [31:0] 	    out_mem;
   reg [7:0]         write_addr, read_addr;
   reg               we, re;
 
