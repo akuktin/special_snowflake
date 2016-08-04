@@ -32,20 +32,36 @@ module test_drv(input CLK,
 		output 		  CAREOF_INT_0,
 		output 		  CAREOF_INT_1,
 		output 		  CAREOF_INT_2,
-		output 		  CAREOF_INT_3);
-  reg [31:0] 	      test_data[2047:0];
-  reg [3:0] 	      test_care[2047:0];
-  reg [1:0] 	      test_rfifo[2047:0];
-  reg 		      test_we[2047:0],
-		      test_re[2047:0],
-		      test_int[2047:0];
+		output 		  CAREOF_INT_3,
+		// -----------------------
+		input [3:0] 	  RES_EMPTY,
+		input [3:0] 	  RES_STOP,
+		input [31:0] 	  RES_DATA);
+  reg [31:0] 	      test_data[4095:0],
+		      reg_data[4095:0];
+  reg [3:0] 	      test_care[4095:0],
+		      reg_empty[4095:0],
+		      reg_stop[4095:0];
+  reg [2:0] 	      reg_careof[4095:0];
+  reg [1:0] 	      test_rfifo[4095:0];
+  reg 		      test_we[4095:0],
+		      test_re[4095:0],
+		      test_int[4095:0],
+		      r_read;
 
   reg [1:0] 	      fast_i;
-  reg [8:0] 	      slow_i;
-  reg [10:0] 	      c;
+  reg [9:0] 	      slow_i;
+  reg [11:0] 	      c, out_c;
 
-//  reg [31:0] 	      DATA0, DATA1, DATA2, DATA3;
   wire [31:0] 	      wDATA0, wDATA1, wDATA2, wDATA3;
+  wire [31:0] 	      w_data;
+  wire [3:0] 	      w_stop, w_empty;
+  wire [2:0] 	      w_careof;
+
+  assign w_careof = reg_careof[out_c];
+  assign w_empty = reg_empty[out_c];
+  assign w_stop = reg_stop[out_c];
+  assign w_data = reg_data[out_c];
 
   assign wDATA0 = test_data[{slow_i,2'h0}];
   assign wDATA1 = test_data[{slow_i,2'h1}];
@@ -71,7 +87,7 @@ module test_drv(input CLK,
 
   initial
     begin
-      for (l=0; l<512; l=l+1)
+      for (l=0; l<1024; l=l+1)
 	begin
 	  for (o=0; o<4; o=o+1)
 	    begin
@@ -80,11 +96,16 @@ module test_drv(input CLK,
 	      test_int[{l[8:0],o[1:0]}] <= 0;
 	    end
 	end
-      for (v=0; v<2048; v=v+1)
+      for (v=0; v<4096; v=v+1)
 	begin
 	  test_re[v] <= 0;
 	  test_rfifo[v] <= 0;
 	  test_care[v] <= 0;
+
+	  reg_data[v] <= 0;
+	  reg_empty[v] <= 0;
+	  reg_stop[v] <= 0;
+	  reg_careof[v] <= 0;
 	end
 
       // your test data here
@@ -93,7 +114,7 @@ module test_drv(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	fast_i <= 0; slow_i <= 0; c <= 0;
+	fast_i <= 0; slow_i <= 0; c <= 0; r_read <= 0; out_c <= 0;
       end
     else
       begin
@@ -106,6 +127,28 @@ module test_drv(input CLK,
 	  slow_i <= slow_i +1;
 
 	c <= c +1;
+
+	r_read <= READ;
+	if (r_read)
+	  out_c <= out_c +1;
+
+	begin
+	  if (r_read)
+	    begin
+	      if (w_careof[2])
+		if (RES_EMPTY != w_empty)
+		  $display("XXX empty want %x got %x @ %x",
+			   w_empty, RES_EMPTY, c);
+	      if (w_careof[1])
+		if (RES_STOP != w_stop)
+		  $display("XXX stop want %x got %x @ %x",
+			   w_empty, RES_EMPTY, c);
+	      if (w_careof[0])
+		if (RES_DATA != w_data)
+		  $display("XXX data want %x got %x @ %x",
+			   w_empty, RES_EMPTY, c);
+	    end
+	end
       end
 
 endmodule // test_in
@@ -142,10 +185,6 @@ module GlaDOS;
   wire 	      w_e0, w_e1, w_e2, w_e3,
 	      w_s0, w_s1, w_s2, w_s3;
 
-  reg [10:0]  out_c;
-  reg [31:0]  out_res[2047:0];
-  reg [3:0]   out_e[2047:0], out_s[2047:0];
-
   test_drv test_driver(.CLK(CLK_n),
 		       .RST(RST),
 		       .DATA0(w_data0),
@@ -163,7 +202,10 @@ module GlaDOS;
 		       .CAREOF_INT_0(w_care_0),
 		       .CAREOF_INT_1(w_care_1),
 		       .CAREOF_INT_2(w_care_2),
-		       .CAREOF_INT_3(w_care_3));
+		       .CAREOF_INT_3(w_care_3),
+		       .RES_EMPTY({w_e0,w_e1,w_e2,w_e3}),
+		       .RES_STOP({w_s0,w_s1,w_s2,w_s3}),
+		       .RES_DATA(w_out));
 
   lsab_cr lsab_cr_mut(.CLK(CLK_n),
 		      .RST(RST),
@@ -196,20 +238,10 @@ module GlaDOS;
   always @(posedge CLK_n)
     if (!RST)
       begin
-	r_read <= 0; out_c <= 0;
       end
     else
       begin
 	counter <= counter +1;
-
-	r_read <= w_read;
-	if (r_read)
-	  begin
-	    out_c <= out_c +1;
-	    out_res[out_c] <= w_out;
-	    out_e[out_c] <= {w_e0,w_e1,w_e2,w_e3};
-	    out_s[out_c] <= {w_s0,w_s1,w_s2,w_s3};
-	  end
       end // else: !if(!RST)
 
   initial
@@ -217,7 +249,7 @@ module GlaDOS;
       counter <= 0;
       RST <= 0;
       #14.34 RST <= 1;
-      #12288 $finish;
+      #18432 $finish;
     end
 
 endmodule // GlaDOS
