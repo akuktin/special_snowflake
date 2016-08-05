@@ -47,21 +47,22 @@ module test_drv(input CLK,
   reg 		      test_we[4095:0],
 		      test_re[4095:0],
 		      test_int[4095:0],
-		      r_read;
+		      r_read_0, r_read_1;
 
   reg [1:0] 	      fast_i;
+  reg [2:0]	      r_careof;
   reg [9:0] 	      slow_i;
-  reg [11:0] 	      c, out_c;
+  reg [11:0] 	      c, out_c_0, out_c_1;
 
   wire [31:0] 	      wDATA0, wDATA1, wDATA2, wDATA3;
   wire [31:0] 	      w_data;
   wire [3:0] 	      w_stop, w_empty;
   wire [2:0] 	      w_careof;
 
-  assign w_careof = reg_careof[out_c];
-  assign w_empty = reg_empty[out_c];
-  assign w_stop = reg_stop[out_c];
-  assign w_data = reg_data[out_c];
+  assign w_careof = reg_careof[out_c_0];
+  assign w_empty = reg_empty[out_c_0];
+  assign w_stop = reg_stop[out_c_0];
+  assign w_data = reg_data[out_c_1];
 
   assign wDATA0 = test_data[{slow_i,2'h0}];
   assign wDATA1 = test_data[{slow_i,2'h1}];
@@ -83,7 +84,7 @@ module test_drv(input CLK,
   assign CAREOF_INT_2 = test_care[c][2];
   assign CAREOF_INT_3 = test_care[c][3];
 
-  reg [31:0] 	      l, o, v;
+  reg [31:0] 	      l, o, v, e;
 
   initial
     begin
@@ -91,9 +92,9 @@ module test_drv(input CLK,
 	begin
 	  for (o=0; o<4; o=o+1)
 	    begin
-	      test_data[{l[8:0],o[1:0]}] <= {2'h0,o[1:0],l[23:0]};
-	      test_we[{l[8:0],o[1:0]}] <= 0;
-	      test_int[{l[8:0],o[1:0]}] <= 0;
+	      test_data[{l[9:0],o[1:0]}] <= {2'h0,o[1:0],l[23:0]};
+	      test_we[{l[9:0],o[1:0]}] <= 0;
+	      test_int[{l[9:0],o[1:0]}] <= 0;
 	    end
 	end
       for (v=0; v<4096; v=v+1)
@@ -106,7 +107,7 @@ module test_drv(input CLK,
 	  reg_empty[v] <= 0;
 	  reg_stop[v] <= 0;
 	  reg_careof[v] <= 0;
-	end
+	end // for (v=0; v<4096; v=v+1)
 
       // your test data here
     end // initial begin
@@ -114,7 +115,9 @@ module test_drv(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	fast_i <= 0; slow_i <= 0; c <= 0; r_read <= 0; out_c <= 0;
+	fast_i <= 0; slow_i <= 0; c <= 0;
+	out_c_0 <= 0; out_c_1 <= 0; r_read_0 <= 0; r_read_1 <= 0;
+	r_careof <= 0;
       end
     else
       begin
@@ -128,25 +131,36 @@ module test_drv(input CLK,
 
 	c <= c +1;
 
-	r_read <= READ;
-	if (r_read)
-	  out_c <= out_c +1;
+	r_read_0 <= READ;
+	r_read_1 <= r_read_0;
+	if (r_read_0)
+	  out_c_0 <= out_c_0 +1;
+	if (r_read_1)
+	  out_c_1 <= out_c_1 +1;
+	r_careof <= w_careof;
 
 	begin
-	  if (r_read)
+	  if (r_read_0)
 	    begin
+//	      $display("out empty %x stop %x @ %d",
+//		       RES_EMPTY, RES_STOP, c);
 	      if (w_careof[2])
 		if (RES_EMPTY != w_empty)
-		  $display("XXX empty want %x got %x @ %x",
-			   w_empty, RES_EMPTY, c);
+		  $display("XXX empty #%d want %x got %x @ %d",
+			   out_c_0, w_empty, RES_EMPTY, c);
 	      if (w_careof[1])
 		if (RES_STOP != w_stop)
-		  $display("XXX stop want %x got %x @ %x",
-			   w_empty, RES_EMPTY, c);
-	      if (w_careof[0])
+		  $display("XXX stop #%d want %x got %x @ %d",
+			   out_c_0, w_stop, RES_STOP, c);
+	    end
+	  if (r_read_1)
+	    begin
+//	      $display("out data %x @ %d",
+//		       RES_DATA, c);
+	      if (r_careof[0])
 		if (RES_DATA != w_data)
-		  $display("XXX data want %x got %x @ %x",
-			   w_empty, RES_EMPTY, c);
+		  $display("XXX data #%d want %x got %x @ %d",
+			   out_c_1, w_data, RES_DATA, c);
 	    end
 	end
       end
@@ -242,6 +256,26 @@ module GlaDOS;
     else
       begin
 	counter <= counter +1;
+/*
+	if (counter < 32)
+	  begin
+	    $display("d0 %x d1 %x d2 %x d3 %x we %x wefifo %x @ %d/%d",
+		     w_data0, w_data1, w_data2, w_data3,
+		     w_write, w_write_fifo,
+		     counter, test_driver.slow_i);
+	  end
+ */
+/*
+	if (counter < 64)
+	  begin
+	    $display("we %x wfifo %x re %x rfifo %x ept %x stp %x @ %d/%d",
+		     w_write, w_write_fifo,
+		     w_read, w_read_fifo,
+		     {w_e0,w_e1,w_e2,w_e3},
+		     {w_s0,w_s1,w_s2,w_s3},
+		     counter, test_driver.slow_i);
+	  end
+ */
       end // else: !if(!RST)
 
   initial
@@ -249,7 +283,25 @@ module GlaDOS;
       counter <= 0;
       RST <= 0;
       #14.34 RST <= 1;
-      #18432 $finish;
+      #18432;
+
+/*
+      for (readcount=0; readcount<64; readcount=readcount+1)
+	begin
+	  $display("test_data[%d] %x",
+		   readcount[9:0],
+		   test_driver.test_we[{readcount[9:0],2'h0}]);
+	end
+ */
+/*
+      for (readcount=0; readcount<1024; readcount=readcount+1)
+	begin
+	  $display("test_data[%d] %x",
+		   readcount[9:0],
+		   test_driver.test_data[{readcount[9:0],2'h0}]);
+	end
+ */
+      $finish;
     end
 
 endmodule // GlaDOS
