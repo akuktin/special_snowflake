@@ -110,6 +110,94 @@ module test_drv(input CLK,
 	end // for (v=0; v<4096; v=v+1)
 
       // your test data here
+
+      // simple test for emptiness
+      test_re[2] <= 1'b1;
+      reg_careof[0] <= 3'h4;
+      reg_empty[0] <= 4'hf;
+
+      // test receiving a small datagram, with an ignored interrupt
+      for (e=4; e<12; e=e+1)
+	begin
+	  test_we[{e[9:0],2'h2}] <= 1;
+	  reg_careof[(e-3)] <= 3;
+	  reg_empty[(e-3)] <= 4'h9;
+	  reg_stop[(e-3)] <= 4'h9;
+	  reg_data[(e-3)] <= {2'h0,2'h2,e[23:0]};
+	end
+      test_int[{10'd7,2'h2}] <= 1'b1;
+
+      for (l=44; l<52; l=l+1)
+	begin
+	  test_re[l] <= 1;
+	  test_rfifo[l] <= 2'h2;
+	end
+      reg_empty[8] <= 4'hb;
+      reg_stop[8] <= 4'hb;
+
+      // test receiving a datagram, with three outstanding interrupts
+      for (o=13; o<22; o=o+1)
+	begin
+	  test_we[{o[9:0],2'h2}] <= 1;
+	  reg_careof[(o-4)] <= 4'hf;
+	  reg_empty[(o-4)] <= 4'h9;
+	  reg_stop[(o-4)] <= 4'h9;
+	  reg_data[(o-4)] <= {2'h0,2'h2,o[23:0]};
+
+	  reg_careof[(o-1)] <= 4'hf;
+	  reg_empty[(o-1)] <= 4'h9;
+	  reg_stop[(o-1)] <= 4'h9;
+	end
+      for (v=15; v<22; v=v+1)
+	reg_data[(v-3)] <= {2'h0,2'h2,v[23:0]};
+      for (e=16; e<22; e=e+1)
+	reg_data[(e-2)] <= {2'h0,2'h2,e[23:0]};
+      for (l=20; l<22; l=l+1)
+	reg_data[(l-1)] <= {2'h0,2'h2,l[23:0]};
+      reg_stop[11] <= 4'hb;
+      reg_stop[13] <= 4'hb;
+      reg_stop[18] <= 4'hb;
+      test_int[{10'd15,2'h2}] <= 1;
+      test_int[{10'd16,2'h2}] <= 1;
+      test_int[{10'd20,2'h2}] <= 1;
+
+      for (o=96; o<108; o=o+1)
+	begin
+	  test_re[o] <= 1;
+	  test_rfifo[o] <= 2'h2;
+	  test_care[o] <= 4'hf;
+	end
+      reg_empty[20] <= 4'hb;
+      reg_stop[20] <= 4'hb;
+
+      // test receiving an overflowing datagram, on another channel
+      for (e=2; e<318; e=e+1)
+	begin
+	  test_we[{e[9:0],2'h1}] <= 1;
+	end
+
+      for (l=1200; l<(1200+63+17); l=l+1)
+	begin
+	  test_re[l] <= 1;
+	  test_rfifo[l] <= 2'h1;
+	  test_care[l] <= 4'hf;
+	end
+      for (o=2; o<65; o=o+1)
+	begin
+	  reg_careof[(o+19)] <= 4'hf;
+	  reg_empty[(o+19)] <= 4'hb;
+	  reg_stop[(o+19)] <= 4'hb;
+	  reg_data[(o+19)] <= {2'h0,2'h1,o[23:0]};
+	end
+      for (v=300; v<318; v=v+1)
+	begin
+	  reg_careof[(v-216)] <= 4'hf;
+	  reg_empty[(v-216)] <= 4'hb;
+	  reg_stop[(v-216)] <= 4'hb;
+	  reg_data[(v-216)] <= {2'h0,2'h1,v[23:0]};
+	end
+      reg_empty[101] <= 4'hf;
+      reg_stop[101] <= 4'hf;
     end // initial begin
 
   always @(posedge CLK)
@@ -213,10 +301,10 @@ module GlaDOS;
 		       .INT3(w_int3),
 		       .READ(w_read),
 		       .READ_FIFO(w_read_fifo),
-		       .CAREOF_INT_0(w_care_0),
-		       .CAREOF_INT_1(w_care_1),
-		       .CAREOF_INT_2(w_care_2),
-		       .CAREOF_INT_3(w_care_3),
+		       .CAREOF_INT_0(w_care0),
+		       .CAREOF_INT_1(w_care1),
+		       .CAREOF_INT_2(w_care2),
+		       .CAREOF_INT_3(w_care3),
 		       .RES_EMPTY({w_e0,w_e1,w_e2,w_e3}),
 		       .RES_STOP({w_s0,w_s1,w_s2,w_s3}),
 		       .RES_DATA(w_out));
@@ -266,7 +354,18 @@ module GlaDOS;
 	  end
  */
 /*
-	if (counter < 64)
+	if (counter > 1190 && counter < 1500)
+	  begin
+	    $display("out %x re %x rfifo %x ept %x stp %x @ %d/%d",
+		     w_out,
+		     w_read, w_read_fifo,
+		     {w_e0,w_e1,w_e2,w_e3},
+		     {w_s0,w_s1,w_s2,w_s3},
+		     counter, test_driver.slow_i);
+	  end
+ */
+/*
+	if (counter < 128)
 	  begin
 	    $display("we %x wfifo %x re %x rfifo %x ept %x stp %x @ %d/%d",
 		     w_write, w_write_fifo,
@@ -274,6 +373,17 @@ module GlaDOS;
 		     {w_e0,w_e1,w_e2,w_e3},
 		     {w_s0,w_s1,w_s2,w_s3},
 		     counter, test_driver.slow_i);
+	  end
+ */
+/*
+	if (counter < 128)
+	  begin
+	    $display("intbdet2 %x intb2 %x care2 %x bcme2 %x @ %d",
+		     lsab_cr_mut.intbuff_int_det_2,
+		     lsab_cr_mut.intbuff_int_2,
+		     lsab_cr_mut.CAREOF_INT_2,
+		     lsab_cr_mut.become_empty_2,
+		     counter);
 	  end
  */
       end // else: !if(!RST)
@@ -299,6 +409,13 @@ module GlaDOS;
 	  $display("test_data[%d] %x",
 		   readcount[9:0],
 		   test_driver.test_data[{readcount[9:0],2'h0}]);
+	end
+ */
+/*
+      for (readcount=0; readcount<4; readcount=readcount+1)
+	begin
+	  $display("intb2[%d] %x",
+		   readcount[1:0], lsab_cr_mut.intbuff_2[readcount]);
 	end
  */
       $finish;
