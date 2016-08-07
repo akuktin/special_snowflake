@@ -57,10 +57,10 @@ module test_drv(input CLK,
   assign muxed_c_0 = out_c_0[r_rfifo_0];
   assign muxed_c_1 = out_c_1[r_rfifo_1];
 
-  assign w_careof_r = reg_careof_r[{r_rfifo_1,muxed_c_1}];
+  assign w_careof_r = reg_careof_r[{r_rfifo_1,muxed_c_1[9:0]}];
   assign w_careof_w = reg_careof_w[w_c];
   assign w_bfull = reg_bfull[w_c];
-  assign w_data = reg_data[{r_rfifo_1,muxed_c_1}];
+  assign w_data = reg_data[{r_rfifo_1,muxed_c_1[9:0]}];
 
   always @(r_rfifo_1 or RES_DATA0 or RES_DATA1 or RES_DATA2 or RES_DATA3)
     case (r_rfifo_1)
@@ -95,13 +95,64 @@ module test_drv(input CLK,
 	  reg_data[l] <= 0;
 	  reg_bfull[l] <= 0;
 
-	  reg_careof_r[l] <= 0;
-	  reg_careof_w[l] <= 0;
+	  reg_careof_r[l] <= 3'h7;
+	  reg_careof_w[l] <= 3'h7;
 	end // for (v=0; v<4096; v=v+1)
       out_c_0[0] <= 0; out_c_0[1] <= 0; out_c_0[2] <= 0; out_c_0[3] <= 0;
       out_c_1[0] <= 0; out_c_1[1] <= 0; out_c_1[2] <= 0; out_c_1[3] <= 0;
 
       // your test data here
+
+      // simple test for emptiness
+      test_we[2] <= 1'b1;
+      reg_careof_w[0] <= 3'h7;
+      reg_bfull[0] <= 4'h0;
+
+      // test sending a small datagram
+      for (o=4; o<17; o=o+1)
+	begin
+	  test_we[o] <= 1;
+	  test_wfifo[o] <= 2'h2;
+	end
+
+      for (v=13; v<20; v=v+1)
+	begin
+	  test_re[v] <= 1;
+	  test_rfifo[v] <= 2'h2;
+
+	  reg_careof_r[((v-13)+12'h800)] <= 3'h7;
+	  reg_data[((v-13)+12'h800)] <= (v-9);
+	end
+
+      for (e=74; e<80; e=e+1)
+	begin
+	  test_re[e] <= 1;
+	  test_rfifo[e] <= 2'h2;
+
+	  reg_careof_r[((e-67)+12'h800)] <= 3'h7;
+	  reg_data[((e-67)+12'h800)] <= (e-63);
+	end
+
+      // test sending a datagram larger than buffer, see bfull in action
+      for (l=22; l<200; l=l+1)
+	begin
+	  test_we[l] <= 1;
+	  test_wfifo[l] <= 1'h1;
+	end
+
+      for (o=200; o<263; o=o+1)
+	begin
+	  test_re[o] <= 1;
+	  test_rfifo[o] <= 2'h1;
+
+	  reg_careof_r[((o-200)+12'h400)] <= 3'h7;
+	  reg_data[((o-200)+12'h400)] <= ((o-200)+22);
+	end
+      for (v=77; v<200; v=v+1)
+	begin
+	  reg_careof_w[v] <= 3'h7;
+	  reg_bfull[v] <= 4'h4;
+	end
     end // initial begin
 
   always @(posedge CLK)
@@ -122,8 +173,8 @@ module test_drv(input CLK,
 
 	r_write_0 <= WRITE;
 	r_wfifo_0 <= WRITE_FIFO;
-	if (r_write_0)
-	  w_c <= w_c +1;
+	if (WRITE)
+	  w_c <= c;
 
 	r_read_0 <= READ;
 	r_read_1 <= r_read_0;
