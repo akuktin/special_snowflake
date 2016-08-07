@@ -44,12 +44,12 @@ module test_drv(input CLK,
   reg [2:0]	      r_careof_r;
   reg [9:0] 	      slow_i;
   reg [11:0] 	      out_c_0[3:0], out_c_1[3:0];
-  reg [11:0] 	      c;
+  reg [11:0] 	      c, w_c;
 
   wire [31:0] 	      wDATA0, wDATA1, wDATA2, wDATA3;
   wire [31:0] 	      w_data;
   wire [11:0] 	      muxed_c_0, muxed_c_1;
-  wire [3:0] 	      w_stop, w_empty;
+  wire [3:0] 	      w_bfull;
   wire [2:0] 	      w_careof_r, w_careof_w;
 
   reg [31:0] 	      muxed_data;
@@ -58,8 +58,8 @@ module test_drv(input CLK,
   assign muxed_c_1 = out_c_1[r_rfifo_1];
 
   assign w_careof_r = reg_careof_r[{r_rfifo_1,muxed_c_1}];
-  assign w_careof_w = reg_careof_w[(c-1)];
-  assign w_bfull = reg_bfull[(c-1)];
+  assign w_careof_w = reg_careof_w[w_c];
+  assign w_bfull = reg_bfull[w_c];
   assign w_data = reg_data[{r_rfifo_1,muxed_c_1}];
 
   always @(r_rfifo_1 or RES_DATA0 or RES_DATA1 or RES_DATA2 or RES_DATA3)
@@ -110,7 +110,7 @@ module test_drv(input CLK,
 	fast_i <= 0; slow_i <= 0; c <= 0;
 	r_read_0 <= 0; r_read_1 <= 0; r_write_0 <= 0;
 	r_careof_r <= 0; r_rfifo_0 <= 0; r_rfifo_1 <= 0;
-	r_wfifo_0 <= 0;
+	r_wfifo_0 <= 0; w_c <= 0;
       end
     else
       begin
@@ -122,6 +122,8 @@ module test_drv(input CLK,
 
 	r_write_0 <= WRITE;
 	r_wfifo_0 <= WRITE_FIFO;
+	if (r_write_0)
+	  w_c <= w_c +1;
 
 	r_read_0 <= READ;
 	r_read_1 <= r_read_0;
@@ -139,7 +141,7 @@ module test_drv(input CLK,
 	      if (w_careof_w[1])
 		if (RES_BFULL != w_bfull)
 		  $display("XXX bfull #%d/%d want %x got %x @ %d",
-			   r_wfifo_0, (c-1), w_bfull, RES_BFULL, c);
+			   r_wfifo_0, w_c, w_bfull, RES_BFULL, c);
 	    end
 	  if (r_read_1)
 	    begin
