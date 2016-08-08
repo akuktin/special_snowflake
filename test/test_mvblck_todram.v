@@ -19,6 +19,84 @@
 `include "../hyperfabric/mvblck_todram.v"
 `include "../hyperfabric/mvblck_frdram.v"
 
+module test_fill_lsab(input CLK,
+		      input 	    RST,
+		      output [31:0] DATA0,
+		      output [31:0] DATA1,
+		      output [31:0] DATA2,
+		      output [31:0] DATA3,
+		      output 	    WRITE,
+		      output [1:0]  WRITE_FIFO,
+		      output 	    INT0,
+		      output 	    INT1,
+		      output 	    INT2,
+		      output 	    INT3);
+  reg [31:0] 	      test_data[4095:0];
+  reg 		      test_we[4095:0],
+		      test_int[4095:0];
+
+  reg [1:0] 	      fast_i;
+  reg [9:0] 	      slow_i;
+  reg [11:0] 	      c;
+
+  assign DATA0 = test_data[{slow_i,2'h0}];
+  assign DATA1 = test_data[{slow_i,2'h1}];
+  assign DATA2 = test_data[{slow_i,2'h2}];
+  assign DATA3 = test_data[{slow_i,2'h3}];
+
+  assign WRITE = test_we[{slow_i,fast_i}];
+  assign WRITE_FIFO = fast_i;
+
+  assign INT0 = test_int[{slow_i,2'h0}];
+  assign INT1 = test_int[{slow_i,2'h1}];
+  assign INT2 = test_int[{slow_i,2'h2}];
+  assign INT3 = test_int[{slow_i,2'h3}];
+
+  reg [31:0] 	      l, o, v, e;
+
+  initial
+    begin
+      for (l=0; l<1024; l=l+1)
+	begin
+	  for (o=0; o<4; o=o+1)
+	    begin
+	      test_data[{l[9:0],o[1:0]}] <= {2'h0,o[1:0],l[23:0]};
+	      test_we[{l[9:0],o[1:0]}] <= 0;
+	      test_int[{l[9:0],o[1:0]}] <= 0;
+	    end
+	end
+
+      // your test data here
+    end // initial begin
+
+  always @(posedge CLK)
+    if (!RST)
+      begin
+	fast_i <= 0; slow_i <= 0; c <= 0;
+      end
+    else
+      begin
+	fast_i <= fast_i +1;
+	if (fast_i == 2'h3)
+	  slow_i <= slow_i +1;
+
+	c <= c +1;
+      end
+
+endmodule // test_in
+
+module test_mvblck(input CLK,
+		   input 	 RST,
+		   output 	 mvblkc_RST,
+		   output [11:0] START_ADDRESS,
+		   output [5:0]  COUNT_REQ,
+		   output [1:0]  SECTION,
+		   output 	 ISSUE,
+		   input [5:0] 	 COUNT_SENT,
+		   input 	 WORKING);
+  assign mvbclk_RST = 0;
+
+endmodule // test_mvblck
 
 module GlaDOS;
   reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, RST_ddr, CPU_CLK;
@@ -59,7 +137,12 @@ module GlaDOS;
 
   wire [11:0] hf_coll_addr;
   wire [3:0]  hf_we_array;
-  wire 	      hf_req_access, mvblck_RST;
+  wire 	      hf_req_access;
+
+  wire 	      mvblck_RST, w_issue, w_working;
+  wire [1:0]  w_section;
+  wire [5:0]  w_count_req, w_count_sent;
+  wire [11:0] w_start_address;
 
   reg 	      mcu_req_access;
 
@@ -104,6 +187,15 @@ module GlaDOS;
 			      .user_req_datain(mcu_data_into),
 			      .user_req_dataout(mcu_data_outof));
 
+  test_fill_lsab lsab_write(.CLK(CLK_n),
+			    .RST(RST),
+			    .DATA0(w_data0), .DATA1(w_data1),
+			    .DATA2(w_data2), .DATA3(w_data3),
+			    .WRITE(w_write),
+			    .WRITE_FIFO(w_write_fifo),
+			    .INT0(w_int0), .INT1(w_int1),
+			    .INT2(w_int2), .INT3(w_int3));
+
   trans_core hyperfabric_switch(.CLK(CLK_n),
 				.RST(RST),
 				.out_0(), .out_1(),
@@ -120,13 +212,13 @@ module GlaDOS;
   lsab_cr lsab(.CLK(CLK_n),
 	       .RST(RST),
 	       .READ(w_read),
-	       .WRITE(w_write),                      //
+	       .WRITE(w_write),
 	       .READ_FIFO(w_read_fifo),
-	       .WRITE_FIFO(w_write_fifo),            //
-	       .IN_0(w_data0), .IN_1(w_data1),       // //
-	       .IN_2(w_data2), .IN_3(w_data3),       // //
-	       .INT_IN_0(w_int0), .INT_IN_1(w_int1), // //
-	       .INT_IN_2(w_int2), .INT_IN_3(w_int3), // //
+	       .WRITE_FIFO(w_write_fifo),
+	       .IN_0(w_data0), .IN_1(w_data1),
+	       .IN_2(w_data2), .IN_3(w_data3),
+	       .INT_IN_0(w_int0), .INT_IN_1(w_int1),
+	       .INT_IN_2(w_int2), .INT_IN_3(w_int3),
 	       .CAREOF_INT_0(1'b1), .CAREOF_INT_1(1'b1),
 	       .CAREOF_INT_2(1'b1), .CAREOF_INT_3(1'b1),
 	       .OUT(w_out),
@@ -143,15 +235,25 @@ module GlaDOS;
 			  .LSAB_3_STOP(w_s3),
 			  .LSAB_READ(w_read),
 			  .LSAB_SECTION(w_read_fifo),
-			  .START_ADDRESS(), //
-			  .COUNT_REQ(),     //
-			  .SECTION(),       //
-			  .ISSUE(),         //
-			  .COUNT_SENT(),    //
-			  .WORKING(),       //
+			  .START_ADDRESS(w_start_address),
+			  .COUNT_REQ(w_count_req),
+			  .SECTION(w_section),
+			  .ISSUE(w_issue),
+			  .COUNT_SENT(w_count_sent),
+			  .WORKING(w_working),
 			  .MCU_COLL_ADDRESS(hf_coll_addr),
 			  .MCU_WE_ARRAY(hf_we_array),
 			  .MCU_REQUEST_ACCESS(hf_req_access));
+
+  test_mvblck test_drv(.CLK(CLK_n),
+		       .RST(RST),
+		       .mvblkc_RST(mvblck_RST),
+		       .START_ADDRESS(w_start_address),
+		       .COUNT_REQ(w_count_req),
+		       .SECTION(w_section),
+		       .ISSUE(w_issue),
+		       .COUNT_SENT(w_count_sent),
+		       .WORKING(w_working));
 
   always @(posedge CLK_n)
     if (!RST)
