@@ -61,12 +61,14 @@ module test_fill_lsab(input CLK,
 	  for (o=0; o<4; o=o+1)
 	    begin
 	      test_data[{l[9:0],o[1:0]}] <= {2'h0,o[1:0],l[23:0]};
-	      test_we[{l[9:0],o[1:0]}] <= 0;
+	      test_we[{l[9:0],o[1:0]}] <= (o == 2'h1);
 	      test_int[{l[9:0],o[1:0]}] <= 0;
 	    end
 	end
 
       // your test data here
+      test_int[{10'd1007,2'h1}] <= 1; // fix the location
+      test_int[{10'd1009,2'h1}] <= 1; // fix the location
     end // initial begin
 
   always @(posedge CLK)
@@ -104,7 +106,7 @@ module test_mvblck(input CLK,
   wire 				 trigger, trigger_all;
 
   assign trigger = working_prev && !WORKING;
-  assign trigger_all = (c == 32'd53) || trigger;
+  assign trigger_all = (c == 32'd256) || trigger;
 
   assign START_ADDRESS = test_addr[testno];
   assign COUNT_REQ = test_count[testno];
@@ -117,36 +119,86 @@ module test_mvblck(input CLK,
 	begin
 	  test_addr[l] <= 0;
 	  test_count[l] <= 0;
-	  test_section[l] <= 0;
+	  test_section[l] <= 2'h1;
 	end
 
       // your test data here
+      test_addr[1] <= 12'h000;
+      test_count[1] <= 6'd1;
+
+      test_addr[2] <= 12'h010;
+      test_count[2] <= 6'd2;
+
+      test_addr[3] <= 12'h020;
+      test_count[3] <= 6'd3;
+
+      test_addr[4] <= 12'h030;
+      test_count[4] <= 6'd4;
+
+      test_addr[5] <= 12'h040;
+      test_count[5] <= 6'd5;
+
+      test_addr[6] <= 12'h050;
+      test_count[6] <= 6'd6;
+
+      test_addr[7] <= 12'h060;
+      test_count[7] <= 6'd7;
+
+      test_addr[8] <= 12'h070;
+      test_count[8] <= 6'd8;
+
+
+      test_addr[9] <= 12'h101;
+      test_count[9] <= 6'd1;
+
+      test_addr[10] <= 12'h111;
+      test_count[10] <= 6'd2;
+
+      test_addr[11] <= 12'h121;
+      test_count[11] <= 6'd3;
+
+      test_addr[12] <= 12'h131;
+      test_count[12] <= 6'd4;
+
+      test_addr[13] <= 12'h141;
+      test_count[13] <= 6'd5;
+
+      test_addr[14] <= 12'h151;
+      test_count[14] <= 6'd6;
+
+      test_addr[15] <= 12'h161;
+      test_count[15] <= 6'd7;
+
+      test_addr[16] <= 12'h171;
+      test_count[16] <= 6'd8;
     end
 
   always @(posedge CLK)
     if (!RST)
       begin
-	c <= 0; mvblck_RST <= 0; working_prev <= 0; ISSUE <= 0; testno <= 0;
-	maxtests <= 0;
+	c <= 0; mvblck_RST <= 0; working_prev <= 0; ISSUE <= 0;
+	testno <= 8'h00; maxtests <= 1+ 16;
       end
     else
       begin
 	c <= c+1;
-	if (c == 32'd53)
+	if (c == 32'd256)
 	  mvblck_RST <= 1;
 	working_prev <= WORKING;
 
 	if (trigger)
 	  begin
-	    if (testno < maxtests)
-	      testno <= testno +1;
 	    if (COUNT_SENT != COUNT_REQ)
 	      $display("XXX count of sent #%d got %x want %x @ %d",
 		       testno, COUNT_SENT, COUNT_REQ, c);
 	  end
 
 	if (trigger_all && (testno < maxtests))
-	  ISSUE <= 1;
+	  begin
+	    testno <= testno +1;
+	    $display("TEST #%d", testno+1);
+	    ISSUE <= 1;
+	  end
 	else
 	  if (WORKING)
 	    ISSUE <= 0;
@@ -262,8 +314,8 @@ module GlaDOS;
 				.in_2(), .in_3(mcu_data_outof),
 				.in_4(), .in_5(),
 				.in_6(), .in_7(),
-				.isel(),
-				.osel());
+				.isel(16'h0002),  // FIXME
+				.osel(16'h0020)); // FIXME
 
   lsab_cr lsab(.CLK(CLK_n),
 	       .RST(RST),
