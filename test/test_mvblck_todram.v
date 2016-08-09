@@ -87,14 +87,70 @@ endmodule // test_in
 
 module test_mvblck(input CLK,
 		   input 	 RST,
-		   output 	 mvblkc_RST,
+		   output reg 	 mvblck_RST,
 		   output [11:0] START_ADDRESS,
 		   output [5:0]  COUNT_REQ,
 		   output [1:0]  SECTION,
-		   output 	 ISSUE,
+		   output reg 	 ISSUE,
 		   input [5:0] 	 COUNT_SENT,
 		   input 	 WORKING);
-  assign mvbclk_RST = 0;
+  reg [31:0] 			 c;
+  reg [11:0] 			 test_addr[255:0];
+  reg [7:0] 			 testno, maxtests;
+  reg [5:0] 			 test_count[255:0];
+  reg [1:0] 			 test_section[255:0];
+  reg 				 working_prev;
+
+  wire 				 trigger, trigger_all;
+
+  assign trigger = working_prev && !WORKING;
+  assign trigger_all = (c == 32'd53) || trigger;
+
+  assign START_ADDRESS = test_addr[testno];
+  assign COUNT_REQ = test_count[testno];
+  assign SECTION = test_section[testno];
+
+  reg [31:0] 			 l, o, v, e;
+  initial
+    begin
+      for (l=0; l<256; l=l+1)
+	begin
+	  test_addr[l] <= 0;
+	  test_count[l] <= 0;
+	  test_section[l] <= 0;
+	end
+
+      // your test data here
+    end
+
+  always @(posedge CLK)
+    if (!RST)
+      begin
+	c <= 0; mvblck_RST <= 0; working_prev <= 0; ISSUE <= 0; testno <= 0;
+	maxtests <= 0;
+      end
+    else
+      begin
+	c <= c+1;
+	if (c == 32'd53)
+	  mvblck_RST <= 1;
+	working_prev <= WORKING;
+
+	if (trigger)
+	  begin
+	    if (testno < maxtests)
+	      testno <= testno +1;
+	    if (COUNT_SENT != COUNT_REQ)
+	      $display("XXX count of sent #%d got %x want %x @ %d",
+		       testno, COUNT_SENT, COUNT_REQ, c);
+	  end
+
+	if (trigger_all && (testno < maxtests))
+	  ISSUE <= 1;
+	else
+	  if (WORKING)
+	    ISSUE <= 0;
+      end
 
 endmodule // test_mvblck
 
@@ -247,7 +303,7 @@ module GlaDOS;
 
   test_mvblck test_drv(.CLK(CLK_n),
 		       .RST(RST),
-		       .mvblkc_RST(mvblck_RST),
+		       .mvblck_RST(mvblck_RST),
 		       .START_ADDRESS(w_start_address),
 		       .COUNT_REQ(w_count_req),
 		       .SECTION(w_section),
