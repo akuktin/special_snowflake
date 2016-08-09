@@ -32,12 +32,12 @@ module hyper_mvblck_todram(input CLK,
   assign read_more = len_left != 0;
 
   always @(LSAB_0_STOP or LSAB_1_STOP or
-	   LSAB_2_STOP or LSAB_3_STOP or LSAB_SECTION)
+	   LSAB_2_STOP or LSAB_3_STOP or LSAB_SECTION or read_more)
     case (LSAB_SECTION)
-      2'b00: stop_n <= ~LSAB_0_STOP;
-      2'b01: stop_n <= ~LSAB_1_STOP;
-      2'b10: stop_n <= ~LSAB_2_STOP;
-      2'b11: stop_n <= ~LSAB_3_STOP;
+      2'b00: stop_n <= (read_more && !LSAB_0_STOP);
+      2'b01: stop_n <= (read_more && !LSAB_1_STOP);
+      2'b10: stop_n <= (read_more && !LSAB_2_STOP);
+      2'b11: stop_n <= (read_more && !LSAB_3_STOP);
       default: stop_n <= 1'bx;
     endcase
 
