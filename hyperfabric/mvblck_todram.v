@@ -60,17 +60,19 @@ module hyper_mvblck_todram(input CLK,
 	  stop_prev_n <= 0;
 	  am_working <= ISSUE;
 	  MCU_REQUEST_ACCESS <= 0;
+	  if (ISSUE)
+	    LSAB_READ <= 1;
 
 	  /* FIXME: fails if the LSAB is empty at the start of exection */
 	end
       else
 	begin
-	if (stop_n && read_more)
+	if (stop_n)
 	  begin
 	    track_addr <= track_addr +1;
 	    len_left <= len_left -1;
 
-	    LSAB_READ <= 1;
+	    LSAB_READ <= (len_left > 1);
 	  end
 	else
 	  begin

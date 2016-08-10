@@ -18,7 +18,7 @@ module trans_core(input CLK,
 		  input [31:0] 	    in_7,
 		  input [15:0] 	    isel,
 		  input [15:0] 	    osel);
-  reg 			fan_block_0, fan_block_1;
+  reg [31:0] 		fan_block_0, fan_block_1;
 
   wire 			isel_0_0, isel_0_1, isel_0_2, isel_0_3,
 			isel_0_4, isel_0_5, isel_0_6, isel_0_7;
