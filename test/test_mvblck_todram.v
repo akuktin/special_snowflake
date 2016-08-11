@@ -61,14 +61,22 @@ module test_fill_lsab(input CLK,
 	  for (o=0; o<4; o=o+1)
 	    begin
 	      test_data[{l[9:0],o[1:0]}] <= {2'h0,o[1:0],l[23:0]};
-	      test_we[{l[9:0],o[1:0]}] <= (o == 2'h1);
+	      test_we[{l[9:0],o[1:0]}] <= 0;
 	      test_int[{l[9:0],o[1:0]}] <= 0;
 	    end
 	end
 
       // your test data here
-      test_int[{10'd1007,2'h1}] <= 1; // fix the location
-      test_int[{10'd1009,2'h1}] <= 1; // fix the location
+      for (v=(0+4); v<(72+4); v=v+1)  // needed to prevent a full buffer
+	begin
+	  test_we[{v[9:0],2'h1}] <= 1;
+	end
+      for (e=0; e<15; e=e+1)
+	begin
+	  test_we[{e[9:0],2'h2}] <= 1;
+	end
+      test_int[{10'd6,2'h2}] <= 1;
+      test_int[{10'd8,2'h2}] <= 1;
     end // initial begin
 
   always @(posedge CLK)
@@ -83,6 +91,11 @@ module test_fill_lsab(input CLK,
 	  slow_i <= slow_i +1;
 
 	c <= c +1;
+	if ((slow_i <= 10) && (fast_i == 2'h2))
+	  begin
+	    $display("data2 %x we %x wfifo %x int2 %x",
+		     DATA2, WRITE, WRITE_FIFO, INT2);
+	  end
       end
 
 endmodule // test_in
@@ -171,13 +184,30 @@ module test_mvblck(input CLK,
 
       test_addr[16] <= 12'h171;
       test_count[16] <= 6'd8;
+
+
+      test_addr[17] <= 12'h180;
+      test_count[17] <= 6'd15;
+      test_section[17] <= 2'h2;
+
+      test_addr[18] <= 12'h190;
+      test_count[18] <= 6'd1;
+      test_section[18] <= 2'h2;
+
+      test_addr[19] <= 12'h1a0;
+      test_count[19] <= 6'd2;
+      test_section[19] <= 2'h2;
+
+      test_addr[20] <= 12'h1b0;
+      test_count[20] <= 6'd6;
+      test_section[20] <= 2'h2;
     end
 
   always @(posedge CLK)
     if (!RST)
       begin
 	c <= 0; mvblck_RST <= 0; working_prev <= 0; ISSUE <= 0;
-	testno <= 8'h00; maxtests <= 1+ 16;
+	testno <= 8'h00; maxtests <= 1+ 20;
       end
     else
       begin
@@ -310,12 +340,12 @@ module GlaDOS;
 				.out_2(), .out_3(),
 				.out_4(), .out_5(mcu_data_into),
 				.out_6(), .out_7(),
-				.in_0(), .in_1(w_out),
-				.in_2(), .in_3(mcu_data_outof),
-				.in_4(), .in_5(),
-				.in_6(), .in_7(),
-				.isel(16'h0002),  // FIXME
-				.osel(16'h0020)); // FIXME
+				.in_0(0), .in_1(w_out),
+				.in_2(0), .in_3(mcu_dataoutof),
+				.in_4(0), .in_5(0),
+				.in_6(0), .in_7(0),
+				.isel(16'h0200),
+				.osel(16'h0020));
 
   lsab_cr lsab(.CLK(CLK_n),
 	       .RST(RST),
