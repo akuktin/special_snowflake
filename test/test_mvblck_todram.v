@@ -91,11 +91,11 @@ module test_fill_lsab(input CLK,
 	  slow_i <= slow_i +1;
 
 	c <= c +1;
-	if ((slow_i <= 10) && (fast_i == 2'h2))
-	  begin
-	    $display("data2 %x we %x wfifo %x int2 %x",
-		     DATA2, WRITE, WRITE_FIFO, INT2);
-	  end
+//	if ((slow_i <= 10) && (fast_i == 2'h2))
+//	  begin
+//	    $display("data2 %x we %x wfifo %x int2 %x",
+//		     DATA2, WRITE, WRITE_FIFO, INT2);
+//	  end
       end
 
 endmodule // test_in
@@ -341,7 +341,7 @@ module GlaDOS;
 				.out_4(), .out_5(mcu_data_into),
 				.out_6(), .out_7(),
 				.in_0(0), .in_1(w_out),
-				.in_2(0), .in_3(mcu_dataoutof),
+				.in_2(0), .in_3(mcu_data_outof),
 				.in_4(0), .in_5(0),
 				.in_6(0), .in_7(0),
 				.isel(16'h0200),
