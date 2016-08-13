@@ -148,9 +148,8 @@ module test_drv(input CLK,
 	  reg_careof_r[((o-200)+12'h400)] <= 3'h7;
 	  reg_data[((o-200)+12'h400)] <= ((o-200)+22);
 	end
-      for (v=77; v<200; v=v+1)
+      for (v=76; v<200; v=v+1)
 	begin
-	  reg_careof_w[v] <= 3'h7;
 	  reg_bfull[v] <= 4'h4;
 	end
     end // initial begin

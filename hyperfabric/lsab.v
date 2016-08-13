@@ -442,10 +442,10 @@ module lsab_cw(input CLK,
       {6'h3e,2'b01}: begin
 	become_full_0 <= 1; become_empty_0 <= 0; become_BFULL_0 <= 1;
       end
-      {6'h38,2'b10}: begin
+      {6'h37,2'b10}: begin
 	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 0;
       end
-      {6'h37,2'b01}: begin
+      {6'h36,2'b01}: begin
 	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 1;
       end
       {6'h01,2'b10}: begin
@@ -468,10 +468,10 @@ module lsab_cw(input CLK,
       {6'h3e,2'b01}: begin
 	become_full_1 <= 1; become_empty_1 <= 0; become_BFULL_1 <= 1;
       end
-      {6'h38,2'b10}: begin
+      {6'h37,2'b10}: begin
 	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 0;
       end
-      {6'h37,2'b01}: begin
+      {6'h36,2'b01}: begin
 	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 1;
       end
       {6'h01,2'b10}: begin
@@ -494,10 +494,10 @@ module lsab_cw(input CLK,
       {6'h3e,2'b01}: begin
 	become_full_2 <= 1; become_empty_2 <= 0; become_BFULL_2 <= 1;
       end
-      {6'h38,2'b10}: begin
+      {6'h37,2'b10}: begin
 	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 0;
       end
-      {6'h37,2'b01}: begin
+      {6'h36,2'b01}: begin
 	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 1;
       end
       {6'h01,2'b10}: begin
@@ -520,10 +520,10 @@ module lsab_cw(input CLK,
       {6'h3e,2'b01}: begin
 	become_full_3 <= 1; become_empty_3 <= 0; become_BFULL_3 <= 1;
       end
-      {6'h38,2'b10}: begin
+      {6'h37,2'b10}: begin
 	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 0;
       end
-      {6'h37,2'b01}: begin
+      {6'h36,2'b01}: begin
 	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 1;
       end
       {6'h01,2'b10}: begin
