@@ -469,6 +469,22 @@ module GlaDOS;
 	counter <= counter +1;
 	mcu_req_access <= (hf_req_access_fill || hf_req_access_empty);
 	mcu_we <= hf_req_access_fill;
+
+/*
+	if ((test_drv.testno > 0) && (test_drv.testno < 6))
+	  begin
+	    $display("addr %x req %x algn %x/%x page %x/%x %x",
+		     {mcu_page_addr,mcu_coll_addr}, mcu_req_access,
+		     mcu_algn_req, mcu_algn_ack,
+		     {ddr_mc.interdictor_tracker.REQUEST_ACCESS_BULK,
+		      ddr_mc.interdictor_tracker.REFRESH_TIME,
+		      ddr_mc.interdictor_tracker.SOME_PAGE_ACTIVE,
+                      ddr_mc.interdictor_tracker.row_request_live_bulk,
+		      ddr_mc.interdictor_tracker.bank_request_live_bulk},
+		     {3'b101,ddr_mc.interdictor_tracker.page_current},
+		     ddr_mc.interdictor_tracker.issue_enable_override);
+	  end
+ */
 /*
 	if (counter < 32)
 	  begin
