@@ -144,8 +144,8 @@ module test_mvblck(input CLK,
     else
       begin
 	c <= c+1;
-//	if (c == 32'd256)
-//	  mvblck_RST <= 1;
+	if (c == 32'd256)
+	  mvblck_RST <= 1;
 	working_prev <= WORKING;
 
 	if (trigger)
@@ -189,13 +189,15 @@ module GlaDOS;
       end
 
   wire [31:0] w_data0_cr, w_data1_cr, w_data2_cr, w_data3_cr;
-  wire 	      w_write_cr, w_read_cr;
-  wire [1:0]  w_write_fifo_cr, w_read_fifo_cr;
+  wire 	      w_write_cr, w_read_cr, w_write_cw, w_read_cw;
+  wire [1:0]  w_write_fifo_cr, w_read_fifo_cr,
+	      w_write_fifo_cw, w_read_fifo_cw;
   wire 	      w_int0_cr, w_int1_cr, w_int2_cr, w_int3_cr;
   wire [3:0]  w_care_cr;
 
-  wire [31:0] w_out_cr;
+  wire [31:0] w_out_cr, w_in_cw;
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;
+  wire 	      w_f0_cw, w_f1_cw, w_f2_cw, w_f3_cw;
 
   wire 	      CKE, DQS, DM, CS;
   wire [2:0]  COMMAND;
@@ -205,18 +207,18 @@ module GlaDOS;
 
   wire [31:0] mcu_data_into, mcu_data_outof;
 
-  wire [11:0] hf_coll_addr_fill, mcu_coll_addr;
+  wire [11:0] hf_coll_addr_fill, hf_coll_addr_mut, mcu_coll_addr;
   wire [3:0]  hf_we_array_fill;
-  wire 	      hf_req_access_fill;
+  wire 	      hf_req_access_fill, hf_req_access_mut;
 
   wire 	      mvblck_RST, w_issue, w_working;
   wire [1:0]  w_section;
   wire [5:0]  w_count_req, w_count_sent;
   wire [11:0] w_start_address;
 
-  reg 	      mcu_req_access;
+  reg 	      mcu_req_access, mcu_we;
 
-  assign mcu_coll_addr = hf_coll_addr_fill;
+  assign mcu_coll_addr = mvblck_RST ? hf_coll_addr_fill : hf_coll_addr_mut;
 
   ddr ddr_mem(.Clk(CLK_p),
 	      .Clk_n(CLK_n),
@@ -250,7 +252,7 @@ module GlaDOS;
 			      .rand_req(0),
 			      .rand_req_ack(),
 			      .bulk_req_address({14'd0,mcu_coll_addr}),
-			      .bulk_req_we(mcu_req_access), // NOTICE-ME!
+			      .bulk_req_we(mcu_we), // NOTICE-ME!
 			      .bulk_req_we_array(hf_we_array_fill),
 			      .bulk_req(mcu_req_access),
 			      .bulk_req_ack(),
@@ -273,7 +275,7 @@ module GlaDOS;
 				.out_0(), .out_1(),
 				.out_2(), .out_3(),
 				.out_4(), .out_5(mcu_data_into),
-				.out_6(), .out_7(), // here, out_7
+				.out_6(), .out_7(w_in_cw),
 				.in_0(0), .in_1(w_out_cr),
 				.in_2(0), .in_3(mcu_data_outof),
 				.in_4(0), .in_5(0),
@@ -281,7 +283,7 @@ module GlaDOS;
 				.isel(16'h0802),
 				.osel(16'h20a0));
 
-  lsab_cr lsab(.CLK(CLK_n),
+  lsab_cr lsab_in(.CLK(CLK_n),
 	       .RST(RST),
 	       .READ(w_read_cr),
 	       .WRITE(w_write_cr),
@@ -317,9 +319,38 @@ module GlaDOS;
 			   .MCU_WE_ARRAY(hf_we_array_fill),
 			   .MCU_REQUEST_ACCESS(hf_req_access_fill));
 
-//
+  lsab_cw lsab_out(.CLK(CLK_n),
+		   .RST(RST),
+		   .READ(0),
+		   .WRITE(w_write_cw),
+		   .READ_FIFO(0),
+		   .WRITE_FIFO(w_write_fifo_cw),
+		   .IN(w_in_cw),
+		   .OUT_0(),
+		   .OUT_1(),
+		   .OUT_2(),
+		   .OUT_3(),
+		   .BFULL_0(w_f0_cw),
+		   .BFULL_1(w_f1_cw),
+		   .BFULL_2(w_f2_cw),
+		   .BFULL_3(w_f3_cw));
 
-//
+  hyper_mvblck_frdram mut(.CLK(CLK_n),
+			  .RST(mvblck_RST),
+			  .LSAB_0_FULL(w_f0_cw),
+			  .LSAB_1_FULL(w_f1_cw),
+			  .LSAB_2_FULL(w_f2_cw),
+			  .LSAB_3_FULL(w_f3_cw),
+			  .LSAB_WRITE(w_write_cw),
+			  .LSAB_SECTION(w_write_fifo_cw),
+			  .START_ADDRESS(w_start_address),
+			  .COUNT_REQ(w_count_req),
+			  .SECTION(w_section),
+			  .ISSUE(w_issue),
+			  .COUNT_SENT(w_count_sent),
+			  .WORKING(w_working),
+			  .MCU_COLL_ADDRESS(hf_coll_addr_mut),
+			  .MCU_REQUEST_ACCESS(hf_req_access_mut));
 
   test_mvblck test_drv(.CLK(CLK_n),
 		       .RST(RST),
@@ -334,12 +365,13 @@ module GlaDOS;
   always @(posedge CLK_n)
     if (!RST)
       begin
-	mcu_req_access <= 0;
+	mcu_req_access <= 0; mcu_we <= 0;
       end
     else
       begin
 	counter <= counter +1;
-	mcu_req_access <= hf_req_access_fill;
+	mcu_req_access <= (hf_req_access_fill || hf_req_access_mut);
+	mcu_we <= hf_req_access_fill;
 /*
 	if (counter < 32)
 	  begin
