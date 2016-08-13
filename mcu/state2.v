@@ -33,7 +33,7 @@ module state2(input CLK,
   reg 				     change_possible_n, state_is_readwrite,
 				     refresh_strobe_ack, state_is_write,
 				     SOME_PAGE_ACTIVE, second_stroke,
-				     REFRESH_TIME;
+				     REFRESH_TIME, REQUEST_ALIGN_BULK_dly;
   reg [2:0] 			     command_reg2, actv_timeout;
   reg [3:0] 			     counter;
   reg [13:0] 			     page_current;
@@ -103,8 +103,8 @@ module state2(input CLK,
 				      REQUEST_ALIGN_BULK))) ||
 				  REQUEST_ACCESS_BULK ||
 				  REFRESH_TIME ||
-				  // FIXME: not good enough
-				  (REQUEST_ALIGN_BULK &&
+				  // FIXME: still not really good enough
+				  (REQUEST_ALIGN_BULK_dly &&
 				   (!GRANT_ALIGN_BULK)));
 
   always @(SOME_PAGE_ACTIVE or REFRESH_TIME or actv_timeout[2])
@@ -168,9 +168,12 @@ module state2(input CLK,
 	second_stroke <= 1; REFRESH_TIME <= 0;
 	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
 	page_current <= 0; GRANT_ALIGN_BULK <= 0; INTERNAL_WE_ARRAY <= 0;
+	REQUEST_ALIGN_BULK_dly <= 0;
       end
     else
       begin
+	REQUEST_ALIGN_BULK_dly <= REQUEST_ALIGN_BULK;
+
 	REFRESH_TIME <= refresh_strobe_ack ^ REFRESH_STROBE;
 	if ((!second_stroke) && (command_reg2 == `ACTV))
 	  actv_timeout <= 3'h0;
