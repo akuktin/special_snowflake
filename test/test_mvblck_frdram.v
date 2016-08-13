@@ -133,13 +133,80 @@ module test_mvblck(input CLK,
 	end
 
       // your test data here
+      test_addr[1] <= 12'h100;
+      test_count[1] <= 6'd1;
+
+      test_addr[2] <= 12'h100;
+      test_count[2] <= 6'd2;
+
+      test_addr[3] <= 12'h100;
+      test_count[3] <= 6'd3;
+
+      test_addr[4] <= 12'h100;
+      test_count[4] <= 6'd4;
+
+      test_addr[5] <= 12'h100;
+      test_count[5] <= 6'd5;
+
+      test_addr[6] <= 12'h100;
+      test_count[6] <= 6'd6;
+
+      test_addr[7] <= 12'h100;
+      test_count[7] <= 6'd7;
+
+      test_addr[8] <= 12'h100;
+      test_count[8] <= 6'd8;
+
+
+      test_addr[9] <= 12'h101;
+      test_count[9] <= 6'd1;
+      test_section[9] <= 2'h2;
+
+      test_addr[10] <= 12'h101;
+      test_count[10] <= 6'd2;
+      test_section[10] <= 2'h2;
+
+      test_addr[11] <= 12'h101;
+      test_count[11] <= 6'd3;
+      test_section[11] <= 2'h2;
+
+      test_addr[12] <= 12'h101;
+      test_count[12] <= 6'd4;
+      test_section[12] <= 2'h2;
+
+      test_addr[13] <= 12'h101;
+      test_count[13] <= 6'd5;
+      test_section[13] <= 2'h2;
+
+      test_addr[14] <= 12'h101;
+      test_count[14] <= 6'd6;
+      test_section[14] <= 2'h2;
+
+      test_addr[15] <= 12'h101;
+      test_count[15] <= 6'd7;
+      test_section[15] <= 2'h2;
+
+      test_addr[16] <= 12'h101;
+      test_count[16] <= 6'd8;
+      test_section[16] <= 2'h2;
+
+
+      test_addr[17] <= 12'h100;
+      test_count[17] <= 6'h12;
+//      test_count[17] <= 6'h3f;
+      test_section[17] <= 2'h1;
+
+      test_addr[18] <= 12'h113;
+      test_count[18] <= 6'hd;
+//      test_count[18] <= 6'h3f;
+      test_section[18] <= 2'h1;
     end
 
   always @(posedge CLK)
     if (!RST)
       begin
 	c <= 0; mvblck_RST <= 0; working_prev <= 0; ISSUE <= 0;
-	testno <= 8'h00; maxtests <= 0;//1+ 20;
+	testno <= 8'h00; maxtests <= 18;
       end
     else
       begin
@@ -218,7 +285,8 @@ module GlaDOS;
 
   reg 	      mcu_req_access, mcu_we;
 
-  assign mcu_coll_addr = mvblck_RST ? hf_coll_addr_fill : hf_coll_addr_mut;
+  assign mcu_coll_addr = (counter <= 32'd255) ?
+			 hf_coll_addr_fill : hf_coll_addr_mut;
 
   ddr ddr_mem(.Clk(CLK_p),
 	      .Clk_n(CLK_n),
