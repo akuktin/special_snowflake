@@ -36,7 +36,7 @@ module hyper_mvblck_frdram(input CLK,
    * For the easy-to-read variant, look back in the git repository. */
   assign MCU_REQUEST_ACCESS = am_working ?
 			      read_more : // because of abrupt_stop_n
-			      ISSUE;
+			      (ISSUE && RST);
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;
