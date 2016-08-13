@@ -21,7 +21,7 @@ module hyper_mvblck_frdram(input CLK,
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output 	     MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n;
-  reg [3:0] 				     we_counter, release_counter;
+  reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
 
   wire 					     release_trigger, we_trigger,
@@ -132,14 +132,15 @@ module hyper_mvblck_frdram(input CLK,
 	    LSAB_WRITE <= 0;
 	  end
 	else
-	  if (am_working)
-	    WORKING <= 1;
+	  begin
+	    if (am_working)
+	      WORKING <= 1;
+	    if (we_trigger)
+	      LSAB_WRITE <= 1;
+	  end
 
 	if (we_trigger)
-	  begin
-	    LSAB_WRITE <= 1;
-	    COUNT_SENT <= 0;
-	  end
+	  COUNT_SENT <= 0;
 	else
 	  if (LSAB_WRITE)
 	    COUNT_SENT <= COUNT_SENT +1;
