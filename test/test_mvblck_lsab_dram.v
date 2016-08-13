@@ -68,7 +68,7 @@ module test_fill_lsab(input CLK,
 	end
 
       // your test data here
-      for (v=(0+4); v<(72+4); v=v+1)  // needed to prevent a full buffer
+      for (v=(0+4); v<(5+4); v=v+1)
 	begin
 	  test_we[{v[9:0],2'h1}] <= 1;
 	end
@@ -111,12 +111,12 @@ module test_mvblck(input CLK,
 		   input 	 END_OF_PAGE,
 		   input [5:0] 	 COUNT_SENT);
   reg [31:0] 			 c;
-  reg [31:0] 			 test_addr[255:0];
+  reg [31:0] 			 test_addr[255:0], old_addr_prev;
   reg [7:0] 			 testno, maxtests;
   reg [5:0] 			 test_count[255:0],
 				 test_count_expect[255:0];
   reg [1:0] 			 test_section[255:0];
-  reg 				 ready_prev,
+  reg 				 ready_prev, trigger_prev,
 				 test_eop_expect[255:0],
 				 test_rst_fill[255:0],
 				 test_rst_empty[255:0];
@@ -127,7 +127,7 @@ module test_mvblck(input CLK,
   assign trigger = (!ready_prev) && READY;
   assign trigger_all = (c == 32'd256) || trigger;
 
-  assign NEW_ADDRESS = test_addr[testno];
+  assign NEW_ADDR = test_addr[testno];
   assign BLOCK_LENGTH = test_count[testno];
   assign NEW_SECTION = test_section[testno];
   assign w_count_expect = test_count_expect[testno];
@@ -150,31 +150,69 @@ module test_mvblck(input CLK,
 	end
 
       // your test data here
+      test_addr[1] <= 32'h0020_0001;
+      test_count[1] <= 3;
+      test_count_expect[1] <= 3;
+      test_rst_fill[1] <= 1;
+
+      test_addr[2] <= 32'h0020_0fff;
+      test_count[2] <= 3;
+      test_count_expect[2] <= 1;
+      test_eop_expect[2] <= 1;
+      test_rst_fill[2] <= 1;
+
+      test_addr[3] <= 32'h0020_1000;
+      test_count[3] <= 3;
+      test_count_expect[3] <= 1;
+      test_eop_expect[3] <= 0;
+      test_rst_fill[3] <= 1;
+
+
+      test_addr[4] <= 32'h0020_0001;
+      test_count[4] <= 3;
+      test_count_expect[4] <= 3;
+      test_rst_empty[4] <= 1;
+
+      test_addr[5] <= 32'h0020_0fff;
+      test_count[5] <= 3;
+      test_count_expect[5] <= 1;
+      test_eop_expect[5] <= 1;
+      test_rst_empty[5] <= 1;
+
+      test_addr[6] <= 32'h0020_1001;
+      test_count[6] <= 6'h3f;
+      test_count_expect[6] <= 6'h3b;
+      test_eop_expect[6] <= 0;
+      test_rst_empty[6] <= 1;
     end
 
   always @(posedge CLK)
     if (!RST)
       begin
 	c <= 0; ready_prev <= 0; GO <= 0;
-	testno <= 8'h00; maxtests <= 0;
+	old_addr_prev <= 0; trigger_prev <= 0;
+	testno <= 8'h00; maxtests <= 6;
       end
     else
       begin
 	c <= c+1;
 	ready_prev <= READY;
+	trigger_prev <= trigger;
+	old_addr_prev <= NEW_ADDR + w_count_expect;
 
 	if (trigger)
 	  begin
 	    if (COUNT_SENT != w_count_expect)
 	      $display("XXX count of sent #%d got %x want %x @ %d",
 		       testno, COUNT_SENT, w_count_expect, c);
-	    if (OLD_ADDR != (NEW_ADDR + w_count_expect))
-	      $display("XXX calc addr #%d got %x want %x @ %d",
-		       testno, OLD_ADDR, (NEW_ADDR + w_count_expect), c);
 	    if (END_OF_PAGE != w_eop_expect)
 	      $display("XXX end-of-page #%d got %x want %x @ %d",
 		       testno, END_OF_PAGE, w_eop_expect, c);
 	  end
+	if (trigger_prev)
+	  if (OLD_ADDR != old_addr_prev)
+	    $display("XXX calc addr #%d got %x want %x @ %d",
+		     testno, OLD_ADDR, (NEW_ADDR + w_count_expect), c);
 
 	if (trigger_all && (testno < maxtests))
 	  begin
