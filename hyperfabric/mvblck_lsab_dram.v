@@ -89,11 +89,53 @@ module hyper_scheduler_mem(input CLK,
 endmodule // hyper_scheduler_mem
 
 module hyper_scheduler(input CLK,
-		       input RST);
-  reg [1:0] 		     trans_req, trans_ack,
-			     refresh_req, refresh_ack;
+		       input 		 RST,
+		       input 		 CR_E0,
+		       input 		 CR_E1,
+		       input 		 CR_E2,
+		       input 		 CR_E3,
+		       input 		 CW_F0,
+		       input 		 CW_F1,
+		       input 		 CW_F2,
+		       input 		 CW_F3,
+		       output reg 	 GO,
+		       input 		 EXEC_READY,
+		       output reg [5:0]  EXEC_BLOCK_LENGTH,
+		       input 		 EXEC_ENDOF_PAGE,
+		       output reg [1:0]  EXEC_NEW_SECTION,
+		       output reg 	 MCU_REFRESH_STROBE,
+		       output reg [1:0]  EXEC_SELECT_MVBLCK,
+		       output reg [2:0]  SWCH_ISEL,
+		       output reg [2:0]  SWCH_OSEL,
+		       output reg [31:0] EXEC_NEW_ADDR,
+		       output reg 	 IRQ,
+		       output reg 	 WRITE_MEM,
+		       output reg [2:0]  MEM_W_ADDR,
+		       output [2:0] 	 MEM_R_ADDR,
+		       output 		 READ_MEM);
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
+
+  reg [29:0] 		     addr_from_mem;
+  reg [2:0] 		     save2_MEM_R_ADDR, save1_MEM_R_ADDR,
+			     save0_MEM_R_ADDR, prepared_isel, prepared_osel;
+  reg [1:0] 		     trans_ack, trans_req, refresh_ack, refresh_req;
+  reg 			     last_block_r, cont_trans_r, trg_post,
+			     trg_post_post, save_data_mem, EXEC_READY_prev;
+
+  reg 			     periph_ready[7:0];
+
+  wire [31:0] 		     new_addr;
+  wire [23:0] 		     remaining_len;
+  wire [5:0] 		     BL1, BL2, new_block_length;
+  wire [2:0] 		     isel, osel;
+  wire [1:0] 		     section, select_mvblck;
+  wire 			     cont_trans, last_block_w, exec_refresh,
+			     enter_stage_1, refresh_ctr_mismatch,
+			     counters_mismatch, posedge_EXEC_READY,
+			     rdmem_op, data_mem, transaction_active,
+			     time_rfrs, time_mb, trg_mb, trg_gb_0,
+			     trg_gb_1, small_carousel_reset;
 
   assign MEM_W_DATA = {cont_trans_r,EXEC_OLD_ADDRESS};
 
@@ -121,9 +163,13 @@ module hyper_scheduler(input CLK,
 		     (big_carousel == 4'h9) || (big_carousel == 4'hb) ||
 		     (big_carousel == 4'hd) || (big_carousel == 4'hf);
 
-  assign transaction_active = MEM_R_DATA[66]; // dummy address
-  assign remaining_len = MEM_R_DATA[63:32]; // dummy address
-  assign new_section = MEM_R_DATA[65:64]; // dummy address
+  assign transaction_active = MEM_R_DATA[60];
+
+  assign remaining_len = MEM_R_DATA[55:32];
+  assign section = MEM_R_DATA[57:56];
+  assign rdmem_op = MEM_R_DATA[58];
+  assign data_mem = MEM_R_DATA[59]; // actually supposed to be the highest
+                                    // usable bit in the DRAM address
 
   // should fit in two gates
   assign MEM_R_ADDR = trg_gb_0 ? 0 : (trg_gb_1 ? 1 : big_carousel[3:1]);
@@ -148,13 +194,33 @@ module hyper_scheduler(input CLK,
   assign new_block_length = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
 			    BL2 : BL1;
 
+  assign isel = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+		SWCH_ISEL : prepared_isel;
+  assign osel = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+		SWCH_OSEL : prepared_osel;
+  assign select_mvblck = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+			 RST_mvblck : {save_data_mem,~save_data_mem};
+
+  assign cont_trans = !(last_block_r && (EXEC_BLOCK_LENGTH ==
+					 EXEC_COUNT_SENT));
+
   always @(posedge CLK)
     if (!RST)
       begin
 	small_carousel <= 8'hc1; // Out of bounds.
 	big_carousel <= 4'h3;
 	trans_req <= 0; trans_ack <= 0; refresh_req <= 0; refresh_ack <= 0;
-	EXEC_READY_prev <= 1'b1;
+	EXEC_READY_prev <= 1'b1; GO <= 0; EXEC_BLOCK_LENGTH <= 0;
+	EXEC_NEW_SECTION <= 0; MCU_REFRESH_STROBE <= 0;
+	EXEC_SELECT_MVBLCK <= 0; SWCH_ISEL <= 0; SWCH_OSEL <= 0;
+	EXEC_NEW_ADDR <= 0; IRQ <= 0; WRITE_MEM <= 0; MEM_W_ADDR <= 0;
+	addr_from_mem <= 0; save2_MEM_R_ADDR <= 0; save1_MEM_R_ADDR <= 0;
+	save0_MEM_R_ADDR <= 0; prepared_isel <= 0; prepared_osel <= 0;
+	last_block_r <= 0; cont_trans_r <= 0; trg_post <= 0;
+	trg_post_post <= 0; save_data_mem <= 0; EXEC_READY_prev <= 0;
+	periph_ready[0] <= 0; periph_ready[1] <= 0; periph_ready[2] <= 0;
+	periph_ready[3] <= 0; periph_ready[4] <= 0; periph_ready[5] <= 0;
+	periph_ready[6] <= 0; periph_ready[7] <= 0;
       end
     else
       begin
@@ -167,7 +233,24 @@ module hyper_scheduler(input CLK,
 	  small_carousel <= small_carousel +1;
 	EXEC_READY_prev <= EXEC_READY;
 
-	addr_from_mem <= MEM_R_DATA[31:0]; // dummy_address
+	// {read_memory_op,section}
+	periph_ready[0] <= !CR_E0; periph_ready[1] <= !CR_E1;
+	periph_ready[2] <= !CR_E2; periph_ready[3] <= !CR_E3;
+	periph_ready[4] <= !CW_F0; periph_ready[5] <= !CW_F1;
+	periph_ready[6] <= !CW_F2; periph_ready[7] <= !CW_F3;
+
+	addr_from_mem <= MEM_R_DATA[29:0];
+	save_data_mem <= data_mem;
+	if (rdmem_op)
+	  begin
+	    prepared_isel <= 3'b100;
+	    prepared_osel <= {1'h0,data_mem,~data_mem};
+	  end
+	else
+	  begin
+	    prepared_isel <= {1'h0,data_mem,~data_mem};
+	    prepared_osel <= 3'b100;
+	  end
 
 	if (READ_MEM)
 	  save0_MEM_R_ADDR <= MEM_R_ADDR;
@@ -178,9 +261,7 @@ module hyper_scheduler(input CLK,
 	trg_post <= READ_MEM;
 	trg_post_post <= trg_post;
 	if (trg_post_post && transaction_active &&
-	    // A suggestion. Note that for writing to a periphery,
-	    // you want periph_can_take_it[save0_MEM_R_ADDR].
-	    periph_has_something[save0_MEM_R_ADDR]) // WIP
+	    periph_ready[{rdmem_op,section}])
 	  begin
 	    trans_req <= trans_req +1;
 	    save1_MEM_R_ADDR <= save0_MEM_R_ADDR;
@@ -191,22 +272,25 @@ module hyper_scheduler(input CLK,
 	    trans_ack <= trans_ack +1;
 	    MEM_W_ADDR <= save2_MEM_R_ADDR;
 	    WRITE_MEM <= 1;
-	    cont_trans_r <= !(last_block_r && (EXEC_BLOCK_LENGTH ==
-					       EXEC_COUNT_SENT));
-	    // Maybe also raise an interrupt if cont_trans_r?
+	    cont_trans_r <= cont_trans;
+	    IRQ <= !cont_trans;
 	  end
 	else
-	  WRITE_MEM <= 0;
+	  begin
+	    WRITE_MEM <= 0;
+	    IRQ <= 0;
+	  end
 
 	if (GO)
 	  begin
 	    EXEC_NEW_ADDR <= new_addr;
-	    RST_mvblck <= 1;
-	    $configure_switch();
+	    EXEC_SELECT_MVBLCK <= select_mvblck;
+	    SWCH_ISEL <= isel;
+	    SWCH_OSEL <= osel;
 	  end
 	else
 	  if (posedge_EXEC_READY && (!EXEC_ENDOF_PAGE))
-	    RST_mvblck <= 0;
+	    EXEC_SELECT_MVBLCK <= 0;
 
 	if (exec_refresh)
 	  begin
@@ -216,7 +300,7 @@ module hyper_scheduler(input CLK,
 
 	if (enter_stage_1)
 	  begin
-	    EXEC_NEW_SECTION <= new_section;
+	    EXEC_NEW_SECTION <= section;
 	    trans_ack <= trans_ack +1;
 	    save2_MEM_R_ADDR <= save1_MEM_R_ADDR;
 	    last_block_r <= last_block_w;
@@ -239,6 +323,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 RST,
 		         /* begin COMMAND INTERFACE */
 		       input 		 GO,
+		       input [1:0] 	 SELECT_MVBLCK,
 		       input [5:0] 	 BLOCK_LENGTH,
 		       input [31:0] 	 NEW_ADDR,
 		       input [1:0] 	 NEW_SECTION,
@@ -255,8 +340,8 @@ module hyper_lsab_dram(input CLK,
 		       input 		 BLCK_WORKING,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
-		       output reg 	 MCU_REQUEST_ALIGN,
-		       input 		 MCU_GRANT_ALIGN);
+		       output reg [1:0]  MCU_REQUEST_ALIGN,
+		       input [1:0] 	 MCU_GRANT_ALIGN);
   reg [23:0] 				 OLD_ADDR_high;
   reg [7:0] 				 OLD_ADDR_low;
   reg 					 carry_old_addr_calc,
@@ -300,8 +385,7 @@ module hyper_lsab_dram(input CLK,
 
 	if (state[0])
 	  begin
-	    MCU_REQUEST_ALIGN <= 1; // Change this for supporting multiple
-                                    // DRAMs.
+	    MCU_REQUEST_ALIGN <= SELECT_MVBLCK;
 
 	    MCU_PAGE_ADDR <= NEW_ADDR[31:12];
 	    BLCK_START <= NEW_ADDR[11:0];
@@ -335,9 +419,9 @@ module hyper_lsab_dram(input CLK,
 	  OLD_ADDR_high <= {MCU_PAGE_ADDR,BLCK_START[11:8]} +
 			   {23'd0,carry_old_addr_calc};
 
-//	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
-//	     (MCU_REQUEST_ALIGN[1] && MCU_GRANT_ALIGN[1])) && // also FIXME
-	if (MCU_REQUEST_ALIGN && MCU_GRANT_ALIGN && //FIXME propagation time
+	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
+	     (MCU_REQUEST_ALIGN[1] && MCU_GRANT_ALIGN[1])) && // also FIXME
+//	if (MCU_REQUEST_ALIGN && MCU_GRANT_ALIGN && //FIXME propagation time
 	    ~BLCK_ISSUE && ~BLCK_WORKING && ~blck_working_prev && //approx
 	    (state[1] || state[2]))
 	  issue_op[0] <= ~issue_op[0];
