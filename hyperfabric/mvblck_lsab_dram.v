@@ -111,13 +111,15 @@ module hyper_scheduler(input CLK,
 		       output reg [31:0] EXEC_NEW_ADDR,
 		       input [31:0] 	 EXEC_OLD_ADDR,
 		       output reg 	 IRQ,
+		       output reg [2:0]  IRQ_DESC,
 		       output reg 	 WRITE_MEM,
 		       output [2:0] 	 MEM_W_ADDR,
 		       output [2:0] 	 MEM_R_ADDR,
 		       input 		 IRQ_IN,
-		       output 		 READ_MEM);
+		       output 		 READ_MEM,
+		       output reg 	 CAREOF_INT);
 
-  // FIXME Propagate the interrupt request to the CPU.
+  // FIXME Handling of RST for the block movers.
 
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
@@ -213,8 +215,9 @@ module hyper_scheduler(input CLK,
   assign select_mvblck = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 			 RST_mvblck : {save_data_mem,~save_data_mem};
 
-  assign cont_trans = !(last_block_r && (EXEC_BLOCK_LENGTH ==
-					 EXEC_COUNT_SENT));
+  assign cont_trans = !(last_block_r &&
+			(EXEC_BLOCK_LENGTH == EXEC_COUNT_SENT) &&
+			! IRQ_IN);
 
   always @(posedge CLK)
     if (!RST)
@@ -235,7 +238,7 @@ module hyper_scheduler(input CLK,
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
 	save2_read_data <= 0; save1_read_data <= 0;
 	save2_remaining_len <= 0; save1_remaining_len <= 0;
-	leftover_len <= 0;
+	leftover_len <= 0; IRQ_DESC <= 0;
       end
     else
       begin
@@ -291,6 +294,7 @@ module hyper_scheduler(input CLK,
 	    leftover_len <= save2_remaining_len - {18'd0,EXEC_COUNT_SENT};
 	    cont_trans_r <= cont_trans;
 	    IRQ <= !cont_trans;
+	    IRQ_DESC <= MEM_W_ADDR;
 	  end
 	else
 	  begin
