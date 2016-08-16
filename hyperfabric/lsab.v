@@ -24,7 +24,11 @@ module lsab_cr(input CLK,
 	      output reg 	STOP_0,
 	      output reg 	STOP_1,
 	      output reg 	STOP_2,
-	      output reg 	STOP_3);
+	      output reg 	STOP_3,
+	      output reg 	INT_OUT_0,
+	      output reg 	INT_OUT_1,
+	      output reg 	INT_OUT_2,
+	      output reg 	INT_OUT_3);
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
@@ -275,6 +279,7 @@ module lsab_cr(input CLK,
        read_addr_2 <= 0; read_addr_3 <= 0;
        re_prev <= 0; OUT <= 0;
 	STOP_0 <= 1; STOP_1 <= 1; STOP_2 <= 1; STOP_3 <= 1;
+	INT_OUT_0 <= 0; INT_OUT_1 <= 0; INT_OUT_2 <= 0; INT_OUT_3 <= 0;
 	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
 	intbuff_waddr_0 <= 1;
 	intbuff_raddr_1 <= 1; intbuff_raddr_trail_1 <= 0;
@@ -287,15 +292,19 @@ module lsab_cr(input CLK,
     else
       begin
 	STOP_0 <= become_empty_0 || intbuff_int_0; // three gates deep
+       INT_OUT_0 <= intbuff_int_0;
        EMPTY_0 <= become_empty_0;
        full_0 <= become_full_0;
 	STOP_1 <= become_empty_1 || intbuff_int_1; // three gates deep
+       INT_OUT_1 <= intbuff_int_1;
        EMPTY_1 <= become_empty_1;
        full_1 <= become_full_1;
 	STOP_2 <= become_empty_2 || intbuff_int_2; // three gates deep
+       INT_OUT_2 <= intbuff_int_2;
        EMPTY_2 <= become_empty_2;
        full_2 <= become_full_2;
 	STOP_3 <= become_empty_3 || intbuff_int_3; // three gates deep
+       INT_OUT_3 <= intbuff_int_3;
        EMPTY_3 <= become_empty_3;
        full_3 <= become_full_3;
        len_0 <= become_len_0;

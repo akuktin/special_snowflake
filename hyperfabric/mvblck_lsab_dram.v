@@ -101,22 +101,31 @@ module hyper_scheduler(input CLK,
 		       output reg 	 GO,
 		       input 		 EXEC_READY,
 		       output reg [5:0]  EXEC_BLOCK_LENGTH,
-		       input 		 EXEC_ENDOF_PAGE,
+		       input [5:0] 	 EXEC_COUNT_SENT,
+		       input 		 EXEC_RESTART_OP,
 		       output reg [1:0]  EXEC_NEW_SECTION,
 		       output reg 	 MCU_REFRESH_STROBE,
 		       output reg [1:0]  EXEC_SELECT_MVBLCK,
 		       output reg [2:0]  SWCH_ISEL,
 		       output reg [2:0]  SWCH_OSEL,
 		       output reg [31:0] EXEC_NEW_ADDR,
+		       input [31:0] 	 EXEC_OLD_ADDR,
 		       output reg 	 IRQ,
 		       output reg 	 WRITE_MEM,
-		       output reg [2:0]  MEM_W_ADDR,
+		       output [2:0] 	 MEM_W_ADDR,
 		       output [2:0] 	 MEM_R_ADDR,
+		       input 		 IRQ_IN,
 		       output 		 READ_MEM);
+
+  // FIXME Propagate the interrupt request to the CPU.
+
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
   reg [29:0] 		     addr_from_mem;
+  reg [23:0] 		     save2_remaining_len, save1_remaning_len,
+			     leftover_len;
+  reg [7:0] 		     save2_read_data, save1_read_data;
   reg [2:0] 		     save2_MEM_R_ADDR, save1_MEM_R_ADDR,
 			     save0_MEM_R_ADDR, prepared_isel, prepared_osel;
   reg [1:0] 		     trans_ack, trans_req, refresh_ack, refresh_req;
@@ -137,7 +146,10 @@ module hyper_scheduler(input CLK,
 			     time_rfrs, time_mb, trg_mb, trg_gb_0,
 			     trg_gb_1, small_carousel_reset;
 
-  assign MEM_W_DATA = {cont_trans_r,EXEC_OLD_ADDRESS};
+  assign MEM_W_ADDR = save2_MEM_R_ADDR;
+  assign MEM_W_DATA = {save2_read_data[7:5],cont_trans_r, // approx
+		       save2_read_data[3:0], // approx
+		       leftover_len,EXEC_OLD_ADDRESS};
 
   // Should fit in two gates. Otherwise, register the wires and use those.
   assign READ_MEM = trg_gb_0 || trg_gb_1 || (trg_mb && time_mb);
@@ -184,21 +196,21 @@ module hyper_scheduler(input CLK,
   assign exec_refresh = EXEC_READY && refresh_ctr_mismatch && (!GO) &&
 			(!posedge_EXEC_READY);
 
-  assign new_addr = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+  assign new_addr = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 		    EXEC_OLD_ADDR : addr_from_mem;
 
   assign last_block_w = (remaining_len[31:6] ^ 0) == 0;
 
   assign BL1 = last_block_w ? remaining_len[5:0] : 6'h3f;
   assign BL2 = EXEC_BLOCK_LENGTH - EXEC_COUNT_SENT;
-  assign new_block_length = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+  assign new_block_length = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 			    BL2 : BL1;
 
-  assign isel = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+  assign isel = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 		SWCH_ISEL : prepared_isel;
-  assign osel = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+  assign osel = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 		SWCH_OSEL : prepared_osel;
-  assign select_mvblck = (posedge_EXEC_READY && EXEC_ENDOF_PAGE) ?
+  assign select_mvblck = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 			 RST_mvblck : {save_data_mem,~save_data_mem};
 
   assign cont_trans = !(last_block_r && (EXEC_BLOCK_LENGTH ==
@@ -213,7 +225,7 @@ module hyper_scheduler(input CLK,
 	EXEC_READY_prev <= 1'b1; GO <= 0; EXEC_BLOCK_LENGTH <= 0;
 	EXEC_NEW_SECTION <= 0; MCU_REFRESH_STROBE <= 0;
 	EXEC_SELECT_MVBLCK <= 0; SWCH_ISEL <= 0; SWCH_OSEL <= 0;
-	EXEC_NEW_ADDR <= 0; IRQ <= 0; WRITE_MEM <= 0; MEM_W_ADDR <= 0;
+	EXEC_NEW_ADDR <= 0; IRQ <= 0; WRITE_MEM <= 0;
 	addr_from_mem <= 0; save2_MEM_R_ADDR <= 0; save1_MEM_R_ADDR <= 0;
 	save0_MEM_R_ADDR <= 0; prepared_isel <= 0; prepared_osel <= 0;
 	last_block_r <= 0; cont_trans_r <= 0; trg_post <= 0;
@@ -221,6 +233,9 @@ module hyper_scheduler(input CLK,
 	periph_ready[0] <= 0; periph_ready[1] <= 0; periph_ready[2] <= 0;
 	periph_ready[3] <= 0; periph_ready[4] <= 0; periph_ready[5] <= 0;
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
+	save2_read_data <= 0; save1_read_data <= 0;
+	save2_remaining_len <= 0; save1_remaining_len <= 0;
+	leftover_len <= 0;
       end
     else
       begin
@@ -265,13 +280,15 @@ module hyper_scheduler(input CLK,
 	  begin
 	    trans_req <= trans_req +1;
 	    save1_MEM_R_ADDR <= save0_MEM_R_ADDR;
+	    save1_read_data <= MEM_R_DATA[63:56];
+	    save1_remaining_len <= remaining_len;
 	  end
 
-	if (posedge_EXEC_READY && !EXEC_ENDOF_PAGE)
+	if (posedge_EXEC_READY && !EXEC_RESTART_OP)
 	  begin
 	    trans_ack <= trans_ack +1;
-	    MEM_W_ADDR <= save2_MEM_R_ADDR;
 	    WRITE_MEM <= 1;
+	    leftover_len <= save2_remaining_len - {18'd0,EXEC_COUNT_SENT};
 	    cont_trans_r <= cont_trans;
 	    IRQ <= !cont_trans;
 	  end
@@ -289,7 +306,7 @@ module hyper_scheduler(input CLK,
 	    SWCH_OSEL <= osel;
 	  end
 	else
-	  if (posedge_EXEC_READY && (!EXEC_ENDOF_PAGE))
+	  if (posedge_EXEC_READY && (!EXEC_RESTART_OP))
 	    EXEC_SELECT_MVBLCK <= 0;
 
 	if (exec_refresh)
@@ -303,11 +320,13 @@ module hyper_scheduler(input CLK,
 	    EXEC_NEW_SECTION <= section;
 	    trans_ack <= trans_ack +1;
 	    save2_MEM_R_ADDR <= save1_MEM_R_ADDR;
+	    save2_read_data <= save1_read_data;
+	    save2_remaining_len <= save1_remaning_len;
 	    last_block_r <= last_block_w;
 	  end
 
 	if ((enter_stage_1) ||
-	    (posedge_EXEC_READY && EXEC_ENDOF_PAGE))
+	    (posedge_EXEC_READY && EXEC_RESTART_OP))
 	  begin
 	    GO <= 1;
 	    EXEC_BLOCK_LENGTH <= new_block_length;
@@ -329,8 +348,9 @@ module hyper_lsab_dram(input CLK,
 		       input [1:0] 	 NEW_SECTION,
 		       output [31:0] 	 OLD_ADDR,
 		       output 		 READY,
-		       output reg 	 ENDOF_PAGE,
+		       output reg 	 RESTART_OP,
 		       output reg [5:0]  COUNT_SENT,
+		       output reg 	 IRQ,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
 		       output reg [5:0]  BLCK_COUNT_REQ,
@@ -338,6 +358,8 @@ module hyper_lsab_dram(input CLK,
 		       output reg [1:0]  BLCK_SECTION,
 		       input [5:0] 	 BLCK_COUNT_SENT,
 		       input 		 BLCK_WORKING,
+		       input 		 BLCK_IRQ,
+		       input 		 BLCK_ABRUPT_STOP,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
 		       output reg [1:0]  MCU_REQUEST_ALIGN,
@@ -372,7 +394,8 @@ module hyper_lsab_dram(input CLK,
 	OLD_ADDR_high <= 0; OLD_ADDR_low <= 0; carry_old_addr_calc <= 0;
 	MCU_PAGE_ADDR <= 0; BLCK_START <= 0; MCU_REQUEST_ALIGN <= 0;
 	blck_working_prev <= 0; issue_op <= 0; BLCK_COUNT_REQ <= 0;
-	ENDOF_PAGE <= 0; COUNT_SENT <= 0; add_old_addr_high <= 0;
+	RESTART_OP <= 0; COUNT_SENT <= 0; add_old_addr_high <= 0;
+	BLCK_IRQ <= 0;
 	state <= 4'b1000;
       end
     else
@@ -407,9 +430,11 @@ module hyper_lsab_dram(input CLK,
 
 	    {carry_old_addr_calc,OLD_ADDR_low} <= BLCK_START[7:0] +
 						  {2'b00,BLCK_COUNT_SENT};
-	    ENDOF_PAGE <= end_addr[12] && (BLCK_COUNT_REQ ==
-					   BLCK_COUNT_SENT);
+	    RESTART_OP <= (end_addr[12] &&
+			   (BLCK_COUNT_REQ == BLCK_COUNT_SENT) &&
+			   (! ABRUPT_STOP));
 	    COUNT_SENT <= BLCK_COUNT_SENT;
+	    IRQ <= BLCK_IRQ;
 	    add_old_addr_high <= 1;
 	  end
 	else

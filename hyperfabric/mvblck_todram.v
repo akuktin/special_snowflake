@@ -2,6 +2,10 @@
 module hyper_mvblck_todram(input CLK,
 			   input 	     RST,
 			   /* begin LSAB */
+			   input 	     LSAB_0_INT,
+			   input 	     LSAB_1_INT,
+			   input 	     LSAB_2_INT,
+			   input 	     LSAB_3_INT,
 			   input 	     LSAB_0_STOP,
 			   input 	     LSAB_1_STOP,
 			   input 	     LSAB_2_STOP,
@@ -17,12 +21,14 @@ module hyper_mvblck_todram(input CLK,
 			   input 	     ISSUE,
 			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
+			   output reg 	     IRQ_OUT,
+			   output reg 	     ABRUPT_STOP,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg 	     MCU_REQUEST_ACCESS);
   reg 					     stop_prev_n, stop_n,
-					     am_working;
+					     am_working, irq;
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
 
@@ -34,11 +40,26 @@ module hyper_mvblck_todram(input CLK,
   always @(LSAB_0_STOP or LSAB_1_STOP or
 	   LSAB_2_STOP or LSAB_3_STOP or LSAB_SECTION or read_more)
     case (LSAB_SECTION)
-      2'b00: stop_n <= (read_more && !LSAB_0_STOP);
-      2'b01: stop_n <= (read_more && !LSAB_1_STOP);
-      2'b10: stop_n <= (read_more && !LSAB_2_STOP);
-      2'b11: stop_n <= (read_more && !LSAB_3_STOP);
-      default: stop_n <= 1'bx;
+      2'b00: begin
+	stop_n <= (read_more && !LSAB_0_STOP);
+	irq <= LSAB_0_INT;
+      end
+      2'b01: begin
+	stop_n <= (read_more && !LSAB_1_STOP);
+	irq <= LSAB_1_INT;
+      end
+      2'b10: begin
+	stop_n <= (read_more && !LSAB_2_STOP);
+	irq <= LSAB_2_INT;
+      end
+      2'b11: begin
+	stop_n <= (read_more && !LSAB_3_STOP);
+	irq <= LSAB_3_INT;
+      end
+      default: begin
+	stop_n <= 1'bx;
+	irq <= 1'bx;
+      end
     endcase
 
   always @(posedge CLK)
@@ -47,7 +68,7 @@ module hyper_mvblck_todram(input CLK,
 	am_working <= 0;
 	LSAB_READ <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0; WORKING <= 0;
 	MCU_COLL_ADDRESS <= 0; MCU_WE_ARRAY <= 0; MCU_REQUEST_ACCESS <= 0;
-	stop_prev_n <= 0; len_left <= 0;
+	stop_prev_n <= 0; len_left <= 0; IRQ_OUT <= 0; ABRUPT_STOP <= 0;
 	track_addr <= 0;
       end
     else
@@ -80,6 +101,8 @@ module hyper_mvblck_todram(input CLK,
 	    am_working <= 0;
 
 	    COUNT_SENT <= COUNT_REQ - len_left;
+	    IRQ_OUT <= irq;
+	    ABRUPT_STOP <= read_more;
 	  end
 	stop_prev_n <= stop_n;
 

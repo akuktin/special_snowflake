@@ -17,6 +17,7 @@ module hyper_mvblck_frdram(input CLK,
 			   input 	     ISSUE,
 			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
+			   output reg 	     ABRUPT_STOP,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output 	     MCU_REQUEST_ACCESS);
@@ -66,6 +67,7 @@ module hyper_mvblck_frdram(input CLK,
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
 	WORKING <= 0; am_working <= 0; len_left <= 6'h1;
 	MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0;
+	ABRUPT_STOP <= 0;
       end
     else
       begin
@@ -94,6 +96,7 @@ module hyper_mvblck_frdram(input CLK,
 	      end
 	    else
 	      begin
+		ABRUPT_STOP <= !abrupt_stop_n;
 		am_working <= 0;
 		if (! read_more)
 		  begin
@@ -105,8 +108,7 @@ module hyper_mvblck_frdram(input CLK,
 		  end
 		else
 		  begin
-		    /* Guarranties the triggers will not trigger at
-		     * the same time. Also requires LSAB to assert
+		    /* Also requires LSAB to assert
 		     * the `I'm full' signal with AT LEAST 8 words
 		     * left to go. */
 		    /* This (woobly release counters) works because the
