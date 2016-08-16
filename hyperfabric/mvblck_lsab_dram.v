@@ -119,6 +119,10 @@ module hyper_scheduler(input CLK,
 		       output 		 READ_MEM,
 		       output reg 	 CAREOF_INT);
 
+  // BUG!!! All that stuff about muxing based on
+  //        (posedge_EXEC_READY && EXEC_RESTART_OP)
+  //        is DEAD WRONG!!! You need to register something.
+
   // FIXME Handling of RST for the block movers.
 
   reg [3:0] 		     big_carousel;
@@ -132,7 +136,8 @@ module hyper_scheduler(input CLK,
 			     save0_MEM_R_ADDR, prepared_isel, prepared_osel;
   reg [1:0] 		     trans_ack, trans_req, refresh_ack, refresh_req;
   reg 			     last_block_r, cont_trans_r, trg_post,
-			     trg_post_post, save_data_mem, EXEC_READY_prev;
+			     trg_post_post, save_data_mem, EXEC_READY_prev,
+			     save_careof_int;
 
   reg 			     periph_ready[7:0];
 
@@ -146,7 +151,8 @@ module hyper_scheduler(input CLK,
 			     counters_mismatch, posedge_EXEC_READY,
 			     rdmem_op, data_mem, transaction_active,
 			     time_rfrs, time_mb, trg_mb, trg_gb_0,
-			     trg_gb_1, small_carousel_reset;
+			     trg_gb_1, small_carousel_reset, w_careof_int,
+			     careof_int_muxed;
 
   assign MEM_W_ADDR = save2_MEM_R_ADDR;
   assign MEM_W_DATA = {save2_read_data[7:5],cont_trans_r, // approx
@@ -214,6 +220,8 @@ module hyper_scheduler(input CLK,
 		SWCH_OSEL : prepared_osel;
   assign select_mvblck = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
 			 RST_mvblck : {save_data_mem,~save_data_mem};
+  assign careof_int_muxed = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
+			    CAREOF_INT : save_careof_int;
 
   assign cont_trans = !(last_block_r &&
 			(EXEC_BLOCK_LENGTH == EXEC_COUNT_SENT) &&
@@ -238,7 +246,8 @@ module hyper_scheduler(input CLK,
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
 	save2_read_data <= 0; save1_read_data <= 0;
 	save2_remaining_len <= 0; save1_remaining_len <= 0;
-	leftover_len <= 0; IRQ_DESC <= 0;
+	leftover_len <= 0; IRQ_DESC <= 0; save_careof_int <= 0;
+	CAREOF_INT <= 0;
       end
     else
       begin
@@ -259,6 +268,7 @@ module hyper_scheduler(input CLK,
 
 	addr_from_mem <= MEM_R_DATA[29:0];
 	save_data_mem <= data_mem;
+	save_careof_int <= w_careof_int;
 	if (rdmem_op)
 	  begin
 	    prepared_isel <= 3'b100;
@@ -308,6 +318,7 @@ module hyper_scheduler(input CLK,
 	    EXEC_SELECT_MVBLCK <= select_mvblck;
 	    SWCH_ISEL <= isel;
 	    SWCH_OSEL <= osel;
+	    CAREOF_INT <= careof_int_muxed;
 	  end
 	else
 	  if (posedge_EXEC_READY && (!EXEC_RESTART_OP))
