@@ -408,6 +408,10 @@ module hyper_lsab_dram(input CLK,
 
 	if (state[2] && blck_working_prev && !BLCK_WORKING)
 	  begin
+	    // This is actually a speed hack. We hope the CPU will force a
+	    // precharge which we will then hijack.
+	    MCU_REQUEST_ALIGN <= 0;
+
 	    {carry_old_addr_calc,OLD_ADDR_low} <= BLCK_START[7:0] +
 						  {2'b00,BLCK_COUNT_SENT};
 	    RESTART_OP <= (end_addr[12] &&
@@ -419,10 +423,6 @@ module hyper_lsab_dram(input CLK,
 	  end
 	else
 	  add_old_addr_high <= 0;
-
-	// Dangerous.
-	if (READY && !RESTART_OP)
-	  MCU_REQUEST_ALIGN <= 0;
 
 	if (add_old_addr_high)
 	  OLD_ADDR_high <= {MCU_PAGE_ADDR,BLCK_START[11:8]} +
