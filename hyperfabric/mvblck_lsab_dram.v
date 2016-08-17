@@ -105,7 +105,7 @@ module hyper_scheduler(input CLK,
 		       input 		 EXEC_RESTART_OP,
 		       output reg [1:0]  EXEC_NEW_SECTION,
 		       output reg 	 MCU_REFRESH_STROBE,
-		       output reg [1:0]  EXEC_SELECT_MVBLCK,
+		       output reg [1:0]  EXEC_SELECT_DRAM,
 		       output reg [2:0]  SWCH_ISEL,
 		       output reg [2:0]  SWCH_OSEL,
 		       output reg [31:0] EXEC_NEW_ADDR,
@@ -220,7 +220,7 @@ module hyper_scheduler(input CLK,
 	trans_req <= 0; trans_ack <= 0; refresh_req <= 0; refresh_ack <= 0;
 	EXEC_READY_prev <= 1'b1; GO <= 0; EXEC_BLOCK_LENGTH <= 0;
 	EXEC_NEW_SECTION <= 0; MCU_REFRESH_STROBE <= 0;
-	EXEC_SELECT_MVBLCK <= 0; SWCH_ISEL <= 0; SWCH_OSEL <= 0;
+	EXEC_SELECT_DRAM <= 0; SWCH_ISEL <= 0; SWCH_OSEL <= 0;
 	EXEC_NEW_ADDR <= 0; IRQ <= 0; WRITE_MEM <= 0;
 	save2_MEM_R_ADDR <= 0; save1_MEM_R_ADDR <= 0;
 	save0_MEM_R_ADDR <= 0; save2_last_block <= 0;
@@ -275,7 +275,7 @@ module hyper_scheduler(input CLK,
 	    cont_trans_r <= cont_trans;
 	    IRQ <= !cont_trans;
 	    IRQ_DESC <= MEM_W_ADDR;
-	    EXEC_SELECT_MVBLCK <= 0;
+	    EXEC_SELECT_DRAM <= 0;
 	    RST_MVBLCK <= 0;
 	  end
 	else
@@ -299,7 +299,7 @@ module hyper_scheduler(input CLK,
 	    save2_remaining_len <= remaining_len;
 	    save2_last_block <= last_block_r;
 
-	    EXEC_SELECT_MVBLCK <= {data_mem,~data_mem};
+	    EXEC_SELECT_DRAM <= {data_mem,~data_mem};
 	    RST_MVBLCK <= {rdmem_op,~rdmem_op};
 	    SWCH_ISEL <= isel;
 	    SWCH_OSEL <= osel;
@@ -324,7 +324,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 RST,
 		         /* begin COMMAND INTERFACE */
 		       input 		 GO,
-		       input [1:0] 	 SELECT_MVBLCK,
+		       input [1:0] 	 SELECT_DRAM,
 		       input [5:0] 	 BLOCK_LENGTH,
 		       input [31:0] 	 NEW_ADDR,
 		       input [1:0] 	 NEW_SECTION,
@@ -390,7 +390,7 @@ module hyper_lsab_dram(input CLK,
 
 	if (state[0])
 	  begin
-	    MCU_REQUEST_ALIGN <= SELECT_MVBLCK;
+	    MCU_REQUEST_ALIGN <= SELECT_DRAM;
 
 	    MCU_PAGE_ADDR <= NEW_ADDR[31:12];
 	    BLCK_START <= NEW_ADDR[11:0];
@@ -408,8 +408,6 @@ module hyper_lsab_dram(input CLK,
 
 	if (state[2] && blck_working_prev && !BLCK_WORKING)
 	  begin
-	    MCU_REQUEST_ALIGN <= 0; // maybe?
-
 	    {carry_old_addr_calc,OLD_ADDR_low} <= BLCK_START[7:0] +
 						  {2'b00,BLCK_COUNT_SENT};
 	    RESTART_OP <= (end_addr[12] &&
@@ -421,6 +419,10 @@ module hyper_lsab_dram(input CLK,
 	  end
 	else
 	  add_old_addr_high <= 0;
+
+	// Dangerous.
+	if (READY && !RESTART_OP)
+	  MCU_REQUEST_ALIGN <= 0;
 
 	if (add_old_addr_high)
 	  OLD_ADDR_high <= {MCU_PAGE_ADDR,BLCK_START[11:8]} +
