@@ -430,7 +430,7 @@ module GlaDOS;
 		      .NEW_SECTION(ww_new_section),
 		      .OLD_ADDR(ww_old_addr),
 		      .READY(ww_ready),
-		      .ENDOF_PAGE(ww_eop),
+		      .RESTART_OP(ww_eop),
 		      .COUNT_SENT(ww_count_sent),
 			 /* begin BLOCK MOVER */
 		      .BLCK_START(w_start_address),
