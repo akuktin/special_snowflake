@@ -421,10 +421,12 @@ module GlaDOS;
 			  .MCU_COLL_ADDRESS(hf_coll_addr_empty),
 			  .MCU_REQUEST_ACCESS(hf_req_access_empty));
 
+  wire 	      drop;
   hyper_lsab_dram mut(.CLK(CLK_n),
 		      .RST(RST),
 		         /* begin COMMAND INTERFACE */
 		      .GO(ww_go),
+		      .SELECT_DRAM(2'h1),
 		      .BLOCK_LENGTH(ww_block_length),
 		      .NEW_ADDR(ww_new_addr),
 		      .NEW_SECTION(ww_new_section),
@@ -442,8 +444,8 @@ module GlaDOS;
 		      .BLCK_WORKING(w_working_fill | w_working_empty),
 			 /* begin MCU */
 		      .MCU_PAGE_ADDR(mcu_page_addr),
-		      .MCU_REQUEST_ALIGN(mcu_algn_req),
-		      .MCU_GRANT_ALIGN(mcu_algn_ack));
+		      .MCU_REQUEST_ALIGN({drop,mcu_algn_req}),
+		      .MCU_GRANT_ALIGN({1'b0,mcu_algn_ack}));
 
   test_mvblck test_drv(.CLK(CLK_n),
 		       .RST(RST),
