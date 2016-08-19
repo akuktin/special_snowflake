@@ -118,7 +118,9 @@ module hyper_scheduler(input CLK,
 		       input 		 IRQ_IN,
 		       output 		 READ_MEM,
 		       output reg 	 CAREOF_INT,
-		       output reg [1:0]  RST_MVBLCK);
+		       output reg [1:0]  RST_MVBLCK,
+		       input [63:0] 	 MEM_R_DATA,
+		       output [63:0] 	 MEM_W_DATA);
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
@@ -225,7 +227,7 @@ module hyper_scheduler(input CLK,
 	save2_MEM_R_ADDR <= 0; save1_MEM_R_ADDR <= 0;
 	save0_MEM_R_ADDR <= 0; save2_last_block <= 0;
 	last_block_r <= 0; cont_trans_r <= 0; trg_post <= 0;
-	trg_post_post <= 0; save_data_mem <= 0; EXEC_READY_prev <= 0;
+	trg_post_post <= 0; save_data_mem <= 0;
 	periph_ready[0] <= 0; periph_ready[1] <= 0; periph_ready[2] <= 0;
 	periph_ready[3] <= 0; periph_ready[4] <= 0; periph_ready[5] <= 0;
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
@@ -269,7 +271,6 @@ module hyper_scheduler(input CLK,
 
 	if (posedge_EXEC_READY && !EXEC_RESTART_OP)
 	  begin
-	    trans_ack <= trans_ack +1;
 	    WRITE_MEM <= 1;
 	    leftover_len <= save2_remaining_len - {18'd0,EXEC_COUNT_SENT};
 	    cont_trans_r <= cont_trans;
