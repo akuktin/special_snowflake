@@ -6,7 +6,7 @@
 `include "../mcu/commands.v"
 `include "../mcu/state2.v"
 `include "../mcu/initializer.v"
-`include "../mcu/integration2.v"
+`include "../mcu/integration3.v"
 
 // Cache
 `include "../cache/cpu_mcu2.v"
@@ -292,6 +292,14 @@ module GlaDOS;
   wire [5:0]  ww_block_length, ww_count_sent;
   wire [31:0] ww_new_addr, ww_old_addr;
 
+  wire 	      drop;
+  wire 	      refresh_strobe;
+  wire 	      ww_irq;
+  wire [1:0]  ww_select_dram;
+
+  wire 	      w_careof_int;
+  wire [2:0]  w_isel, w_osel;
+
   ddr ddr_mem(.Clk(CLK_p),
 	      .Clk_n(CLK_n),
 	      .Cke(CKE),
@@ -318,6 +326,7 @@ module GlaDOS;
 			      .DQS(DQS),
 			      .DM(DM),
 			      .CS(CS),
+			      .refresh_strobe(refresh_strobe),
 			      .rand_req_address(0),
 			      .rand_req_we(0),
 			      .rand_req_we_array(0),
@@ -434,13 +443,9 @@ module GlaDOS;
 			  .MCU_COLL_ADDRESS(hf_coll_addr_empty),
 			  .MCU_REQUEST_ACCESS(hf_req_access_empty));
 
-  wire 	      drop;
-
-  wire 	      ww_irq;
-  wire [1:0]  ww_select_dram;
   hyper_lsab_dram restarter(.CLK(CLK_n),
 		      .RST(RST),
-		         /* begin COMMAND INTERFACE */
+		         // begin COMMAND INTERFACE
 		      .GO(ww_go),
 		      .SELECT_DRAM(ww_select_dram),
 		      .BLOCK_LENGTH(ww_block_length),
@@ -451,7 +456,7 @@ module GlaDOS;
 		      .RESTART_OP(ww_eop),
 		      .COUNT_SENT(ww_count_sent),
 		      .IRQ(ww_irq),
-			 /* begin BLOCK MOVER */
+			 // begin BLOCK MOVER
 		      .BLCK_START(w_start_address),
 		      .BLCK_COUNT_REQ(w_count_req),
 		      .BLCK_ISSUE(w_issue),
@@ -461,14 +466,11 @@ module GlaDOS;
 		      .BLCK_WORKING(w_working_fill | w_working_empty),
 		      .BLCK_IRQ(w_irq_cr),
 		      .BLCK_ABRUPT_STOP(w_abstop_cr || w_abstop_cw),
-			 /* begin MCU */
+			 // begin MCU
 		      .MCU_PAGE_ADDR(mcu_page_addr),
 		      .MCU_REQUEST_ALIGN({drop,mcu_algn_req}),
 		      .MCU_GRANT_ALIGN({1'b0,mcu_algn_ack}));
 
-  reg 	      RST_delayed;
-  wire 	      w_careof_int;
-  wire [2:0]  w_isel, w_osel;
   hyper_scheduler mut(.CLK(CLK_n),
 		      .RST(RST),
 		      // service section interface
@@ -486,7 +488,7 @@ module GlaDOS;
 		      .EXEC_COUNT_SENT(ww_count_sent),
 		      .EXEC_RESTART_OP(ww_eop),
 		      .EXEC_NEW_SECTION(ww_new_section),
-		      .MCU_REFRESH_STROBE(),               // leftover
+		      .MCU_REFRESH_STROBE(refresh_strobe),
 		      .EXEC_SELECT_DRAM(ww_select_dram),
 		      .SWCH_ISEL(w_isel),
 		      .SWCH_OSEL(w_osel),
@@ -500,8 +502,10 @@ module GlaDOS;
 		      .IRQ_DESC(),
 		      .WRITE_MEM(),
 		      .MEM_W_ADDR(),
+		      .MEM_W_DATA(),
+		      .READ_MEM(),
 		      .MEM_R_ADDR(),
-		      .READ_MEM());
+		      .MEM_R_DATA(0));
 
 /*
   test_mvblck test_drv(.CLK(CLK_n),
