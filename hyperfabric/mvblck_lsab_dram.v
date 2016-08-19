@@ -148,8 +148,8 @@ module hyper_scheduler(input CLK,
 			     trg_gb_1, small_carousel_reset, w_careof_int;
 
   assign MEM_W_ADDR = save2_MEM_R_ADDR;
-  assign MEM_W_DATA = {save2_read_data[7:5],cont_trans_r, // approx
-		       save2_read_data[3:0], // approx
+  assign MEM_W_DATA = {cont_trans_r, // approx
+		       save2_read_data[6:0], // approx
 		       leftover_len,EXEC_OLD_ADDRESS};
 
   // Should fit in two gates. Otherwise, register the wires and use those.
@@ -176,7 +176,7 @@ module hyper_scheduler(input CLK,
 		     (big_carousel == 4'h9) || (big_carousel == 4'hb) ||
 		     (big_carousel == 4'hd) || (big_carousel == 4'hf);
 
-  assign transaction_active = MEM_R_DATA[60];
+  assign transaction_active = MEM_R_DATA[63];
 
   assign remaining_len = MEM_R_DATA[55:32];
   assign section = MEM_R_DATA[57:56];
