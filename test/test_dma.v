@@ -98,134 +98,80 @@ module test_fill_lsab(input CLK,
 
 endmodule // test_in
 
-module test_mvblck(input CLK,
-		   input 	 RST,
-		   output 	 RST_FILL,
-		   output 	 RST_EMPTY,
-		   output reg 	 GO,
-		   output [5:0]  BLOCK_LENGTH,
-		   output [31:0] NEW_ADDR,
-		   output [1:0]  NEW_SECTION,
-		   input [31:0]  OLD_ADDR,
-		   input 	 READY,
-		   input 	 END_OF_PAGE,
-		   input [5:0] 	 COUNT_SENT);
-  reg [31:0] 			 c;
-  reg [31:0] 			 test_addr[255:0], old_addr_prev;
-  reg [7:0] 			 testno, maxtests;
-  reg [5:0] 			 test_count[255:0],
-				 test_count_expect[255:0];
-  reg [1:0] 			 test_section[255:0];
-  reg 				 ready_prev, trigger_prev,
-				 test_eop_expect[255:0],
-				 test_rst_fill[255:0],
-				 test_rst_empty[255:0];
+module test_dma(input CLK,
+		input 		  RST,
+		// ---------------------
+		input 		  IRQ,
+		input [2:0] 	  IRQ_DESC,
+		// ---------------------
+		input 		  READ_DMA,
+		input 		  WRITE_DMA,
+		input [2:0] 	  R_ADDR_DMA,
+		input [2:0] 	  W_ADDR_DMA,
+		input [63:0] 	  IN_DMA,
+		output reg [63:0] OUT_DMA);
+  reg [31:0] 			  c;
+  reg [63:0] 				     mem[7:0];
+  reg [63:0] 				     in_r;
+  reg 					     read_dma_r, we_pre_r;
+  reg [2:0] 				     read_addr, write_addr_r;
 
-  wire [5:0] 			 w_count_expect;
-  wire 				 trigger, trigger_all, w_eop_expect;
+  wire 					     read_dma_w, we,
+					     atomic_strobe;
+  wire [2:0] 				     write_addr;
+  wire [63:0] 				     out, in;
 
-  assign trigger = (!ready_prev) && READY;
-  assign trigger_all = (c == 32'd256) || trigger;
+  assign out = mem[read_addr];
+  assign read_dma_w = READ_DMA;
 
-  assign NEW_ADDR = test_addr[testno];
-  assign BLOCK_LENGTH = test_count[testno];
-  assign NEW_SECTION = test_section[testno];
-  assign w_count_expect = test_count_expect[testno];
-  assign w_eop_expect = test_eop_expect[testno];
-  assign RST_FILL = test_rst_fill[testno];
-  assign RST_EMPTY = test_rst_empty[testno];
+  assign in = IN_DMA;
+  assign write_addr = W_ADDR_DMA;
+  assign we_pre = WRITE_DMA;
+  assign we = we_pre_r && !(atomic_strobe ^ in_r[61]);
 
-  reg [31:0] 			 l, o, v, e;
+  assign atomic_strobe = mem[write_addr_r][61];
+
   initial
     begin
-      for (l=0; l<256; l=l+1)
-	begin
-	  test_addr[l] <= 0;
-	  test_count[l] <= 0;
-	  test_section[l] <= 2'h1;
-	  test_count_expect[l] <= 0;
-	  test_eop_expect[l] <= 0;
-	  test_rst_fill[l] <= 0;
-	  test_rst_empty[l] <= 0;
-	end
-
-      // your test data here
-      test_addr[1] <= 32'h0020_0001;
-      test_count[1] <= 3;
-      test_count_expect[1] <= 3;
-      test_rst_fill[1] <= 1;
-
-      test_addr[2] <= 32'h0020_0fff;
-      test_count[2] <= 3;
-      test_count_expect[2] <= 1;
-      test_eop_expect[2] <= 1;
-      test_rst_fill[2] <= 1;
-
-      test_addr[3] <= 32'h0020_1000;
-      test_count[3] <= 3;
-      test_count_expect[3] <= 1;
-      test_eop_expect[3] <= 0;
-      test_rst_fill[3] <= 1;
-
-
-      test_addr[4] <= 32'h0020_0001;
-      test_count[4] <= 3;
-      test_count_expect[4] <= 3;
-      test_rst_empty[4] <= 1;
-
-      test_addr[5] <= 32'h0020_0fff;
-      test_count[5] <= 3;
-      test_count_expect[5] <= 1;
-      test_eop_expect[5] <= 1;
-      test_rst_empty[5] <= 1;
-
-      test_addr[6] <= 32'h0020_1001;
-      test_count[6] <= 6'h3f;
-      test_count_expect[6] <= 6'h3b;
-      test_eop_expect[6] <= 0;
-      test_rst_empty[6] <= 1;
+      mem[0] <= 0; mem[1] <= 0; mem[2] <= 0; mem[3] <= 0;
+      mem[4] <= 0; mem[5] <= 0; mem[6] <= 0; mem[7] <= 0;
     end
 
   always @(posedge CLK)
     if (!RST)
       begin
-	c <= 0; ready_prev <= 0; GO <= 0;
-	old_addr_prev <= 0; trigger_prev <= 0;
-	testno <= 8'h00; maxtests <= 6;
+	OUT_DMA <= 0; read_dma_r <= 0; read_addr <= 0;
+	write_addr_r <= 0; in_r <= 0; we_pre_r <= 0;
+	c <= 0;
       end
     else
       begin
-	c <= c+1;
-	ready_prev <= READY;
-	trigger_prev <= trigger;
-	old_addr_prev <= NEW_ADDR + w_count_expect;
+	begin
+	  c <= c +1;
+	  if (c == 3)
+	    mem[0] <= 64'h8500_0004_0000_0100;
+	end
 
-	if (trigger)
-	  begin
-	    if (COUNT_SENT != w_count_expect)
-	      $display("XXX count of sent #%d got %x want %x @ %d",
-		       testno, COUNT_SENT, w_count_expect, c);
-	    if (END_OF_PAGE != w_eop_expect)
-	      $display("XXX end-of-page #%d got %x want %x @ %d",
-		       testno, END_OF_PAGE, w_eop_expect, c);
-	  end
-	if (trigger_prev)
-	  if (OLD_ADDR != old_addr_prev)
-	    $display("XXX calc addr #%d got %x want %x @ %d",
-		     testno, OLD_ADDR, (NEW_ADDR + w_count_expect), c);
+	if (read_dma_r)
+	  OUT_DMA <= out;
 
-	if (trigger_all && (testno < maxtests))
+	read_dma_r <= read_dma_w;
+
+	if (read_dma_w)
+	  read_addr <= R_ADDR_DMA;
+
+	if (we_pre)
 	  begin
-	    testno <= testno +1;
-	    $display("TEST #%d", testno+1);
-	    GO <= 1;
+	    write_addr_r <= write_addr;
+	    in_r <= in;
 	  end
-	else
-	  if (!READY)
-	    GO <= 0;
+	we_pre_r <= we_pre;
+
+	if (we)
+	  mem[write_addr_r] <= in_r;
       end
 
-endmodule // test_mvblck
+endmodule // hyper_scheduler_mem
 
 module GlaDOS;
   reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, RST_ddr, CPU_CLK;
@@ -299,6 +245,10 @@ module GlaDOS;
 
   wire 	      w_careof_int;
   wire [2:0]  w_isel, w_osel;
+
+  wire 	      res_irq, res_write_mem, res_read_mem;
+  wire [2:0]  res_irq_desc, res_r_addr, res_w_addr;
+  wire [63:0] res_in, res_out;
 
   ddr ddr_mem(.Clk(CLK_p),
 	      .Clk_n(CLK_n),
@@ -498,29 +448,25 @@ module GlaDOS;
 		      .RST_MVBLCK({mvblck_RST_fill,mvblck_RST_empty}),
 		      .IRQ_IN(ww_irq),
 		      // user section interface
-		      .IRQ(),
-		      .IRQ_DESC(),
-		      .WRITE_MEM(),
-		      .MEM_W_ADDR(),
-		      .MEM_W_DATA(),
-		      .READ_MEM(),
-		      .MEM_R_ADDR(),
-		      .MEM_R_DATA(0));
+		      .IRQ(res_irq),
+		      .IRQ_DESC(res_irq_desc),
+		      .WRITE_MEM(res_write_mem),
+		      .MEM_W_ADDR(res_w_addr),
+		      .MEM_W_DATA(res_in),
+		      .READ_MEM(res_read_mem),
+		      .MEM_R_ADDR(res_r_addr),
+		      .MEM_R_DATA(res_out));
 
-/*
-  test_mvblck test_drv(.CLK(CLK_n),
-		       .RST(RST),
-		       .RST_FILL(mvblck_RST_fill),
-		       .RST_EMPTY(mvblck_RST_empty),
-		       .GO(ww_go),
-		       .BLOCK_LENGTH(ww_block_length),
-		       .NEW_ADDR(ww_new_addr),
-		       .NEW_SECTION(ww_new_section),
-		       .OLD_ADDR(ww_old_addr),
-		       .READY(ww_ready),
-		       .END_OF_PAGE(ww_eop),
-		       .COUNT_SENT(ww_count_sent));
- */
+  test_dma test_drv(.CLK(CLK_n),
+		    .RST(RST),
+		    .IRQ(res_irq),
+		    .IRQ_DESC(res_irq_desc),
+		    .READ_DMA(res_read_mem),
+		    .WRITE_DMA(res_write_mem),
+		    .R_ADDR_DMA(res_r_addr),
+		    .W_ADDR_DMA(res_w_addr),
+		    .IN_DMA(res_in),
+		    .OUT_DMA(res_out));
 
   always @(posedge CLK_n)
     if (!RST)
