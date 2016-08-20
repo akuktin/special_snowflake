@@ -356,7 +356,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 BLCK_ABRUPT_STOP,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
-		       output reg [1:0]  MCU_REQUEST_ALIGN,
+		       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL
 		       input [1:0] 	 MCU_GRANT_ALIGN);
   reg [23:0] 				 OLD_ADDR_high;
   reg [7:0] 				 OLD_ADDR_low;

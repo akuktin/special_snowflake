@@ -14,13 +14,14 @@ module hyper_mvblck_frdram(input CLK,
 			   input [11:0]      START_ADDRESS,
 			   input [5:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
+			   input [1:0] 	     DRAM_SEL,
 			   input 	     ISSUE,
 			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   output reg 	     ABRUPT_STOP,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
-			   output 	     MCU_REQUEST_ACCESS);
+			   output [1:0]      MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n;
   reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
@@ -36,8 +37,8 @@ module hyper_mvblck_frdram(input CLK,
    * request signals one cycle earlier then I normally would.
    * For the easy-to-read variant, look back in the git repository. */
   assign MCU_REQUEST_ACCESS = am_working ?
-			      read_more : // because of abrupt_stop_n
-			      (ISSUE && RST);
+			      (DRAM_SEL & {read_more,read_more}) :
+			      (DRAM_SEL & {(ISSUE && RST),(ISSUE && RST)});
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;

@@ -18,6 +18,7 @@ module hyper_mvblck_todram(input CLK,
 			   input [11:0]      START_ADDRESS,
 			   input [5:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
+			   input [1:0] 	     DRAM_SEL,
 			   input 	     ISSUE,
 			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
@@ -26,7 +27,7 @@ module hyper_mvblck_todram(input CLK,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
-			   output reg 	     MCU_REQUEST_ACCESS);
+			   output reg [1:0]  MCU_REQUEST_ACCESS);
   reg 					     stop_prev_n, stop_n,
 					     am_working, irq;
   reg [5:0] 				     len_left;
@@ -110,7 +111,7 @@ module hyper_mvblck_todram(input CLK,
 	  begin
 	    MCU_WE_ARRAY <= {stop_prev_n,stop_prev_n,stop_n,stop_n};
 	    MCU_COLL_ADDRESS <= {track_addr[11:1],1'b0};
-	    MCU_REQUEST_ACCESS <= 1;
+	    MCU_REQUEST_ACCESS <= DRAM_SEL;
 	  end
 	else
 	  begin
