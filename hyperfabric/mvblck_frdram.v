@@ -37,8 +37,8 @@ module hyper_mvblck_frdram(input CLK,
    * request signals one cycle earlier then I normally would.
    * For the easy-to-read variant, look back in the git repository. */
   assign MCU_REQUEST_ACCESS = am_working ?
-			      (DRAM_SEL & {read_more,read_more}) :
-			      (DRAM_SEL & {(ISSUE && RST),(ISSUE && RST)});
+			      (DRAM_SEL & {(2){read_more}}) :
+			      (DRAM_SEL & {(2){(ISSUE && RST)}});
 
   assign release_trigger = release_counter == 3'h7;
   assign we_trigger = we_counter == 3'h7;
