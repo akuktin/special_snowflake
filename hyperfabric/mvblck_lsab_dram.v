@@ -124,19 +124,20 @@ module hyper_scheduler(input CLK,
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
-  reg [23:0] 		     save2_remaining_len, leftover_len;
+  reg [23:0] 		     save2_remaining_len, leftover_len,
+			     saved_mem_addr;
   reg [7:0] 		     save2_read_data;
   reg [2:0] 		     save2_MEM_R_ADDR, save1_MEM_R_ADDR,
 			     save0_MEM_R_ADDR;
   reg [1:0] 		     trans_ack, trans_req, refresh_ack, refresh_req;
   reg 			     last_block_r, cont_trans_r, trg_post,
 			     trg_post_post, save_data_mem, EXEC_READY_prev,
-			     save2_last_block;
+			     save2_last_block, is_restart_r;
 
   reg 			     periph_ready[7:0];
 
-  wire [31:0] 		     new_addr;
-  wire [23:0] 		     remaining_len;
+  wire [23:0] 		     remaining_len, new_addr_high;
+  wire [7:0] 		     new_addr_low;
   wire [5:0] 		     BL1, BL2, new_block_length;
   wire [2:0] 		     isel, osel;
   wire [1:0] 		     section;
@@ -197,8 +198,10 @@ module hyper_scheduler(input CLK,
   assign exec_refresh = EXEC_READY && refresh_ctr_mismatch && (!GO) &&
 			(!posedge_EXEC_READY);
 
-  assign new_addr = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
-		    EXEC_OLD_ADDR : MEM_R_DATA[29:0];
+  assign new_addr_low = (posedge_EXEC_READY && EXEC_RESTART_OP) ?
+			EXEC_OLD_ADDR[7:0] : MEM_R_DATA[7:0];
+  assign new_addr_high = is_restart_r ?
+			 EXEC_OLD_ADDR[31:8] : saved_mem_addr;
 
   assign last_block_w = (remaining_len[23:6] ^ 0) == 0;
 
@@ -227,12 +230,12 @@ module hyper_scheduler(input CLK,
 	save2_MEM_R_ADDR <= 0; save1_MEM_R_ADDR <= 0;
 	save0_MEM_R_ADDR <= 0; save2_last_block <= 0;
 	last_block_r <= 0; cont_trans_r <= 0; trg_post <= 0;
-	trg_post_post <= 0; save_data_mem <= 0;
+	trg_post_post <= 0; save_data_mem <= 0; is_restart_r <= 0;
 	periph_ready[0] <= 0; periph_ready[1] <= 0; periph_ready[2] <= 0;
 	periph_ready[3] <= 0; periph_ready[4] <= 0; periph_ready[5] <= 0;
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
 	save2_read_data <= 0; save2_remaining_len <= 0;
-	leftover_len <= 0; IRQ_DESC <= 0;
+	leftover_len <= 0; IRQ_DESC <= 0; saved_mem_addr <= 0;
 	CAREOF_INT <= 0; RST_MVBLCK <= 0;
       end
     else
@@ -305,14 +308,22 @@ module hyper_scheduler(input CLK,
 	    SWCH_ISEL <= isel;
 	    SWCH_OSEL <= osel;
 	    CAREOF_INT <= w_careof_int;
+	  end // if (enter_stage_1)
+
+	if (GO)
+	  begin
+	    EXEC_NEW_ADDR[31:8] <= new_addr_high;
 	  end
 
 	if ((enter_stage_1) ||
 	    (posedge_EXEC_READY && EXEC_RESTART_OP))
 	  begin
+	    saved_mem_addr[21:0] <= MEM_R_DATA[29:8];
+	    is_restart_r <= (posedge_EXEC_READY && EXEC_RESTART_OP);
+
 	    GO <= 1;
 	    EXEC_BLOCK_LENGTH <= new_block_length;
-	    EXEC_NEW_ADDR <= new_addr;
+	    EXEC_NEW_ADDR[7:0] <= new_addr_low;
 	  end
 	else
 	  if (! EXEC_READY)
