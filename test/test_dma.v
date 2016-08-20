@@ -87,10 +87,10 @@ module test_fill_lsab(input CLK,
       end
     else
       begin
-	fast_i <= 2'h1;
-//	fast_i <= fast_i +1;
-//	if (fast_i == 2'h3)
-	if (slow_i < 10'h3ff)
+//	fast_i <= 2'h1;
+	fast_i <= fast_i +1;
+	if (fast_i == 2'h3)
+//	if (slow_i < 10'h3ff)
 	  slow_i <= slow_i +1;
 
 	c <= c +1;
@@ -148,8 +148,25 @@ module test_dma(input CLK,
       begin
 	begin
 	  c <= c +1;
-	  if (c == 3)
-	    mem[0] <= 64'h8500_0004_0000_0100;
+	  if (c == 600)
+	    begin
+//	      mem[0] <= 64'h8100_0004_0000_0fff;
+//	      mem[0] <= 64'h8500_0004_0000_0fff;
+//	      mem[1] <= 64'h8500_0010_0000_0fff;
+
+////	      mem[0] <= 64'h9600_0010_0000_0000;
+//	      mem[0] <= 64'h9600_0009_0000_0000;
+////	      mem[1] <= 64'h9600_0002_0000_0fff;
+//	      mem[1] <= 64'h9600_0002_0000_0007;
+
+//	      mem[1] <= 64'h9000_0040_0000_0001;
+
+	      mem[0] <= 64'h9000_0080_0010_0001;
+	      mem[1] <= 64'h9000_003f_0020_0000;
+	      mem[3] <= 64'h9000_003f_0030_0000;
+	    end
+	  if (IRQ)
+	    $display("INTERRUPT REQUEST %x", IRQ_DESC);
 	end
 
 	if (read_dma_r)
@@ -168,7 +185,12 @@ module test_dma(input CLK,
 	we_pre_r <= we_pre;
 
 	if (we)
-	  mem[write_addr_r] <= in_r;
+	  begin
+	    mem[write_addr_r] <= in_r;
+	    $display("returns: %x_%x", in_r[63:32], in_r[31:0]);
+	    if (!in_r[63])
+	      $display("END TRANSACTION %x", write_addr_r);
+	  end
       end
 
 endmodule // hyper_scheduler_mem
@@ -335,6 +357,7 @@ module GlaDOS;
 		  .INT_OUT_0(w_i0_cr), .INT_OUT_1(w_i1_cr),
 		  .INT_OUT_2(w_i2_cr), .INT_OUT_3(w_i3_cr));
 
+  wire 	      drop_f;
   hyper_mvblck_todram fill(.CLK(CLK_n),
 			   .RST(mvblck_RST_fill),
 			   .LSAB_0_INT(w_i0_cr),
@@ -350,6 +373,7 @@ module GlaDOS;
 			   .START_ADDRESS(w_start_address),
 			   .COUNT_REQ(w_count_req),
 			   .SECTION(w_section),
+			   .DRAM_SEL({1'b0,mcu_algn_req}),
 			   .ISSUE(w_issue),
 			   .COUNT_SENT(w_count_sent_fill),
 			   .WORKING(w_working_fill),
@@ -357,11 +381,11 @@ module GlaDOS;
 			   .ABRUPT_STOP(w_abstop_cr),
 			   .MCU_COLL_ADDRESS(hf_coll_addr_fill),
 			   .MCU_WE_ARRAY(hf_we_array_fill),
-			   .MCU_REQUEST_ACCESS(hf_req_access_fill));
+			   .MCU_REQUEST_ACCESS({drop_f,hf_req_access_fill}));
 
   lsab_cw lsab_out(.CLK(CLK_n),
 		   .RST(RST),
-		   .READ(0),
+		   .READ(1),
 		   .WRITE(w_write_cw),
 		   .READ_FIFO(0),
 		   .WRITE_FIFO(w_write_fifo_cw),
@@ -375,6 +399,7 @@ module GlaDOS;
 		   .BFULL_2(w_f2_cw),
 		   .BFULL_3(w_f3_cw));
 
+  wire 	      drop_e;
   hyper_mvblck_frdram empty(.CLK(CLK_n),
 			  .RST(mvblck_RST_empty),
 			  .LSAB_0_FULL(w_f0_cw),
@@ -386,12 +411,13 @@ module GlaDOS;
 			  .START_ADDRESS(w_start_address),
 			  .COUNT_REQ(w_count_req),
 			  .SECTION(w_section),
+			  .DRAM_SEL({1'b0,mcu_algn_req}),
 			  .ISSUE(w_issue),
 			  .COUNT_SENT(w_count_sent_empty),
 			  .WORKING(w_working_empty),
 			  .ABRUPT_STOP(w_abstop_cw),
 			  .MCU_COLL_ADDRESS(hf_coll_addr_empty),
-			  .MCU_REQUEST_ACCESS(hf_req_access_empty));
+			  .MCU_REQUEST_ACCESS({drop_e,hf_req_access_empty}));
 
   hyper_lsab_dram restarter(.CLK(CLK_n),
 		      .RST(RST),
@@ -480,38 +506,12 @@ module GlaDOS;
 	mcu_we <= hf_req_access_fill;
 
 /*
-	if ((test_drv.testno > 0) && (test_drv.testno < 6))
+	if (counter > 400 && counter < 610)
 	  begin
-	    $display("addr %x req %x algn %x/%x page %x/%x %x",
-		     {mcu_page_addr,mcu_coll_addr}, mcu_req_access,
-		     mcu_algn_req, mcu_algn_ack,
-		     {ddr_mc.interdictor_tracker.REQUEST_ACCESS_BULK,
-		      ddr_mc.interdictor_tracker.REFRESH_TIME,
-		      ddr_mc.interdictor_tracker.SOME_PAGE_ACTIVE,
-                      ddr_mc.interdictor_tracker.row_request_live_bulk,
-		      ddr_mc.interdictor_tracker.bank_request_live_bulk},
-		     {3'b101,ddr_mc.interdictor_tracker.page_current},
-		     ddr_mc.interdictor_tracker.issue_enable_override);
-	  end
- */
-/*
-	if (counter < 32)
-	  begin
-	    $display("d0 %x d1 %x d2 %x d3 %x we %x wefifo %x @ %d/%d",
-		     w_data0, w_data1, w_data2, w_data3,
-		     w_write, w_write_fifo,
-		     counter, test_driver.slow_i);
-	  end
- */
-/*
-	if (counter > 1190 && counter < 1500)
-	  begin
-	    $display("out %x re %x rfifo %x ept %x stp %x @ %d/%d",
-		     w_out,
-		     w_read, w_read_fifo,
-		     {w_e0,w_e1,w_e2,w_e3},
-		     {w_s0,w_s1,w_s2,w_s3},
-		     counter, test_driver.slow_i);
+	    $display("addr %x we %x wea %x req %x algnr %x algna %x @ %d",
+		     {mcu_page_addr,mcu_coll_addr}, mcu_we,
+		     hf_we_array_fill, mcu_req_access, mcu_algn_req,
+		     mcu_algn_ack, counter);
 	  end
  */
 /*
