@@ -151,7 +151,7 @@ module hyper_scheduler(input CLK,
   assign MEM_W_ADDR = save2_MEM_R_ADDR;
   assign MEM_W_DATA = {cont_trans_r, // approx
 		       save2_read_data[6:0], // approx
-		       leftover_len,EXEC_OLD_ADDRESS};
+		       leftover_len,EXEC_OLD_ADDR};
 
   // Should fit in two gates. Otherwise, register the wires and use those.
   assign READ_MEM = trg_gb_0 || trg_gb_1 || (trg_mb && time_mb);
@@ -184,6 +184,7 @@ module hyper_scheduler(input CLK,
   assign rdmem_op = MEM_R_DATA[58];
   assign data_mem = MEM_R_DATA[59]; // actually supposed to be the highest
                                     // usable bit in the DRAM address
+  assign w_careof_int = MEM_R_DATA[60];
 
   // should fit in two gates
   assign MEM_R_ADDR = trg_gb_0 ? 0 : (trg_gb_1 ? 1 : big_carousel[3:1]);
@@ -213,9 +214,9 @@ module hyper_scheduler(input CLK,
   assign isel = rdmem_op ? 3'b100 : {1'h0,data_mem,~data_mem};
   assign osel = rdmem_op ? {1'h0,data_mem,~data_mem} : 3'b100;
 
-  assign cont_trans = !(save2_last_block &&
-			(EXEC_BLOCK_LENGTH == EXEC_COUNT_SENT) &&
-			! IRQ_IN);
+  assign cont_trans = (! (save2_last_block &&
+			  (EXEC_BLOCK_LENGTH == EXEC_COUNT_SENT))) &&
+		      (! IRQ_IN);
 
   always @(posedge CLK)
     if (!RST)
@@ -250,10 +251,10 @@ module hyper_scheduler(input CLK,
 	EXEC_READY_prev <= EXEC_READY;
 
 	// {read_memory_op,section}
-	periph_ready[0] <= !CR_E0; periph_ready[1] <= !CR_E1;
-	periph_ready[2] <= !CR_E2; periph_ready[3] <= !CR_E3;
-	periph_ready[4] <= !CW_F0; periph_ready[5] <= !CW_F1;
-	periph_ready[6] <= !CW_F2; periph_ready[7] <= !CW_F3;
+	periph_ready[0] <= !CW_F0; periph_ready[1] <= !CW_F1;
+	periph_ready[2] <= !CW_F2; periph_ready[3] <= !CW_F3;
+	periph_ready[4] <= !CR_E0; periph_ready[5] <= !CR_E1;
+	periph_ready[6] <= !CR_E2; periph_ready[7] <= !CR_E3;
 
 	last_block_r <= last_block_w;
 
