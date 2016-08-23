@@ -32,7 +32,7 @@ module hyper_scheduler_mem(input CLK,
   assign read_dma_w = READ_DMA;
   assign read_cpu_w = READ_CPU && !(READ_DMA || READ_CPU_ACK);
 
-  assign in = WRITE_DMA ? IN_DMA : IN_CPU;
+  assign in = WRITE_DMA ? IN_DMA : {IN_CPU[63:3],3'h0};
   assign write_addr = WRITE_DMA ? W_ADDR_DMA : ADDR_CPU;
   assign we_pre = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
   assign we = we_dma ? (we_pre_r && !(atomic_strobe ^ in_r[61])) :
