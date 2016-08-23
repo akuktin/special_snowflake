@@ -312,7 +312,7 @@ module GlaDOS;
 			      .bulk_req_ack(),
 			      .bulk_req_algn(mcu_algn_req),
 			      .bulk_req_algn_ack(mcu_algn_ack),
-			      .user_req_datain(mcu_data_into),
+			      .bulk_req_datain(mcu_data_into),
 			      .user_req_dataout(mcu_data_outof));
 
   test_fill_lsab lsab_write(.CLK(CLK_n),

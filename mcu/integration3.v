@@ -20,6 +20,7 @@ module ddr_memory_controler(input CLK_n,
 			    input [3:0]   rand_req_we_array,
 			    input 	  rand_req,
 			    output 	  rand_req_ack,
+			    input [31:0]  rand_req_datain,
 			    input [25:0]  bulk_req_address,
 			    input 	  bulk_req_we,
 			    input [3:0]   bulk_req_we_array,
@@ -27,8 +28,9 @@ module ddr_memory_controler(input CLK_n,
 			    output 	  bulk_req_ack,
 			    input 	  bulk_req_algn,
 			    output 	  bulk_req_algn_ack,
-			    input [31:0]  user_req_datain,
+			    input [31:0]  bulk_req_datain,
 			    output [31:0] user_req_dataout);
+  wire [31:0] 				         user_req_datain;
   wire [2:0] 					 command_user,
 						 command_statechange_req,
 						 cur_state;
@@ -43,6 +45,8 @@ module ddr_memory_controler(input CLK_n,
 						 internal_we_array;
 
   assign CS = 1'b0; // Always on.
+  assign user_req_datain = bulk_req_algn ?
+			   bulk_req_datain : rand_req_datain;
 
   initializer initializer_m(.CLK_n(CLK_n),
 			    .RST(RST),
