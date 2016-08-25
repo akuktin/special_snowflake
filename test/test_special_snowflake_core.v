@@ -668,7 +668,7 @@ module GlaDOS;
 				    .READ_CPU_ACK(d_dma_read_ack),
 				    .WRITE_CPU_ACK(d_dma_wrte_ack),
 				    .ADDR_CPU(d_user_req_address[2:0]),
-				    .IN_CPU({d_user_req_dataout,
+				    .IN_CPU({d_user_req_datain,
 					     d_user_req_address}),
 				    .OUT_CPU(d_dma_out),
 			   // ---------------------
@@ -889,7 +889,29 @@ module GlaDOS;
           d_cache.tlbtag.ram.r_data[i] <= 0;
         end // for (i=0;i<256;i=i+1)
 
-`include "test_cpu_prog.bin"
+      cpu.regf.mARAM[8] <= 32'hc000_0000;
+      cpu.regf.mBRAM[8] <= 32'hc000_0000;
+      cpu.regf.mDRAM[8] <= 32'hc000_0000;
+
+      // into data DRAM
+      cpu.regf.mARAM[9] <= 32'h8d00_0045;
+      cpu.regf.mBRAM[9] <= 32'h8d00_0045;
+      cpu.regf.mDRAM[9] <= 32'h8d00_0045;
+
+/*
+      // into instruction DRAM
+      cpu.regf.mARAM[9] <= 32'h8500_0045;
+      cpu.regf.mBRAM[9] <= 32'h8500_0045;
+      cpu.regf.mDRAM[9] <= 32'h8500_0045;
+ */
+/*
+      // nothing at all
+      cpu.regf.mARAM[9] <= 32'h0000_0045;
+      cpu.regf.mBRAM[9] <= 32'h0000_0045;
+      cpu.regf.mDRAM[9] <= 32'h0000_0045;
+ */
+
+`include "test_special_snowflake_core_prog.bin"
     end
 
 endmodule // GlaDOS
