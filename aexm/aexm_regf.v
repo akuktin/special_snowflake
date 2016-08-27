@@ -1,34 +1,3 @@
-// $Id: aeMB_regf.v,v 1.3 2007-11-10 16:39:38 sybreon Exp $
-//
-// AEMB REGISTER FILE
-//
-// Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-//
-// This file is part of AEMB.
-//
-// AEMB is free software: you can redistribute it and/or modify it
-// under the terms of the GNU Lesser General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-//
-// AEMB is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
-// Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with AEMB. If not, see <http://www.gnu.org/licenses/>.
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2007/11/09 20:51:52  sybreon
-// Added GET/PUT support through a FSL bus.
-//
-// Revision 1.1  2007/11/02 03:25:41  sybreon
-// New EDK 3.2 compatible design with optional barrel-shifter and multiplier.
-// Fixed various minor data hazard bugs.
-// Code compatible with -O0/1/2/3/s generated code.
-//
-
 module aexm_regf (/*AUTOARG*/
    // Outputs
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,

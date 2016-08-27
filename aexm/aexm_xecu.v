@@ -1,24 +1,3 @@
-/* $Id: aeMB_xecu.v,v 1.12 2008-05-11 13:48:46 sybreon Exp $
-**
-** AEMB MAIN EXECUTION ALU
-** Copyright (C) 2004-2007 Shawn Tan Ser Ngiap <shawn.tan@aeste.net>
-**
-** This file is part of AEMB.
-**
-** AEMB is free software: you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as
-** published by the Free Software Foundation, either version 3 of the
-** License, or (at your option) any later version.
-**
-** AEMB is distributed in the hope that it will be useful, but WITHOUT
-** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-** or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
-** Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public
-** License along with AEMB. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 module aexm_xecu (/*AUTOARG*/
    // Outputs
    aexm_dcache_precycle_addr,
@@ -344,44 +323,3 @@ module aexm_xecu (/*AUTOARG*/
      end
 
 endmodule // aexm_xecu
-
-/*
- $Log: not supported by cvs2svn $
- Revision 1.11  2008/01/19 15:57:36  sybreon
- Fix MTS during interrupt vectoring bug (reported by M. Ettus).
-
- Revision 1.10  2007/12/25 22:15:09  sybreon
- Stalls pipeline on MUL/BSF instructions results in minor speed improvements.
-
- Revision 1.9  2007/11/30 16:42:51  sybreon
- Minor code cleanup.
-
- Revision 1.8  2007/11/16 21:52:03  sybreon
- Added fsl_tag_o to FSL bus (tag either address or data).
-
- Revision 1.7  2007/11/14 22:14:34  sybreon
- Changed interrupt handling system (reported by M. Ettus).
-
- Revision 1.6  2007/11/10 16:39:38  sybreon
- Upgraded license to LGPLv3.
- Significant performance optimisations.
-
- Revision 1.5  2007/11/09 20:51:52  sybreon
- Added GET/PUT support through a FSL bus.
-
- Revision 1.4  2007/11/08 14:17:47  sybreon
- Parameterised optional components.
-
- Revision 1.3  2007/11/03 08:34:55  sybreon
- Minor code cleanup.
-
- Revision 1.2  2007/11/02 19:20:58  sybreon
- Added better (beta) interrupt support.
- Changed MSR_IE to disabled at reset as per MB docs.
-
- Revision 1.1  2007/11/02 03:25:41  sybreon
- New EDK 3.2 compatible design with optional barrel-shifter and multiplier.
- Fixed various minor data hazard bugs.
- Code compatible with -O0/1/2/3/s generated code.
-
-*/
