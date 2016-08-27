@@ -1,16 +1,15 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, fSTALL,
-         dRA, dRD, dRB, dALT, dOPC,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, d_en, oena
    );
    // INTERNAL
    output [15:0] rIMM;
-   output [4:0]  rRA, rRD, rRB, dRA, dRD, dRB;
-   output [10:0] rALT, dALT;
-   output [5:0]  rOPC, dOPC;
+   output [4:0]  rRA, rRD, rRB;
+   output [10:0] rALT;
+   output [5:0]  rOPC;
    output [31:0] rSIMM;
    output [31:0] xIREG;
    output 	 fSTALL;
@@ -28,10 +27,6 @@ module aexm_ibuf (/*AUTOARG*/
    reg [4:0] 	 rRA, rRD;
    reg [5:0] 	 rOPC;
 
-  wire [4:0] 	 dRA, dRD, dRB;
-  wire [10:0] 	 dALT;
-  wire [5:0] 	 dOPC;
-
    // FIXME: Endian
    wire [31:0] 	 wIDAT = aexm_icache_datai;
    assign 	 {rRB, rALT} = rIMM;
@@ -46,8 +41,6 @@ module aexm_ibuf (/*AUTOARG*/
 
    wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
    reg [31:0] 	xIREG;
-
-  assign {dOPC, dRD, dRA, dRB, dALT} = xIREG;
 
    // --- INTERRUPT LATCH --------------------------------------
    // Debounce and latch onto the positive level. This is independent
