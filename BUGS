@@ -1,0 +1,4 @@
+[aexm] If there is a load instruction (or, presumably, a store instruction) in
+       a delay slot of an unconditional branch instruction (and possibly other
+       flavours of the branch instructions), it will be executed regardless of
+       the DELAY bit in the branch instruction.
