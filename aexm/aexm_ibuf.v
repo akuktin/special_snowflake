@@ -35,7 +35,8 @@ module aexm_ibuf (/*AUTOARG*/
    reg 		rSTALL;
 
    wire [31:0] 	wXCEOP = 32'hBA2D0008; // Vector 0x08
-   wire [31:0] 	wINTOP = 32'hB9CE0010; // Vector 0x10
+   wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0040}; // register to be
+                                                       // changed to 5'h00
    wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
    wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
 
@@ -63,7 +64,7 @@ module aexm_ibuf (/*AUTOARG*/
 		   {rDINT[0], sys_int_i};
 
 	rFINT <= #1
-		 //(wIREG == wINTOP) ? 1'b0 :
+		 (wIREG == wINTOP) ? 1'b0 :
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
