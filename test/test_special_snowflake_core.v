@@ -98,10 +98,16 @@ module test_fill_lsab(input CLK,
     else
       begin
 //	fast_i <= 2'h1;
-	fast_i <= fast_i +1;
-	if (fast_i == 2'h3)
-//	if (slow_i < 10'h3ff)
-	  slow_i <= slow_i +1;
+	if (WRITE && 0)
+	  begin
+	    $display("writing: %d/%d", slow_i, fast_i);
+          end
+        if ({slow_i,fast_i} != 4095)
+	  begin
+	    fast_i <= fast_i +1;
+	    if (fast_i == 2'h3)
+	      slow_i <= slow_i +1;
+          end
 
 	c <= c +1;
       end
@@ -310,6 +316,8 @@ module GlaDOS;
   wire 	       d_dma_read, d_dma_wrte, d_dma_read_ack, d_dma_wrte_ack;
   wire [31:0]  d_dma_out;
 
+  reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
+
   ddr i_ddr_mem(.Clk(CLK_p),
               .Clk_n(CLK_n),
               .Cke(iCKE),
@@ -477,7 +485,7 @@ module GlaDOS;
 
   aexm_edk32 cpu(.sys_clk_i(CPU_CLK),
 		 .sys_rst_i(!RST_CPU),
-		 .sys_int_i(res_irq),
+		 .sys_int_i(irq_strobe_slow ^ irq_strobe_slow_prev),
 		 // Outputs
 		 .aexm_icache_precycle_addr(i_cache_pc_addr),
 		 .aexm_dcache_precycle_addr(d_cache_pc_addr),
@@ -737,10 +745,12 @@ module GlaDOS;
 	i_mcu_req_access <= 0; i_mcu_we <= 0;
 	d_mcu_req_access <= 0; d_mcu_we <= 0;
 	i_mcu_req_access_prev <= 0; refresh_strobe_prev <= 0;
-	ctr <= 0;
+	ctr <= 0; irq_strobe <= 0;
       end
     else
       begin
+	if (res_irq)
+	  irq_strobe <= !irq_strobe;
 	ctr <= ctr+1;
 	i_mcu_req_access <= i_hf_req_access_fill || i_hf_req_access_empty;
 	d_mcu_req_access <= d_hf_req_access_fill || d_hf_req_access_empty;
@@ -777,7 +787,15 @@ module GlaDOS;
       end
 
   always @(posedge CPU_CLK)
+    if (!RST)
+      begin
+	irq_strobe_slow <= 0;
+	irq_strobe_slow_prev <= 0;
+      end
+    else
     begin
+      irq_strobe_slow <= irq_strobe;
+      irq_strobe_slow_prev <= irq_strobe_slow;
       RST_CPU <= RST_CPU_pre;
       if (cpu.regf.mDRAM[31] == 32'd0)
 	begin
@@ -893,6 +911,7 @@ module GlaDOS;
       cpu.regf.mBRAM[8] <= 32'hc000_0000;
       cpu.regf.mDRAM[8] <= 32'hc000_0000;
 
+
       // into data DRAM
       cpu.regf.mARAM[9] <= 32'h8d00_0045;
       cpu.regf.mBRAM[9] <= 32'h8d00_0045;
@@ -910,6 +929,12 @@ module GlaDOS;
       cpu.regf.mBRAM[9] <= 32'h0000_0045;
       cpu.regf.mDRAM[9] <= 32'h0000_0045;
  */
+
+      // interrupt
+      cpu.regf.mARAM[9] <= 32'hfe00_0045;
+      cpu.regf.mBRAM[9] <= 32'hfe00_0045;
+      cpu.regf.mDRAM[9] <= 32'hfe00_0045;
+
 
 `include "test_special_snowflake_core_prog.bin"
     end
