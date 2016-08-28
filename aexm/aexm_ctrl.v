@@ -1,7 +1,7 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD, dLOD,
-   aexm_dcache_precycle_we,
+   aexm_dcache_precycle_we, aexm_dcache_force_miss,
    // Inputs
    rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    gclk, grst, d_en, x_en
@@ -22,6 +22,7 @@ module aexm_ctrl (/*AUTOARG*/
    // MCU
   output 	 dSTRLOD, dLOD;
    output aexm_dcache_precycle_we;
+  output  aexm_dcache_force_miss;
 
    // SYSTEM
    input 	 gclk, grst, d_en, x_en;
@@ -51,6 +52,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    wire 	 fLOD = ({rOPC[5:4],rOPC[2]} == 3'o6);
    wire 	 fSTR = ({rOPC[5:4],rOPC[2]} == 3'o7);
+  wire 		 fLOD_r = (rOPC == 6'o62);
    wire 	 fLDST = (&rOPC[5:4]);
 
    wire          fPUT = (rOPC == 6'o33) & rRB[4];
@@ -153,6 +155,7 @@ module aexm_ctrl (/*AUTOARG*/
   assign dLOD = wLOD;
 
   assign aexm_dcache_precycle_we = fSTR;
+  assign aexm_dcache_force_miss  = fLOD_r && (rALT[0]);
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 

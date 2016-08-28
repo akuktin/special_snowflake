@@ -12,6 +12,7 @@ module snowball_cache(input CPU_CLK,
 		      input 		cache_precycle_we,
 		      output reg 	cache_busy,
 		      input 		cache_precycle_enable,
+		      input 		cache_precycle_force_miss,
 //--------------------------------------------------
 //--------------------------------------------------
 		      input 		dma_mcu_access,
@@ -49,7 +50,8 @@ module snowball_cache(input CPU_CLK,
 			    mandatory_lookup_sig, mandatory_lookup_pre_sig,
 			    mandatory_lookup_sig_recv, mandatory_lookup_exp,
 			    mandatory_lookup_capture, datain_mux_dma,
-			    cache_prev_we, ghost_hit_vld;
+			    cache_prev_we, ghost_hit_vld,
+			    cache_cycle_force_miss_n;
   reg [2:0] 		    read_counter;
   reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
 			    w_addr_trans, w_data_trans,
@@ -93,7 +95,7 @@ module snowball_cache(input CPU_CLK,
    * single gate. That is, a single gate can both compare and switch
    * what it compares to. I probably didn't code it well enough, though. */
   assign cache_hit = ((req_tag ^ {vmem_rsp_tag,tlb_idx}) ==
-		      {(24){1'b0}}) ? 1 : 0;
+		      {(24){1'b0}}) ? cache_cycle_force_miss_n : 0;
   /* This bit here should be implementable exclusively by hacking the
    * carry chain. I probably didn't code this well enough also. */
   assign w_MMU_FAULT = (mmu_vtag ^ mmu_req) != {(16){1'b0}} ? vmem : 0;
@@ -193,6 +195,7 @@ module snowball_cache(input CPU_CLK,
 	cache_prev_we <= 0; cache_prev_idx <= 0;
 	mandatory_lookup_capture <= 0; prev_paddr_block <= 0;
 	ghost_hit_vld <= 0; cache_busy_real <= 0;
+	cache_cycle_force_miss_n <= 1;
       end
     else
       begin
@@ -201,6 +204,7 @@ module snowball_cache(input CPU_CLK,
 
 	if (cache_work || WE_TLB)
 	  begin
+	    cache_cycle_force_miss_n <= ! cache_precycle_force_miss;
 	    cache_cycle_addr <= cache_precycle_addr;
 	    cache_cycle_we <= cache_precycle_we;
 	    data_tomem_trans <= cache_datao;

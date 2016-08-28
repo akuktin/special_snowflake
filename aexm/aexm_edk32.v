@@ -5,6 +5,7 @@ module aexm_edk32 (/*AUTOARG*/
    aexm_dcache_datao, aexm_dcache_precycle_we,
    aexm_dcache_precycle_enable, aexm_icache_precycle_enable,
    aexm_dcache_we_tlb, aexm_icache_we_tlb,
+   aexm_dcache_force_miss,
    // Inputs
    aexm_icache_datai, aexm_dcache_datai,
    aexm_icache_cache_busy, aexm_dcache_cache_busy,
@@ -30,6 +31,8 @@ module aexm_edk32 (/*AUTOARG*/
 
   output 	aexm_dcache_we_tlb;
   output 	aexm_icache_we_tlb;
+
+  output 	aexm_dcache_force_miss;
 
   input 	aexm_icache_cache_busy;
   input 	aexm_dcache_cache_busy;
@@ -127,6 +130,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .dSTRLOD                     (dSTRLOD),
 	   .dLOD                        (dLOD),
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
+	   .aexm_dcache_force_miss      (aexm_dcache_force_miss),
 	   // Inputs
 	   .rSKIP			(rSKIP),
 	   .rIMM			(rIMM[15:0]),
