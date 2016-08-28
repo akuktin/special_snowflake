@@ -39,6 +39,7 @@ module aexm_ibuf (/*AUTOARG*/
                                                        // changed to 5'h00
    wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
    wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
+  reg 		issued_interrupt;
 
    wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
    reg [31:0] 	xIREG;
@@ -64,7 +65,7 @@ module aexm_ibuf (/*AUTOARG*/
 		   {rDINT[0], sys_int_i};
 
 	rFINT <= #1
-		 (wIREG == wINTOP) ? 1'b0 :
+		 issued_interrupt ? 1'b0 :
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
@@ -92,6 +93,7 @@ module aexm_ibuf (/*AUTOARG*/
      if (grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
+       issued_interrupt <= 0;
 	rIMM <= 16'h0;
 	rOPC <= 6'h0;
 	rRA <= 5'h0;
@@ -99,6 +101,7 @@ module aexm_ibuf (/*AUTOARG*/
 	rSIMM <= 32'h0;
 	// End of automatics
      end else if (d_en) begin
+       issued_interrupt <= (!fIMM & rFINT & !fRTD & !fBRU & !fBCC);
 	{rOPC, rRD, rRA, rIMM} <= #1 xIREG;
 	rSIMM <= #1 xSIMM;
      end
