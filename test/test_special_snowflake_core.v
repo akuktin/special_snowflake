@@ -413,6 +413,7 @@ module GlaDOS;
   wire 	       i_cache_req;
   wire 	       d_cache_we, d_cache_req;
   wire 	       dcache_we_tlb, icache_we_tlb;
+  wire 	       d_cache_force_miss;
 
   wire 	       RST_CACHE;
   assign RST_CACHE = RST_CPU;
@@ -426,6 +427,7 @@ module GlaDOS;
 			 .cache_precycle_we(1'b0),
 			 .cache_busy(i_cache_busy),
 			 .cache_precycle_enable(i_cache_enable),
+			 .cache_precycle_force_miss(1'b0),
 //--------------------------------------------------
 //--------------------------------------------------
 			 .dma_mcu_access(1'b1),
@@ -459,6 +461,7 @@ module GlaDOS;
 			 .cache_precycle_we(d_cache_we),
 			 .cache_busy(d_cache_busy),
 			 .cache_precycle_enable(d_cache_enable),
+			 .cache_precycle_force_miss(d_cache_force_miss),
 //--------------------------------------------------
 //--------------------------------------------------
 			 .dma_mcu_access(1'b1),
@@ -495,6 +498,7 @@ module GlaDOS;
 		 .aexm_icache_precycle_enable(i_cache_enable),
 		 .aexm_dcache_we_tlb(dcache_we_tlb),
 		 .aexm_icache_we_tlb(icache_we_tlb),
+		 .aexm_dcache_force_miss(d_cache_force_miss),
 		 // Inputs
 		 .aexm_icache_datai(i_cache_datai),
 		 .aexm_dcache_datai(d_cache_datai),
@@ -906,6 +910,8 @@ module GlaDOS;
           d_cache.tlb.ram.r_data[i] <= 0;
           d_cache.tlbtag.ram.r_data[i] <= 0;
         end // for (i=0;i<256;i=i+1)
+
+      d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
 
       cpu.regf.mARAM[8] <= 32'hc000_0000;
       cpu.regf.mBRAM[8] <= 32'hc000_0000;
