@@ -92,6 +92,7 @@ module aexm_edk32 (/*AUTOARG*/
 		     .dcache_busy(aexm_dcache_cache_busy),
 		     .dSTRLOD(dSTRLOD),
 		     .dLOD(dLOD),
+		     .rSKIP(rSKIP),
 		     .cpu_mode_memop(cpu_mode_memop),
 		     .cpu_enable(cpu_enable),
 		     .icache_enable(aexm_icache_precycle_enable),
