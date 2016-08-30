@@ -365,7 +365,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_0 && do_write_0 && (!intbuff_full_0))
 	  begin
 	    intbuff_0[intbuff_waddr_0] <= write_addr_0;
-	    valbuff_0[intbuff_waddr_0] <= VALID_0;
+	    valbuff_0[intbuff_waddr_0] <= VALID_IN_0;
 	    intbuff_waddr_0 <= intbuff_waddr_0 +1;
 	  end
 
@@ -377,7 +377,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_1 && do_write_1 && (!intbuff_full_1))
 	  begin
 	    intbuff_1[intbuff_waddr_1] <= write_addr_1;
-	    valbuff_1[intbuff_waddr_1] <= VALID_1;
+	    valbuff_1[intbuff_waddr_1] <= VALID_IN_1;
 	    intbuff_waddr_1 <= intbuff_waddr_1 +1;
 	  end
 
@@ -389,7 +389,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_2 && do_write_2 && (!intbuff_full_2))
 	  begin
 	    intbuff_2[intbuff_waddr_2] <= write_addr_2;
-	    valbuff_2[intbuff_waddr_2] <= VALID_2;
+	    valbuff_2[intbuff_waddr_2] <= VALID_IN_2;
 	    intbuff_waddr_2 <= intbuff_waddr_2 +1;
 	  end
 
@@ -401,7 +401,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_3 && do_write_3 && (!intbuff_full_3))
 	  begin
 	    intbuff_3[intbuff_waddr_3] <= write_addr_3;
-	    valbuff_3[intbuff_waddr_3] <= VALID_3;
+	    valbuff_3[intbuff_waddr_3] <= VALID_IN_3;
 	    intbuff_waddr_3 <= intbuff_waddr_3 +1;
 	  end
       end
