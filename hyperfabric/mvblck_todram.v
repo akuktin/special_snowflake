@@ -10,6 +10,10 @@ module hyper_mvblck_todram(input CLK,
 			   input 	     LSAB_1_STOP,
 			   input 	     LSAB_2_STOP,
 			   input 	     LSAB_3_STOP,
+			   input 	     LSAB_0_VALID,
+			   input 	     LSAB_1_VALID,
+			   input 	     LSAB_2_VALID,
+			   input 	     LSAB_3_VALID,
 			   // -----------------------
 			   output reg 	     LSAB_READ,
 			   output reg [1:0]  LSAB_SECTION,
@@ -24,12 +28,13 @@ module hyper_mvblck_todram(input CLK,
 			   output reg 	     WORKING,
 			   output reg 	     IRQ_OUT,
 			   output reg 	     ABRUPT_STOP,
+			   output reg 	     VALID_OUT,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg [1:0]  MCU_REQUEST_ACCESS);
   reg 					     stop_prev_n, stop_n,
-					     am_working, irq;
+					     am_working, irq, valid;
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
 
@@ -44,22 +49,27 @@ module hyper_mvblck_todram(input CLK,
       2'b00: begin
 	stop_n <= (read_more && !LSAB_0_STOP);
 	irq <= LSAB_0_INT;
+	valid <= LSAB_0_VALID;
       end
       2'b01: begin
 	stop_n <= (read_more && !LSAB_1_STOP);
 	irq <= LSAB_1_INT;
+	valid <= LSAB_1_VALID;
       end
       2'b10: begin
 	stop_n <= (read_more && !LSAB_2_STOP);
 	irq <= LSAB_2_INT;
+	valid <= LSAB_2_VALID;
       end
       2'b11: begin
 	stop_n <= (read_more && !LSAB_3_STOP);
 	irq <= LSAB_3_INT;
+	valid <= LSAB_3_VALID;
       end
       default: begin
 	stop_n <= 1'bx;
 	irq <= 1'bx;
+	valid <= 1'bx;
       end
     endcase
 
@@ -70,7 +80,7 @@ module hyper_mvblck_todram(input CLK,
 	LSAB_READ <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0; WORKING <= 0;
 	MCU_COLL_ADDRESS <= 0; MCU_WE_ARRAY <= 0; MCU_REQUEST_ACCESS <= 0;
 	stop_prev_n <= 0; len_left <= 0; IRQ_OUT <= 0; ABRUPT_STOP <= 0;
-	track_addr <= 0;
+	track_addr <= 0; VALID_OUT <= 0;
       end
     else
       begin
@@ -104,6 +114,7 @@ module hyper_mvblck_todram(input CLK,
 	    COUNT_SENT <= COUNT_REQ - len_left;
 	    IRQ_OUT <= irq;
 	    ABRUPT_STOP <= read_more;
+	    VALID_OUT <= valid;
 	  end
 	stop_prev_n <= stop_n;
 

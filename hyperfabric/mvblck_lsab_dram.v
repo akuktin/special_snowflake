@@ -116,6 +116,7 @@ module hyper_scheduler(input CLK,
 		       output [2:0] 	 MEM_W_ADDR,
 		       output [2:0] 	 MEM_R_ADDR,
 		       input 		 IRQ_IN,
+		       input 		 VALID_IN,
 		       output 		 READ_MEM,
 		       output reg 	 CAREOF_INT,
 		       output reg [1:0]  RST_MVBLCK,
@@ -132,7 +133,7 @@ module hyper_scheduler(input CLK,
   reg [1:0] 		     trans_ack, trans_req, refresh_ack, refresh_req;
   reg 			     last_block_r, cont_trans_r, trg_post,
 			     trg_post_post, save_data_mem, EXEC_READY_prev,
-			     save2_last_block, is_restart_r;
+			     save2_last_block, is_restart_r, block_valid;
 
   reg 			     periph_ready[7:0];
 
@@ -149,8 +150,8 @@ module hyper_scheduler(input CLK,
 			     trg_gb_1, small_carousel_reset, w_careof_int;
 
   assign MEM_W_ADDR = save2_MEM_R_ADDR;
-  assign MEM_W_DATA = {cont_trans_r, // approx
-		       save2_read_data[6:0], // approx
+  assign MEM_W_DATA = {cont_trans_r,block_valid, // approx
+		       save2_read_data[5:0], // approx
 		       leftover_len,EXEC_OLD_ADDR};
 
   // Should fit in two gates. Otherwise, register the wires and use those.
@@ -237,7 +238,7 @@ module hyper_scheduler(input CLK,
 	periph_ready[6] <= 0; periph_ready[7] <= 0;
 	save2_read_data <= 0; save2_remaining_len <= 0;
 	leftover_len <= 0; IRQ_DESC <= 0; saved_mem_addr <= 0;
-	CAREOF_INT <= 0; RST_MVBLCK <= 0;
+	CAREOF_INT <= 0; RST_MVBLCK <= 0; block_valid <= 0;
       end
     else
       begin
@@ -282,6 +283,7 @@ module hyper_scheduler(input CLK,
 	    IRQ_DESC <= MEM_W_ADDR;
 	    EXEC_SELECT_DRAM <= 0;
 	    RST_MVBLCK <= 0;
+	    block_valid <= VALID_IN;
 	  end
 	else
 	  begin
@@ -346,6 +348,7 @@ module hyper_lsab_dram(input CLK,
 		       output reg 	 RESTART_OP,
 		       output reg [5:0]  COUNT_SENT,
 		       output reg 	 IRQ,
+		       output reg 	 VALID,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
 		       output reg [5:0]  BLCK_COUNT_REQ,
@@ -355,6 +358,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 BLCK_WORKING,
 		       input 		 BLCK_IRQ,
 		       input 		 BLCK_ABRUPT_STOP,
+		       input 		 BLCK_VALID,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
 		       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL
@@ -390,7 +394,7 @@ module hyper_lsab_dram(input CLK,
 	MCU_PAGE_ADDR <= 0; BLCK_START <= 0; MCU_REQUEST_ALIGN <= 0;
 	blck_working_prev <= 0; issue_op <= 0; BLCK_COUNT_REQ <= 0;
 	RESTART_OP <= 0; COUNT_SENT <= 0; add_old_addr_high <= 0;
-	IRQ <= 0;
+	IRQ <= 0; VALID <= 0;
 	state <= 4'b1000;
       end
     else
@@ -432,6 +436,7 @@ module hyper_lsab_dram(input CLK,
 			   (! BLCK_ABRUPT_STOP));
 	    COUNT_SENT <= BLCK_COUNT_SENT;
 	    IRQ <= BLCK_IRQ;
+	    VALID <= BLCK_VALID;
 	    add_old_addr_high <= 1;
 	  end
 	else

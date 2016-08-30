@@ -16,6 +16,10 @@ module lsab_cr(input CLK,
 	      input 		CAREOF_INT_1,
 	      input 		CAREOF_INT_2,
 	      input 		CAREOF_INT_3,
+	      input 		VALID_IN_0,
+	      input 		VALID_IN_1,
+	      input 		VALID_IN_2,
+	      input 		VALID_IN_3,
               output reg [31:0] OUT,
 	      output reg 	EMPTY_0,
 	      output reg 	EMPTY_1,
@@ -28,7 +32,11 @@ module lsab_cr(input CLK,
 	      output reg 	INT_OUT_0,
 	      output reg 	INT_OUT_1,
 	      output reg 	INT_OUT_2,
-	      output reg 	INT_OUT_3);
+	      output reg 	INT_OUT_3,
+	      output reg 	VALID_OUT_0,
+	      output reg 	VALID_OUT_1,
+	      output reg 	VALID_OUT_2,
+	      output reg 	VALID_OUT_3);
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
@@ -63,6 +71,8 @@ module lsab_cr(input CLK,
 		    intbuff_empty_3, intbuff_full_3;
   reg [5:0] 	    intbuff_0[3:0], intbuff_1[3:0], intbuff_2[3:0],
 		    intbuff_3[3:0];
+  reg 		    valbuff_0[3:0], valbuff_1[3:0], valbuff_2[3:0],
+		    valbuff_3[3:0];
 
   wire [31:0] 	    out_mem;
   reg [31:0] 	    in_mem;
@@ -265,6 +275,14 @@ module lsab_cr(input CLK,
       intbuff_2[2] <= 0; intbuff_2[3] <= 0;
       intbuff_3[0] <= 0; intbuff_3[1] <= 0;
       intbuff_3[2] <= 0; intbuff_3[3] <= 0;
+      valbuff_0[0] <= 0; valbuff_0[1] <= 0;
+      valbuff_0[2] <= 0; valbuff_0[3] <= 0;
+      valbuff_1[0] <= 0; valbuff_1[1] <= 0;
+      valbuff_1[2] <= 0; valbuff_1[3] <= 0;
+      valbuff_2[0] <= 0; valbuff_2[1] <= 0;
+      valbuff_2[2] <= 0; valbuff_2[3] <= 0;
+      valbuff_3[0] <= 0; valbuff_3[1] <= 0;
+      valbuff_3[2] <= 0; valbuff_3[3] <= 0;
     end
 
   always @(posedge CLK)
@@ -280,6 +298,8 @@ module lsab_cr(input CLK,
        re_prev <= 0; OUT <= 0;
 	STOP_0 <= 1; STOP_1 <= 1; STOP_2 <= 1; STOP_3 <= 1;
 	INT_OUT_0 <= 0; INT_OUT_1 <= 0; INT_OUT_2 <= 0; INT_OUT_3 <= 0;
+	VALID_OUT_0 <= 0; VALID_OUT_1 <= 0; VALID_OUT_2 <= 0;
+	VALID_OUT_3 <= 0;
 	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
 	intbuff_waddr_0 <= 1;
 	intbuff_raddr_1 <= 1; intbuff_raddr_trail_1 <= 0;
@@ -294,18 +314,22 @@ module lsab_cr(input CLK,
 	STOP_0 <= become_empty_0 || intbuff_int_0; // three gates deep
        INT_OUT_0 <= intbuff_int_0;
        EMPTY_0 <= become_empty_0;
+	VALID_OUT_0 <= valbuff_0[intbuff_raddr_0];
        full_0 <= become_full_0;
 	STOP_1 <= become_empty_1 || intbuff_int_1; // three gates deep
        INT_OUT_1 <= intbuff_int_1;
        EMPTY_1 <= become_empty_1;
+	VALID_OUT_1 <= valbuff_1[intbuff_raddr_1];
        full_1 <= become_full_1;
 	STOP_2 <= become_empty_2 || intbuff_int_2; // three gates deep
        INT_OUT_2 <= intbuff_int_2;
        EMPTY_2 <= become_empty_2;
+	VALID_OUT_2 <= valbuff_2[intbuff_raddr_2];
        full_2 <= become_full_2;
 	STOP_3 <= become_empty_3 || intbuff_int_3; // three gates deep
        INT_OUT_3 <= intbuff_int_3;
        EMPTY_3 <= become_empty_3;
+	VALID_OUT_3 <= valbuff_3[intbuff_raddr_3];
        full_3 <= become_full_3;
        len_0 <= become_len_0;
        len_1 <= become_len_1;
@@ -341,6 +365,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_0 && do_write_0 && (!intbuff_full_0))
 	  begin
 	    intbuff_0[intbuff_waddr_0] <= write_addr_0;
+	    valbuff_0[intbuff_waddr_0] <= VALID_0;
 	    intbuff_waddr_0 <= intbuff_waddr_0 +1;
 	  end
 
@@ -352,6 +377,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_1 && do_write_1 && (!intbuff_full_1))
 	  begin
 	    intbuff_1[intbuff_waddr_1] <= write_addr_1;
+	    valbuff_1[intbuff_waddr_1] <= VALID_1;
 	    intbuff_waddr_1 <= intbuff_waddr_1 +1;
 	  end
 
@@ -363,6 +389,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_2 && do_write_2 && (!intbuff_full_2))
 	  begin
 	    intbuff_2[intbuff_waddr_2] <= write_addr_2;
+	    valbuff_2[intbuff_waddr_2] <= VALID_2;
 	    intbuff_waddr_2 <= intbuff_waddr_2 +1;
 	  end
 
@@ -374,6 +401,7 @@ module lsab_cr(input CLK,
 	if (INT_IN_3 && do_write_3 && (!intbuff_full_3))
 	  begin
 	    intbuff_3[intbuff_waddr_3] <= write_addr_3;
+	    valbuff_3[intbuff_waddr_3] <= VALID_3;
 	    intbuff_waddr_3 <= intbuff_waddr_3 +1;
 	  end
       end
