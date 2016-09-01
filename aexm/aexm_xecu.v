@@ -3,7 +3,7 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr,
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, rSKIP, rALT,
+   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
    fSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, x_en
    );
    parameter DW=32;
@@ -24,7 +24,7 @@ module aexm_xecu (/*AUTOARG*/
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
    input [10:0]    rALT;
-  input 	   rSKIP;
+  input 	   xSKIP;
 
    input 	   fSTALL;
    input [31:0]    rSIMM;
@@ -220,12 +220,12 @@ module aexm_xecu (/*AUTOARG*/
    // --- MSR REGISTER -----------------
 
    // C
-   wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !rSKIP;
+   wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !xSKIP;
    wire 	   fADDC = ({rOPC[5:4], rOPC[2]} == 3'o0);
 
-   always @(/*AUTOSENSE*/fADDC or fMTS or rSKIP or rMSR_C or rMXALU
+   always @(/*AUTOSENSE*/fADDC or fMTS or xSKIP or rMSR_C or rMXALU
 	    or rOPA or rRES_ADDC or rRES_SFTC)
-     if (rSKIP) begin
+     if (xSKIP) begin
 	xMSR_C <= rMSR_C;
      end else
        case (rMXALU)
@@ -239,10 +239,10 @@ module aexm_xecu (/*AUTOARG*/
        endcase // case (rMXALU)
 
    // IE/BIP/BE
-   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !rSKIP;
-   wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !rSKIP;
-   wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC) & !rSKIP;
-   wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE) & !rSKIP;
+   wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !xSKIP;
+   wire 	    fRTBD = (rOPC == 6'o55) & rRD[1] & !xSKIP;
+   wire 	    fBRK = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hC) & !xSKIP;
+   wire 	    fINT = ((rOPC == 6'o56) | (rOPC == 6'o66)) & (rRA == 5'hE) & !xSKIP;
 
    always @(/*AUTOSENSE*/fINT or fMTS or fRTID or rMSR_IE or rOPA)
      xMSR_IE <= (fINT) ? 1'b0 :
@@ -264,14 +264,8 @@ module aexm_xecu (/*AUTOARG*/
    reg [31:0] 	   rRESULT, xRESULT;
 
    // RESULT
-   always @(/*AUTOSENSE*/rSKIP or rMXALU or rRES_ADD or rRES_BSF
-	    or rRES_LOG or rRES_MOV or rRES_MUL or rRES_SFT)
-     if (rSKIP)
-       /*AUTORESET*/
-       // Beginning of autoreset for uninitialized flops
-       xRESULT <= 32'h0;
-       // End of automatics
-     else
+   always @(rMXALU or rRES_ADD or rRES_BSF or rRES_LOG or
+	    rRES_MOV or rRES_MUL or rRES_SFT)
        case (rMXALU)
 	 3'o0: xRESULT <= rRES_ADD;
 	 3'o1: xRESULT <= rRES_LOG;

@@ -4,7 +4,7 @@ module aexm_enable(input CLK,
 		   input      dcache_busy,
 		   input      dSTRLOD,
 		   input      dLOD,
-		   input      rSKIP,
+		   input      dSKIP,
 		   output reg cpu_mode_memop, // 0: stall, 1: normal
 		   output     cpu_enable,
 		   output     icache_enable,
@@ -22,7 +22,7 @@ module aexm_enable(input CLK,
 
   assign enter_memop_criterion = cpu_mode_memop &&
 				 dSTRLOD &&
-				 (! rSKIP) &&
+				 (! dSKIP) &&
 				 cpu_enable;
 
   assign exit_memop_criterion = (!cpu_mode_memop) &&

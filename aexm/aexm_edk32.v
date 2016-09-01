@@ -43,7 +43,8 @@ module aexm_edk32 (/*AUTOARG*/
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
-   wire			rSKIP;			// From bpcu of aexm_bpcu.v
+   wire			dSKIP;
+   wire			xSKIP;
    wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
@@ -92,7 +93,7 @@ module aexm_edk32 (/*AUTOARG*/
 		     .dcache_busy(aexm_dcache_cache_busy),
 		     .dSTRLOD(dSTRLOD),
 		     .dLOD(dLOD),
-		     .rSKIP(rSKIP),
+		     .dSKIP(dSKIP),
 		     .cpu_mode_memop(cpu_mode_memop),
 		     .cpu_enable(cpu_enable),
 		     .icache_enable(aexm_icache_precycle_enable),
@@ -133,7 +134,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   .aexm_dcache_force_miss      (aexm_dcache_force_miss),
 	   // Inputs
-	   .rSKIP			(rSKIP),
+	   .xSKIP			(xSKIP),
 	   .rIMM			(rIMM[15:0]),
 	   .rALT			(rALT[10:0]),
 	   .rOPC			(rOPC[5:0]),
@@ -152,19 +153,22 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rPC				(rPC[31:2]),
 	   .rPCLNK			(rPCLNK[31:2]),
-	   .rSKIP			(rSKIP),
+	   .dSKIP			(dSKIP),
+	   .xSKIP			(xSKIP),
 	   // Inputs
 	   .cpu_mode_memop              (cpu_mode_memop),
 	   .rMXALT			(rMXALT[1:0]),
 	   .rOPC			(rOPC[5:0]),
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
+	   .xIREG			(xIREG[31:0]),
 	   .xRESULT			(xRESULT[31:0]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBDI			(rDWBDI[31:0]),
 	   .rREGA			(rREGA[31:0]),
 	   .gclk			(gclk),
 	   .grst			(grst),
+	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));
 
    aexm_regf
@@ -205,7 +209,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
 	   .rMXALU			(rMXALU[2:0]),
-	   .rSKIP                       (rSKIP),
+	   .xSKIP                       (xSKIP),
 	   .rALT			(rALT[10:0]),
 	   .fSTALL			(fSTALL),
 	   .rSIMM			(rSIMM[31:0]),

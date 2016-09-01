@@ -3,7 +3,7 @@ module aexm_ctrl (/*AUTOARG*/
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD, dLOD,
    aexm_dcache_precycle_we, aexm_dcache_force_miss,
    // Inputs
-   rSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
+   xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    gclk, grst, d_en, x_en
    );
    // INTERNAL
@@ -12,7 +12,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [2:0]  rMXALU;
    output [4:0]  rRW;
 
-  input 	 rSKIP;
+  input 	 xSKIP;
    input [15:0]  rIMM;
    input [10:0]  rALT;
    input [5:0] 	 rOPC;
@@ -132,9 +132,9 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DELAY SLOT REGISTERS ------------------------------
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or rSKIP
+   always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
 	    or fSTR or rRD)
-     if (rSKIP) begin
+     if (xSKIP) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	xMXDST <= 2'h0;
@@ -146,7 +146,7 @@ module aexm_ctrl (/*AUTOARG*/
 		  (fBRU) ? 2'o1 :
 		  2'o0;
 	xRW <= rRD;
-     end // else: !if(fSKIP)
+     end
 
 
    // --- DATA MEMORY INTERFACE ----------------------------------
