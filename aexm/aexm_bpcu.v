@@ -76,11 +76,6 @@ module aexm_bpcu (/*AUTOARG*/
       expect_ltgt <= ((wRD[2:0] == 3'h2) ||
 		      (wRD[2:0] == 3'h3)) ? 1 : 0;
       xDLY <= (wBRU && wRA[4]) || (wBCC && wRD[4]);
-
-      $display("ere %x ren_ %x ce_ %x cl %x lt %x ee %x wRA %x xIREG %x",
-	       expect_reg_equal, reg_equal_null_n, careof_equal_n,
-	       careof_ltgt, ltgt_true, expect_equal, wREGA, xIREG);
-      $display("xBRA %x !xDLY %x", xBRA, !xDLY);
     end // if (d_en)
 
   // careof_equal_n asserted: only the mixin is 1, producing the real
