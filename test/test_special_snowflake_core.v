@@ -240,6 +240,9 @@ module GlaDOS;
   wire 	      w_int0_cr, w_int1_cr, w_int2_cr, w_int3_cr;
   wire [3:0]  w_care_cr;
 
+  wire [2:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
+  wire [2:0]  w_ancill_cr, w_ancill_sch;
+
   wire [31:0] w_out_cr, w_in_cw;
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;
   wire 	      w_e0_cr, w_e1_cr, w_e2_cr, w_e3_cr;
@@ -534,13 +537,17 @@ module GlaDOS;
 		  .INT_IN_2(w_int2_cr), .INT_IN_3(w_int3_cr),
 		  .CAREOF_INT_0(w_careof_int), .CAREOF_INT_1(w_careof_int),
 		  .CAREOF_INT_2(w_careof_int), .CAREOF_INT_3(w_careof_int),
+		  .ANCILL_IN_0(3'h3), .ANCILL_IN_1(3'h5),
+		  .ANCILL_IN_2(3'h2), .ANCILL_IN_3(3'h7),
 		  .OUT(w_out_cr),
 		  .EMPTY_0(w_e0_cr), .EMPTY_1(w_e1_cr),
 		  .EMPTY_2(w_e2_cr), .EMPTY_3(w_e3_cr),
 		  .STOP_0(w_s0_cr), .STOP_1(w_s1_cr),
 		  .STOP_2(w_s2_cr), .STOP_3(w_s3_cr),
 		  .INT_OUT_0(w_i0_cr), .INT_OUT_1(w_i1_cr),
-		  .INT_OUT_2(w_i2_cr), .INT_OUT_3(w_i3_cr));
+		  .INT_OUT_2(w_i2_cr), .INT_OUT_3(w_i3_cr),
+		  .ANCILL_OUT_0(w_anc1_0), .ANCILL_OUT_1(w_anc1_1),
+		  .ANCILL_OUT_2(w_anc1_2), .ANCILL_OUT_3(w_anc1_3));
 
   wire 	      drop_f;
   hyper_mvblck_todram fill(.CLK(CLK_n),
@@ -553,6 +560,10 @@ module GlaDOS;
 			   .LSAB_1_STOP(w_s1_cr),
 			   .LSAB_2_STOP(w_s2_cr),
 			   .LSAB_3_STOP(w_s3_cr),
+			   .LSAB_0_ANCILL(w_anc1_0),
+			   .LSAB_1_ANCILL(w_anc1_1),
+			   .LSAB_2_ANCILL(w_anc1_2),
+			   .LSAB_3_ANCILL(w_anc1_3),
 			   .LSAB_READ(w_read_cr),
 			   .LSAB_SECTION(w_read_fifo_cr),
 			   .START_ADDRESS(w_start_address),
@@ -564,6 +575,7 @@ module GlaDOS;
 			   .WORKING(w_working_fill),
 			   .IRQ_OUT(w_irq_cr),
 			   .ABRUPT_STOP(w_abstop_cr),
+			   .ANCILL_OUT(w_ancill_cr),
 			   .MCU_COLL_ADDRESS(hf_coll_addr_fill),
 			   .MCU_WE_ARRAY(hf_we_array_fill),
 			   .MCU_REQUEST_ACCESS({d_hf_req_access_fill,
@@ -619,6 +631,7 @@ module GlaDOS;
 		      .RESTART_OP(ww_eop),
 		      .COUNT_SENT(ww_count_sent),
 		      .IRQ(ww_irq),
+		      .ANCILL(w_ancill_sch),
 			 // begin BLOCK MOVER
 		      .BLCK_START(w_start_address),
 		      .BLCK_COUNT_REQ(w_count_req),
@@ -629,6 +642,7 @@ module GlaDOS;
 		      .BLCK_WORKING(w_working_fill | w_working_empty),
 		      .BLCK_IRQ(w_irq_cr),
 		      .BLCK_ABRUPT_STOP(w_abstop_cr || w_abstop_cw),
+		      .BLCK_ANCILL(w_ancill_cr),
 			 // begin MCU
 		      .MCU_PAGE_ADDR(mcu_page_addr),
 		      .MCU_REQUEST_ALIGN({d_mcu_algn_req,
@@ -662,6 +676,7 @@ module GlaDOS;
 		      .CAREOF_INT(w_careof_int),
 		      .RST_MVBLCK({mvblck_RST_fill,mvblck_RST_empty}),
 		      .IRQ_IN(ww_irq),
+		      .ANCILL_IN(w_ancill_sch),
 		      // user section interface
 		      .IRQ(res_irq),
 		      .IRQ_DESC(),//res_irq_desc),
@@ -912,6 +927,9 @@ module GlaDOS;
         end // for (i=0;i<256;i=i+1)
 
       d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
+      cpu.regf.mARAM[27] <= 32'h0000_0000;
+      cpu.regf.mBRAM[27] <= 32'h0000_0000;
+      cpu.regf.mDRAM[27] <= 32'h0000_0000;
 
       cpu.regf.mARAM[8] <= 32'hc000_0000;
       cpu.regf.mBRAM[8] <= 32'hc000_0000;
@@ -940,9 +958,13 @@ module GlaDOS;
       cpu.regf.mARAM[9] <= 32'hfe00_0045;
       cpu.regf.mBRAM[9] <= 32'hfe00_0045;
       cpu.regf.mDRAM[9] <= 32'hfe00_0045;
+//      cpu.regf.mARAM[9] <= 32'hfe00_0005;
+//      cpu.regf.mBRAM[9] <= 32'hfe00_0005;
+//      cpu.regf.mDRAM[9] <= 32'hfe00_0005;
 
 
 `include "test_special_snowflake_core_prog.bin"
+//`include "test_branches_allofthem.bin"
     end
 
 endmodule // GlaDOS
