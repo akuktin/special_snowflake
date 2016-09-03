@@ -97,11 +97,11 @@ module aexm_bpcu (/*AUTOARG*/
 		      (wRD[2:0] == 3'h3) ||
 		      // implement gt as an inverted le
 		      (wRD[2:0] == 3'h4)) ? 1 : 0;
-	invert_answer <= wBRU ||
+      invert_answer <= wBRU ||
 		       (wBCC &&
-			// implement gt as an inverted le
-			((wRD[2:0] == 3'h4) ||
-			 (wRD[2:0] == 3'h1)));
+			((wRD[2:0] == 3'h1) ||
+			 // implement gt as an inverted le
+			 (wRD[2:0] == 3'h4)));
       rSKIP_n <= (wBRU && wRA[4]) || (wBCC && wRD[4]);
 
       end // else: !if(dSKIP)
