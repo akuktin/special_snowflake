@@ -50,22 +50,42 @@ module aexm_bpcu (/*AUTOARG*/
 
 
   reg 		   careof_equal_n, careof_ltgt, expect_equal, expect_ltgt,
-		   xDLY;
-  wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal, xBRA,
+		   xDLY, xBRA, invert_answer, chain_endpoint, rSKIP_n, xSKIP,
+		   fSKIP, dSKIP;
+  wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
 		   wBCC, wBRU;
 
   always @(posedge gclk)
-    if (grst) begin
+    if (grst || fSKIP) begin
+      chain_endpoint <= 1;
       careof_equal_n <= 1;
-      careof_ltgt <= 1;
-      expect_equal <= 0;
+      careof_ltgt <= 0;
+      expect_equal <= 1;
       expect_ltgt <= 0;
+      invert_answer <= 0;
       xDLY <= 0;
+      if (grst)
+	rSKIP_n <= 1;
+      else
+	rSKIP_n <= 1;
     end else if (d_en) begin
+      if (dSKIP) begin
+      rSKIP_n <= 0;
+      end else begin // if (!dSKIP)
+      chain_endpoint <= !(wBRU ||
+			  (wBCC &&
+			   ((wRD[2:0] == 3'h0) ||
+			    (wRD[2:0] == 3'h1) ||
+			    (wRD[2:0] == 3'h3) ||
+			    // implement gt as an inverted le
+			    (wRD[2:0] == 3'h4) ||
+			    (wRD[2:0] == 3'h5))));
       careof_equal_n <= !(wBCC &&
 			  ((wRD[2:0] == 3'h0) ||
 			   (wRD[2:0] == 3'h1) ||
 			   (wRD[2:0] == 3'h3) ||
+			   // implement gt as an inverted le
+			   (wRD[2:0] == 3'h4) ||
 			   (wRD[2:0] == 3'h5)));
       careof_ltgt <= wBCC &&
 		     ((wRD[2:0] == 3'h2) ||
@@ -74,15 +94,35 @@ module aexm_bpcu (/*AUTOARG*/
 		      (wRD[2:0] == 3'h5));
       expect_equal <= !wBRU;
       expect_ltgt <= ((wRD[2:0] == 3'h2) ||
-		      (wRD[2:0] == 3'h3)) ? 1 : 0;
-      xDLY <= (wBRU && wRA[4]) || (wBCC && wRD[4]);
+		      (wRD[2:0] == 3'h3) ||
+		      // implement gt as an inverted le
+		      (wRD[2:0] == 3'h4)) ? 1 : 0;
+	invert_answer <= wBRU ||
+		       (wBCC &&
+			// implement gt as an inverted le
+			((wRD[2:0] == 3'h4) ||
+			 (wRD[2:0] == 3'h1)));
+      rSKIP_n <= (wBRU && wRA[4]) || (wBCC && wRD[4]);
+
+      end // else: !if(dSKIP)
     end // if (d_en)
 
+  // previous comment:
   // careof_equal_n asserted: only the mixin is 1, producing the real
   //   result
   // careof_equal_n deasserted: both the mixin and the terminal inject
   //   are 1, the result is guarrantied to be 1
-  assign reg_equal_null_n = ((wREGA ^ 32'd0) == 0) ? careof_equal_n : 1;
+
+  // current comment:
+  // expect_equal is supposed to be wired to the mixin of the carry chain.
+  // Therefore, if it is 1, as it almost always is, the chain operates
+  // normally. The only exception is if br[i] (branch unconditional) comes
+  // up. In that case, both the mixin and the endpoint are set to 0,
+  // guarranteing the carry chain will output 0, enabling xBRA to be
+  // properly set and enabling the signalling of fSKIP/dSKIP.
+  assign reg_equal_null_n = expect_equal ?
+			    (((wREGA ^ 32'd0) == 0) ? chain_endpoint : 1) :
+			    0;
 
   assign ltgt_true = careof_ltgt && (expect_ltgt == wREGA[31]);
 
@@ -96,16 +136,45 @@ module aexm_bpcu (/*AUTOARG*/
 			      expect_equal) :
 			     expect_equal);
 
-  assign xBRA = expect_reg_equal ? !reg_equal_null_n : 1;
+  always @(expect_reg_equal or reg_equal_null_n or invert_answer or
+	   rSKIP_n)
+    case ({expect_reg_equal,reg_equal_null_n,invert_answer})
+      3'b000: begin
+	xBRA <= 1;
+	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+      end
+      3'b001: begin
+	xBRA <= 1; // BRU       // EXCEPTION!!!
+	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+      end
+      3'b010: begin
+	xBRA <= 1;
+	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+      end
+      3'b011: begin
+	xBRA <= 0; // inverted
+	dSKIP <= 0; fSKIP <= 0;
+      end
+      3'b100: begin
+	xBRA <= 1;
+	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+      end
+      3'b101: begin
+	xBRA <= 0; // inverted
+	dSKIP <= 0; fSKIP <= 0;
+      end
+      3'b110: begin
+	xBRA <= 0; // no-branch hits here
+	dSKIP <= rSKIP_n; fSKIP <= 0; // EXCEPTION!!! EXCEPTION!!!
+      end
+      3'b111: begin
+	xBRA <= 1; // inverted
+	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+      end
+    endcase // case ({expect_reg_equal,reg_equal_null_n,invert_answer})
 
   assign wBCC = (wOPC == 6'o47) | (wOPC == 6'o57);
   assign wBRU = (wOPC == 6'o46) | (wOPC == 6'o56);
-
-  wire 		   fSKIP, dSKIP;
-  reg 		   rSKIP, xSKIP;
-
-  assign fSKIP = (xBRA && !xDLY);
-  assign dSKIP = fSKIP || rSKIP;
 
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes
@@ -152,7 +221,6 @@ module aexm_bpcu (/*AUTOARG*/
         pre_rIPC <= 30'h0;
 	rPC <= 30'h0;
 	rPCLNK <= 30'h0;
-       rSKIP <= 0;
        xSKIP <= 0;
 	// End of automatics
      end else if (x_en) begin
@@ -161,7 +229,6 @@ module aexm_bpcu (/*AUTOARG*/
 	rPC <= #1 xPC;
 	rPCLNK <= #1 xPCLNK;
 	rATOM <= #1 xATOM;
-       rSKIP <= #1 fSKIP;
        xSKIP <= #1 dSKIP;
      end
 
