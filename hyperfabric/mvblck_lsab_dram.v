@@ -18,12 +18,14 @@ module hyper_scheduler_mem(input CLK,
   reg [63:0] 				     mem[7:0];
   reg [63:0] 				     in_r;
   reg 					     read_cpu_r, read_dma_r,
-					     we_dma, we_pre_r;
+					     we_dma, we_pre_r, in_from_cpu;
   reg [2:0] 				     read_addr, write_addr_r;
 
   wire 					     read_cpu_w, read_dma_w, we,
 					     atomic_strobe;
   wire [2:0] 				     write_addr;
+  wire [23:0] 				     cpu_len;
+  wire [21:0] 				     cpu_lenfixed;
   wire [63:0] 				     out, in;
 
   assign READ_CPU_ACK = read_cpu_r;
@@ -32,7 +34,11 @@ module hyper_scheduler_mem(input CLK,
   assign read_dma_w = READ_DMA;
   assign read_cpu_w = READ_CPU && !(READ_DMA || READ_CPU_ACK);
 
-  assign in = WRITE_DMA ? IN_DMA : {IN_CPU[63:3],3'h0};
+  assign cpu_len = IN_CPU[55:32];
+  assign cpu_lenfixed = (cpu_len[1:0] == 0) ?
+			cpu_len[23:2] : (cpu_len[23:2] +1);
+  assign in = WRITE_DMA ? IN_DMA : {IN_CPU[63:56],cpu_lenfixed,2'h0,
+				    IN_CPU[31:3],3'h0};
   assign write_addr = WRITE_DMA ? W_ADDR_DMA : ADDR_CPU;
   assign we_pre = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
   assign we = we_dma ? (we_pre_r && !(atomic_strobe ^ in_r[61])) :
