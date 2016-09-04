@@ -514,7 +514,7 @@ module GlaDOS;
 		 .aexm_icache_cache_busy(i_cache_busy),
 		 .aexm_dcache_cache_busy(d_cache_busy));
 
-  trans_core hyperfabric_switch(.CLK(CLK_n),
+  trans_lsab hyperfabric_switch(.CLK(CLK_n),
 				.RST(RST),
 				.out_0(i_mcu_data_into),
 				.out_1(d_mcu_data_into),
@@ -524,12 +524,12 @@ module GlaDOS;
 				.out_6(), .out_7(),
 				.in_0(i_mcu_data_outof),
 				.in_1(d_mcu_data_outof),
-				.in_2(w_out_cr),
-				.in_3(0),
+				.in_2(0), .in_3(0),
 				.in_4(0), .in_5(0),
 				.in_6(0), .in_7(0),
-				.isel({13'h0,w_isel}),
-				.osel({13'h0,w_osel}));
+				.lsab(w_out_cr),
+				.isel({5'h0,w_isel}),
+				.osel({8'hfc,5'h0,w_osel}));
 
   lsab_cr lsab_in(.CLK(CLK_n),
 		  .RST(RST),
