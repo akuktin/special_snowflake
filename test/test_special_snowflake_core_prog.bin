@@ -55,8 +55,14 @@ i_cache.cachedat.ram.r_data[17] <= {6'o00,5'h1b,5'h1b,5'h3,11'd0};
 //i_cache.cachedat.ram.r_data[16] <= {6'o00,5'h0,5'h0,5'h0,11'd0};
 //i_cache.cachedat.ram.r_data[17] <= {6'o00,5'h0,5'h0,5'h0,11'd0};
 i_cache.cachedat.ram.r_data[18] <= {6'o00,5'h0,5'h0,5'h0,11'd0};
+
 i_cache.cachedat.ram.r_data[19] <= {6'o62,5'h1d,5'h0,5'h1,11'd1}; // load
-i_cache.cachedat.ram.r_data[20] <= {6'o62,5'h1c,5'h0,5'h3,11'd1}; // load
-i_cache.cachedat.ram.r_data[21] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd9};
-i_cache.cachedat.ram.r_data[22] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd10};
-i_cache.cachedat.ram.r_data[23] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd11};
+i_cache.cachedat.ram.r_data[20] <= {6'o00,5'h18,5'h1d,5'h0,11'd1};
+i_cache.cachedat.ram.r_data[21] <= {6'o00,5'h19,5'h1d,5'h0,11'd1};
+i_cache.cachedat.ram.r_data[22] <= {6'o00,5'h1a,5'h1d,5'h0,11'd1};
+i_cache.cachedat.ram.r_data[23] <= {6'o00,5'h1b,5'h1d,5'h0,11'd1};
+
+i_cache.cachedat.ram.r_data[24] <= {6'o62,5'h1c,5'h0,5'h3,11'd1}; // load
+i_cache.cachedat.ram.r_data[25] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd9};
+i_cache.cachedat.ram.r_data[26] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd10};
+i_cache.cachedat.ram.r_data[27] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd11};
