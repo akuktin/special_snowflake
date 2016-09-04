@@ -14,15 +14,30 @@ module hyper_scheduler_mem(input CLK,
 			   input [2:0] 	     R_ADDR_DMA,
 			   input [2:0] 	     W_ADDR_DMA,
 			   input [63:0]      IN_DMA,
-			   output reg [63:0] OUT_DMA);
-  reg [63:0] 				     mem[7:0];
-  reg [63:0] 				     in_r;
+			   output reg [63:0] OUT_DMA,
+			   // ---------------------
+			   output reg [23:0] LEN_0,
+			   output reg 	     DIR_0,
+			   output reg 	     EN_STB_0,
+			   output reg [23:0] LEN_1,
+			   output reg 	     DIR_1,
+			   output reg 	     EN_STB_1,
+			   output reg [23:0] LEN_2,
+			   output reg 	     DIR_2,
+			   output reg 	     EN_STB_2,
+			   output reg [23:0] LEN_3,
+			   output reg 	     DIR_3,
+			   output reg 	     EN_STB_3);
+  reg [65:0] 				     mem[7:0];
+  reg [23:0] 				     orig_len[7:0];
+  reg [65:0] 				     in_r;
+  reg [23:0] 				     in_orig_r;
   reg 					     read_cpu_r, read_dma_r,
 					     we_dma, we_pre_r;
   reg [2:0] 				     read_addr, write_addr_r;
 
   wire 					     read_cpu_w, read_dma_w, we,
-					     atomic_strobe;
+					     atomic_strobe, tran_started;
   wire [2:0] 				     write_addr;
   wire [23:0] 				     cpu_len;
   wire [21:0] 				     cpu_lenfixed;
@@ -37,19 +52,26 @@ module hyper_scheduler_mem(input CLK,
   assign cpu_len = IN_CPU[55:32];
   assign cpu_lenfixed = (cpu_len[1:0] == 0) ?
 			cpu_len[23:2] : (cpu_len[23:2] +1);
-  assign in = WRITE_DMA ? IN_DMA : {IN_CPU[63:56],cpu_lenfixed,2'h0,
-				    IN_CPU[31:3],3'h0};
+  assign in = WRITE_DMA ?
+	      {2'h1,IN_DMA} :
+	      {2'h0,IN_CPU[63:56],cpu_lenfixed,2'h0,
+	       IN_CPU[31:3],3'h0};
   assign write_addr = WRITE_DMA ? W_ADDR_DMA : ADDR_CPU;
   assign we_pre = WRITE_DMA ? 1 : (WRITE_CPU && !WRITE_CPU_ACK);
   assign we = we_dma ? (we_pre_r && !(atomic_strobe ^ in_r[61])) :
                        we_pre_r;
 
   assign atomic_strobe = mem[write_addr_r][61];
+  assign tran_started = mem[write_addr_r][64];
 
   initial
     begin
       mem[0] <= 0; mem[1] <= 0; mem[2] <= 0; mem[3] <= 0;
       mem[4] <= 0; mem[5] <= 0; mem[6] <= 0; mem[7] <= 0;
+      orig_len[0] <= 0; orig_len[1] <= 0;
+      orig_len[2] <= 0; orig_len[3] <= 0;
+      orig_len[4] <= 0; orig_len[5] <= 0;
+      orig_len[6] <= 0; orig_len[7] <= 0;
     end
 
   always @(posedge CLK)
@@ -58,11 +80,16 @@ module hyper_scheduler_mem(input CLK,
 	OUT_DMA <= 0; OUT_CPU <= 0; WRITE_CPU_ACK <= 0;
 	read_cpu_r <= 0; read_dma_r <= 0; read_addr <= 0;
 	write_addr_r <= 0; in_r <= 0; we_dma <= 0; we_pre_r <= 0;
+	in_orig_r <= 0;
+	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0 <= 0;
+	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1 <= 0;
+	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2 <= 0;
+	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3 <= 0;
       end
     else
       begin
 	if (read_dma_r)
-	  OUT_DMA <= out;
+	  OUT_DMA <= out[63:0];
 	if (read_cpu_r)
 	  OUT_CPU <= out[63:32];
 
@@ -79,12 +106,42 @@ module hyper_scheduler_mem(input CLK,
 	  begin
 	    write_addr_r <= write_addr;
 	    in_r <= in;
+	    in_orig_r <= cpu_len;
 	  end
 	we_dma <= WRITE_DMA;
 	we_pre_r <= we_pre;
 
 	if (we)
-	  mem[write_addr_r] <= in_r;
+	  begin
+	    mem[write_addr_r] <= in_r;
+	    if (!we_dma)
+	      orig_len[write_addr_r] <= in_orig_r;
+	    if (we_dma && !tran_started)
+	      begin
+		case (in_r[57:56])
+		  2'h0: begin
+		    LEN_0 <= orig_len[write_addr_r];
+		    DIR_0 <= in_r[58];
+		    EN_STB_0 <= !EN_STB_0;
+		  end
+		  2'h1: begin
+		    LEN_1 <= orig_len[write_addr_r];
+		    DIR_1 <= in_r[58];
+		    EN_STB_1 <= !EN_STB_1;
+		  end
+		  2'h2: begin
+		    LEN_2 <= orig_len[write_addr_r];
+		    DIR_2 <= in_r[58];
+		    EN_STB_2 <= !EN_STB_2;
+		  end
+		  2'h3: begin
+		    LEN_3 <= orig_len[write_addr_r];
+		    DIR_3 <= in_r[58];
+		    EN_STB_3 <= !EN_STB_3;
+		  end
+		endcase // case (in_r[57:56])
+	      end
+	  end
 
 	if (WRITE_CPU && !(WRITE_DMA || WRITE_CPU_ACK))
 	  WRITE_CPU_ACK <= 1;
