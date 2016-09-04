@@ -307,13 +307,15 @@ module aexm_xecu (/*AUTOARG*/
 	rMSR_IE <= 1'h0;
 	rRESULT <= 32'h0;
 	// End of automatics
-     end else if (x_en) begin // if (grst)
+     end else begin // if (grst)
+       if (x_en) begin
 	rRESULT <= #1 xRESULT;
-	rDWBSEL <= #1 xDWBSEL;
 	rMSR_C <= #1 xMSR_C;
 	rMSR_IE <= #1 xMSR_IE;
 	rMSR_BE <= #1 xMSR_BE;
 	rMSR_BIP <= #1 xMSR_BIP;
+       end
+       rDWBSEL <= xDWBSEL;
      end
 
 endmodule // aexm_xecu
