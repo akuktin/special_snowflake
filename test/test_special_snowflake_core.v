@@ -321,6 +321,12 @@ module GlaDOS;
 
   reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
 
+  wire [23:0]  ph_len_0, ph_len_1, ph_len_2, ph_len_3;
+  wire 	       ph_dir_0, ph_enstb_0, ph_dir_1, ph_enstb_1,
+	       ph_dir_2, ph_enstb_2, ph_dir_3, ph_enstb_3;
+  reg 	       ph_enstb_0_prev, ph_enstb_1_prev,
+	       ph_enstb_2_prev, ph_enstb_3_prev;
+
   ddr i_ddr_mem(.Clk(CLK_p),
               .Clk_n(CLK_n),
               .Cke(iCKE),
@@ -704,7 +710,20 @@ module GlaDOS;
 				    .R_ADDR_DMA(res_r_addr),
 				    .W_ADDR_DMA(res_w_addr),
 				    .IN_DMA(res_in),
-				    .OUT_DMA(res_out));
+				    .OUT_DMA(res_out),
+			   // ---------------------
+				    .LEN_0(ph_len_0),
+				    .DIR_0(ph_dir_0),
+				    .EN_STB_0(ph_enstb_0),
+				    .LEN_1(ph_len_1),
+				    .DIR_1(ph_dir_1),
+				    .EN_STB_1(ph_enstb_1),
+				    .LEN_2(ph_len_2),
+				    .DIR_2(ph_dir_2),
+				    .EN_STB_2(ph_enstb_2),
+				    .LEN_3(ph_len_3),
+				    .DIR_3(ph_dir_3),
+				    .EN_STB_3(ph_enstb_3));
 
 
   test_fill_lsab lsab_write(.CLK(CLK_n),
@@ -765,9 +784,23 @@ module GlaDOS;
 	d_mcu_req_access <= 0; d_mcu_we <= 0;
 	i_mcu_req_access_prev <= 0; refresh_strobe_prev <= 0;
 	ctr <= 0; irq_strobe <= 0;
+	ph_enstb_0_prev <= 0; ph_enstb_1_prev <= 0;
+	ph_enstb_2_prev <= 0; ph_enstb_3_prev <= 0;
       end
     else
       begin
+	ph_enstb_0_prev <= ph_enstb_0; ph_enstb_1_prev <= ph_enstb_1;
+	ph_enstb_2_prev <= ph_enstb_2; ph_enstb_3_prev <= ph_enstb_3;
+
+	if (ph_enstb_0_prev ^ ph_enstb_0)
+	  $display("ISSUE 0: len %d dir %x", ph_len_0, ph_dir_0);
+	if (ph_enstb_1_prev ^ ph_enstb_1)
+	  $display("ISSUE 1: len %d dir %x", ph_len_1, ph_dir_1);
+	if (ph_enstb_2_prev ^ ph_enstb_2)
+	  $display("ISSUE 2: len %d dir %x", ph_len_2, ph_dir_2);
+	if (ph_enstb_3_prev ^ ph_enstb_3)
+	  $display("ISSUE 3: len %d dir %x", ph_len_3, ph_dir_3);
+
 	if (res_irq)
 	  irq_strobe <= !irq_strobe;
 	ctr <= ctr+1;
