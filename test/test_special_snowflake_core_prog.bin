@@ -22,8 +22,8 @@
 // init R0
 i_cache.cachedat.ram.r_data[0] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
 i_cache.cachedat.ram.r_data[1] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
-i_cache.cachedat.ram.r_data[2] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
-//i_cache.cachedat.ram.r_data[2] <= {6'o66,5'h0,5'h0,5'h0,11'd0};
+//i_cache.cachedat.ram.r_data[2] <= {6'o01,5'h0,5'h0,5'h0,11'd0}; // orig
+i_cache.cachedat.ram.r_data[2] <= {6'o45,5'h0,5'h0a,16'h4000};
 
 // init the DRAM counter increment, address and limit
 i_cache.cachedat.ram.r_data[3] <= {6'o10,5'h3,5'h0,16'h0004};
@@ -63,6 +63,18 @@ i_cache.cachedat.ram.r_data[22] <= {6'o00,5'h1a,5'h1d,5'h0,11'd1};
 i_cache.cachedat.ram.r_data[23] <= {6'o00,5'h1b,5'h1d,5'h0,11'd1};
 
 i_cache.cachedat.ram.r_data[24] <= {6'o62,5'h1c,5'h0,5'h3,11'd1}; // load
-i_cache.cachedat.ram.r_data[25] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd9};
-i_cache.cachedat.ram.r_data[26] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd10};
-i_cache.cachedat.ram.r_data[27] <= {6'o01,5'h1f,5'h1f,5'h1f,11'd11};
+i_cache.cachedat.ram.r_data[25] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+i_cache.cachedat.ram.r_data[26] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
+i_cache.cachedat.ram.r_data[27] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
+
+
+/*
+i_cache.cachedat.ram.r_data[3] <= {6'o52,5'h1,5'h0,16'hffff};
+i_cache.cachedat.ram.r_data[4] <= {6'o00,5'h2,5'h1,5'h1,11'd0};
+i_cache.cachedat.ram.r_data[5] <= {6'o02,5'h3,5'h2,5'h0,11'd0};
+
+i_cache.cachedat.ram.r_data[6] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+i_cache.cachedat.ram.r_data[6] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+i_cache.cachedat.ram.r_data[7] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+i_cache.cachedat.ram.r_data[8] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+*/

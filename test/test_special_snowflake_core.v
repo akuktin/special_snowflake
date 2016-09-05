@@ -852,6 +852,7 @@ module GlaDOS;
       if (cpu.regf.mDRAM[31] == 32'd0)
 	begin
 	  $display("halting");
+	  $display("wMSR %x", cpu.xecu.wMSR);
 	  $display(" r0: %x,  r1: %x,  r2: %x  r3: %x",
 		   cpu.regf.mDRAM[0], cpu.regf.mDRAM[1],
 		   cpu.regf.mDRAM[2], cpu.regf.mDRAM[3]);
@@ -994,6 +995,10 @@ module GlaDOS;
 //      cpu.regf.mARAM[9] <= 32'hfe00_0005;
 //      cpu.regf.mBRAM[9] <= 32'hfe00_0005;
 //      cpu.regf.mDRAM[9] <= 32'hfe00_0005;
+
+      cpu.regf.mARAM[10] <= 32'h0000_0002;
+      cpu.regf.mBRAM[10] <= 32'h0000_0002;
+      cpu.regf.mDRAM[10] <= 32'h0000_0002;
 
 
 `include "test_special_snowflake_core_prog.bin"
