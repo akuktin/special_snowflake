@@ -918,11 +918,11 @@ module GlaDOS;
 		   i_cache_enable);
  */
 
-	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x cpu_en %x fSTALL %x rOP %x",
+	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x cpu_en %x fSTALL %x rOP %o",
 		   i_cache_pc_addr, i_cache_datai,
 		   i_cache_enable, i_cache_busy,
-		   cpu.cpu_enable, cpu.ibuf.fSTALL,
-		   {cpu.ibuf.rOPC,2'h0});
+		   cpu.cpu_enable, cpu.fSTALL,
+		   {cpu.ibuf.rOPC});
 /*
 	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
 		   cpu.bpcu.pre_rIPC, cpu.bpcu.pc_inc, cpu.bpcu.xIPC,
@@ -1003,6 +1003,7 @@ module GlaDOS;
 
 `include "test_special_snowflake_core_prog.bin"
 //`include "test_branches_allofthem.bin"
+// `include "test_shifter_prog.bin"
     end
 
 endmodule // GlaDOS
