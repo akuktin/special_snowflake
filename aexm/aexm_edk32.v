@@ -94,6 +94,7 @@ module aexm_edk32 (/*AUTOARG*/
 		     .dSTRLOD(dSTRLOD),
 		     .dLOD(dLOD),
 		     .dSKIP(dSKIP),
+		     .fSTALL(fSTALL),
 		     .cpu_mode_memop(cpu_mode_memop),
 		     .cpu_enable(cpu_enable),
 		     .icache_enable(aexm_icache_precycle_enable),
@@ -110,7 +111,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rOPC			(rOPC[5:0]),
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
-	   .fSTALL			(fSTALL),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
 	   .aexm_icache_datai           (aexm_icache_datai),
@@ -131,6 +131,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRW				(rRW[4:0]),
 	   .dSTRLOD                     (dSTRLOD),
 	   .dLOD                        (dLOD),
+	   .fSTALL			(fSTALL),
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   .aexm_dcache_force_miss      (aexm_dcache_force_miss),
 	   // Inputs
@@ -211,7 +212,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXALU			(rMXALU[2:0]),
 	   .xSKIP                       (xSKIP),
 	   .rALT			(rALT[10:0]),
-	   .fSTALL			(fSTALL),
 	   .rSIMM			(rSIMM[31:0]),
 	   .rIMM			(rIMM[15:0]),
 	   .rOPC			(rOPC[5:0]),

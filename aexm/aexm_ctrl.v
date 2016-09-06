@@ -1,7 +1,7 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXSRC, rMXTGT, rMXALT, rMXALU, rRW, dSTRLOD, dLOD,
-   aexm_dcache_precycle_we, aexm_dcache_force_miss,
+   aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    gclk, grst, d_en, x_en
@@ -11,6 +11,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [1:0]  rMXSRC, rMXTGT, rMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
+  output 	 fSTALL;
 
   input 	 xSKIP;
    input [15:0]  rIMM;
@@ -79,6 +80,8 @@ module aexm_ctrl (/*AUTOARG*/
 
    wire          wPUT = (wOPC == 6'o33) & wRB[4];
    wire 	 wGET = (wOPC == 6'o33) & !wRB[4];
+
+  assign         fSTALL = wBSF;
 
    // --- BRANCH SLOT REGISTERS ---------------------------
 

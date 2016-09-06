@@ -5,6 +5,7 @@ module aexm_enable(input CLK,
 		   input      dSTRLOD,
 		   input      dLOD,
 		   input      dSKIP,
+		   input      fSTALL,
 		   output reg cpu_mode_memop, // 0: stall, 1: normal
 		   output     cpu_enable,
 		   output     icache_enable,
@@ -12,7 +13,7 @@ module aexm_enable(input CLK,
   reg 			      starter, grst_delay;
   reg 			      just_issued_dcache_command;
   reg 			      dcache_LOD_enable_reg, dcache_LOD_enable_dly,
-			      xLOD;
+			      xLOD, xSTRLOD;
   wire 			      enter_memop_criterion,
 			      exit_memop_criterion,
 			      dcache_LOD_enable;
@@ -21,7 +22,7 @@ module aexm_enable(input CLK,
 		      (starter);
 
   assign enter_memop_criterion = cpu_mode_memop &&
-				 dSTRLOD &&
+				 (dSTRLOD || fSTALL) &&
 				 (! dSKIP) &&
 				 cpu_enable;
 
@@ -41,7 +42,7 @@ module aexm_enable(input CLK,
 
   assign dcache_enable = xLOD ?
 			 dcache_LOD_enable :
-			 exit_memop_criterion;
+			 (exit_memop_criterion && xSTRLOD);
 
   assign dcache_LOD_enable = (!cpu_mode_memop) &&
 			     (!dcache_LOD_enable_reg) &&
@@ -55,6 +56,7 @@ module aexm_enable(input CLK,
 	cpu_mode_memop <= 1;
 	just_issued_dcache_command <= 0;
 	dcache_LOD_enable_reg <= 0; dcache_LOD_enable_dly <= 0; xLOD <= 0;
+	xSTRLOD <= 0;
       end
     else
       begin
@@ -70,7 +72,10 @@ module aexm_enable(input CLK,
 	just_issued_dcache_command <= dcache_enable;
 
 	if (cpu_enable)
-	  xLOD <= dLOD;
+	  begin
+	    xSTRLOD <= dSTRLOD;
+	    xLOD <= dLOD;
+	  end
 
 	if (cpu_mode_memop)
 	  begin

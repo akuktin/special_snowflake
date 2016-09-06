@@ -4,7 +4,7 @@ module aexm_xecu (/*AUTOARG*/
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
-   fSTALL, rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, x_en
+   rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, x_en
    );
    parameter DW=32;
 
@@ -26,7 +26,6 @@ module aexm_xecu (/*AUTOARG*/
    input [10:0]    rALT;
   input 	   xSKIP;
 
-   input 	   fSTALL;
    input [31:0]    rSIMM;
    input [15:0]    rIMM;
    input [5:0] 	   rOPC;
@@ -137,7 +136,7 @@ module aexm_xecu (/*AUTOARG*/
 	// Beginning of autoreset for uninitialized flops
 	rRES_MUL <= 32'h0;
 	// End of automatics
-     end else if (fSTALL) begin
+     end else if (!x_en) begin // TODO: maybe remove the if
 	rRES_MUL <= #1 xRES_MUL;
      end
 
@@ -202,7 +201,7 @@ module aexm_xecu (/*AUTOARG*/
 	rBSRA <= 32'h0;
 	rBSRL <= 32'h0;
 	// End of automatics
-     end else if (fSTALL) begin
+     end else if (!x_en) begin // TODO: maybe remove the if
 	rBSRL <= #1 xBSRL;
 	rBSRA <= #1 xBSRA;
 	rBSLL <= #1 xBSLL;

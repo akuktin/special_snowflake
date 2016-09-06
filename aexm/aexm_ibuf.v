@@ -1,6 +1,6 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
-   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG, fSTALL,
+   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, d_en, oena
@@ -12,7 +12,6 @@ module aexm_ibuf (/*AUTOARG*/
    output [5:0]  rOPC;
    output [31:0] rSIMM;
    output [31:0] xIREG;
-   output 	 fSTALL;
 
    input 	 rMSR_IE;
 
@@ -64,7 +63,7 @@ module aexm_ibuf (/*AUTOARG*/
 	  rDINT <= #1
 		   {rDINT[0], sys_int_i};
 
-	rFINT <= #1
+	rFINT <= #1 // still needs some work
 		 issued_interrupt ? 1'b0 :
 		 (rFINT | wSHOT) & rMSR_IE;
      end
@@ -104,31 +103,6 @@ module aexm_ibuf (/*AUTOARG*/
        issued_interrupt <= (!fIMM & rFINT & !fRTD & !fBRU & !fBCC);
 	{rOPC, rRD, rRA, rIMM} <= #1 xIREG;
 	rSIMM <= #1 xSIMM;
-     end
-
-   // --- STALL FOR MUL/BSF -----------------------------------
-
-   wire       fMUL = (dOPC == 6'o20) | (dOPC == 6'o30);
-   wire       fBSF = (dOPC == 6'o21) | (dOPC == 6'o31);
-   wire 	 rLOD = ({rOPC[5:4],rOPC[2]} == 3'o6);
-   wire 	 rSTR = ({rOPC[5:4],rOPC[2]} == 3'o7);
-  reg 		 rSTALL_prev;
-  wire 		 fSTALL;
-  assign fSTALL = rSTALL || rSTALL_prev;
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-       rSTALL_prev <= 0;
-	rSTALL <= 1'h0;
-	// End of automatics
-     end else begin
-       rSTALL_prev <= rSTALL;
-       if (oena)
-	 rSTALL <= #1 (!rSTALL & (fMUL | fBSF));
-       else
-	 rSTALL <= #1 0;
      end
 
 endmodule // aexm_ibuf
