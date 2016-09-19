@@ -1,0 +1,202 @@
+--- a/eth_recv.v	2016-09-18 23:05:03.000000000 +0200
++++ b/eth_recv.v	2016-09-19 17:18:25.000000000 +0200
+@@ -1,57 +1,61 @@
+-module mandec_bitchange(input CLK,
+-			input 	    RST,
+-			input 	    DATAI,
+-			output reg  PCLK, // pseudo-CLK
+-			output reg  DATAO,
+-			output 	    ERROR);
+-  reg 				    r1,r2;
+-  reg [4:0] 			    timer_;
++module mandec(input CLK,
++             input        RST,
++             input        DATAI,
++             output reg   PCLK, // pseudo-CLK
++             output reg   DATAO,
++             output       ERROR);
++   reg                      r1, r2;
++   reg [3:0]        timer_;
++
++   wire             bit_1, bit_0;
++   wire             event_;
++   wire             sensitive;
++   wire             run;
++
++   assign run = ~(timer_ == 4'hf);
++
++   assign bit_1 = r1 & (~r2);
++   assign bit_0 = (~r1) & r2;
++
++   assign event_ = bit_1 | bit_0;
++   /* Adjust the below two for jitter tolerance.
++    * Keep in mind that excessive jitter tolerance
++    * produces excessive errors and downgrades the
++    * performance of higher layers. */
++   assign sensitive = timer_ > 4'h6;
++   assign ERROR = run & (timer_ > 4'hb);
+ 
+-  wire 				    event_, run;
+-  wire 				    bittransition_t, bittransition_0to1_t;
+-
+-
+-  assign run = timer_ != 5'h1f;
+-
+-  assign event_ = r1 ^ r2;
+-
+-  assign bittransition_t = timer_ > 5'h04;
+-  assign bittransition_0to1_t = timer_ > 5'h0a;
+-  assign ERROR = timer_ == 5'h13;
+-
+-  always @(posedge CLK)
+-    begin
+-      r1 <= DATAI;
+-      r2 <= r1;
++   always @(posedge CLK)
++     if (! RST)
++       begin
++         timer_ <= 4'hf;
++         PCLK <= 0;
++       end
++     else
++       begin
++         if (event_ & sensitive)
++           begin
++              if (~ERROR)
++                begin
++                   PCLK <= ~PCLK;
++
++                   if (bit_1)
++                     DATAO <= 1;
++                   else
++                     DATAO <= 0;
++                end
++
++              timer_ <= 0;
++           end // if (event_ & sensitive)
++        else
++           if (run)
++             timer_ <= timer_ + 1;
+ 
+-      if (!RST)
+-	begin
+-	  timer_ <= 5'h1f;
+-	  DATAO <= 0;
+-	  PCLK <= 0;
+-	end
+-      else
+-	begin
+-	  if (event_ & bittransition_t)
+-	    begin
+-	      timer_ <= 0;
+-	      PCLK <= ~PCLK;
+-
+-	      if (r1)
+-		begin
+-		  if (bittransition_0to1_t)
+-		    DATAO <= 1;
+-		end
+-	      else
+-		DATAO <= 0;
+-	    end // if (event_ & bittransition_t)
+-	  else
+-	    if (run)
+-		timer_ <= timer_ +1;
+-	end // else: !if(!RST)
+-    end // always @ (posedge CLK)
++         r1 <= DATAI;
++         r2 <= r1;
++       end
+ 
+-endmodule // mandec_bitchange
++endmodule // mandec
+ 
+ module innailer(input fast_CLK,
+ 		input 	   slow_CLK,
+@@ -72,16 +76,11 @@
+    reg 			   prev_pCLK;
+    reg 			   error_sticky;
+ 
+-   reg 			   bit_store;
+-
+    assign negedge_detect = (~r1) & r2;
+ 
+    always @(posedge fast_CLK)
+      if (!RST)
+-       begin
+-	 error_sticky <= 0;
+-	 bit_store <= 0;
+-       end
++	error_sticky <= 0;
+      else
+      begin
+ 	begin
+@@ -106,32 +105,19 @@
+ 
+ 	if (negedge_detect)
+ 	  begin
+-	    if (error_sticky)
+-	      begin
+-		if (bit_store == 1'b0)
+-		  begin
++	     if (pseudo_CLK ^ prev_pCLK)
++	       begin
++		  DATA_VALID <= 1;
++		  WAVEFRM_ERROR <= 0;
++	       end
++	     else
++	       if (error_sticky)
++		 begin
+ 		    error_sticky <= 0;
+ 
+ 		    DATA_VALID <= 0;
+ 		    WAVEFRM_ERROR <= 1;
+-		  end
+-		else
+-		  begin
+-		    DATAO <= bit_store;
+-		    DATA_VALID <= 1;
+-		    bit_store <= 1'b0;
+-		  end // else: !if(bit_store == 1'b0)
+-	      end
+-	    else
+-	      if (pseudo_CLK ^ prev_pCLK)
+-		begin
+-		  DATA_VALID <= 1;
+-
+-		  bit_store <= DATAI;
+-		  DATAO <= bit_store;
+-
+-		  WAVEFRM_ERROR <= 0;
+-		end
++		 end
+ 	       else
+ 		 begin
+ 		    /* slow_CLK is designed to be overclocked
+@@ -150,6 +136,7 @@
+ 	     already_changed <= 0;
+ 
+ 	     prev_pCLK <= pseudo_CLK;
++	     DATAO <= DATAI;
+ 	  end // if (negedge_detect)
+      end // always @ (posedge fast_CLK)
+ 
+@@ -167,12 +154,12 @@
+    wire 		   interconnect_DATA,
+ 			   interconnect_ERROR;
+ 
+-   mandec_bitchange decoder(.CLK(fast_CLK),
+-			    .RST(RST),
+-			    .DATAI(DATA_WIRE),
+-			    .PCLK(pseudo_CLK),
+-			    .DATAO(interconnect_DATA),
+-			    .ERROR(interconnect_ERROR));
++   mandec decoder(.CLK(fast_CLK),
++		  .RST(RST),
++		  .DATAI(DATA_WIRE),
++		  .PCLK(pseudo_CLK),
++		  .DATAO(interconnect_DATA),
++		  .ERROR(interconnect_ERROR));
+ 
+    innailer nailer(.fast_CLK(fast_CLK),
+ 		   .slow_CLK(slow_CLK),
