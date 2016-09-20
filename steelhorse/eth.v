@@ -506,7 +506,7 @@ module Steelhorse(input sampler_CLK,
 		  .SENDREG_RQ(signal2),
 		  .SENDREG_AN(sendreg_an));
 
-  always @(posedge recv_CLK)
+  always @(posedge recv_CLK) // this can run at random speed
     if (!RST)
       begin
 	intrfc <= 0;

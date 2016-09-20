@@ -12,7 +12,7 @@ module GLaDOS;
   wire __WIRE_1, __WIRE_2;
   reg __WIRE_3;
   wire [9:0] addr_send, addr_recv;
-  wire [15:0] idataout_send, idataout_recv;
+  wire [31:0] idataout_send, idataout_recv;
   wire [31:0] data_in, data_out;
   reg [15:0] idatain_send;
   reg [9:0] iaddr_send, iaddr_recv;
@@ -40,8 +40,7 @@ module GLaDOS;
 		  .DATA_SEND(data_in),
 		  .NWPCKT_IRQ(),
 		  .NWPCKT_IRQ_VALID(),
-		  .INTRFC_ADDR(iaddr_send),
-		  .INTRFC_DATAIN(idatain_send),
+		  .INTRFC_DATAIN({16'h0,idatain_send}),
 //		  .INTRFC_DATAIN_WRITE(1'b1),
 		  .INTRFC_DATAOUT(idataout_send));
   Steelhorse recv(.sampler_CLK(sampler_CLK),
@@ -56,7 +55,6 @@ module GLaDOS;
 		  .DATA_SEND(),
 		  .NWPCKT_IRQ(),
 		  .NWPCKT_IRQ_VALID(new_pckt),
-		  .INTRFC_ADDR(iaddr_recv),
 		  .INTRFC_DATAIN(),
 //		  .INTRFC_DATAIN_WRITE(1'b0),
 		  .INTRFC_DATAOUT(idataout_recv));
