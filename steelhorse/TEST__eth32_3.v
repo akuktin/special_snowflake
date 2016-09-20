@@ -13,11 +13,12 @@ module GLaDOS;
   reg __WIRE_3;
   wire [9:0] addr_send, addr_recv;
   wire [31:0] idataout_send, idataout_recv;
-  wire [31:0] data_in, data_out;
+  wire [31:0] data_in;
+  wire [31:0] data_out;
   reg [15:0] idatain_send;
   reg [9:0] iaddr_send, iaddr_recv;
   reg [15:0] irecv_hldr, isend_hldr;
-  wire write_data_in, new_pckt, sendreg_an;
+  wire write_data_in, read_data_out, new_pckt, sendreg_an;
   reg sendreg_rq;
   reg RUN_sig;
 
@@ -27,8 +28,7 @@ module GLaDOS;
                    0;
 
   Steelhorse send(.sampler_CLK(sampler_CLK),
-         .RUN(RUN_sig),
-         .enc_CLK(enc_CLK),
+		  .enc_CLK(enc_CLK),
 		  .recv_CLK(recv_CLK),
 		  .send_CLK(send_CLK),
 		  .RST(_RST),
@@ -38,14 +38,17 @@ module GLaDOS;
 		  .DATA_RECV(),
 		  .WRITE_DATA_RECV(),
 		  .DATA_SEND(data_in),
+		  .READ_DATA_SEND(read_data_out),
 		  .NWPCKT_IRQ(),
 		  .NWPCKT_IRQ_VALID(),
+		  .RUN(RUN_sig),
+		  .BUSY(),
 		  .INTRFC_DATAIN({16'h0,idatain_send}),
-//		  .INTRFC_DATAIN_WRITE(1'b1),
 		  .INTRFC_DATAOUT(idataout_send));
   Steelhorse recv(.sampler_CLK(sampler_CLK),
 		  .recv_CLK(recv_CLK),
 		  .send_CLK(send_CLK),
+		  .enc_CLK(enc_CLK),
 		  .RST(_RST),
 		  .WIRE_RX(__WIRE_1),
 		  .WIRE_TX(__WIRE_2),
@@ -55,8 +58,9 @@ module GLaDOS;
 		  .DATA_SEND(),
 		  .NWPCKT_IRQ(),
 		  .NWPCKT_IRQ_VALID(new_pckt),
+		  .RUN(),
+		  .BUSY(),
 		  .INTRFC_DATAIN(),
-//		  .INTRFC_DATAIN_WRITE(1'b0),
 		  .INTRFC_DATAOUT(idataout_recv));
 
   initial forever begin #0.5 sampler_CLK <= 1; #0.5 sampler_CLK <= 0; record_buff <= record_buff +1; end
@@ -144,6 +148,13 @@ module GLaDOS;
       end
 
   always @(posedge send_CLK)
+    begin
+/*    if (read_data_out)
+      begin
+	data_in <= {DATAIN[{addr_send[6:0],1'b0}],
+                    DATAIN[{addr_send[6:0],1'b1}]};
+      end
+*/
     if (record)
       begin
 //	$display("");
@@ -170,6 +181,7 @@ module GLaDOS;
 	      halt <= halt +1;
 	  end
       end
+    end
 
 /*
   always @(posedge send_CLK)
