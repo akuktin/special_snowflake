@@ -9,7 +9,8 @@ module data_crcload(input CLK,
 		     output CRCHALT,
 		     output [15:0] DELAYDATA,
 		     output CRCBIT,
-		     output WRITE_CRCBITS);
+		     output WRITE_CRCBITS,
+                     output reg READ);
   reg [4:0]		counter;
   reg [5:0] 		complement_counter;
   reg			r1, delayreg_fast, delayreg_slow;
@@ -43,6 +44,7 @@ module data_crcload(input CLK,
 	addrreg <= 0;
 	delayreg_slow <= 0;
 	delayreg_fast <= 0;
+	READ <= 0;
       end
     else
       begin
@@ -56,6 +58,7 @@ module data_crcload(input CLK,
 	    case (counter[4:3])
 	      2'h0: begin
 		crcbits <= DATA[31:24];
+		READ <= 0;
 	      end
 	      2'h1: begin
 		delayreg_slow <= 1;
@@ -63,20 +66,26 @@ module data_crcload(input CLK,
 		crcbits <= DATA[23:16];
 		stagingreg1 <= DATA[32:16];
 		stagingreg2 <= stagingreg1;
+		READ <= 0;
 	      end
 	      2'h2: begin
 		crcbits <= DATA[15:8];
+		READ <= 0;
 	      end
 	      2'h3: begin
 		crcbits <= DATA[7:0];
 		stagingreg1 <= DATA[15:0];
 		stagingreg2 <= stagingreg1;
 		addrreg <= addrreg +1;
+		READ <= 1;
 	      end
 	    endcase // case (counter[4:3])
 	  end
 	else
-	  crcbits <= {1'b0,crcbits[7:1]};
+	  begin
+	    crcbits <= {1'b0,crcbits[7:1]};
+	    READ <= 0;
+	  end
 
 	delayreg_fast <= 1;
 
@@ -221,6 +230,7 @@ module send_integration(input CLK,
 			output [8:0] ADDR,
 			output reg DONE,
 			output WIRE,
+			output READ,
 			/* --------- */
 			output CRC_RST,
 			output CRC_DATA,
@@ -244,7 +254,8 @@ module send_integration(input CLK,
 			 .CRCHALT(CRC_FASTHALT),
 			 .DELAYDATA(data_interconnect),
 			 .CRCBIT(CRC_DATA),
-			 .WRITE_CRCBITS(CRC_WRITE));
+			 .WRITE_CRCBITS(CRC_WRITE),
+			 .READ(READ));
   data_encload encloader(.CLK(CLK),
 			 .RST(run_enc),
 			 .END_DATA(end_data),

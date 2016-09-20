@@ -327,7 +327,9 @@ module integration(input sampler_CLK,
 		   output [31:0] DATA_RECV,
 		   output WRITE_DATA_RECV,
 		   output [10:0] RECV_LEN,
+		   output READ_DATA_SEND,
 		   output NEW_PCKT,
+		   output NEW_PCKT_VALID,
 		/* ------------------- */
 		   input send_CLK,
 		   input enc_CLK,
@@ -369,6 +371,7 @@ module integration(input sampler_CLK,
 			.WRITE_DATA(WRITE_DATA_RECV),
 			.RECV_LEN(RECV_LEN),
 			.NEW_PCKT(NEW_PCKT),
+			.NEW_PCKT_VALID(NEW_PCKT_VALID),
 			.ACTIVE_HWY(active_recv_hwy),
 			.ACTIVE_LGT(active_recv_lgt),
 			.CRC_RST(crc_recv_rst),
@@ -387,6 +390,7 @@ module integration(input sampler_CLK,
 			.ADDR(addr_send),
 			.DONE(donesend),
 			.WIRE(WIRE_TX),
+			.READ(READ_DATA_SEND),
 			.CRC_RST(crc_send_rst),
 			.CRC_DATA(crc_send_bit),
 			.CRC_WRITE(crc_send_write),
@@ -449,8 +453,6 @@ module integration(input sampler_CLK,
 endmodule
 
 module Steelhorse(input sampler_CLK,
-		  input RUN,
-
 		  input recv_CLK,
 		  input send_CLK,
 		  input enc_CLK,
@@ -463,11 +465,14 @@ module Steelhorse(input sampler_CLK,
 		  output [31:0] DATA_RECV,
 		  output WRITE_DATA_RECV,
 		  input [31:0] DATA_SEND,
+		  output READ_DATA_SEND,
 		  output NWPCKT_IRQ,
+		  output NWPCKT_IRQ_VALID,
 		/*--------------- */
-		  input [9:0] INTRFC_ADDR,
-		  input [15:0] INTRFC_DATAIN,
-		  output [15:0] INTRFC_DATAOUT);
+		  input RUN,
+		  output reg BUSY,
+		  input [31:0] INTRFC_DATAIN,
+		  output [31:0] INTRFC_DATAOUT);
   reg [15:0]		rnd, intrfc_reg_send;
   reg [9:0]		intrfc;
   reg			signal1, signal2;
@@ -477,11 +482,8 @@ module Steelhorse(input sampler_CLK,
   wire [10:0]		recv_len;
 
   assign rnd_first = rnd[1] ^ rnd[0];
-	/* INTRFC_ADDR: 6'h08: recv buffer
-			6'h09: send buffer */
-  assign INTRFC_DATAOUT = (INTRFC_ADDR[9:1] == 9'h004) ?
-			  (INTRFC_ADDR[0] ?
-			   intrfc_reg_send : {5'h00,recv_len}) : 0;
+
+  assign INTRFC_DATAOUT = {16'h0000,5'h00,recv_len};
 
   integration eth(.sampler_CLK(sampler_CLK),
 		  .recv_CLK(recv_CLK),
@@ -491,7 +493,9 @@ module Steelhorse(input sampler_CLK,
 		  .DATA_RECV(DATA_RECV),
 		  .WRITE_DATA_RECV(WRITE_DATA_RECV),
 		  .RECV_LEN(recv_len),
+		  .READ_DATA_SEND(READ_DATA_SEND),
 		  .NEW_PCKT(NWPCKT_IRQ),
+		  .NEW_PCKT_VALID(NWPCKT_IRQ_VALID),
 		  .send_CLK(send_CLK),
 		  .enc_CLK(enc_CLK),
 		  .SENDLEN(intrfc_reg_send[10:0]),
@@ -510,9 +514,7 @@ module Steelhorse(input sampler_CLK,
 	intRUN <= 0;
       end
     else
-      if (/*(INTRFC_DATAIN[9:0] != 10'h000) &&
-	  (INTRFC_ADDR == 10'h00a) && */
-	  (signal1 == signal2) &&
+      if ((signal1 == signal2) &&
 	  (RUN != intRUN))
 	begin
 	  intrfc <= INTRFC_DATAIN[9:0];
@@ -526,6 +528,7 @@ module Steelhorse(input sampler_CLK,
 	rnd <= 16'haa55;
 	signal2 <= 0;
 	intrfc_reg_send <= 0;
+	BUSY <= 0;
       end
     else
       begin
@@ -541,9 +544,9 @@ module Steelhorse(input sampler_CLK,
 	    intrfc_reg_send[15] <= 1;
 
 	if (signal2 ^ sendreg_an)
-	  intrfc_reg_send[14] <= 1;
+	  BUSY <= 1;
 	else
-	  intrfc_reg_send[14] <= 0;
+	  BUSY <= 0;
       end
 
 endmodule

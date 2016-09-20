@@ -317,7 +317,8 @@ module recv_endpoint(input CLK,
 		     output reg [10:0] RECV_LEN,
 		     output DATA_WRITE,
 		     output CC_AIRQ,
-		     output reg NEW_PCKT);
+		     output reg NEW_PCKT,
+		     output reg NEW_PCKT_VALID);
   reg [1:0] 		dataflip;
   reg [31:0]		data_reg;
   reg [8:0]		addr_reg;
@@ -343,6 +344,7 @@ module recv_endpoint(input CLK,
 	terminating <= 0;
 	terminating_delay <= 0;
 	NEW_PCKT <= 0;
+	NEW_PCKT_VALID <= 0;
 	is_round <= 0;
       end
     else
@@ -372,16 +374,18 @@ module recv_endpoint(input CLK,
 		terminating <= 0;
 		is_round <= 0;
 
-		if (crc_safe_reg & is_round /*& ~NEW_PCKT*/)
-		  NEW_PCKT <= 1;
+		NEW_PCKT <= 1;
+		if (crc_safe_reg & is_round /*& ~NEW_PCKT_VALID*/)
+		  NEW_PCKT_VALID <= 1;
 		else
-		  NEW_PCKT <= 0;
+		  NEW_PCKT_VALID <= 0;
 	      end
 	  end
 	else
 	  begin
 	    is_round <= ROUND;
 	    NEW_PCKT <= 0;
+	    NEW_PCKT_VALID <= 0;
 	    airq <= 0;
 
 	    if (CC_IRQ)
@@ -434,6 +438,7 @@ module recv_integration(input fast_CLK,
 			output WRITE_DATA,
 			output [10:0] RECV_LEN,
 			output NEW_PCKT,
+			output NEW_PCKT_VALID,
 			output ACTIVE_HWY,
 			output ACTIVE_LGT,
 			/* --------- */
@@ -494,6 +499,7 @@ module recv_integration(input fast_CLK,
 			     .DATA_WRITE(WRITE_DATA),
 			     .RECV_LEN(RECV_LEN),
 			     .CC_AIRQ(airq),
-			     .NEW_PCKT(NEW_PCKT));
+			     .NEW_PCKT(NEW_PCKT),
+			     .NEW_PCKT_VALID(NEW_PCKT_VALID));
 
 endmodule
