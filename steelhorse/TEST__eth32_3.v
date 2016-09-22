@@ -13,7 +13,7 @@ module GLaDOS;
   reg __WIRE_3;
   wire [9:0] addr_send, addr_recv;
   wire [31:0] idataout_send, idataout_recv;
-  wire [31:0] data_in;
+  reg [31:0] data_in, data_in_pre;
   wire [31:0] data_out;
   reg [15:0] idatain_send;
   reg [9:0] iaddr_send, iaddr_recv;
@@ -21,12 +21,12 @@ module GLaDOS;
   wire write_data_in, read_data_out, new_pckt, sendreg_an;
   reg sendreg_rq;
   reg RUN_sig;
-
+/*
   assign data_in = addr_send[9] ?
                    {DATAIN[{addr_send[6:0],1'b0}],
                     DATAIN[{addr_send[6:0],1'b1}]} :
                    0;
-
+*/
   Steelhorse send(.sampler_CLK(sampler_CLK),
 		  .enc_CLK(enc_CLK),
 		  .recv_CLK(recv_CLK),
@@ -149,12 +149,13 @@ module GLaDOS;
 
   always @(posedge send_CLK)
     begin
-/*    if (read_data_out)
+    if (read_data_out)
       begin
-	data_in <= {DATAIN[{addr_send[6:0],1'b0}],
-                    DATAIN[{addr_send[6:0],1'b1}]};
+	data_in_pre <= {DATAIN[{addr_send[6:0],1'b0}],
+                        DATAIN[{addr_send[6:0],1'b1}]};
       end
-*/
+    data_in <= data_in_pre;
+
     if (record)
       begin
 //	$display("");

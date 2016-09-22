@@ -327,7 +327,7 @@ module integration(input sampler_CLK,
 		   output [31:0] DATA_RECV,
 		   output WRITE_DATA_RECV,
 		   output [10:0] RECV_LEN,
-		   output READ_DATA_SEND,
+		   output reg READ_DATA_SEND,
 		   output NEW_PCKT,
 		   output NEW_PCKT_VALID,
 		/* ------------------- */
@@ -355,6 +355,8 @@ module integration(input sampler_CLK,
   wire [9:0]		aborttarget;
   wire [8:0]		addr_send, addr_recv, addr_moded;
   wire			rst_send;
+
+  wire 			read_w;
 
   assign addr_moded = mode ? addr_send : addr_recv;
   assign ADDR = {mode,addr_moded};
@@ -390,7 +392,7 @@ module integration(input sampler_CLK,
 			.ADDR(addr_send),
 			.DONE(donesend),
 			.WIRE(WIRE_TX),
-			.READ(READ_DATA_SEND),
+			.READ(read_w),
 			.CRC_RST(crc_send_rst),
 			.CRC_DATA(crc_send_bit),
 			.CRC_WRITE(crc_send_write),
@@ -444,11 +446,20 @@ module integration(input sampler_CLK,
 			.PULSE(sendpulse));
 
   always @(posedge send_CLK)
-    begin
-      mode <= mode_wire;
-      mode_r1 <= mode;
-      mode_r2 <= mode_r1;
-    end
+    if (!master_RST)
+      begin
+	READ_DATA_SEND <= 0;
+	mode <= 0;
+	mode_r1 <= 0;
+	mode_r2 <= 0;
+      end
+    else
+      begin
+	READ_DATA_SEND <= read_w || (mode_wire && !mode);
+	mode <= mode_wire;
+	mode_r1 <= mode;
+	mode_r2 <= mode_r1;
+      end
 
 endmodule
 
