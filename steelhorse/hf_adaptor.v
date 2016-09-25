@@ -1,3 +1,5 @@
+`define steelhorse_lsab_cr_slot 2'h0
+
 module sh_hf_adator(input CLK,
 		    input 	  RST,
 		    input [1:0]   LSAB_TURN,
@@ -36,7 +38,7 @@ module sh_hf_adator(input CLK,
   wire 				  my_turn, write, w_in, w_out;
 
   // MY_SLOT is a compile-time constant
-  assign my_turn = LSAB_TURN == MY_SLOT;
+  assign my_turn = LSAB_TURN == `steelhorse_lsab_cr_slot;
 
   assign write = WRITE_IN;
   assign DATA_OUT = holder;
