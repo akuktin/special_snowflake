@@ -64,7 +64,7 @@ module data_crcload(input CLK,
 		delayreg_slow <= 1;
 
 		crcbits <= DATA[23:16];
-		stagingreg1 <= DATA[32:16];
+		stagingreg1 <= DATA[31:16];
 		stagingreg2 <= stagingreg1;
 		READ <= 0;
 	      end
