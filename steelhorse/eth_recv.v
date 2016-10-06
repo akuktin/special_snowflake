@@ -77,11 +77,14 @@ module innailer(input fast_CLK,
    reg 			   bit_store;
 
    assign negedge_detect = (~r1) & r2;
-//   assign negedge_detect = (r1) & (~r2); // "neg"edge ;)
-/*
+
   always @(posedge slow_CLK)
     if (!RST)
       begin
+	DATAO <= 0;
+	DATA_VALID <= 0;
+	WAVEFRM_ERROR <= 0;
+	MISSED_BEAT <= 0;
       end
     else
       begin
@@ -90,16 +93,16 @@ module innailer(input fast_CLK,
 	WAVEFRM_ERROR <= pre_WAVEFRM_ERROR;
 	MISSED_BEAT <= pre_MISSED_BEAT;
       end // else: !if(!RST)
-*/
+
    always @(posedge fast_CLK)
      if (!RST)
        begin
 	 error_sticky <= 0;
 	 bit_store <= 0;
-	DATAO <= 0;
-	DATA_VALID <= 0;
-	WAVEFRM_ERROR <= 0;
-	MISSED_BEAT <= 0;
+	 pre_DATAO <= 0;
+	 pre_DATA_VALID <= 0;
+	 pre_WAVEFRM_ERROR <= 0;
+	 pre_MISSED_BEAT <= 0;
        end
      else
      begin
@@ -131,41 +134,41 @@ module innailer(input fast_CLK,
 		  begin
 		    error_sticky <= 0;
 
-		    DATA_VALID <= 0;
-		    WAVEFRM_ERROR <= 1;
+		    pre_DATA_VALID <= 0;
+		    pre_WAVEFRM_ERROR <= 1;
 		  end
 		else
 		  begin
-		    DATAO <= bit_store;
-		    DATA_VALID <= 1;
+		    pre_DATAO <= bit_store;
+		    pre_DATA_VALID <= 1;
 		    bit_store <= 1'b0;
 		  end // else: !if(bit_store == 1'b0)
 	      end
 	    else
 	      if (pseudo_CLK ^ prev_pCLK)
 		begin
-		  DATA_VALID <= 1;
+		  pre_DATA_VALID <= 1;
 
 		  bit_store <= DATAI;
-		  DATAO <= bit_store;
+		  pre_DATAO <= bit_store;
 
-		  WAVEFRM_ERROR <= 0;
+		  pre_WAVEFRM_ERROR <= 0;
 		end
 	       else
 		 begin
 		    /* slow_CLK is designed to be overclocked
 		     * relative to the datastream clock. */
-		    DATA_VALID <= 0;
-		    WAVEFRM_ERROR <= 0;
+		    pre_DATA_VALID <= 0;
+		    pre_WAVEFRM_ERROR <= 0;
 		 end // else: !if(error_sticky)
 
 	     if (did_lose_beat)
 	       begin
-		  MISSED_BEAT <= 1;
+		  pre_MISSED_BEAT <= 1;
 		  did_lose_beat <= 0;
 	       end
 	     else
-	       MISSED_BEAT <= 0;
+	       pre_MISSED_BEAT <= 0;
 	     already_changed <= 0;
 
 	     prev_pCLK <= pseudo_CLK;
