@@ -63,6 +63,8 @@ module innailer(input fast_CLK,
 		output reg DATA_VALID,
 		output reg WAVEFRM_ERROR,
 		output reg MISSED_BEAT);
+  reg 			   pre_DATAO, pre_DATA_VALID,
+			   pre_WAVEFRM_ERROR, pre_MISSED_BEAT;
    reg 			   r1, r2;
    wire 		   negedge_detect;
 
@@ -75,12 +77,29 @@ module innailer(input fast_CLK,
    reg 			   bit_store;
 
    assign negedge_detect = (~r1) & r2;
-
+//   assign negedge_detect = (r1) & (~r2); // "neg"edge ;)
+/*
+  always @(posedge slow_CLK)
+    if (!RST)
+      begin
+      end
+    else
+      begin
+	DATAO <= pre_DATAO;
+	DATA_VALID <= pre_DATA_VALID;
+	WAVEFRM_ERROR <= pre_WAVEFRM_ERROR;
+	MISSED_BEAT <= pre_MISSED_BEAT;
+      end // else: !if(!RST)
+*/
    always @(posedge fast_CLK)
      if (!RST)
        begin
 	 error_sticky <= 0;
 	 bit_store <= 0;
+	DATAO <= 0;
+	DATA_VALID <= 0;
+	WAVEFRM_ERROR <= 0;
+	MISSED_BEAT <= 0;
        end
      else
      begin
