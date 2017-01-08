@@ -184,7 +184,8 @@ module hyper_scheduler(input CLK,
 		       output reg 	 CAREOF_INT,
 		       output reg [1:0]  RST_MVBLCK,
 		       input [63:0] 	 MEM_R_DATA,
-		       output [63:0] 	 MEM_W_DATA);
+		       output [63:0] 	 MEM_W_DATA,
+		       input 		 FRDRAM_DEVERR);
   reg [3:0] 		     big_carousel;
   reg [7:0] 		     small_carousel;
 
@@ -350,7 +351,12 @@ module hyper_scheduler(input CLK,
 	    EXEC_SELECT_DRAM <= 0;
 	    RST_MVBLCK <= 0;
 	    block_lowlen <= ANCILL_IN[2:1];
-	    block_valid <= ANCILL_IN[0];
+	    // The below is actually, *really* ugly. If I continue like this,
+	    // I'll soon end up with spagheti code. But, since hyperfabric
+	    // just got reclassified as a experimental implementation, this
+	    // is probably OK.
+	    // Note the multiplexing of sense (semantics).
+	    block_valid <= (ANCILL_IN[0] || FRDRAM_DEVERR);
 	  end
 	else
 	  begin
@@ -416,6 +422,7 @@ module hyper_lsab_dram(input CLK,
 		       output reg [5:0]  COUNT_SENT,
 		       output reg 	 IRQ,
 		       output reg [2:0]  ANCILL,
+		       output reg 	 FRDRAM_DEVERR,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
 		       output reg [5:0]  BLCK_COUNT_REQ,
@@ -425,6 +432,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 BLCK_WORKING,
 		       input 		 BLCK_IRQ,
 		       input 		 BLCK_ABRUPT_STOP,
+		       input 		 BLCK_FRDRAM_DEVERR,
 		       input [2:0] 	 BLCK_ANCILL,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
@@ -461,7 +469,7 @@ module hyper_lsab_dram(input CLK,
 	MCU_PAGE_ADDR <= 0; BLCK_START <= 0; MCU_REQUEST_ALIGN <= 0;
 	blck_working_prev <= 0; issue_op <= 0; BLCK_COUNT_REQ <= 0;
 	RESTART_OP <= 0; COUNT_SENT <= 0; add_old_addr_high <= 0;
-	IRQ <= 0; ANCILL <= 0;
+	IRQ <= 0; ANCILL <= 0; FRDRAM_DEVERR <= 0;
 	state <= 4'b1000;
       end
     else
@@ -504,6 +512,7 @@ module hyper_lsab_dram(input CLK,
 	    COUNT_SENT <= BLCK_COUNT_SENT;
 	    IRQ <= BLCK_IRQ;
 	    ANCILL <= BLCK_ANCILL;
+	    FRDRAM_DEVERR <= BLCK_FRDRAM_DEVERR;
 	    add_old_addr_high <= 1;
 	  end
 	else

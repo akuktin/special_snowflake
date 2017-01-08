@@ -262,7 +262,7 @@ module GlaDOS;
   wire [5:0]  w_count_req, w_count_sent_fill, w_count_sent_empty;
   wire [11:0] w_start_address;
 
-  wire 	      w_irq_cr, w_abstop_cr, w_abstop_cw;
+  wire 	      w_irq_cr, w_abstop_cr, w_abstop_cw, w_deverr_cw;
 
   wire [19:0] mcu_page_addr;
   wire 	      i_mcu_algn_req, i_mcu_algn_ack,
@@ -273,7 +273,7 @@ module GlaDOS;
 
   assign mcu_coll_addr = hf_coll_addr_fill | hf_coll_addr_empty;
 
-  wire 	      ww_go, ww_ready, ww_eop;
+  wire 	      ww_go, ww_ready, ww_eop, ww_frdram_deverr;
   wire [1:0]  ww_new_section;
   wire [5:0]  ww_block_length, ww_count_sent;
   wire [31:0] ww_new_addr, ww_old_addr;
@@ -610,6 +610,14 @@ module GlaDOS;
 			  .LSAB_1_FULL(w_f1_cw),
 			  .LSAB_2_FULL(w_f2_cw),
 			  .LSAB_3_FULL(w_f3_cw),
+			  .DEV_0_ERR(1'b0),
+			  .DEV_1_ERR(1'b0),
+			  .DEV_2_ERR(1'b0),
+			  .DEV_3_ERR(1'b0),
+			  .DEV_0_ERR_ACK(),
+			  .DEV_1_ERR_ACK(),
+			  .DEV_2_ERR_ACK(),
+			  .DEV_3_ERR_ACK(),
 			  .LSAB_WRITE(w_write_cw),
 			  .LSAB_SECTION(w_write_fifo_cw),
 			  .START_ADDRESS(w_start_address),
@@ -620,6 +628,7 @@ module GlaDOS;
 			  .COUNT_SENT(w_count_sent_empty),
 			  .WORKING(w_working_empty),
 			  .ABRUPT_STOP(w_abstop_cw),
+			  .DEVICE_ERROR(w_deverr_cw),
 			  .MCU_COLL_ADDRESS(hf_coll_addr_empty),
 			  .MCU_REQUEST_ACCESS({d_hf_req_access_empty,
 					       i_hf_req_access_empty}));
@@ -638,6 +647,7 @@ module GlaDOS;
 		      .COUNT_SENT(ww_count_sent),
 		      .IRQ(ww_irq),
 		      .ANCILL(w_ancill_sch),
+		      .FRDRAM_DEVERR(ww_frdram_deverr),
 			 // begin BLOCK MOVER
 		      .BLCK_START(w_start_address),
 		      .BLCK_COUNT_REQ(w_count_req),
@@ -648,6 +658,7 @@ module GlaDOS;
 		      .BLCK_WORKING(w_working_fill | w_working_empty),
 		      .BLCK_IRQ(w_irq_cr),
 		      .BLCK_ABRUPT_STOP(w_abstop_cr || w_abstop_cw),
+		      .BLCK_FRDRAM_DEVERR(w_deverr_cw),
 		      .BLCK_ANCILL(w_ancill_cr),
 			 // begin MCU
 		      .MCU_PAGE_ADDR(mcu_page_addr),
@@ -691,7 +702,8 @@ module GlaDOS;
 		      .MEM_W_DATA(res_in),
 		      .READ_MEM(res_read_mem),
 		      .MEM_R_ADDR(res_r_addr),
-		      .MEM_R_DATA(res_out));
+		      .MEM_R_DATA(res_out),
+		      .FRDRAM_DEVERR(ww_frdram_deverr));
 
   hyper_scheduler_mem dma_interlink(.CLK(CLK_n),
 				    .RST(RST),
