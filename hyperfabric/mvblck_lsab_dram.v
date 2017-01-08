@@ -41,7 +41,7 @@ module hyper_scheduler_mem(input CLK,
   wire [2:0] 				     write_addr;
   wire [23:0] 				     cpu_len;
   wire [21:0] 				     cpu_lenfixed;
-  wire [63:0] 				     out, in;
+  wire [65:0] 				     out, in;
 
   assign READ_CPU_ACK = read_cpu_r;
 
