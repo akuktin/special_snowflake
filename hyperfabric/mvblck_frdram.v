@@ -1,6 +1,15 @@
 /* Reads a block from DRAM and writes it to lsab_cw. */
 module hyper_mvblck_frdram(input CLK,
 			   input 	     RST,
+			   /* begin DEVICE ERR */
+			   input 	     DEV_0_ERR,
+			   input 	     DEV_1_ERR,
+			   input 	     DEV_2_ERR,
+			   input 	     DEV_3_ERR,
+			   output reg 	     DEV_0_ERR_ACK,
+			   output reg 	     DEV_1_ERR_ACK,
+			   output reg 	     DEV_2_ERR_ACK,
+			   output reg	     DEV_3_ERR_ACK,
 			   /* begin LSAB */
 			   input 	     LSAB_0_FULL,
 			   input 	     LSAB_1_FULL,
@@ -19,10 +28,12 @@ module hyper_mvblck_frdram(input CLK,
 			   output reg [5:0]  COUNT_SENT,
 			   output reg 	     WORKING,
 			   output reg 	     ABRUPT_STOP,
+			   output reg 	     DEVICE_ERROR,
 			   // -----------------------
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output [1:0]      MCU_REQUEST_ACCESS);
-  reg 					     am_working, abrupt_stop_n;
+  reg 					     am_working, abrupt_stop_n,
+					     device_error_n;
   reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
 
@@ -53,13 +64,31 @@ module hyper_mvblck_frdram(input CLK,
   assign read_more = len_left != 6'h1;
 
   always @(LSAB_0_FULL or LSAB_1_FULL or
-	   LSAB_2_FULL or LSAB_3_FULL or LSAB_SECTION)
+	   LSAB_2_FULL or LSAB_3_FULL or
+	   DEV_0_ERR or DEV_1_ERR or
+	   DEV_2_ERR or DEV_3_ERR or
+	   LSAB_SECTION)
     case (LSAB_SECTION)
-      2'b00: abrupt_stop_n <= ~LSAB_0_FULL;
-      2'b01: abrupt_stop_n <= ~LSAB_1_FULL;
-      2'b10: abrupt_stop_n <= ~LSAB_2_FULL;
-      2'b11: abrupt_stop_n <= ~LSAB_3_FULL;
-      default: abrupt_stop_n <= 1'bx;
+      2'b00: begin
+	abrupt_stop_n <= !(LSAB_0_FULL || DEV_0_ERR);
+	device_error_n <= DEV_0_ERR;
+      end
+      2'b01: begin
+	abrupt_stop_n <= !(LSAB_1_FULL || DEV_1_ERR);
+	device_error_n <= DEV_1_ERR;
+      end
+      2'b10: begin
+	abrupt_stop_n <= !(LSAB_2_FULL || DEV_2_ERR);
+	device_error_n <= DEV_2_ERR;
+      end
+      2'b11: begin
+	abrupt_stop_n <= !(LSAB_3_FULL || DEV_3_ERR);
+	device_error_n <= DEV_3_ERR;
+      end
+      default: begin
+	abrupt_stop_n <= 1'bx;
+	device_error_n <= 1'bx;
+      end
     endcase
 
   always @(posedge CLK)
@@ -68,7 +97,9 @@ module hyper_mvblck_frdram(input CLK,
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
 	WORKING <= 0; am_working <= 0; len_left <= 6'h1;
 	MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0;
-	ABRUPT_STOP <= 0;
+	ABRUPT_STOP <= 0; DEVICE_ERROR <= 0;
+	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
+	DEV_2_ERR_ACK <= 0; DEV_3_ERR_ACK <= 0;
       end
     else
       begin
@@ -98,6 +129,15 @@ module hyper_mvblck_frdram(input CLK,
 	    else
 	      begin
 		ABRUPT_STOP <= !abrupt_stop_n;
+		DEVICE_ERROR <= !device_error_n;
+
+		case (LSAB_SECTION)
+		  2'b00: DEV_0_ERR_ACK <= DEV_0_ERR;
+		  2'b01: DEV_1_ERR_ACK <= DEV_1_ERR;
+		  2'b10: DEV_2_ERR_ACK <= DEV_2_ERR;
+		  2'b11: DEV_3_ERR_ACK <= DEV_3_ERR;
+		endcase // case (LSAB_SECTION)
+
 		am_working <= 0;
 		if (! read_more)
 		  begin
