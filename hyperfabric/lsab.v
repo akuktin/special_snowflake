@@ -1,7 +1,10 @@
 module lsab_cr(input CLK,
               input 		RST,
               input 		READ,
-              input 		WRITE,
+              input 		WRITE0,
+              input 		WRITE1,
+              input 		WRITE2,
+              input 		WRITE3,
               input [1:0] 	READ_FIFO,
               input [1:0] 	WRITE_FIFO,
               input [31:0] 	IN_0,
@@ -84,10 +87,10 @@ module lsab_cr(input CLK,
   assign read_2 = READ && (READ_FIFO == 2'h2);
   assign read_3 = READ && (READ_FIFO == 2'h3);
 
-  assign write_0 = WRITE && (WRITE_FIFO == 2'h0);
-  assign write_1 = WRITE && (WRITE_FIFO == 2'h1);
-  assign write_2 = WRITE && (WRITE_FIFO == 2'h2);
-  assign write_3 = WRITE && (WRITE_FIFO == 2'h3);
+  assign write_0 = WRITE0 && (WRITE_FIFO == 2'h0);
+  assign write_1 = WRITE1 && (WRITE_FIFO == 2'h1);
+  assign write_2 = WRITE2 && (WRITE_FIFO == 2'h2);
+  assign write_3 = WRITE3 && (WRITE_FIFO == 2'h3);
 
   assign do_write_0 = full_0 ? 0 : write_0;
   assign do_write_1 = full_1 ? 0 : write_1;
