@@ -355,7 +355,8 @@ module hyper_scheduler(input CLK,
 	    // I'll soon end up with spagheti code. But, since hyperfabric
 	    // just got reclassified as a experimental implementation, this
 	    // is probably OK.
-	    // Note the multiplexing of sense (semantics).
+
+	    // Note the multiplexing of sense.
 	    block_valid <= (ANCILL_IN[0] || FRDRAM_DEVERR);
 	  end
 	else

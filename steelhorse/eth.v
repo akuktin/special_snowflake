@@ -340,7 +340,9 @@ module integration(input sampler_CLK,
 		/* ------------------- */
 		   input [15:0] RND,
 		   input SENDREG_RQ,
-		   output SENDREG_AN);
+		   output SENDREG_AN,
+		/* ------------------- */
+		   output COLLISION);
   reg			mode, mode_r1, mode_r2;
   wire			cool_recv, cool_send;
   wire			active_recv_hwy, active_recv_lgt,
@@ -358,6 +360,7 @@ module integration(input sampler_CLK,
 
   wire 			read_w;
 
+  assign COLLISION = abort_send;
   assign addr_moded = mode ? addr_send : addr_recv;
   assign ADDR = {mode,addr_moded};
   assign rst_send = mode_r2 & mode;
@@ -480,6 +483,7 @@ module Steelhorse(input sampler_CLK,
 		  output NWPCKT_IRQ,
 		  output NWPCKT_IRQ_VALID,
 		/*--------------- */
+		  output COLLISION,
 		  input RUN,
 		  output reg BUSY,
 		  input [31:0] INTRFC_DATAIN,
@@ -515,7 +519,8 @@ module Steelhorse(input sampler_CLK,
 		  .ABANDON(abandon),
 		  .RND(rnd),
 		  .SENDREG_RQ(signal2),
-		  .SENDREG_AN(sendreg_an));
+		  .SENDREG_AN(sendreg_an),
+		  .COLLISION(COLLISION));
 
   always @(posedge recv_CLK) // this can run at random speed
     if (!RST)

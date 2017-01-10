@@ -207,7 +207,9 @@ module manenc(input enc_CLK,
 	else
 	  begin
 	    if (ABORT)
-	      WIRE <= 0;
+	      WIRE <= side; // Have to at least make an effort.
+	                    // Note that this can actually produce invalid
+	                    // waveforms, resembling end of frame pulses.
 	    else
 	      if (!side)
 		WIRE <= ~DATA;
