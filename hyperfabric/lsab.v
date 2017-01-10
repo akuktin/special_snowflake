@@ -410,7 +410,10 @@ endmodule // lsab_cr
 
 module lsab_cw(input CLK,
               input 		RST,
-              input 		READ,
+              input 		READ0,
+              input 		READ1,
+              input 		READ2,
+              input 		READ3,
               input 		WRITE,
               input [1:0] 	READ_FIFO,
               input [1:0] 	WRITE_FIFO,
@@ -451,10 +454,10 @@ module lsab_cw(input CLK,
   reg [7:0]         write_addr, read_addr;
   reg               we, re;
 
-  assign read_0 = READ && (READ_FIFO == 2'h0);
-  assign read_1 = READ && (READ_FIFO == 2'h1);
-  assign read_2 = READ && (READ_FIFO == 2'h2);
-  assign read_3 = READ && (READ_FIFO == 2'h3);
+  assign read_0 = READ0 && (READ_FIFO == 2'h0);
+  assign read_1 = READ1 && (READ_FIFO == 2'h1);
+  assign read_2 = READ2 && (READ_FIFO == 2'h2);
+  assign read_3 = READ3 && (READ_FIFO == 2'h3);
 
   assign write_0 = WRITE && (WRITE_FIFO == 2'h0);
   assign write_1 = WRITE && (WRITE_FIFO == 2'h1);

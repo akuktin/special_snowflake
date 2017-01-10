@@ -385,7 +385,10 @@ module GlaDOS;
 
   lsab_cw lsab_out(.CLK(CLK_n),
 		   .RST(RST),
-		   .READ(1),
+		   .READ0(1),
+		   .READ1(1),
+		   .READ2(1),
+		   .READ3(1),
 		   .WRITE(w_write_cw),
 		   .READ_FIFO(0),
 		   .WRITE_FIFO(w_write_fifo_cw),
