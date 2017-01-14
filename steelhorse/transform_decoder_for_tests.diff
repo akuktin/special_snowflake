@@ -1,5 +1,5 @@
---- a/eth_recv.v	2016-09-18 23:05:03.000000000 +0200
-+++ b/eth_recv.v	2016-09-19 17:18:25.000000000 +0200
+--- a/eth_recv.v	2017-01-14 23:45:50.000000000 +0100
++++ b/eth_recv.v	2017-01-14 23:53:36.000000000 +0100
 @@ -1,57 +1,61 @@
 -module mandec_bitchange(input CLK,
 -			input 	    RST,
@@ -113,7 +113,7 @@
  
  module innailer(input fast_CLK,
  		input 	   slow_CLK,
-@@ -72,16 +76,11 @@
+@@ -74,8 +78,6 @@
     reg 			   prev_pCLK;
     reg 			   error_sticky;
  
@@ -121,17 +121,16 @@
 -
     assign negedge_detect = (~r1) & r2;
  
-    always @(posedge fast_CLK)
+   always @(posedge slow_CLK)
+@@ -98,7 +100,6 @@
       if (!RST)
--       begin
--	 error_sticky <= 0;
+        begin
+ 	 error_sticky <= 0;
 -	 bit_store <= 0;
--       end
-+	error_sticky <= 0;
-      else
-      begin
- 	begin
-@@ -106,32 +105,19 @@
+ 	 pre_DATAO <= 0;
+ 	 pre_DATA_VALID <= 0;
+ 	 pre_WAVEFRM_ERROR <= 0;
+@@ -128,31 +129,18 @@
  
  	if (negedge_detect)
  	  begin
@@ -139,41 +138,39 @@
 -	      begin
 -		if (bit_store == 1'b0)
 -		  begin
-+	     if (pseudo_CLK ^ prev_pCLK)
-+	       begin
-+		  DATA_VALID <= 1;
-+		  WAVEFRM_ERROR <= 0;
-+	       end
-+	     else
-+	       if (error_sticky)
-+		 begin
++            if (pseudo_CLK ^ prev_pCLK)
++              begin
++		    pre_DATA_VALID <= 1;
++		    pre_WAVEFRM_ERROR <= 0;
++              end
++            else
++              if (error_sticky)
++                begin
  		    error_sticky <= 0;
  
- 		    DATA_VALID <= 0;
- 		    WAVEFRM_ERROR <= 1;
+ 		    pre_DATA_VALID <= 0;
+ 		    pre_WAVEFRM_ERROR <= 1;
 -		  end
 -		else
 -		  begin
--		    DATAO <= bit_store;
--		    DATA_VALID <= 1;
+-		    pre_DATAO <= bit_store;
+-		    pre_DATA_VALID <= 1;
 -		    bit_store <= 1'b0;
 -		  end // else: !if(bit_store == 1'b0)
 -	      end
 -	    else
 -	      if (pseudo_CLK ^ prev_pCLK)
 -		begin
--		  DATA_VALID <= 1;
+-		  pre_DATA_VALID <= 1;
 -
 -		  bit_store <= DATAI;
--		  DATAO <= bit_store;
+-		  pre_DATAO <= bit_store;
 -
--		  WAVEFRM_ERROR <= 0;
--		end
-+		 end
+-		  pre_WAVEFRM_ERROR <= 0;
+ 		end
  	       else
  		 begin
- 		    /* slow_CLK is designed to be overclocked
-@@ -150,6 +136,7 @@
+@@ -172,6 +160,7 @@
  	     already_changed <= 0;
  
  	     prev_pCLK <= pseudo_CLK;
@@ -181,7 +178,7 @@
  	  end // if (negedge_detect)
       end // always @ (posedge fast_CLK)
  
-@@ -167,12 +154,12 @@
+@@ -189,12 +178,12 @@
     wire 		   interconnect_DATA,
  			   interconnect_ERROR;
  
