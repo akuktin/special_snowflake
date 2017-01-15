@@ -1,6 +1,7 @@
 `define steelhorse_lsab_cr_slot 2'h0
+`define steelhorse_lsab_cw_slot 2'h0
 
-module sh_hf_adator(input CLK,
+module sh_hf_adaptor(input CLK,
 		    input 	  RST,
 		    input [1:0]   LSAB_TURN,
 		    input [31:0]  DATA_FROM_ETH,
@@ -94,3 +95,44 @@ module sh_hf_adator(input CLK,
       end
 
 endmodule
+
+module sh_hf_adapter_collision(input CLK,
+			       input 	   RST,
+			       input [1:0] LSAB_TURN,
+			       input 	   COLLISION,
+			       input 	   READ_LSAB_SH,
+			// -------------------------------
+			       input 	   ERR_ACK,
+			       output 	   ERR_ASKFOR,
+			// -------------------------------
+			       output 	   READ_LSAB);
+
+  reg [6:0] drain_counter;
+
+  wire 	    read_lsab_err, my_turn;
+
+  assign my_turn = LSAB_TURN == `steelhorse_lsab_cw_slot;
+  assign read_lsab_err = !drain_counter[6];
+  assign READ_LSAB = read_lsab_err || READ_LSAB_SH;
+
+  always @(posedge CLK)
+    if (!RST)
+      begin
+	drain_counter <= 7'h40;
+	ERR_ASKFOR <= 0;
+      end
+    else
+      begin
+	if (READ_LSAB && my_turn && !drain_counter[6])
+	  drain_counter <= drain_counter +1;
+
+	if (ERR_ASKFOR && ERR_ACK)
+	  drain_counter <= 0;
+
+	if (COLLISION)
+	  ERR_ASKFOR <= 1;
+	else if (ERR_ACK)
+	  ERR_ASKFOR <= 0;
+      end
+
+endmodule // sh_hf_adapter_cw
