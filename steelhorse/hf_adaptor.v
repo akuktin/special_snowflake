@@ -34,14 +34,15 @@ module sh_hf_adaptor(input CLK,
 
   reg [31:0] 			  holder;
   reg 				  NEW_PCKT_prev, is_NEW_PCKT, write_holder,
-				  holder_full, f_write_r;
+				  holder_full, f_write_r, WRITE_IN_prev,
+				  NEW_PCKT_r, NEW_PCKT_VALID_r, WRITE_IN_r;
 
   wire 				  my_turn, write, w_in, w_out;
 
   // MY_SLOT is a compile-time constant
   assign my_turn = LSAB_TURN == `steelhorse_lsab_cr_slot;
 
-  assign write = WRITE_IN;
+  assign write = WRITE_IN_r && !WRITE_IN_prev;
   assign DATA_OUT = holder;
 
   assign w_in  = write;
@@ -52,14 +53,20 @@ module sh_hf_adaptor(input CLK,
       begin
 	holder <= 0; NEW_PCKT_prev <= 0; is_NEW_PCKT <= 0;
 	write_holder <= 0; holder_full <= 0; f_write_r <= 0;
+	NEW_PCKT_r <= 0; WRITE_IN_r <= 0; WRITE_IN_prev <= 0;
+	NEW_PCKT_VALID_r <= 0;
       end
     else
       begin
-	NEW_PCKT_prev <= NEW_PCKT;
+	NEW_PCKT_r <= NEW_PCKT; WRITE_IN_r <= WRITE_IN;
+	NEW_PCKT_VALID_r <= NEW_PACKET_VALID;
 
-	is_NEW_PCKT <= NEW_PCKT && (!NEW_PCKT_prev);
-	if (NEW_PCKT && (!NEW_PCKT_prev))
-	  IRQ_VLD <= NEW_PCKT_VALID;
+	NEW_PCKT_prev <= NEW_PCKT_r;
+	WRITE_IN_prev <= WRITE_IN_r;
+
+	is_NEW_PCKT <= NEW_PCKT_r && (!NEW_PCKT_prev);
+	if (NEW_PCKT_r && (!NEW_PCKT_prev))
+	  IRQ_VLD <= NEW_PCKT_VALID_r;
 
 	if (is_NEW_PCKT)
 	  IRQ <= 1;
@@ -106,30 +113,33 @@ module sh_hf_adaptor_collision(input CLK,
 			       output 	   ERR_ASKFOR,
 			// -------------------------------
 			       output 	   READ_LSAB);
+  reg 					   collision_r, collision_prev;
+  reg [7:0] 				   drain_counter;
 
-  reg [6:0] drain_counter;
-
-  wire 	    read_lsab_err, my_turn;
+  wire 					   read_lsab_err, my_turn;
 
   assign my_turn = LSAB_TURN == `steelhorse_lsab_cw_slot;
   assign read_lsab_err = !drain_counter[6];
   assign READ_LSAB = read_lsab_err || READ_LSAB_SH;
+  assign enter_collision = collision_r && !collision_prev;
 
   always @(posedge CLK)
     if (!RST)
       begin
-	drain_counter <= 7'h40;
-	ERR_ASKFOR <= 0;
+	drain_counter <= 8'h80; ERR_ASKFOR <= 0;
+	collision_r <= 0; collision_prev <= 0;
       end
     else
       begin
-	if (READ_LSAB && my_turn && !drain_counter[6])
+	collision_r <= COLLISION; collision_prev <= collision_r;
+
+	if (READ_LSAB && my_turn && !drain_counter[7])
 	  drain_counter <= drain_counter +1;
 
 	if (ERR_ASKFOR && ERR_ACK)
 	  drain_counter <= 0;
 
-	if (COLLISION)
+	if (enter_collision)
 	  ERR_ASKFOR <= 1;
 	else if (ERR_ACK)
 	  ERR_ASKFOR <= 0;
