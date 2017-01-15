@@ -17,7 +17,7 @@ module Steelhorse_Hyperfabric(input sampler_CLK,
 			      output 	    IRQ,
 			      output 	    IRQ_VLD,
 			      output 	    ERROR,
-			      input 	    ERROR_ACK, 
+			      input 	    ERROR_ACK,
 			      input 	    RUN.
 			      input [31:0]  INTRFC_DATAIN,
 			      output [31:0] INTRFC_DATAOUT);
