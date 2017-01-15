@@ -96,7 +96,7 @@ module sh_hf_adaptor(input CLK,
 
 endmodule
 
-module sh_hf_adapter_collision(input CLK,
+module sh_hf_adaptor_collision(input CLK,
 			       input 	   RST,
 			       input [1:0] LSAB_TURN,
 			       input 	   COLLISION,
