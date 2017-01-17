@@ -73,7 +73,7 @@ module snowball_cache(input CPU_CLK,
 			    activate_tlb, activate_cache,
 			    tlb_reinit, cache_reinit, mandatory_lookup,
 			    mandatory_lookup_act, mem_lookup,
-			    ghost_hit, cache_same_word_read;
+			    ghost_hit, cache_same_word_read, mcu_active;
 
   reg 			    mcu_valid_data, capture_data;
 

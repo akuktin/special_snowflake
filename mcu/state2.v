@@ -286,8 +286,6 @@ module outputs(input CLK_p,
   reg [15:0] 			 DQ_driver;
   wire 				 we_0, dq_n_in;
 
-  assign reading = do_read[3];
-
   assign DM = DM_drive;
   assign DQ = DM_drive ? {16{1'bz}} : DQ_driver; // may be a bad idea
   assign DQS = ({dq_n,dq_p} == 0) ? 1'bz : CLK_p;

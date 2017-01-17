@@ -37,7 +37,8 @@ module hyper_scheduler_mem(input CLK,
   reg [2:0] 				     read_addr, write_addr_r;
 
   wire 					     read_cpu_w, read_dma_w, we,
-					     atomic_strobe, tran_started;
+					     atomic_strobe, tran_started,
+					     we_pre;
   wire [2:0] 				     write_addr;
   wire [23:0] 				     cpu_len;
   wire [21:0] 				     cpu_lenfixed;
