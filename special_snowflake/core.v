@@ -1,4 +1,5 @@
-`timescale 1ns/1ps
+/*
+ `timescale 1ns/1ps
 
 `include "../test/test_inc.v"
 
@@ -29,6 +30,7 @@
 `include "../hyperfabric/mvblck_todram.v"
 `include "../hyperfabric/mvblck_frdram.v"
 `include "../hyperfabric/mvblck_lsab_dram.v"
+ */
 
 module special_snowflake_core(input RST,
 			      input 	       RST_CPU_pre,
@@ -76,10 +78,10 @@ module special_snowflake_core(input RST,
 			      input 	       int2_cr,
 			      input 	       int3_cr,
 			      // ----------------------
-			      output 	       read0_cw,
-			      output 	       read1_cw,
-			      output 	       read2_cw,
-			      output 	       read3_cw,
+			      input 	       read0_cw,
+			      input 	       read1_cw,
+			      input 	       read2_cw,
+			      input 	       read3_cw,
 			      output [31:0]    data0_cw,
 			      output [31:0]    data1_cw,
 			      output [31:0]    data2_cw,
