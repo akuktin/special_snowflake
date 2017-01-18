@@ -31,7 +31,6 @@
 `include "../hyperfabric/mvblck_lsab_dram.v"
 
 module special_snowflake_core(input RST,
-			      input 	       RST_CPU,
 			      input 	       RST_CPU_pre,
 			      input 	       CLK_p,
 			      input 	       CLK_n,
@@ -94,6 +93,7 @@ module special_snowflake_core(input RST,
 			      output 	       errack2_cw,
 			      output 	       errack3_cw);
   // --------------------------------------------------------
+  reg 					       RST_CPU;
 
   wire        w_read_cr, w_write_cw;
   wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
@@ -173,8 +173,6 @@ module special_snowflake_core(input RST,
   wire [23:0]  ph_len_0, ph_len_1, ph_len_2, ph_len_3;
   wire 	       ph_dir_0, ph_enstb_0, ph_dir_1, ph_enstb_1,
 	       ph_dir_2, ph_enstb_2, ph_dir_3, ph_enstb_3;
-  reg 	       ph_enstb_0_prev, ph_enstb_1_prev,
-	       ph_enstb_2_prev, ph_enstb_3_prev;
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
                              .CLK_p(CLK_p),
@@ -568,16 +566,50 @@ module special_snowflake_core(input RST,
 				    .DIR_3(ph_dir_3),
 				    .EN_STB_3(ph_enstb_3));
 
+  initial
+    begin
+      cache_vmem <= 0; cache_inhibit <= 0;
+    end
+
   always @(posedge CLK_n)
     if (!RST)
       begin
-	write_fifo_cr <= 2'h3;
+	write_fifo_cr <= 2'h0;
 	read_fifo_cw <= 2'h2;
+
+	irq_strobe <= 0;
+
+	i_mcu_req_access <= 0; i_mcu_we <= 0;
+	d_mcu_req_access <= 0; d_mcu_we <= 0;
       end
     else
       begin
 	write_fifo_cr <= write_fifo_cr +1;
 	read_fifo_cw <= read_fifo_cw +1;
+
+	if (res_irq)
+	  irq_strobe <= !irq_strobe;
+
+	i_mcu_req_access <= i_hf_req_access_fill || i_hf_req_access_empty;
+	d_mcu_req_access <= d_hf_req_access_fill || d_hf_req_access_empty;
+	i_mcu_we <= i_hf_req_access_fill;
+	d_mcu_we <= d_hf_req_access_fill;
+      end // else: !if(!RST)
+
+  always @(posedge CPU_CLK)
+    if (!RST)
+      begin
+	irq_strobe_slow <= 0;
+	irq_strobe_slow_prev <= 0;
+
+	RST_CPU <= 0;
       end
+    else
+      begin
+	irq_strobe_slow <= irq_strobe;
+	irq_strobe_slow_prev <= irq_strobe_slow;
+
+	RST_CPU <= RST_CPU_pre;
+      end // else: !if(!RST)
 
 endmodule // special_snowflake_core
