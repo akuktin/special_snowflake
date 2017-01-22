@@ -358,7 +358,7 @@ module hyper_scheduler(input CLK,
 	    // is probably OK.
 
 	    // Note the multiplexing of sense.
-	    block_valid <= (ANCILL_IN[0] || FRDRAM_DEVERR);
+	    block_valid <= (ANCILL_IN[0] || !FRDRAM_DEVERR);
 	  end
 	else
 	  begin
