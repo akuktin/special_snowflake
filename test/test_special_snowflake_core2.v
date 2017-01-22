@@ -241,9 +241,6 @@ module GlaDOS;
   wire 	      w_int0_cr, w_int1_cr, w_int2_cr, w_int3_cr;
   wire [3:0]  w_care_cr;
 
-  wire [2:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
-  wire [2:0]  w_ancill_cr, w_ancill_sch;
-
   wire [31:0] w_out_cr, w_in_cw;
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;
   wire 	      w_e0_cr, w_e1_cr, w_e2_cr, w_e3_cr;
@@ -397,10 +394,10 @@ module GlaDOS;
 			      .data1_cr(w_data1_cr),
 			      .data2_cr(w_data2_cr),
 			      .data3_cr(w_data3_cr),
-			      .ancill0_cr(3'h3),
-			      .ancill1_cr(3'h5),
-			      .ancill2_cr(3'h2),
-			      .ancill3_cr(3'h7),
+			      .ancill0_cr(24'h3),
+			      .ancill1_cr(24'h5),
+			      .ancill2_cr(24'h2),
+			      .ancill3_cr(24'h7),
 			      .write0_cr(w_write_cr),
 			      .write1_cr(w_write_cr),
 			      .write2_cr(w_write_cr),

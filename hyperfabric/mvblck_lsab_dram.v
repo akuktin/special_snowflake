@@ -180,7 +180,7 @@ module hyper_scheduler(input CLK,
 		       output [2:0] 	 MEM_W_ADDR,
 		       output [2:0] 	 MEM_R_ADDR,
 		       input 		 IRQ_IN,
-		       input [2:0] 	 ANCILL_IN,
+		       input [24:0] 	 ANCILL_IN,
 		       output 		 READ_MEM,
 		       output reg 	 CAREOF_INT,
 		       output reg [1:0]  RST_MVBLCK,
@@ -345,7 +345,10 @@ module hyper_scheduler(input CLK,
 	if (posedge_EXEC_READY && !EXEC_RESTART_OP)
 	  begin
 	    WRITE_MEM <= 1;
-	    leftover_len <= save2_remaining_len - {16'd0,EXEC_COUNT_SENT};
+	    // Should fit in a single gate.
+	    leftover_len <= cont_trans ?
+			    save2_remaining_len - {16'd0,EXEC_COUNT_SENT} :
+			    ANCILL_IN[24:3];
 	    cont_trans_r <= cont_trans;
 	    IRQ <= !cont_trans; // add ` && ANCILL_IN[0]' (former VALID_IN)
 	    IRQ_DESC <= MEM_W_ADDR;
@@ -423,7 +426,7 @@ module hyper_lsab_dram(input CLK,
 		       output reg 	 RESTART_OP,
 		       output reg [5:0]  COUNT_SENT,
 		       output reg 	 IRQ,
-		       output reg [2:0]  ANCILL,
+		       output reg [24:0]  ANCILL,
 		       output reg 	 FRDRAM_DEVERR,
 			 /* begin BLOCK MOVER */
 		       output reg [11:0] BLCK_START,
@@ -435,7 +438,7 @@ module hyper_lsab_dram(input CLK,
 		       input 		 BLCK_IRQ,
 		       input 		 BLCK_ABRUPT_STOP,
 		       input 		 BLCK_FRDRAM_DEVERR,
-		       input [2:0] 	 BLCK_ANCILL,
+		       input [24:0] 	 BLCK_ANCILL,
 			 /* begin MCU */
 		       output reg [19:0] MCU_PAGE_ADDR,
 		       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL

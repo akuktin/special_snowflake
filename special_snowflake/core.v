@@ -65,10 +65,10 @@ module special_snowflake_core(input RST,
 			      input [31:0]     data1_cr,
 			      input [31:0]     data2_cr,
 			      input [31:0]     data3_cr,
-			      input [2:0]      ancill0_cr,
-			      input [2:0]      ancill1_cr,
-			      input [2:0]      ancill2_cr,
-			      input [2:0]      ancill3_cr,
+			      input [24:0]     ancill0_cr,
+			      input [24:0]     ancill1_cr,
+			      input [24:0]     ancill2_cr,
+			      input [24:0]     ancill3_cr,
 			      input 	       write0_cr,
 			      input 	       write1_cr,
 			      input 	       write2_cr,
@@ -101,8 +101,8 @@ module special_snowflake_core(input RST,
   wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
   wire [3:0]  w_care_cr;
 
-  wire [2:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
-  wire [2:0]  w_ancill_cr, w_ancill_sch;
+  wire [24:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
+  wire [24:0]  w_ancill_cr, w_ancill_sch;
 
   wire [31:0] w_out_cr, w_in_cw;
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;

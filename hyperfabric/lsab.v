@@ -19,10 +19,10 @@ module lsab_cr(input CLK,
 	      input 		CAREOF_INT_1,
 	      input 		CAREOF_INT_2,
 	      input 		CAREOF_INT_3,
-	      input [2:0]	ANCILL_IN_0,
-	      input [2:0]	ANCILL_IN_1,
-	      input [2:0]	ANCILL_IN_2,
-	      input [2:0]	ANCILL_IN_3,
+	      input [24:0]	ANCILL_IN_0,
+	      input [24:0]	ANCILL_IN_1,
+	      input [24:0]	ANCILL_IN_2,
+	      input [24:0]	ANCILL_IN_3,
               output reg [31:0] OUT,
 	      output reg 	EMPTY_0,
 	      output reg 	EMPTY_1,
@@ -36,10 +36,10 @@ module lsab_cr(input CLK,
 	      output reg 	INT_OUT_1,
 	      output reg 	INT_OUT_2,
 	      output reg 	INT_OUT_3,
-	      output reg [2:0]	ANCILL_OUT_0,
-	      output reg [2:0]	ANCILL_OUT_1,
-	      output reg [2:0]	ANCILL_OUT_2,
-	      output reg [2:0]	ANCILL_OUT_3);
+	      output reg [24:0]	ANCILL_OUT_0,
+	      output reg [24:0]	ANCILL_OUT_1,
+	      output reg [24:0]	ANCILL_OUT_2,
+	      output reg [24:0]	ANCILL_OUT_3);
   reg               full_0, full_1, full_2, full_3;
   reg [5:0]         len_0, len_1, len_2, len_3;
   reg [5:0]         write_addr_0, write_addr_1,
@@ -74,7 +74,7 @@ module lsab_cr(input CLK,
 		    intbuff_empty_3, intbuff_full_3;
   reg [5:0] 	    intbuff_0[3:0], intbuff_1[3:0], intbuff_2[3:0],
 		    intbuff_3[3:0];
-  reg [2:0] 	    ancbuff_0[3:0], ancbuff_1[3:0], ancbuff_2[3:0],
+  reg [24:0] 	    ancbuff_0[3:0], ancbuff_1[3:0], ancbuff_2[3:0],
 		    ancbuff_3[3:0];
 
   wire [31:0] 	    out_mem;
