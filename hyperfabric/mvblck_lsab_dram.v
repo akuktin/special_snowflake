@@ -345,10 +345,10 @@ module hyper_scheduler(input CLK,
 	if (posedge_EXEC_READY && !EXEC_RESTART_OP)
 	  begin
 	    WRITE_MEM <= 1;
-	    // Should fit in a single gate.
-	    leftover_len <= cont_trans ?
-			    save2_remaining_len - {16'd0,EXEC_COUNT_SENT} :
-			    ANCILL_IN[24:3];
+	    // Should be as fast as if just subtracting.
+	    leftover_len <= (save2_read_data[5] && !cont_trans) ?
+			    ANCILL_IN[24:3] :
+			    save2_remaining_len - {16'd0,EXEC_COUNT_SENT};
 	    cont_trans_r <= cont_trans;
 	    IRQ <= !cont_trans; // add ` && ANCILL_IN[0]' (former VALID_IN)
 	    IRQ_DESC <= MEM_W_ADDR;

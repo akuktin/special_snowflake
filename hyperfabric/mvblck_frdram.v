@@ -33,7 +33,7 @@ module hyper_mvblck_frdram(input CLK,
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output [1:0]      MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n,
-					     device_error_n;
+					     wr_device_error;
   reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
 
@@ -71,23 +71,23 @@ module hyper_mvblck_frdram(input CLK,
     case (LSAB_SECTION)
       2'b00: begin
 	abrupt_stop_n <= !(LSAB_0_FULL || DEV_0_ERR);
-	device_error_n <= DEV_0_ERR;
+	wr_device_error <= DEV_0_ERR;
       end
       2'b01: begin
 	abrupt_stop_n <= !(LSAB_1_FULL || DEV_1_ERR);
-	device_error_n <= DEV_1_ERR;
+	wr_device_error <= DEV_1_ERR;
       end
       2'b10: begin
 	abrupt_stop_n <= !(LSAB_2_FULL || DEV_2_ERR);
-	device_error_n <= DEV_2_ERR;
+	wr_device_error <= DEV_2_ERR;
       end
       2'b11: begin
 	abrupt_stop_n <= !(LSAB_3_FULL || DEV_3_ERR);
-	device_error_n <= DEV_3_ERR;
+	wr_device_error <= DEV_3_ERR;
       end
       default: begin
 	abrupt_stop_n <= 1'bx;
-	device_error_n <= 1'bx;
+	wr_device_error <= 1'bx;
       end
     endcase
 
@@ -129,7 +129,7 @@ module hyper_mvblck_frdram(input CLK,
 	    else
 	      begin
 		ABRUPT_STOP <= !abrupt_stop_n;
-		DEVICE_ERROR <= !device_error_n;
+		DEVICE_ERROR <= wr_device_error;
 
 		case (LSAB_SECTION)
 		  2'b00: DEV_0_ERR_ACK <= DEV_0_ERR;
