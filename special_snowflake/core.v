@@ -1,37 +1,3 @@
-/*
- `timescale 1ns/1ps
-
-`include "../test/test_inc.v"
-
-// Memory module
-`include "../mcu/commands.v"
-`include "../mcu/state2.v"
-`include "../mcu/initializer.v"
-`include "../mcu/integration3.v"
-
-// Cache
-`include "../cache/cpu_mcu2.v"
-
-// CPU
-`include "../aexm/aexm_enable.v"
-`include "../aexm/aexm_bpcu.v"
-`include "../aexm/aexm_regf.v"
-`include "../aexm/aexm_ctrl.v"
-`include "../aexm/aexm_xecu.v"
-`include "../aexm/aexm_ibuf.v"
-`include "../aexm/aexm_edk32.v"
-//`include "aexm/aexm_aux.v"
-
-// LSAB
-`include "../hyperfabric/lsab.v"
-
-// Hyperfabric
-`include "../hyperfabric/transport.v"
-`include "../hyperfabric/mvblck_todram.v"
-`include "../hyperfabric/mvblck_frdram.v"
-`include "../hyperfabric/mvblck_lsab_dram.v"
- */
-
 module special_snowflake_core(input RST,
 			      input 	       RST_CPU_pre,
 			      input 	       CLK_p,
@@ -93,7 +59,21 @@ module special_snowflake_core(input RST,
 			      output 	       errack0_cw,
 			      output 	       errack1_cw,
 			      output 	       errack2_cw,
-			      output 	       errack3_cw);
+			      output 	       errack3_cw,
+			      // ----------------------
+			      // ----------------------
+			      output [23:0]    ph_len_0,
+			      output [23:0]    ph_len_1,
+			      output [23:0]    ph_len_2,
+			      output [23:0]    ph_len_3,
+			      output 	       ph_dir_0,
+			      output 	       ph_enstb_0,
+			      output 	       ph_dir_1,
+			      output 	       ph_enstb_1,
+			      output 	       ph_dir_2,
+			      output 	       ph_enstb_2,
+			      output 	       ph_dir_3,
+			      output 	       ph_enstb_3);
   // --------------------------------------------------------
   reg 					       RST_CPU;
 
@@ -171,10 +151,6 @@ module special_snowflake_core(input RST,
   wire [31:0]  d_dma_out;
 
   reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
-
-  wire [23:0]  ph_len_0, ph_len_1, ph_len_2, ph_len_3;
-  wire 	       ph_dir_0, ph_enstb_0, ph_dir_1, ph_enstb_1,
-	       ph_dir_2, ph_enstb_2, ph_dir_3, ph_enstb_3;
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
                              .CLK_p(CLK_p),

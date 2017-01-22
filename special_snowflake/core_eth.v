@@ -29,6 +29,14 @@ module chip(input RST,
   wire [1:0] 		  w_write_fifo_cr, w_read_fifo_cw;
   wire 			  RST_CPU_pre;
 
+  wire 			  eth_read, eth_write, eth_irq, eth_irq_valid,
+			  eth_collision, eth_collision_ack;
+  wire [31:0] 		  eth_send_data, eth_recv_data;
+
+  wire 			  eth_ctrl_enstb;
+  wire [31:0] 		  eth_ctrl_dataout;
+  wire [24:0] 		  eth_ctrl_datain_short;
+
   assign RST_CPU_pre = rst_counter[19];
 
   special_snowflake_core core(.RST(RST),
@@ -64,7 +72,8 @@ module chip(input RST,
 			      .data1_cr(0),
 			      .data2_cr(0),
 			      .data3_cr(0),
-			      .ancill0_cr({24'h0,eth_irq_valid}),
+			      .ancill0_cr({eth_ctrl_dataout[23:0],
+					   eth_irq_valid}),
 			      .ancill1_cr(0),
 			      .ancill2_cr(0),
 			      .ancill3_cr(0),
@@ -92,11 +101,19 @@ module chip(input RST,
 			      .errack0_cw(eth_collision_ack),
 			      .errack1_cw(),
 			      .errack2_cw(),
-			      .errack3_cw());
-
-  wire 			  eth_read, eth_write, eth_irq, eth_irq_valid,
-			  eth_collision, eth_collision_ack;
-  wire [31:0] 		  eth_send_data, eth_recv_data;
+			      .errack3_cw(),
+			      .ph_len_0(eth_ctrl_datain_short),
+			      .ph_len_1(),
+			      .ph_len_2(),
+			      .ph_len_3(),
+			      .ph_dir_0(),
+			      .ph_enstb_0(eth_ctrl_enstb),
+			      .ph_dir_1(),
+			      .ph_enstb_1(),
+			      .ph_dir_2(),
+			      .ph_enstb_2(),
+			      .ph_dir_3(),
+			      .ph_enstb_3());
 
   Steelhorse_Hyperfabric eth(.sampler_CLK(),
 			      .recv_CLK(),
@@ -118,9 +135,9 @@ module chip(input RST,
 			      .IRQ_VLD(eth_irq_valid),
 			      .ERROR(eth_collision),
 			      .ERROR_ACK(eth_collision_ack),
-			      .RUN(), // input, strobe
-			      .INTRFC_DATAIN(), // input
-			      .INTRFC_DATAOUT()); // output
+			      .RUN(eth_ctrl_enstb),
+			      .INTRFC_DATAIN({8'h0,eth_ctrl_datain_short}),
+			      .INTRFC_DATAOUT(eth_ctrl_dataout));
 
   always @(posedge CPU_CLK)
     if (!RST)
