@@ -174,7 +174,7 @@
  	     already_changed <= 0;
  
  	     prev_pCLK <= pseudo_CLK;
--	     DATAO <= DATAI;
+-	     pre_DATAO <= DATAI;
  	  end // if (negedge_detect)
       end // always @ (posedge fast_CLK)
  
