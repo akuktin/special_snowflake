@@ -56,7 +56,7 @@ module Steelhorse_Hyperfabric(input sampler_CLK,
 				 .WRITE(WRITE_INTO_LSAB),
 				 .IRQ(IRQ),
 				 .IRQ_VLD(IRQ_VLD));
-  sh_hf_adatpor_collision eth_adaptor_send(.CLK(lsab_CLK),
+  sh_hf_adaptor_collision eth_adaptor_send(.CLK(lsab_CLK),
 					   .RST(RST),
 					   .LSAB_TURN(LSAB_SEND_TURN),
 					   .COLLISION(collision),

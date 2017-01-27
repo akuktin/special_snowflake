@@ -4,6 +4,10 @@ module chip(input RST,
 	    input 	  CLK_dp,
 	    input 	  CLK_dn,
 	    input 	  CPU_CLK,
+	    input 	  sampler_CLK,
+	    input 	  enc_CLK,
+	    input 	  recv_CLK,
+	    input 	  send_CLK,
 	    // -------------------
 	    output 	  iCKE,
 	    output 	  iDQS,
@@ -35,7 +39,7 @@ module chip(input RST,
 
   wire 			  eth_ctrl_enstb;
   wire [31:0] 		  eth_ctrl_dataout;
-  wire [24:0] 		  eth_ctrl_datain_short;
+  wire [23:0] 		  eth_ctrl_datain_short;
 
   assign RST_CPU_pre = rst_counter[19];
 
@@ -115,10 +119,10 @@ module chip(input RST,
 			      .ph_dir_3(),
 			      .ph_enstb_3());
 
-  Steelhorse_Hyperfabric eth(.sampler_CLK(),
-			      .recv_CLK(),
-			      .send_CLK(),
-			      .enc_CLK(),
+  Steelhorse_Hyperfabric eth(.sampler_CLK(sampler_CLK),
+			      .recv_CLK(recv_CLK),
+			      .send_CLK(send_CLK),
+			      .enc_CLK(enc_CLK),
 			      .lsab_CLK(CLK_n),
 			      .RST(RST),
 			      // --------------------

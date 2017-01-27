@@ -58,11 +58,13 @@ module sh_hf_adaptor(input CLK,
       end
     else
       begin
-	NEW_PCKT_r <= NEW_PCKT; WRITE_IN_r <= WRITE_IN;
-	NEW_PCKT_VALID_r <= NEW_PACKET_VALID;
-
+	NEW_PCKT_r <= NEW_PCKT;
 	NEW_PCKT_prev <= NEW_PCKT_r;
+
+	WRITE_IN_r <= WRITE_IN;
 	WRITE_IN_prev <= WRITE_IN_r;
+
+	NEW_PCKT_VALID_r <= NEW_PCKT_VALID;
 
 	is_NEW_PCKT <= NEW_PCKT_r && (!NEW_PCKT_prev);
 	if (NEW_PCKT_r && (!NEW_PCKT_prev))
@@ -110,7 +112,7 @@ module sh_hf_adaptor_collision(input CLK,
 			       input 	   READ_LSAB_SH,
 			// -------------------------------
 			       input 	   ERR_ACK,
-			       output 	   ERR_ASKFOR,
+			       output reg  ERR_ASKFOR,
 			// -------------------------------
 			       output 	   READ_LSAB);
   reg 					   collision_r, collision_prev;
