@@ -115,25 +115,37 @@ module sh_hf_adaptor_collision(input CLK,
 			       output reg  ERR_ASKFOR,
 			// -------------------------------
 			       output 	   READ_LSAB);
-  reg 					   collision_r, collision_prev;
+  reg 					   collision_r, collision_prev,
+					   READ_LSAB_SH_prev,
+					   read_lsab_req, read_lsab_ack;
   reg [7:0] 				   drain_counter;
 
-  wire 					   read_lsab_err, my_turn;
+  wire 					   read_lsab_err, my_turn,
+					   read_lsab_regular;
 
   assign my_turn = LSAB_TURN == `steelhorse_lsab_cw_slot;
-  assign read_lsab_err = !drain_counter[6];
-  assign READ_LSAB = read_lsab_err || READ_LSAB_SH;
+  assign read_lsab_err = !drain_counter[7];
+  assign READ_LSAB = read_lsab_err || read_lsab_regular;
   assign enter_collision = collision_r && !collision_prev;
+  assign read_lsab_regular = read_lsab_req ^ read_lsab_ack;
 
   always @(posedge CLK)
     if (!RST)
       begin
 	drain_counter <= 8'h80; ERR_ASKFOR <= 0;
 	collision_r <= 0; collision_prev <= 0;
+	read_lsab_req <= 0; read_lsab_ack <= 0;
+	READ_LSAB_SH_prev <= 0;
       end
     else
       begin
 	collision_r <= COLLISION; collision_prev <= collision_r;
+
+	READ_LSAB_SH_prev <= READ_LSAB_SH;
+	if (READ_LSAB_SH && !READ_LSAB_SH_prev)
+	  read_lsab_req <= !read_lsab_req;
+	if (READ_LSAB && my_turn)
+	  read_lsab_ack <= read_lsab_req;
 
 	if (READ_LSAB && my_turn && !drain_counter[7])
 	  drain_counter <= drain_counter +1;
