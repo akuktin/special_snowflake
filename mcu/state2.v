@@ -297,6 +297,13 @@ module outputs(input CLK_p,
 		     .DQS(DQS),
 		     .DM(DM));
 
+  always @(did_issue_write or active[0])
+    if ({did_issue_write,active[0]} == 2'b00)
+      dqs_z_prectrl <= 0;
+    else
+      dqs_z_prectrl <= 1;
+
+
   always @(posedge CLK_n)
     if (!RST)
       begin
@@ -318,11 +325,11 @@ module outputs(input CLK_p,
 	active <= {active[0],did_issue_write};
 
 	if (high_bits)
-	  dm_predriver <= we_gapholder[3:2];
+	  dm_predriver <= we_gapholder[1:0];
 	else
-	  dm_predriver <= we_longholder;
+	  dm_predriver <= WE_ARRAY[3:2];
 
-	if (active == 2'b00)
+	if ({did_issue_write,active[0]} == 2'b00)
 	  begin
 	    dqdm_z_prectrl <= 0;
 	    dqs_predriver <= 2'h0;
@@ -333,10 +340,13 @@ module outputs(input CLK_p,
 	    dqs_predriver <= 2'h2;
 	  end
 
+	/* This will be used when we switch over to DDR2.
+
 	if ({did_issue_write,active} == 3'b000)
 	  dqs_z_prectrl <= 0;
 	else
 	  dqs_z_prectrl <= 1;
+	 */
 
       end // else: !if(!RST)
 
