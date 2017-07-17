@@ -146,8 +146,8 @@ module chip(input RST,
   always @(posedge CPU_CLK)
     if (!RST)
       rst_counter <= 0;
-    else
-      if (!RST_CPU_pre)
-	rst_counter <= rst_counter +1;
+//    else
+//    if (!RST_CPU_pre)
+//	rst_counter <= rst_counter +1;
 
 endmodule // chip
