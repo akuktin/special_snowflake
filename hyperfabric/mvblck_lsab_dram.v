@@ -38,7 +38,7 @@ module hyper_scheduler_mem(input CLK,
 
   wire 					     read_cpu_w, read_dma_w, we,
 					     atomic_strobe, tran_started,
-					     we_pre;
+					     we_pre, op_is_read;
   wire [2:0] 				     write_addr;
   wire [23:0] 				     cpu_len;
   wire [21:0] 				     cpu_lenfixed;
@@ -64,6 +64,7 @@ module hyper_scheduler_mem(input CLK,
 
   assign atomic_strobe = mem[write_addr_r][61];
   assign tran_started = mem[write_addr_r][64];
+  assign op_is_read = !mem[write_addr_r][58];
 
   initial
     begin
@@ -117,7 +118,7 @@ module hyper_scheduler_mem(input CLK,
 	    mem[write_addr_r] <= in_r;
 	    if (!we_dma)
 	      orig_len[write_addr_r] <= in_orig_r;
-	    if (we_dma && !tran_started)
+	    if (we_dma && !tran_started && op_is_read)
 	      begin
 		case (in_r[57:56])
 		  2'h0: begin
