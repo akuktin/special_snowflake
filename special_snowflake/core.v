@@ -90,8 +90,7 @@ module special_snowflake_core(input RST,
   wire 	      w_i0_cr, w_i1_cr, w_i2_cr, w_i3_cr;
   wire 	      w_f0_cw, w_f1_cw, w_f2_cw, w_f3_cw;
 
-  wire [31:0] i_mcu_data_into, i_mcu_data_outof,
-	      d_mcu_data_into, d_mcu_data_outof;
+  wire [31:0] i_mcu_data_into, d_mcu_data_into;
 
   wire [11:0] hf_coll_addr_fill, hf_coll_addr_empty, mcu_coll_addr;
   wire [3:0]  hf_we_array_fill;
@@ -265,7 +264,7 @@ module special_snowflake_core(input RST,
   snowball_cache d_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
 			 .RST(RST_CACHE),
-			 .cache_precycle_addr({d_cache_pc_addr[29:0],2'b00}),
+			 .cache_precycle_addr(d_cache_pc_addr),
 			 .cache_datao(d_cache_datao), // CPU perspective
 			 .cache_datai(d_cache_datai), // CPU perspective
 			 .cache_precycle_we(d_cache_we),
@@ -323,8 +322,8 @@ module special_snowflake_core(input RST,
 				.out_3(),
 				.out_4(), .out_5(),
 				.out_6(), .out_7(),
-				.in_0(i_mcu_data_outof),
-				.in_1(d_mcu_data_outof),
+				.in_0(i_user_req_dataout),
+				.in_1(d_user_req_dataout),
 				.in_2(0), .in_3(0),
 				.in_4(0), .in_5(0),
 				.in_6(0), .in_7(0),
