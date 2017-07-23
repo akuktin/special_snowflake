@@ -2,18 +2,20 @@ module aexm_regf (/*AUTOARG*/
    // Outputs
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
-   rOPC, rRA, rRB, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
-   aexm_dcache_datai, gclk, grst, x_en
+   rOPC, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
+   aexm_dcache_datai, gclk, grst, x_en,
+   regf_rRA, regf_rRB, regf_rRD
    );
    // INTERNAL
    output [31:0] rREGA, rREGB;
    output [31:0] rDWBDI;
    input [5:0] 	 rOPC;
-   input [4:0] 	 rRA, rRB, rRW, rRD;
+   input [4:0] 	 rRW, rRD;
    input [1:0] 	 rMXDST;
    input [31:2]  rPCLNK;
    input [31:0]  rRESULT;
    input [3:0] 	 rDWBSEL;
+   input [4:0] 	 regf_rRA, regf_rRB, regf_rRD;
 
    // MCU interface
    output [31:0] aexm_dcache_datao;
@@ -54,37 +56,69 @@ module aexm_regf (/*AUTOARG*/
 
   reg 		 w_en;
 
-   reg [31:0] 	 mARAM[0:31],
-		 mBRAM[0:31],
-		 mDRAM[0:31];
-
-   wire [31:0] 	 rREGW = mDRAM[rRW];
-   wire [31:0] 	 rREGD = mDRAM[rRD];
-   assign 	 rREGA = mARAM[rRA];
-   assign 	 rREGB = mBRAM[rRB];
+  wire [31:0] 	 xREGA, xREGB, xREGD;
+  reg [31:0] 	 rREGD, rREGA, rREGB;
 
    wire 	 fRDWE = |rRW;
 
    reg [31:0] 	 xWDAT;
+  wire 		 do_write;
+  assign do_write = ((grst | fRDWE) && w_en && (rMXDST != 2'o3));
 
-   always @(/*AUTOSENSE*/rDWBDI or rMXDST or rPCLNK or rREGW
+   always @(/*AUTOSENSE*/rDWBDI or rMXDST or rPCLNK
 	    or rRESULT)
      case (rMXDST)
        2'o2: xWDAT <= rDWBDI;
        2'o1: xWDAT <= {rPCLNK, 2'o0};
        2'o0: xWDAT <= rRESULT;
-       2'o3: xWDAT <= rREGW; // No change
+       2'o3: xWDAT <= 32'hX;
+//       2'o3: xWDAT <= rREGW; // No change
      endcase // case (rMXDST)
+
+  iceram32 RAM_A(.RDATA(xREGA),
+		 .RADDR({3'h0,regf_rRA}),
+		 .RE(1'b1),
+		 .RCLKE(1'b1),
+		 .RCLK(!gclk),
+		 .WDATA(xWDAT),
+		 .MASK(0),
+		 .WADDR({3'h0,rRW}),
+		 .WE(do_write),
+		 .WCLKE(1'b1),
+		 .WCLK(gclk));
+
+  iceram32 RAM_B(.RDATA(xREGB),
+		 .RADDR({3'h0,regf_rRB}),
+		 .RE(1'b1),
+		 .RCLKE(1'b1),
+		 .RCLK(!gclk),
+		 .WDATA(xWDAT),
+		 .MASK(0),
+		 .WADDR({3'h0,rRW}),
+		 .WE(do_write),
+		 .WCLKE(1'b1),
+		 .WCLK(gclk));
+
+  iceram32 RAM_D(.RDATA(xREGD),
+		 .RADDR({3'h0,regf_rRD}),
+		 .RE(1'b1),
+		 .RCLKE(1'b1),
+		 .RCLK(!gclk),
+		 .WDATA(xWDAT),
+		 .MASK(0),
+		 .WADDR({3'h0,rRW}),
+		 .WE(do_write),
+		 .WCLKE(1'b1),
+		 .WCLK(gclk));
 
    always @(posedge gclk)
      begin
        rDWBDI <= xDWBDI;
        w_en <= x_en;
-       if ((grst | fRDWE) && w_en) begin
-	 mARAM[rRW] <= xWDAT;
-	 mBRAM[rRW] <= xWDAT;
-	 mDRAM[rRW] <= xWDAT;
-       end
+
+       rREGA <= xREGA;
+       rREGB <= xREGB;
+       rREGD <= xREGD;
      end
 
    // --- STORE SIZER ---------------------------------------------
@@ -120,16 +154,17 @@ module aexm_regf (/*AUTOARG*/
    integer i;
    initial begin
       for (i=0; i<32; i=i+1) begin
-	 mARAM[i] <= $random;
-	 mBRAM[i] <= $random;
-	 mDRAM[i] <= $random;
+	 RAM_A.ram.r_data[i] <= $random;
+	 RAM_B.ram.r_data[i] <= $random;
+	 RAM_D.ram.r_data[i] <= $random;
       end
-    mARAM[0] <= 32'd0;
-    mBRAM[0] <= 32'd0;
-    mDRAM[0] <= 32'd0;
-    mARAM[31] <= 32'd1;
-    mBRAM[31] <= 32'd1;
-    mDRAM[31] <= 32'd1;
+
+    RAM_A.ram.r_data[0] <= 32'd0;
+    RAM_B.ram.r_data[0] <= 32'd0;
+    RAM_D.ram.r_data[0] <= 32'd0;
+    RAM_A.ram.r_data[31] <= 32'd1;
+    RAM_B.ram.r_data[31] <= 32'd1;
+    RAM_D.ram.r_data[31] <= 32'd1;
    end
 
    // synopsys translate_on

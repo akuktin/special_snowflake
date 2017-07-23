@@ -261,8 +261,8 @@ module GLaDOS;
       begin
 	$display("PC %x mem[0x03] %x mem[0x04] %x",
 		 mut.core.cpu.bpcu.rPC,
-		 mut.core.cpu.regf.mBRAM[3],
-		 mut.core.cpu.regf.mARAM[4]);
+		 mut.core.cpu.regf.RAM_B.ram.r_data[3],
+		 mut.core.cpu.regf.RAM_A.ram.r_data[4]);
       end
 
   always @(posedge recv_CLK)
@@ -365,29 +365,29 @@ module GLaDOS;
         end // for (i=0;i<256;i=i+1)
 
       mut.core.d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
-      mut.core.cpu.regf.mARAM[27] <= 32'h0000_0000;
-      mut.core.cpu.regf.mBRAM[27] <= 32'h0000_0000;
-      mut.core.cpu.regf.mDRAM[27] <= 32'h0000_0000;
+      mut.core.cpu.regf.RAM_A.ram.r_data[27] <= 32'h0000_0000;
+      mut.core.cpu.regf.RAM_B.ram.r_data[27] <= 32'h0000_0000;
+      mut.core.cpu.regf.RAM_D.ram.r_data[27] <= 32'h0000_0000;
 
-      mut.core.cpu.regf.mARAM[8] <= 32'h8800_00c0;
-      mut.core.cpu.regf.mBRAM[8] <= 32'h8800_00c0;
-      mut.core.cpu.regf.mDRAM[8] <= 32'h8800_00c0;
+      mut.core.cpu.regf.RAM_A.ram.r_data[8] <= 32'h8800_00c0;
+      mut.core.cpu.regf.RAM_B.ram.r_data[8] <= 32'h8800_00c0;
+      mut.core.cpu.regf.RAM_D.ram.r_data[8] <= 32'h8800_00c0;
 
-      mut.core.cpu.regf.mARAM[9] <= 32'hc000_0024;
-      mut.core.cpu.regf.mBRAM[9] <= 32'hc000_0024;
-      mut.core.cpu.regf.mDRAM[9] <= 32'hc000_0024;
+      mut.core.cpu.regf.RAM_A.ram.r_data[9] <= 32'hc000_0024;
+      mut.core.cpu.regf.RAM_B.ram.r_data[9] <= 32'hc000_0024;
+      mut.core.cpu.regf.RAM_D.ram.r_data[9] <= 32'hc000_0024;
 
-      mut.core.cpu.regf.mARAM[10] <= 32'hbc00_0014;
-      mut.core.cpu.regf.mBRAM[10] <= 32'hbc00_0014;
-      mut.core.cpu.regf.mDRAM[10] <= 32'hbc00_0014;
+      mut.core.cpu.regf.RAM_A.ram.r_data[10] <= 32'hbc00_0014;
+      mut.core.cpu.regf.RAM_B.ram.r_data[10] <= 32'hbc00_0014;
+      mut.core.cpu.regf.RAM_D.ram.r_data[10] <= 32'hbc00_0014;
 
-      mut.core.cpu.regf.mARAM[11] <= 32'h8800_0014;
-      mut.core.cpu.regf.mBRAM[11] <= 32'h8800_0014;
-      mut.core.cpu.regf.mDRAM[11] <= 32'h8800_0014;
+      mut.core.cpu.regf.RAM_A.ram.r_data[11] <= 32'h8800_0014;
+      mut.core.cpu.regf.RAM_B.ram.r_data[11] <= 32'h8800_0014;
+      mut.core.cpu.regf.RAM_D.ram.r_data[11] <= 32'h8800_0014;
 
-      mut.core.cpu.regf.mARAM[12] <= 32'hc000_0020;
-      mut.core.cpu.regf.mBRAM[12] <= 32'hc000_0020;
-      mut.core.cpu.regf.mDRAM[12] <= 32'hc000_0020;
+      mut.core.cpu.regf.RAM_A.ram.r_data[12] <= 32'hc000_0020;
+      mut.core.cpu.regf.RAM_B.ram.r_data[12] <= 32'hc000_0020;
+      mut.core.cpu.regf.RAM_D.ram.r_data[12] <= 32'hc000_0020;
 
 //`include "test_ss_core_eth_send_prog.bin"
 `include "test_ss_core_eth_recv_prog.bin"
@@ -411,7 +411,7 @@ module GLaDOS;
       begin
 	$display("icache addr %x reg[4] %x",
 		 mut.core.cpu.aexm_icache_precycle_addr,
-		 mut.core.cpu.regf.mARAM[4]);
+		 mut.core.cpu.regf.RAM_A.ram.r_data[4]);
       end
 
   always @(posedge mut.core.empty.CLK)

@@ -1,13 +1,14 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
    rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG,
+   regf_rRA, regf_rRB, regf_rRD,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, d_en, oena
    );
    // INTERNAL
    output [15:0] rIMM;
-   output [4:0]  rRA, rRD, rRB;
+   output [4:0]  rRA, rRD, rRB, regf_rRA, regf_rRB, regf_rRD;
    output [10:0] rALT;
    output [5:0]  rOPC;
    output [31:0] rSIMM;
@@ -85,6 +86,13 @@ module aexm_ibuf (/*AUTOARG*/
       xSIMM <= (!fIMM) ? { {(16){xIREG[15]}}, xIREG[15:0]} :
 	       {rIMM, wIDAT[15:0]};
    end
+
+   // --- REGISTER FILE ---------------------------------------
+
+  wire [4:0] regf_rRD, regf_rRA, regf_rRB;
+  assign regf_rRD = xIREG[25:21];
+  assign regf_rRA = xIREG[20:16];
+  assign regf_rRB = xIREG[15:11];
 
    // --- PIPELINE --------------------------------------------
 

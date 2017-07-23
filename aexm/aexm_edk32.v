@@ -58,6 +58,9 @@ module aexm_edk32 (/*AUTOARG*/
    wire [31:2]		rPCLNK;			// From bpcu of aexm_bpcu.v
    wire [4:0]		rRA;			// From ibuf of aexm_ibuf.v
    wire [4:0]		rRB;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		regf_rRA;		// From ibuf of aexm_ibuf.v
+   wire [4:0]		regf_rRB;		// From ibuf of aexm_ibuf.v
+   wire [4:0]		regf_rRD;		// From ibuf of aexm_ibuf.v
    wire [4:0]		rRD;			// From ibuf of aexm_ibuf.v
    wire [31:0]		rREGA;			// From regf of aexm_regf.v
    wire [31:0]		rREGB;			// From regf of aexm_regf.v
@@ -110,6 +113,9 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rOPC			(rOPC[5:0]),
 	   .rSIMM			(rSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
+	   .regf_rRA                    (regf_rRA),
+	   .regf_rRB                    (regf_rRB),
+	   .regf_rRD                    (regf_rRD),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
 	   .aexm_icache_datai           (aexm_icache_datai),
@@ -180,8 +186,9 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_datao           (aexm_dcache_datao),
 	   // Inputs
 	   .rOPC			(rOPC[5:0]),
-	   .rRA				(rRA[4:0]),
-	   .rRB				(rRB[4:0]),
+	   .regf_rRA                    (regf_rRA),
+	   .regf_rRB                    (regf_rRB),
+	   .regf_rRD                    (regf_rRD),
 	   .rRW				(rRW[4:0]),
 	   .rRD				(rRD[4:0]),
 	   .rMXDST			(rMXDST[1:0]),
@@ -193,7 +200,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .grst			(grst),
 	   .x_en			(cpu_enable));
 
-   aexm_xecu #(DW, MUL, BSF)
+   aexm_xecu #(DW, BSF)
      xecu (/*AUTOINST*/
 	   // Outputs
 	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
