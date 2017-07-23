@@ -16,7 +16,6 @@ module aexm_edk32 (/*AUTOARG*/
    parameter DW = 32; /// Data bus address width
 
    // Optional functions
-   parameter MUL = 0; // Multiplier
    parameter BSF = 1; // Barrel Shifter
 
   output [31:0] aexm_icache_precycle_addr;

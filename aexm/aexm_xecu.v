@@ -8,7 +8,6 @@ module aexm_xecu (/*AUTOARG*/
    );
    parameter DW=32;
 
-   parameter MUL=0;
    parameter BSF=0;
 
    // DATA interface
@@ -121,25 +120,6 @@ module aexm_xecu (/*AUTOARG*/
 		 (fMFPC) ? rPC :
 		 (rRA[3]) ? rOPB :
 		 rOPA;
-
-   // --- MULTIPLIER ------------------------------------------
-   // TODO: 2 stage multiplier
-
-   reg [31:0] 	    rRES_MUL, rRES_MUL0, xRES_MUL;
-   always @(/*AUTOSENSE*/rOPA or rOPB) begin
-      xRES_MUL <= (rOPA * rOPB);
-   end
-
-   always @(posedge gclk)
-     if (grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rRES_MUL <= 32'h0;
-	// End of automatics
-     end else if (!x_en) begin // TODO: maybe remove the if
-	rRES_MUL <= #1 xRES_MUL;
-     end
-
 
    // --- BARREL SHIFTER --------------------------------------
 
@@ -264,13 +244,13 @@ module aexm_xecu (/*AUTOARG*/
 
    // RESULT
    always @(rMXALU or rRES_ADD or rRES_BSF or rRES_LOG or
-	    rRES_MOV or rRES_MUL or rRES_SFT)
+	    rRES_MOV or rRES_SFT)
        case (rMXALU)
 	 3'o0: xRESULT <= rRES_ADD;
 	 3'o1: xRESULT <= rRES_LOG;
 	 3'o2: xRESULT <= rRES_SFT;
 	 3'o3: xRESULT <= rRES_MOV;
-	 3'o4: xRESULT <= (MUL) ? rRES_MUL : 32'hX;
+	 3'o4: xRESULT <= 32'hX;
 	 3'o5: xRESULT <= (BSF) ? rRES_BSF : 32'hX;
 	 default: xRESULT <= 32'hX;
        endcase // case (rMXALU)
