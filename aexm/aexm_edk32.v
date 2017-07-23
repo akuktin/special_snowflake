@@ -198,6 +198,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
 	   .grst			(grst),
+	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));
 
    aexm_xecu #(DW, BSF)

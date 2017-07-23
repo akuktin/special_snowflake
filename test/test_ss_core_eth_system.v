@@ -259,10 +259,20 @@ module GLaDOS;
   always @(posedge CPU_CLK)
     if (record && 0)
       begin
-	$display("PC %x mem[0x03] %x mem[0x04] %x",
+	$display("PC %x rREGA %x rREGB %x rDWBDI %x aexm_dcache_datao %x",
 		 mut.core.cpu.bpcu.rPC,
-		 mut.core.cpu.regf.RAM_B.ram.r_data[3],
-		 mut.core.cpu.regf.RAM_A.ram.r_data[4]);
+		 mut.core.cpu.rREGA,
+		 mut.core.cpu.rREGB,
+		 mut.core.cpu.rDWBDI,
+		 mut.core.cpu.aexm_dcache_datao);
+
+	if (({mut.core.cpu.regf.d_en,
+	      mut.core.cpu.regf_rRA} !=
+	     {1'b1,
+	      mut.core.cpu.rRA}) && 1)
+	  begin
+	    $display("rRA MISMATCH");
+	  end
       end
 
   always @(posedge recv_CLK)

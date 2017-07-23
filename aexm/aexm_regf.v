@@ -3,7 +3,7 @@ module aexm_regf (/*AUTOARG*/
    rREGA, rREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
    rOPC, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
-   aexm_dcache_datai, gclk, grst, x_en,
+   aexm_dcache_datai, gclk, grst, x_en, d_en,
    regf_rRA, regf_rRB, regf_rRD
    );
    // INTERNAL
@@ -22,7 +22,7 @@ module aexm_regf (/*AUTOARG*/
    input [31:0]  aexm_dcache_datai;
 
    // SYSTEM
-   input 	 gclk, grst, x_en;
+   input 	 gclk, grst, x_en, d_en;
 
    // --- LOAD SIZER ----------------------------------------------
    // Moves the data bytes around depending on the size of the
@@ -77,7 +77,7 @@ module aexm_regf (/*AUTOARG*/
 
   iceram32 RAM_A(.RDATA(xREGA),
 		 .RADDR({3'h0,regf_rRA}),
-		 .RE(1'b1),
+		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
 		 .WDATA(xWDAT),
@@ -89,7 +89,7 @@ module aexm_regf (/*AUTOARG*/
 
   iceram32 RAM_B(.RDATA(xREGB),
 		 .RADDR({3'h0,regf_rRB}),
-		 .RE(1'b1),
+		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
 		 .WDATA(xWDAT),
@@ -101,7 +101,7 @@ module aexm_regf (/*AUTOARG*/
 
   iceram32 RAM_D(.RDATA(xREGD),
 		 .RADDR({3'h0,regf_rRD}),
-		 .RE(1'b1),
+		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
 		 .WDATA(xWDAT),
