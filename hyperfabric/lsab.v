@@ -477,7 +477,7 @@ module lsab_cw(input CLK,
   assign do_read_2 = empty_2 ? 0 : read_2;
   assign do_read_3 = empty_3 ? 0 : read_3;
 
-  always @(len_0 or do_read_0 or do_write_0 or full_0 or empty_0)
+  always @(len_0 or do_read_0 or do_write_0 or full_0 or empty_0 or BFULL_0)
     case ({len_0,do_read_0,do_write_0})
       {6'h3f,2'b10}: begin
 	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 1;
@@ -503,7 +503,7 @@ module lsab_cw(input CLK,
       end
     endcase // case ({len_0,do_read_0,do_write_0})
 
-  always @(len_1 or do_read_1 or do_write_1 or full_1 or empty_1)
+  always @(len_1 or do_read_1 or do_write_1 or full_1 or empty_1 or BFULL_1)
     case ({len_1,do_read_1,do_write_1})
       {6'h3f,2'b10}: begin
 	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 1;
@@ -529,7 +529,7 @@ module lsab_cw(input CLK,
       end
     endcase // case ({len_1,do_read_1,do_write_1})
 
-  always @(len_2 or do_read_2 or do_write_2 or full_2 or empty_2)
+  always @(len_2 or do_read_2 or do_write_2 or full_2 or empty_2 or BFULL_2)
     case ({len_2,do_read_2,do_write_2})
       {6'h3f,2'b10}: begin
 	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 1;
@@ -555,7 +555,7 @@ module lsab_cw(input CLK,
       end
     endcase // case ({len_2,do_read_2,do_write_2})
 
-  always @(len_3 or do_read_3 or do_write_3 or full_3 or empty_3)
+  always @(len_3 or do_read_3 or do_write_3 or full_3 or empty_3 or BFULL_3)
     case ({len_3,do_read_3,do_write_3})
       {6'h3f,2'b10}: begin
 	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 1;

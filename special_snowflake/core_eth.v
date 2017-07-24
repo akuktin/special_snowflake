@@ -1,3 +1,71 @@
+/*module top_level(input REF_CLK,
+                 input OUT_RST,
+                 // -------------------
+	    output 	  iCKE,
+	    output 	  iDQS,
+	    inout 	  iDM,
+	    output 	  iCS,
+	    output [2:0]  iCOMMAND,
+	    output [12:0] iADDRESS,
+	    output [1:0]  iBANK,
+	    inout [15:0]  iDQ,
+	    output 	  dCKE,
+	    output 	  dDQS,
+	    inout 	  dDM,
+	    output 	  dCS,
+	    output [2:0]  dCOMMAND,
+	    output [12:0] dADDRESS,
+	    output [1:0]  dBANK,
+	    inout [15:0]  dDQ,
+	    // -------------------
+	    input 	  ETH_WIRE_RX,
+	    output 	  ETH_WIRE_TX);
+  wire SYS_CLK, SYS_CLK_DELAYED, CPU_CLK, FRST_RST,
+       ETH_SAMPLER_CLK, ETH_INPUT_CLK, ETH_OUTPUT_CLK;
+
+  clockblock the_clocks(.REF_CLK(REF_CLK),
+		  .OUT_RST(OUT_RST),
+		  .SYS_CLK(SYS_CLK),
+		  .SYS_CLK_DELAYED(SYS_CLK_DELAYED),
+		  .CPU_CLK(CPU_CLK),
+		  .ETH_SAMPLER_CLK(ETH_SAMPLER_CLK),
+		  .ETH_INPUT_CLK(ETH_INPUT_CLK),
+		  .ETH_OUTPUT_CLK(ETH_OUTPUT_CLK),
+		  .FRST_RST(FRST_RST));
+
+  chip the_chip(	.RST(FRST_RST),
+		.CLK_p(),
+		.CLK_n(SYS_CLK),
+		.CLK_dp(),
+		.CLK_dn(SYS_CLK_DELAYED),
+		.CPU_CLK(CPU_CLK),
+		.sampler_CLK(ETH_SAMPLER_CLK),
+		.enc_CLK(REF_CLK),
+		.recv_CLK(ETH_INPUT_CLK),
+		.send_CLK(ETH_OUTPUT_CLK),
+		// ---------------------
+		.iCKE(iCKE),
+		.iDQS(iDQS),
+		.iDM(iDM),
+		.iCS(iCS),
+		.iCOMMAND(iCOMMAND),
+		.iADDRESS(iADDRESS),
+		.iBANK(iBANK),
+		.iDQ(iDQ),
+		.dCKE(dCKE),
+		.dDQS(dDQS),
+		.dDM(dDM),
+		.dCS(dCS),
+		.dCOMMAND(dCOMMAND),
+		.dADDRESS(dADDRESS),
+		.dBANK(dBANK),
+		.dDQ(dDQ),
+		.ETH_WIRE_RX(ETH_WIRE_RX),
+		.ETH_WIRE_TX(ETH_WIRE_TX));
+
+endmodule
+*/
+
 module chip(input RST,
 	    input 	  CLK_p,
 	    input 	  CLK_n,

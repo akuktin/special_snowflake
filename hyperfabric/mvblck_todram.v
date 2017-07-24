@@ -45,7 +45,12 @@ module hyper_mvblck_todram(input CLK,
   assign read_more = len_left != 0;
 
   always @(LSAB_0_STOP or LSAB_1_STOP or
-	   LSAB_2_STOP or LSAB_3_STOP or LSAB_SECTION or read_more)
+	   LSAB_2_STOP or LSAB_3_STOP or
+	   LSAB_0_INT or LSAB_1_INT or
+	   LSAB_2_INT or LSAB_3_INT or
+	   LSAB_0_ANCILL or LSAB_1_ANCILL or
+	   LSAB_2_ANCILL or LSAB_3_ANCILL or
+	   LSAB_SECTION or read_more)
     case (LSAB_SECTION)
       2'b00: begin
 	stop_n <= (read_more && !LSAB_0_STOP);
