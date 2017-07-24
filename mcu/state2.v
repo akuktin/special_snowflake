@@ -320,7 +320,7 @@ module outputs(input CLK_p,
 	if (high_bits)
 	  dm_predriver <= we_gapholder[3:2];
 	else
-	  we_longholder;
+	  dm_predriver <= we_longholder;
 
 	if (active == 2'b00)
 	  begin
@@ -363,7 +363,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQS_00.PIN_TYPE = 6'b100001;
   defparam DQS_00.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQS_00(.PACKAGE_PIN(DQS),
+  SB_IOeg DQS_00(.PACKAGE_PIN(DQS),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(1'b0),
@@ -382,14 +382,14 @@ module ddr_data_pins(input CLK_n,
 	     .INPUT_CLOCK(1'b0),
 	     .OUTPUT_CLOCK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
-	     .D_OUT_0(dm_predriver[1]),
-	     .D_OUT_1(dm_predriver[0]),
+	     .D_OUT_0(!dm_predriver[1]),
+	     .D_OUT_1(!dm_predriver[0]),
 	     .D_IN_0(),
 	     .D_IN_1());
 
   defparam DQ_00.PIN_TYPE = 6'b110000;
   defparam DQ_00.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_00(.PACKAGE_PIN(DQ[0]),
+  SB_IO DQ_00(.PACKAGE_PIN(DQ[15]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -402,7 +402,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_01.PIN_TYPE = 6'b110000;
   defparam DQ_01.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_01(.PACKAGE_PIN(DQ[1]),
+  SB_IO DQ_01(.PACKAGE_PIN(DQ[14]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -415,7 +415,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_02.PIN_TYPE = 6'b110000;
   defparam DQ_02.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_02(.PACKAGE_PIN(DQ[2]),
+  SB_IO DQ_02(.PACKAGE_PIN(DQ[13]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -428,7 +428,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_03.PIN_TYPE = 6'b110000;
   defparam DQ_03.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_03(.PACKAGE_PIN(DQ[3]),
+  SB_IO DQ_03(.PACKAGE_PIN(DQ[12]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -441,7 +441,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_04.PIN_TYPE = 6'b110000;
   defparam DQ_04.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_04(.PACKAGE_PIN(DQ[4]),
+  SB_IO DQ_04(.PACKAGE_PIN(DQ[11]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -454,7 +454,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_05.PIN_TYPE = 6'b110000;
   defparam DQ_05.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_05(.PACKAGE_PIN(DQ[5]),
+  SB_IO DQ_05(.PACKAGE_PIN(DQ[10]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -467,7 +467,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_06.PIN_TYPE = 6'b110000;
   defparam DQ_06.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_06(.PACKAGE_PIN(DQ[6]),
+  SB_IO DQ_06(.PACKAGE_PIN(DQ[9]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -480,7 +480,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_07.PIN_TYPE = 6'b110000;
   defparam DQ_07.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_07(.PACKAGE_PIN(DQ[7]),
+  SB_IO DQ_07(.PACKAGE_PIN(DQ[8]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -493,7 +493,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_08.PIN_TYPE = 6'b110000;
   defparam DQ_08.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_08(.PACKAGE_PIN(DQ[8]),
+  SB_IO DQ_08(.PACKAGE_PIN(DQ[7]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -506,7 +506,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_09.PIN_TYPE = 6'b110000;
   defparam DQ_09.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_09(.PACKAGE_PIN(DQ[9]),
+  SB_IO DQ_09(.PACKAGE_PIN(DQ[6]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -519,7 +519,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_10.PIN_TYPE = 6'b110000;
   defparam DQ_10.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_10(.PACKAGE_PIN(DQ[10]),
+  SB_IO DQ_10(.PACKAGE_PIN(DQ[5]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -532,7 +532,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_11.PIN_TYPE = 6'b110000;
   defparam DQ_11.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_11(.PACKAGE_PIN(DQ[11]),
+  SB_IO DQ_11(.PACKAGE_PIN(DQ[4]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -545,7 +545,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_12.PIN_TYPE = 6'b110000;
   defparam DQ_12.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_12(.PACKAGE_PIN(DQ[12]),
+  SB_IO DQ_12(.PACKAGE_PIN(DQ[3]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -558,7 +558,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_13.PIN_TYPE = 6'b110000;
   defparam DQ_13.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_13(.PACKAGE_PIN(DQ[13]),
+  SB_IO DQ_13(.PACKAGE_PIN(DQ[2]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -571,7 +571,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_14.PIN_TYPE = 6'b110000;
   defparam DQ_14.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_14(.PACKAGE_PIN(DQ[14]),
+  SB_IO DQ_14(.PACKAGE_PIN(DQ[1]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -584,7 +584,7 @@ module ddr_data_pins(input CLK_n,
 
   defparam DQ_15.PIN_TYPE = 6'b110000;
   defparam DQ_15.IO_STANDARD = "SB_LVCMOS";
-  SB_IO DQ_15(.PACKAGE_PIN(DQ[15]),
+  SB_IO DQ_15(.PACKAGE_PIN(DQ[0]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLOCK(CLK_dn),
@@ -596,3 +596,80 @@ module ddr_data_pins(input CLK_n,
 	     .D_IN_1(dq_data_r[0]));
 
 endmodule // pins
+
+module SB_IO(inout PACKAGE_PIN,
+	     input  LATCH_INPUT_VALUE,
+	     input  CLOCK_ENABLE,
+	     input  INPUT_CLOCK,
+	     input  OUTPUT_CLOCK,
+	     input  OUTPUT_ENABLE,
+	     input  D_OUT_0,
+	     input  D_OUT_1,
+	     output reg D_IN_0,
+	     output reg D_IN_1);
+  reg 			out_en, reg_out_0, reg_out_1;
+  wire 			out_mux;
+
+  assign PACKAGE_PIN = out_en ? out_mux : 1'bz;
+  assign out_mux = OUTPUT_CLOCK ? reg_out_0 : reg_out_1;
+
+  always @(posedge INPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      D_IN_0 <= PACKAGE_PIN;
+
+  always @(negedge INPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      D_IN_1 <= PACKAGE_PIN;
+
+  always @(posedge OUTPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      begin
+	out_en <= OUTPUT_ENABLE;
+	reg_out_0 <= D_OUT_0;
+	reg_out_1 <= D_OUT_1;
+      end
+//  always @(negedge OUTPUT_CLOCK)
+//    if (CLOCK_ENABLE)
+//      begin
+//        reg_out_1 <= D_OUT_1;
+//      end
+
+endmodule // SB_IO
+
+module SB_IOeg(inout PACKAGE_PIN,
+	     input  LATCH_INPUT_VALUE,
+	     input  CLOCK_ENABLE,
+	     input  INPUT_CLOCK,
+	     input  OUTPUT_CLOCK,
+	     input  OUTPUT_ENABLE,
+	     input  D_OUT_0,
+	     input  D_OUT_1,
+	     output reg D_IN_0,
+	     output reg D_IN_1);
+  reg 			reg_out_0, reg_out_1;
+  wire 			out_mux;
+
+  assign PACKAGE_PIN = OUTPUT_ENABLE ? out_mux : 1'bz;
+  assign out_mux = OUTPUT_CLOCK ? reg_out_0 : reg_out_1;
+
+  always @(posedge INPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      D_IN_0 <= PACKAGE_PIN;
+
+  always @(negedge INPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      D_IN_1 <= PACKAGE_PIN;
+
+  always @(posedge OUTPUT_CLOCK)
+    if (CLOCK_ENABLE)
+      begin
+	reg_out_0 <= D_OUT_0;
+	reg_out_1 <= D_OUT_1;
+      end
+//  always @(negedge OUTPUT_CLOCK)
+//    if (CLOCK_ENABLE)
+//      begin
+//        reg_out_1 <= D_OUT_1;
+//      end
+
+endmodule // SB_IO
