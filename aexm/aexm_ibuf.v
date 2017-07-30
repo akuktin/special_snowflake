@@ -78,13 +78,14 @@ module aexm_ibuf (/*AUTOARG*/
 
    always @(/*AUTOSENSE*/fBCC or fBRU or fIMM or fRTD or rFINT
 	    or wIDAT or wINTOP) begin
-      xIREG <= (!fIMM & rFINT & !fRTD & !fBRU & !fBCC) ? wINTOP :
+      xIREG <= (rFINT && (!fIMM & !fRTD & !fBRU & !fBCC)) ? wINTOP :
 	       wIDAT;
    end
 
    always @(/*AUTOSENSE*/fIMM or rIMM or wIDAT or xIREG) begin
-      xSIMM <= (!fIMM) ? { {(16){xIREG[15]}}, xIREG[15:0]} :
-	       {rIMM, wIDAT[15:0]};
+      xSIMM <= (fIMM) ?
+	       {rIMM, wIDAT[15:0]} :
+	       { {(16){xIREG[15]}}, xIREG[15:0]};
    end
 
    // --- REGISTER FILE ---------------------------------------
