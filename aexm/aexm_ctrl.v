@@ -1,6 +1,6 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, xMXSRC, xMXTGT, rMXALT, rMXALU, rRW, dSTRLOD, dLOD,
+   rMXDST, xMXSRC, xMXTGT, xMXALT, rMXALU, rRW, dSTRLOD, dLOD,
    aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
@@ -8,7 +8,7 @@ module aexm_ctrl (/*AUTOARG*/
    );
    // INTERNAL
    output [1:0]  rMXDST;
-   output [1:0]  xMXSRC, xMXTGT, rMXALT;
+   output [1:0]  xMXSRC, xMXTGT, xMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
   output 	 fSTALL;
