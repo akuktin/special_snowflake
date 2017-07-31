@@ -261,8 +261,8 @@ module GLaDOS;
       begin
 	$display("PC %x rREGA %x rREGB %x rDWBDI %x aexm_dcache_datao %x",
 		 mut.core.cpu.bpcu.rPC,
-		 mut.core.cpu.rREGA,
-		 mut.core.cpu.rREGB,
+		 mut.core.cpu.xREGA,
+		 mut.core.cpu.xREGB,
 		 mut.core.cpu.rDWBDI,
 		 mut.core.cpu.aexm_dcache_datao);
 

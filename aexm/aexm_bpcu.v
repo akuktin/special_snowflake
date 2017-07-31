@@ -1,6 +1,6 @@
 module aexm_bpcu (/*AUTOARG*/
    // Outputs
-   aexm_icache_precycle_addr, rPC, rPCLNK,
+   aexm_icache_precycle_addr, rIPC, rPC, rPCLNK,
    dSKIP, xSKIP,
    // Inputs
    rMXALT, rOPC, rRD, rRA, xRESULT, rRESULT, rDWBDI, rREGA,
@@ -13,7 +13,7 @@ module aexm_bpcu (/*AUTOARG*/
   output [31:0] aexm_icache_precycle_addr;
 
    // INTERNAL
-   output [31:2]   rPC, rPCLNK;
+   output [31:2]   rIPC, rPC, rPCLNK;
   output 	   dSKIP;
   output 	   xSKIP;
    //output [1:0]    rATOM;

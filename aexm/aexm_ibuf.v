@@ -1,6 +1,6 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
-   rIMM, rRA, rRD, rRB, rALT, rOPC, rSIMM, xIREG,
+   rIMM, rRA, rRD, rRB, rALT, rOPC, xSIMM, xIREG,
    regf_rRA, regf_rRB, regf_rRD,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
@@ -11,7 +11,7 @@ module aexm_ibuf (/*AUTOARG*/
    output [4:0]  rRA, rRD, rRB, regf_rRA, regf_rRB, regf_rRD;
    output [10:0] rALT;
    output [5:0]  rOPC;
-   output [31:0] rSIMM;
+   output [31:0] xSIMM;
    output [31:0] xIREG;
 
    input 	 rMSR_IE;

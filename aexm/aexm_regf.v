@@ -1,13 +1,13 @@
 module aexm_regf (/*AUTOARG*/
    // Outputs
-   rREGA, rREGB, rDWBDI, aexm_dcache_datao,
+   rREGA, xREGA, xREGB, rDWBDI, aexm_dcache_datao,
    // Inputs
    rOPC, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
    aexm_dcache_datai, gclk, grst, x_en, d_en,
    regf_rRA, regf_rRB, regf_rRD
    );
    // INTERNAL
-   output [31:0] rREGA, rREGB;
+   output [31:0] rREGA, xREGA, xREGB;
    output [31:0] rDWBDI;
    input [5:0] 	 rOPC;
    input [4:0] 	 rRW, rRD;

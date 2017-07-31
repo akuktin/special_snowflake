@@ -3,8 +3,8 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr,
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   rREGA, rREGB, rMXSRC, rMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
-   rSIMM, rIMM, rOPC, rRD, rDWBDI, rPC, gclk, grst, x_en
+   xREGA, xREGB, xMXSRC, xMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
+   xSIMM, rIMM, rOPC, rRD, rDWBDI, rIPC, rPC, gclk, grst, d_en, x_en
    );
    parameter DW=32;
 
@@ -18,22 +18,22 @@ module aexm_xecu (/*AUTOARG*/
    output [31:0]   rRESULT;
    output [3:0]    rDWBSEL;
    output 	   rMSR_IE;
-   input [31:0]    rREGA, rREGB;
-   input [1:0] 	   rMXSRC, rMXTGT;
+   input [31:0]    xREGA, xREGB;
+   input [1:0] 	   xMXSRC, xMXTGT;
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
    input [10:0]    rALT;
   input 	   xSKIP;
 
-   input [31:0]    rSIMM;
+   input [31:0]    xSIMM;
    input [15:0]    rIMM;
    input [5:0] 	   rOPC;
    input [4:0] 	   rRD;
    input [31:0]    rDWBDI;
-   input [31:2]    rPC;
+   input [31:2]    rIPC, rPC;
 
    // SYSTEM
-   input 	   gclk, grst, x_en;
+   input 	   gclk, grst, d_en, x_en;
 
    reg 		   rMSR_C, xMSR_C;
    reg 		   rMSR_IE, xMSR_IE;
@@ -43,21 +43,27 @@ module aexm_xecu (/*AUTOARG*/
    // --- OPERAND SELECT
 
    reg [31:0] 	   rOPA, rOPB;
-   always @(/*AUTOSENSE*/rDWBDI or rMXSRC or rPC or rREGA or rRESULT)
-     case (rMXSRC)
-       2'o0: rOPA <= rREGA;
-       2'o1: rOPA <= rRESULT;
+   always @(posedge gclk)
+     if (grst)
+       rOPA <= 0;
+     else if (d_en)
+     case (xMXSRC)
+       2'o0: rOPA <= xREGA;
+       2'o1: rOPA <= xRESULT;
        2'o2: rOPA <= rDWBDI;
-       2'o3: rOPA <= {rPC, 2'o0};
-     endcase // case (rMXSRC)
+       2'o3: rOPA <= {rIPC, 2'o0};
+     endcase // case (xMXSRC)
 
-   always @(/*AUTOSENSE*/rDWBDI or rMXTGT or rREGB or rRESULT or rSIMM)
-     case (rMXTGT)
-       2'o0: rOPB <= rREGB;
-       2'o1: rOPB <= rRESULT;
+   always @(posedge gclk)
+     if (grst)
+       rOPB <= 0;
+     else if (d_en)
+     case (xMXTGT)
+       2'o0: rOPB <= xREGB;
+       2'o1: rOPB <= xRESULT;
        2'o2: rOPB <= rDWBDI;
-       2'o3: rOPB <= rSIMM;
-     endcase // case (rMXTGT)
+       2'o3: rOPB <= xSIMM;
+     endcase // case (xMXTGT)
 
    // --- ADD/SUB SELECTOR ----
 
