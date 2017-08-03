@@ -54,6 +54,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [1:0]		xMXSRC;			// From ctrl of aexm_ctrl.v
    wire [1:0]		xMXTGT;			// From ctrl of aexm_ctrl.v
    wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
+   wire [5:0]		xOPC;			// From ibuf of aexm_ibuf.v
    wire [31:2]		rIPC;			// From bpcu of aexm_bpcu.v
    wire [31:2]		rPC;			// From bpcu of aexm_bpcu.v
    wire [31:2]		rPCLNK;			// From bpcu of aexm_bpcu.v
@@ -112,6 +113,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRB				(rRB[4:0]),
 	   .rALT			(rALT[10:0]),
 	   .rOPC			(rOPC[5:0]),
+	   .xOPC			(xOPC[5:0]),
 	   .xSIMM			(xSIMM[31:0]),
 	   .xIREG			(xIREG[31:0]),
 	   .regf_rRA                    (regf_rRA),
@@ -223,6 +225,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xSIMM			(xSIMM[31:0]),
 	   .rIMM			(rIMM[15:0]),
 	   .rOPC			(rOPC[5:0]),
+	   .xOPC			(xOPC[5:0]),
 	   .rRD				(rRD[4:0]),
 	   .rDWBDI			(rDWBDI[31:0]),
 	   .rIPC			(rIPC[31:2]),

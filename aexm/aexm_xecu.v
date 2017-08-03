@@ -4,7 +4,7 @@ module aexm_xecu (/*AUTOARG*/
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    xREGA, xREGB, xMXSRC, xMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
-   xSIMM, rIMM, rOPC, rRD, rDWBDI, rIPC, rPC, gclk, grst, d_en, x_en
+   xSIMM, rIMM, rOPC, xOPC, rRD, rDWBDI, rIPC, rPC, gclk, grst, d_en, x_en
    );
    parameter DW=32;
 
@@ -27,7 +27,7 @@ module aexm_xecu (/*AUTOARG*/
 
    input [31:0]    xSIMM;
    input [15:0]    rIMM;
-   input [5:0] 	   rOPC;
+   input [5:0] 	   rOPC, xOPC;
    input [4:0] 	   rRD;
    input [31:0]    rDWBDI;
    input [31:2]    rIPC, rPC;
@@ -49,7 +49,7 @@ module aexm_xecu (/*AUTOARG*/
      else if (d_en)
      case (xMXSRC)
        2'o0: rOPA <= xREGA;
-       2'o1: rOPA <= xRESULT;
+       2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
        2'o2: rOPA <= rDWBDI;
        2'o3: rOPA <= {rIPC, 2'o0};
      endcase // case (xMXSRC)
@@ -65,6 +65,13 @@ module aexm_xecu (/*AUTOARG*/
        2'o3: rOPB <= xSIMM;
      endcase // case (xMXTGT)
 
+  reg 		   wOPC;
+  always @(posedge gclk)
+    if (grst)
+      wOPC <= 0;
+    else
+      wOPC <= fCCC ? xMSR_C : fSUB;
+
    // --- ADD/SUB SELECTOR ----
 
    reg 		    rRES_ADDC;
@@ -73,18 +80,18 @@ module aexm_xecu (/*AUTOARG*/
    wire [31:0] 		wADD;
    wire 		wADC;
 
-   wire 		fCCC = !rOPC[5] & rOPC[1]; // & !rOPC[4]
-   wire 		fSUB = !rOPC[5] & rOPC[0]; // & !rOPC[4]
-   wire 		fCMP = !rOPC[3] & rIMM[1]; // unsigned only
-   wire 		wCMP = (fCMP) ? !wADC : wADD[31]; // cmpu adjust
+  wire 			fCCC = !xOPC[5] & xOPC[1] & !xOPC[4];
+  wire 			fSUB = !xOPC[5] & xOPC[0] & !xOPC[4];
+// fCMP and wCMP are decommisioned until further notice
+//   wire 		fCMP = !rOPC[3] & rIMM[1]; // unsigned only
+//   wire 		wCMP = (fCMP) ? !wADC : wADD[31]; // cmpu adjust
 
-   wire [31:0] 		wOPA = (fSUB) ? ~rOPA : rOPA;
-   wire 		wOPC = (fCCC) ? rMSR_C : fSUB;
+   assign 		{wADC, wADD} = (rOPB + rOPA) + wOPC; // add carry
 
-   assign 		{wADC, wADD} = (rOPB + wOPA) + wOPC; // add carry
-
-   always @(/*AUTOSENSE*/wADC or wADD or wCMP) begin
-      {rRES_ADDC, rRES_ADD} <= #1 {wADC, wCMP, wADD[30:0]}; // add with carry
+   always @(wADC or wADD /*or wCMP*/) begin
+// wCMP decommisioned until further notice
+//     {rRES_ADDC, rRES_ADD} <= #1 {wADC, wCMP, wADD[30:0]};
+     {rRES_ADDC, rRES_ADD} <= #1 {wADC, wADD[31:0]};
    end
 
    // --- LOGIC SELECTOR --------------------------------------
