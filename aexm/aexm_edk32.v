@@ -168,7 +168,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   // Inputs
 	   .cpu_mode_memop              (cpu_mode_memop),
 	   .xMXALT			(xMXALT[1:0]),
-	   .rOPC			(rOPC[5:0]),
+	   .rOPC			(rOPC[5:0]), // currently ignored
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
 	   .xIREG			(xIREG[31:0]),

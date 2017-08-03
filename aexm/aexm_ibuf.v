@@ -23,6 +23,7 @@ module aexm_ibuf (/*AUTOARG*/
    input 	 sys_int_i;
    input 	 gclk, grst, d_en, oena;
 
+  wire [5:0] xOPC;
   assign xOPC = xIREG[31:26];
 
    reg [15:0] 	 rIMM;
