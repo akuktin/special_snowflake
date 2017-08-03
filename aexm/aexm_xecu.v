@@ -69,7 +69,7 @@ module aexm_xecu (/*AUTOARG*/
   always @(posedge gclk)
     if (grst)
       wOPC <= 0;
-    else
+    else if (d_en)
       wOPC <= fCCC ? xMSR_C : fSUB;
 
    // --- ADD/SUB SELECTOR ----
