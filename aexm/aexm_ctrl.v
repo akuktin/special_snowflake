@@ -4,7 +4,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
-   gclk, grst, d_en, x_en
+   cpu_interrupt, gclk, grst, d_en, x_en
    );
    // INTERNAL
    output [1:0]  rMXDST;
@@ -19,6 +19,7 @@ module aexm_ctrl (/*AUTOARG*/
    input [5:0] 	 rOPC;
    input [4:0] 	 rRD, rRA, rRB;
    input [31:0]  xIREG;
+  input 	 cpu_interrupt;
 
    // MCU
   output 	 dSTRLOD, dLOD;
@@ -67,9 +68,11 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
    wire 	 wDIV = (wOPC == 6'o22);
 
-   wire 	 wBCC = (wOPC == 6'o47) | (wOPC == 6'o57);
-   wire 	 wBRU = (wOPC == 6'o46) | (wOPC == 6'o56);
-   wire 	 wBRA = wBRU & wRA[3];
+   wire 	 wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) &&
+		        !cpu_interrupt;
+   wire 	 wBRU = ((wOPC == 6'o46) | (wOPC == 6'o56)) ||
+		        cpu_interrupt;
+   wire 	 wBRA = (wBRU & wRA[3]) || cpu_interrupt;
 
    wire 	 wIMM = (wOPC == 6'o54);
    wire 	 wMOV = (wOPC == 6'o45);

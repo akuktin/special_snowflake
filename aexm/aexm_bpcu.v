@@ -4,7 +4,7 @@ module aexm_bpcu (/*AUTOARG*/
    dSKIP, xSKIP,
    // Inputs
    xMXALT, rOPC, rRD, rRA, xRESULT, rDWBDI, xREGA,
-   cpu_mode_memop, xIREG,
+   cpu_mode_memop, xIREG, cpu_interrupt,
    gclk, grst, x_en, d_en
    );
    parameter IW = 24;
@@ -29,6 +29,7 @@ module aexm_bpcu (/*AUTOARG*/
    //input [1:0] 	   rXCE;
 
   input 	   cpu_mode_memop;
+  input 	   cpu_interrupt;
 
    // SYSTEM
    input 	   gclk, grst, x_en, d_en;
@@ -178,8 +179,8 @@ module aexm_bpcu (/*AUTOARG*/
       end
     endcase // case ({expect_reg_equal,reg_equal_null_n,invert_answer})
 
-  assign wBCC = (wOPC == 6'o47) | (wOPC == 6'o57);
-  assign wBRU = (wOPC == 6'o46) | (wOPC == 6'o56);
+  assign wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) && !cpu_interrupt;
+  assign wBRU = ((wOPC == 6'o46) | (wOPC == 6'o56)) || cpu_interrupt;
 
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes

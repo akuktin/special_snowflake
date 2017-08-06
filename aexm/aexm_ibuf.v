@@ -1,7 +1,7 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
    rIMM, rRA, rRD, rRB, rALT, rOPC, xOPC, xSIMM, xIREG,
-   regf_rRA, regf_rRB, regf_rRD,
+   regf_rRA, regf_rRB, regf_rRD, cpu_interrupt,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    grst, d_en, oena
@@ -13,6 +13,7 @@ module aexm_ibuf (/*AUTOARG*/
    output [5:0]  rOPC, xOPC;
    output [31:0] xSIMM;
    output [31:0] xIREG;
+  output 	 cpu_interrupt;
 
    input 	 rMSR_IE;
 
@@ -42,10 +43,12 @@ module aexm_ibuf (/*AUTOARG*/
                                                        // changed to 5'h00
    wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
    wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
-  reg 		issued_interrupt;
+  reg 		issued_interrupt, cpu_interrupt;
 
    wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
-   reg [31:0] 	xIREG;
+  wire [31:0] 	xIREG;
+  reg [31:0] 	xNXTINST;
+  assign xIREG = wIDAT;
 
    // --- INTERRUPT LATCH --------------------------------------
    // Debounce and latch onto the positive level. This is independent
@@ -73,16 +76,18 @@ module aexm_ibuf (/*AUTOARG*/
      end
 
    wire 	fIMM = (rOPC == 6'o54);
-   wire 	fRTD = (rOPC == 6'o55);
-   wire 	fBRU = ((rOPC == 6'o46) | (rOPC == 6'o56));
-   wire 	fBCC = ((rOPC == 6'o47) | (rOPC == 6'o57));
+   wire 	wIMM = (xOPC == 6'o54);
+   wire 	wRTD = (xOPC == 6'o55);
+   wire 	wBRU = ((xOPC == 6'o46) | (xOPC == 6'o56));
+   wire 	wBCC = ((xOPC == 6'o47) | (xOPC == 6'o57));
 
    // --- DELAY SLOT -------------------------------------------
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fIMM or fRTD or rFINT
-	    or wIDAT or wINTOP) begin
-      xIREG <= (rFINT && (!fIMM & !fRTD & !fBRU & !fBCC)) ? wINTOP :
-	       wIDAT;
+  assign do_interrupt = (rFINT && !issued_interrupt && !cpu_interrupt) &&
+			!(wIMM || wRTD || wBRU || wBCC);
+
+   always @(cpu_interrupt or wIDAT or wINTOP) begin
+     xNXTINST <= cpu_interrupt ? wINTOP : wIDAT;
    end
 
    always @(/*AUTOSENSE*/fIMM or rIMM or wIDAT or xIREG) begin
@@ -105,15 +110,17 @@ module aexm_ibuf (/*AUTOARG*/
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
        issued_interrupt <= 0;
+       cpu_interrupt <= 0;
 	rIMM <= 16'h0;
 	rOPC <= 6'h0;
 	rRA <= 5'h0;
 	rRD <= 5'h0;
 	rSIMM <= 32'h0;
 	// End of automatics
-     end else if (d_en) begin
-       issued_interrupt <= (!fIMM & rFINT & !fRTD & !fBRU & !fBCC);
-	{rOPC, rRD, rRA, rIMM} <= #1 xIREG;
+     end else if (d_en) begin // if (grst)
+       issued_interrupt <= cpu_interrupt;
+       cpu_interrupt <= do_interrupt;
+	{rOPC, rRD, rRA, rIMM} <= #1 xNXTINST;
 	rSIMM <= #1 xSIMM;
      end
 
