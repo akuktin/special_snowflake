@@ -1,21 +1,21 @@
-module hyper_pu(input CLK,
-		input 		  RST,
+module Gremlin(input CLK,
+	       input 		 RST,
 		    // ---------------------
-		input 		  READ_CPU,
-		input 		  WRITE_CPU,
-		output reg	  READ_CPU_ACK,
-		output reg 	  WRITE_CPU_ACK,
-		input [2:0] 	  ADDR_CPU,
-		input [63:0] 	  IN_CPU,
-		output reg [31:0] OUT_CPU,
+	       input 		 READ_CPU,
+	       input 		 WRITE_CPU,
+	       output reg 	 READ_CPU_ACK,
+	       output reg 	 WRITE_CPU_ACK,
+	       input [2:0] 	 ADDR_CPU,
+	       input [63:0] 	 IN_CPU,
+	       output reg [31:0] OUT_CPU,
 		    // ---------------------
 
-		output reg [15:0] output_0,
-		output reg [15:0] output_1,
-		output reg [15:0] output_2,
-		input [15:0] 	  input_0,
-		input [15:0] 	  input_1,
-		input [15:0] 	  input_2
+	       output reg [15:0] output_0,
+	       output reg [15:0] output_1,
+	       output reg [15:0] output_2,
+	       input [15:0] 	 input_0,
+	       input [15:0] 	 input_1,
+	       input [15:0] 	 input_2
 
 /*		 / * begin BLOCK MOVER * /
 		output [11:0] 	  BLCK_START,
@@ -44,7 +44,7 @@ module hyper_pu(input CLK,
   wire 	      d_w_en, d_r_en;
 
   reg [15:0] accumulator, memory_operand, input_reg,
-	     instr_f, instr_o;
+	     instr_f, instr_o. TIME_REG;
   reg [7:0]  ip;
   reg 	     add_carry, save_carry;
 
@@ -159,9 +159,10 @@ module hyper_pu(input CLK,
 
   assign ip_nxt = (instr_o[15] && (accumulator != 16'd0)) ?
 		  instr_o[7:0] : ip +1;
-  assign sys_cpu_en = ! (d_w_en_cpu_delay || d_r_en_cpu_delay);
+  assign sys_cpu_en = d_r_en_sys &&
+		      (! (d_w_en_cpu_delay || d_r_en_cpu_delay));
 
-  assign d_r_addr_sys = instr[12] ?
+  assign d_r_addr_sys = instr[15] ?
 			accumulator[7:0] : // or a special index reg?
 			instr[7:0];
   assign d_w_addr_sys = instr_o[7:0];
@@ -170,6 +171,12 @@ module hyper_pu(input CLK,
 
   assign {cur_carry,accumulator_adder} = accumulator + memory_operand +
 					 add_carry;
+
+  always @(posedge CLK)
+    if (!RST)
+      TIME_REG <= 0;
+    else
+      TIME_REG <= TIME_REG -1;
 
   always @(posedge CLK)
     if (!RST)
@@ -220,7 +227,7 @@ module hyper_pu(input CLK,
 	      save_carry <= cur_carry;
 	    end
 
-	    4'h4: accumulator <= {{(8){instr_o[7]}},instr_o[7:0]};
+	    4'h4: accumulator <= TIME_REG;
 	    4'h5: accumulator <= input_reg;
 	    4'h6: accumulator <= input_reg;
 	    4'h7: accumulator <= input_reg;
@@ -237,4 +244,4 @@ module hyper_pu(input CLK,
 	  endcase // case (instr_o[11:8])
 	end // if (sys_cpu_en)
 
-endmodule // hyper_pu
+endmodule // Gremlin
