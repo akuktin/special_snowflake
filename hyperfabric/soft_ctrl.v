@@ -45,7 +45,7 @@ module Gremlin(input CLK,
 
   reg [15:0] accumulator, memory_operand, input_reg,
 	     instr_f, instr_o. TIME_REG;
-  reg [7:0]  ip;
+  reg [7:0]  ip, index;
   reg 	     add_carry, save_carry;
 
   wire [15:0] accumulator_adder;
@@ -162,10 +162,8 @@ module Gremlin(input CLK,
   assign sys_cpu_en = d_r_en_sys &&
 		      (! (d_w_en_cpu_delay || d_r_en_cpu_delay));
 
-  assign d_r_addr_sys = instr[15] ?
-			accumulator[7:0] : // or a special index reg?
-			instr[7:0];
-  assign d_w_addr_sys = instr_o[7:0];
+  assign d_r_addr_sys = instr[12] ? index : instr[7:0];
+  assign d_w_addr_sys = instr_o[12] ? index : instr_o[7:0];
   assign d_w_en_sys   = instr_o[11:8] == 4'h8; // store
   assign d_r_en_sys   = !instr[14];
 
@@ -182,7 +180,7 @@ module Gremlin(input CLK,
     if (!RST)
       begin
 	accumulator <= 0; memory_operand <= 0; add_carry <= 0;
-	save_carry <= 0; ip <= 0; input_reg <= 0;
+	save_carry <= 0; ip <= 0; input_reg <= 0; index <= 0;
 	output_0 <= 0; output_0 <= 1; output_2 <= 0;
 	instr_f <= 0; instr_o <= 0;
       end
@@ -234,10 +232,10 @@ module Gremlin(input CLK,
 
 //	    4'h8 // store
 	    4'h9: output_0 <= accumulator;
-	    3'ha: output_1 <= accumulator;
+	    4'ha: output_1 <= accumulator;
 	    4'hb: output_2 <= accumulator;
 
-	    4'hc: accumulator <= ~accumulator;
+	    4'hc: index <= accumulator;
 	    4'hd: accumulator <= accumulator & memory_operand;
 	    4'he: accumulator <= accumulator | memory_operand;
 	    4'hf: accumulator <= accumulator ^ memory_operand;
