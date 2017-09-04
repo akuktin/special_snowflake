@@ -44,12 +44,12 @@ module Gremlin(input CLK,
   wire 	      d_w_en, d_r_en;
 
   reg [15:0] accumulator, memory_operand, input_reg,
-	     instr_f, instr_o. TIME_REG;
+	     instr_f, instr_o, TIME_REG;
   reg [7:0]  ip, index;
   reg 	     add_carry, save_carry;
 
-  wire [15:0] accumulator_adder;
-  wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys, instr;
+  wire [15:0] accumulator_adder, instr;
+  wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
   wire 	     sys_cpu_en, d_w_en_sys, d_r_en_sys, cur_carry;
 
   iceram16 data_mem(.RDATA(d_r_data), // 16 out
@@ -195,6 +195,9 @@ module Gremlin(input CLK,
 	    2'h3: memory_operand <= 16'hffff;
 	  endcase // case (instr_f[14:13])
 
+	  if (instr_f[12])
+	    index <= index +instr_f[7:0];
+
 	  instr_f <= instr;
 	  instr_o <= instr_f;
 	  case (instr_f[11:8])
@@ -230,10 +233,7 @@ module Gremlin(input CLK,
 	    4'h6: accumulator <= input_reg;
 	    4'h7: accumulator <= input_reg;
 
-	    4'h8: begin // store
-	      if (instr_o[12])
-		index <= index +instr_o[7:0];
-	    end
+//	    4'h8 // store
 	    4'h9: output_0 <= accumulator;
 	    4'ha: output_1 <= accumulator;
 	    4'hb: output_2 <= accumulator;

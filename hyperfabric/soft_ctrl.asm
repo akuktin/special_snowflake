@@ -1,76 +1,39 @@
-  null;
-  add 1+$cur_trans;
-  inl;
-
-  i_1;  # ?  # the point is to increment the start address;
-  add 0+$start_addr_low;
-  sto INDEX; # -> start_addr_low
-  null;
-  add s+$start_addr_high
-  sto INDEX; # -> start_addr_high
-  i_1;  # ?
-  xor 0xffff
-  add 1+$len_left_low;
-  sto INDEX;
-  ones;
-  add s+$len_left_high;
-  sto INDEX;
-
-## 16 instructions
-
-  null;
-  add 0+$cur_trans
-  sub $max_trans;
-  cmp/ones :dont_reset_trans_counter;
-  cmp/null :carry_on;
-  add 0+$0x4;
-  nop;
-carry_on:
-  sto $cur_trans;
-
-  inl; # index load
-  null;
-  add 0+INDEX;
-  sto $begin_addr_low;
-  o_2;  # make sure the timing is ok
-  null;
-  add 0+INDEX;
-  sto $begin_addr_high;
-  o_1;  # make sure the timing is ok
-  null;
-  add 0+INDEX;
-  sto $len_left_low;
-  null;
-  add 0+INDEX;
-  sto $len_left_high;
-
-## 23 instructions;
-
 ##############################################
-dont_reset_trans_counter:
-  add 0+$cur_trans;
 space_left_in_page_not_enough:
   add 0+$space_left_in_page;
 len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
 ##############################################
 
+  null;
+  add 0+$index_store;
+  add 0+$index_increment;
+  and $index_mask;
+  sto $index_store;
+
+  add 0+$D__begin_addr_low__begin_addr_high;
+  inl; # index load
+  null;
+  add 0+(INDEX+D($begin_addr_high -> $begin_addr_low));
+  o_1;
 
   null;
-  add 0+$begin_addr_low;
+  add 0+(INDEX+D($begin_addr_low -> $len_left_low));
+  o_2;
   and $page_addr_submask;
   xor 0xffff;
   add 1+$page_size;
   sto $space_left_in_page;
 
-  sub $len_left_low;
+  sub (INDEX+D($len_left_low -> $len_left_high));
   and $0x8000;
-  or  $len_left_high; # acc != 0 => len_left > space_left_in_page
+  or  (INDEX+D($len_left_high -> $len_left_low));
+       # (acc != 0) => (len_left > space_left_in_page)
 
   cmp/ones :space_left_in_page_not_enough;
   cmp/null :continue_0;
   sub $block_size;
-  add 0+$len_left_low;
+  add 0+INDEX;
 continue_0:
   sto $len_for_transfer__less_block_size;
   and $0x8000;
@@ -80,7 +43,7 @@ continue_0:
   add 0+$block_size;
   nop;
 
-## 20 instructions
+## 30 instructions
 
 exec_transfer():
 #  sto $transfer_size;
@@ -107,18 +70,20 @@ wait_loop:
 
 update_transfer():
   null;
-  add 0+_transfered;
-  add 0+begin_addr_low;
-  sto $begin_addr_low;
+  add 0+$index_store;
+  inl; # index load
+  i_1
+  add 0+INDEX;
+  sto (INDEX+D($begin_addr_low -> $begin_addr_high));
   null;
-  add s+begin_addr_high;
-  sto $begin_addr_high;
-  null;
-  add 0+$len_left_low;
-  sub _transfered;
-  sto $len_left_low;
+  add s+INDEX;
+  sto (INDEX+D($begin_addr_high -> $len_left_low));
+  i_1;
+  xor 0xffff;
+  add 1+INDEX;
+  sto (INDEX+D($len_left_low -> $len_left_high));
   ones;
-  add s+$len_left_high;
-  sto $len_left_high;
+  add s+INDEX
+  sto INDEX;
 
-## 14 instructions
+## 16 instructions
