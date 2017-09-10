@@ -18,17 +18,16 @@ len_for_transfer_shorter_than_block_size:
   o_1;
 
   null;
-  add 0+(INDEX+D($begin_addr_low -> $len_left_low));
+  add 0+(INDEX+D($begin_addr_low -> $len_left));
   o_2;
   and $page_addr_submask;
   xor 0xffff;
   add 1+$page_size;
   sto $space_left_in_page;
 
-  sub (INDEX+D($len_left_low -> $len_left_high));
+  sub INDEX;
   and $0x8000;
-  or  (INDEX+D($len_left_high -> $len_left_low));
-       # (acc != 0) => (len_left > space_left_in_page)
+  # (acc != 0) => (len_left > space_left_in_page)
 
   cmp/ones :space_left_in_page_not_enough;
   cmp/null :continue_0;
@@ -42,30 +41,16 @@ continue_0:
   cmp/null :exec_transfer();
   add 0+$block_size;
   nop;
+  nop (INDEX+D($len_left -> $other_bits));
 
 ## 30 instructions
 
 exec_transfer():
 #  sto $transfer_size;
-  or  $other_bits; # approx
-  sto $prepared_output;
+  or  INDEX;  # $other_bits; # approx
+  o_3;
 
-#######
-wait_funcion():
-  time;
-  add 0+$next_trans_time;
-
-wait_loop:
-  cmp/nop :wait_loop;
-  dec;
-  nop;
-#######
-
-  null;
-  add 0+$prepared_output;
-  o_3;  # THIS PHYSICALLY EXECUTES THE TRANSFER!!!
-
-## 10 instructions
+## 2 instructions
 
 
 update_transfer():
@@ -77,13 +62,10 @@ update_transfer():
   sto (INDEX+D($begin_addr_low -> $begin_addr_high));
   null;
   add s+INDEX;
-  sto (INDEX+D($begin_addr_high -> $len_left_low));
+  sto (INDEX+D($begin_addr_high -> $len_left));
   i_1;
   xor 0xffff;
   add 1+INDEX;
-  sto (INDEX+D($len_left_low -> $len_left_high));
-  ones;
-  add s+INDEX
   sto INDEX;
 
-## 16 instructions
+## 13 instructions
