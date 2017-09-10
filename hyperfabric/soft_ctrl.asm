@@ -5,6 +5,7 @@ len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
 ##############################################
 
+main_algo:
   null;
   add 0+$index_store;
   add 0+$index_increment;
@@ -64,8 +65,15 @@ update_transfer():
   add s+INDEX;
   sto (INDEX+D($begin_addr_high -> $len_left));
   i_1;
+# the below instruction is the first one that can exist at or after
+# the trg_gb_0 or trg_gb_1 signals
   xor 0xffff;
   add 1+INDEX;
   sto INDEX;
 
 ## 13 instructions
+
+# padding
+  nop;
+  nop;
+  nop;

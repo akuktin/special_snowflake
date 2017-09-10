@@ -254,13 +254,18 @@ module Gremlin(input CLK,
 //	    4'h7
 
 //	    4'h8 // store
-	    4'h9: begin
+	    4'h9: irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
+	    4'ha: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
-	      wrote_3_req <= wrote_3_req +1;
-	      active_trans <= instr_o[2];
 	    end
-	    4'ha: irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
-//	    4'hb
+	    4'hb: begin
+	      output_reg[instr_o[2:0]] <= accumulator;
+	      if (accumulator[13:2] != 0) // provisional
+		begin
+		  wrote_3_req <= wrote_3_req +1;
+		  active_trans <= instr_o[2];
+		end
+	    end
 
 	    4'hc: index <= accumulator[7:0];
 	    4'hd: accumulator <= accumulator & memory_operand;
