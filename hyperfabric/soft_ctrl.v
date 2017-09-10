@@ -263,7 +263,6 @@ module Gremlin(input CLK,
 	      if (accumulator[13:2] != 0) // provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
-		  active_trans <= instr_o[2];
 		end
 	    end
 
@@ -277,6 +276,7 @@ module Gremlin(input CLK,
 
   assign small_carousel_reset = small_carousel == 8'hbf;
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
+  assign active_trans = (trg_gb_0 || trg_gb_1);
 
   always @(posedge CLK)
     if (!RST)
