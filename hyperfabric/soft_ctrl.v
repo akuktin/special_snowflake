@@ -184,7 +184,7 @@ module Gremlin(input CLK,
 		      (! (d_w_en_cpu_delay || d_r_en_cpu_delay));
 
   assign d_r_addr_sys = instr[12] ? index : instr[7:0];
-  assign d_w_addr_sys = instr_o[12] ? index : instr_o[7:0];
+  assign d_w_addr_sys = instr_o[12] ? index_reg : instr_o[7:0];
   assign d_w_en_sys   = instr_o[11:8] == 4'h8; // store
   assign d_r_en_sys   = !instr[14];
 
@@ -193,13 +193,18 @@ module Gremlin(input CLK,
 
   assign IRQ <= irq_strobe[0] ^ irq_strobe[1];
 
+  always @(index_reg or instr_f[12] or instr_f[7:0])
+    if (instr_f[12])
+      index <= index_reg + instr_f[7:0];
+    else
+      index <= index_reg;
+
   always @(posedge CLK)
     if (!RST)
       begin
 	accumulator <= 0; memory_operand <= 0; add_carry <= 0;
-	save_carry <= 0; ip <= 0; input_reg <= 0; index <= 0;
-	output_0 <= 0; output_0 <= 1; output_2 <= 0;
-	instr_f <= 0; instr_o <= 0; wrote_3_strobe <= 0;
+	save_carry <= 0; ip <= 0; index_reg <= 0;
+	instr_f <= 0; instr_o <= 0; wrote_3_req <= 0;
 	irq_strobe <= 0;
       end
     else
@@ -215,8 +220,7 @@ module Gremlin(input CLK,
 	    2'h3: memory_operand <= 16'hffff;
 	  endcase // case (instr_f[14:13])
 
-	  if (instr_f[12])
-	    index <= index +instr_f[7:0];
+	  index_reg <= index;
 
 	  instr_f <= instr;
 	  instr_o <= instr_f;
@@ -225,10 +229,6 @@ module Gremlin(input CLK,
 	    4'h1: add_carry <= 1;
 	    4'h2: add_carry <= save_carry;
 	    4'h3: add_carry <= cur_carry;
-
-	    4'h5: input_reg <= input_0;
-	    4'h6: input_reg <= input_1;
-	    4'h7: input_reg <= input_2;
 	  endcase // case (instr_f[11:8])
 	  case (instr_o[11:8])
 	    4'h0: begin
@@ -249,14 +249,15 @@ module Gremlin(input CLK,
 	    end
 
 	    4'h4: accumulator <= TIME_REG;
-	    4'h5: accumulator <= input_reg[instr_o[1:0]];
+	    4'h5: accumulator <= input_reg[instr_o[2:0]];
 //	    4'h6
 //	    4'h7
 
 //	    4'h8 // store
 	    4'h9: begin
-	      output_reg[instr_o[1:0]] <= accumulator;
-	      wrote_3_strobe <= !wrote_3_strobe;
+	      output_reg[instr_o[2:0]] <= accumulator;
+	      wrote_3_req <= wrote_3_req +1;
+	      active_trans <= instr_o[2];
 	    end
 	    4'ha: irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
 //	    4'hb
@@ -277,7 +278,7 @@ module Gremlin(input CLK,
       begin
 	small_carousel <= 8'hc1; // Out of bounds.
 	big_carousel <= 4'h3; refresh_req <= 0; refresh_ack <= 0;
-	TIME_REG <= 0; MCU_REFRESH_STROBE <= 0; wrote_3_antistrobe <= 0;
+	TIME_REG <= 0; MCU_REFRESH_STROBE <= 0; wrote_3_ack <= 0;
       end
     else
       begin
@@ -294,25 +295,32 @@ module Gremlin(input CLK,
 	if (trans_activate &&
 	    (trg_gb_0 || trg_gb_1 || (time_mb && small_carousel != 0)))
 	  begin
+	    active_trans_thistrans <= active_trans;
 	    trans_active <= 1;
-	    wrote_3_antistrobe <= wrote_3_strobe;
+	    wrote_3_ack <= wrote_3_ack +1;
 
-	    BLCK_START <= output_reg[0][11:0]; // provisional
-	    BLCK_SECTION <= output_reg[2][1:0]; // something
-	    BLCK_COUNT_REG <= output_reg[2][13:2]; // maybe
-	    MCU_PAGE_ADDR <= {output_reg[1],
-			      output_reg[0][15:12]}; // provisional
-	    MCU_REQUEST_ALIGN <= {output_reg[2][15],
-				  ~output_reg[2][15]}; // actually supposed
-            // to be the top usable bit in the address
-	    RST_MVBLCK <= {output_reg[2][14],~output_reg[2][14]}; // perhaps
+	    // provisional
+	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
+	    // something
+	    BLCK_SECTION <= output_reg[{active_trans,2'h2}][1:0];
+	    // maybe
+	    BLCK_COUNT_REG <= output_reg[{active_trans,2'h2}][13:2];
+	    // provisional
+	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
+			      output_reg[{active_trans,2'h0}][15:12]};
+	    // actually supposed to be the top usable bit in the address
+	    MCU_REQUEST_ALIGN <= {output_reg[{active_trans,2'h2}][15],
+				  ~output_reg[{active_trans,2'h2}][15]};
+	    // perhaps
+	    RST_MVBLCK <= {output_reg[{active_trans,2'h2}][14],
+			   ~output_reg[{active_trans,2'h2}][14]};
 	  end // if (trans_activate &&...
 
 	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
 	     (MCU_REQUEST_ALIGN[1] && MCU_GRANT_ALIGN[1])) &&
 	    trans_active)
 	  issue_op[0] <= !issue_op[0];
-	// again, supposed to be out of the if block
+	// once more, supposed to be out of the if block
 	issue_op[1] <= issue_op[0];
 
 	blck_working_prev <= BLCK_WORKING;
@@ -322,10 +330,20 @@ module Gremlin(input CLK,
 	    trans_active <= 0;
 	    RST_MVBLCK <= 2'h0;
 
-	    input_reg[0] <= input_0;
-	    input_reg[1] <= input_1;
-	    input_reg[2] <= input_2;
-	    input_reg[3] <= input_3;
+	    if (active_trans_thistrans == 1'b0)
+	      begin
+		input_reg[0] <= input_0;
+		input_reg[1] <= input_1;
+		input_reg[2] <= input_2;
+		input_reg[3] <= input_3;
+	      end
+	    else
+	      begin
+		input_reg[4] <= input_0;
+		input_reg[5] <= input_1;
+		input_reg[6] <= input_2;
+		input_reg[7] <= input_3;
+	      end
 	  end
 
         if (trg_gb_0 && time_rfrs)
@@ -342,7 +360,7 @@ module Gremlin(input CLK,
 ///////////////////////////////////////////////////////////////
 
   assign refresh_ctr_mismatch = refresh_req != refresh_ack;
-  assign trans_activate = wrote_3_strobe ^ wrote_3_antistrobe;
+  assign trans_activate = (wrote_3_req != wrote_3_ack) && (! trans_active);
 
   // Up to a maximum of 2 simultaneous 1 Gbps transactions.
   // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
