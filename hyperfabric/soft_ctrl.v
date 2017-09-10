@@ -191,6 +191,8 @@ module Gremlin(input CLK,
   assign {cur_carry,accumulator_adder} = accumulator + memory_operand +
 					 add_carry;
 
+  assign IRQ <= irq_strobe[0] ^ irq_strobe[1];
+
   always @(posedge CLK)
     if (!RST)
       begin
@@ -198,8 +200,11 @@ module Gremlin(input CLK,
 	save_carry <= 0; ip <= 0; input_reg <= 0; index <= 0;
 	output_0 <= 0; output_0 <= 1; output_2 <= 0;
 	instr_f <= 0; instr_o <= 0; wrote_3_strobe <= 0;
+	irq_strobe <= 0;
       end
     else
+      begin
+	irq_strobe[1] <= irq_strobe[0];
       if (sys_cpu_en)
 	begin
 	  ip <= ip_nxt;
@@ -253,7 +258,7 @@ module Gremlin(input CLK,
 	      output_reg[instr_o[1:0]] <= accumulator;
 	      wrote_3_strobe <= !wrote_3_strobe;
 	    end
-//	    4'ha
+	    4'ha: irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
 //	    4'hb
 
 	    4'hc: index <= accumulator[7:0];
@@ -262,7 +267,7 @@ module Gremlin(input CLK,
 	    4'hf: accumulator <= accumulator ^ memory_operand;
 	  endcase // case (instr_o[11:8])
 	end // if (sys_cpu_en)
-
+      end // else: !if(!RST)
 
   assign small_carousel_reset = small_carousel == 8'hbf;
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
@@ -294,12 +299,13 @@ module Gremlin(input CLK,
 
 	    BLCK_START <= output_reg[0][11:0]; // provisional
 	    BLCK_SECTION <= output_reg[2][1:0]; // something
-	    BLCK_COUNT_REG <= output_reg[2][14:2]; // maybe
+	    BLCK_COUNT_REG <= output_reg[2][13:2]; // maybe
 	    MCU_PAGE_ADDR <= {output_reg[1],
 			      output_reg[0][15:12]}; // provisional
 	    MCU_REQUEST_ALIGN <= {output_reg[2][15],
 				  ~output_reg[2][15]}; // actually supposed
             // to be the top usable bit in the address
+	    RST_MVBLCK <= {output_reg[2][14],~output_reg[2][14]}; // perhaps
 	  end // if (trans_activate &&...
 
 	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
@@ -314,6 +320,12 @@ module Gremlin(input CLK,
 	  begin
 	    MCU_REQUEST_ALIGN <= 0;
 	    trans_active <= 0;
+	    RST_MVBLCK <= 2'h0;
+
+	    input_reg[0] <= input_0;
+	    input_reg[1] <= input_1;
+	    input_reg[2] <= input_2;
+	    input_reg[3] <= input_3;
 	  end
 
         if (trg_gb_0 && time_rfrs)
@@ -325,15 +337,6 @@ module Gremlin(input CLK,
 	    refresh_ack <= refresh_ack +1;
 	    MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
 	  end
-
-	if (input_0_we)
-	  input_reg[0] <= input_0;
-	if (input_1_we)
-	  input_reg[1] <= input_1;
-	if (input_2_we)
-	  input_reg[2] <= input_2;
-	if (input_3_we)
-	  input_reg[3] <= input_3;
       end
 
 ///////////////////////////////////////////////////////////////

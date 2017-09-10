@@ -75,7 +75,7 @@ module hyper_mvblck_todram(input CLK,
       default: begin
 	stop_n <= 1'bx;
 	irq <= 1'bx;
-	ancill <= 25'bx;
+	ancill <= {(25){1'bx}};
       end
     endcase
 
