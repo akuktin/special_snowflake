@@ -220,7 +220,8 @@ module Gremlin(input CLK,
 	    2'h3: memory_operand <= 16'hffff;
 	  endcase // case (instr_f[14:13])
 
-	  index_reg <= index;
+	  if (instr_o[11:8] != 4'hc)
+	    index_reg <= index;
 
 	  instr_f <= instr;
 	  instr_o <= instr_f;
@@ -254,7 +255,10 @@ module Gremlin(input CLK,
 //	    4'h7
 
 //	    4'h8 // store
-	    4'h9: irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
+	    4'h9: begin
+	      irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
+	      IRQ_DESC <= accumulator[1:0]; // other bits to be used
+	    end
 	    4'ha: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
 	    end
@@ -266,7 +270,7 @@ module Gremlin(input CLK,
 		end
 	    end
 
-	    4'hc: index <= accumulator[7:0];
+	    4'hc: index_reg <= accumulator[7:0];
 	    4'hd: accumulator <= accumulator & memory_operand;
 	    4'he: accumulator <= accumulator | memory_operand;
 	    4'hf: accumulator <= accumulator ^ memory_operand;

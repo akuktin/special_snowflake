@@ -27,7 +27,7 @@ main_algo:
   sto $space_left_in_page;
 
   sub INDEX;
-  and $0x8000;
+  and $0x4000; # adapted to handle the special bits embedded in $len_left
   # (acc != 0) => (len_left > space_left_in_page)
 
   cmp/ones :space_left_in_page_not_enough;
@@ -49,6 +49,10 @@ continue_0:
 exec_transfer():
 #  sto $transfer_size;
   or  INDEX;  # $other_bits; # approx
+
+# IMPORTANT! $other_bits _MUST_ have a random one on some unused slot
+#            to enable some hacks later on in the code
+
   o_3;
 
 ## 2 instructions
@@ -69,11 +73,20 @@ update_transfer():
 # the trg_gb_0 or trg_gb_1 signals
   xor 0xffff;
   add 1+INDEX;
-  sto INDEX;
+  sto (INDEX+D($len_left -> $other_bits)); # needed for section
 
 ## 13 instructions
 
-# padding
+## padding
+#  nop;
+#  nop;
+#  nop;
+  and $0x8000;
+  cmp/or INDEX :signal_irq;
+  cmp/nop (:main_algo +2); # IMPORTANT! this is the place that needs a one
+
+  add 0+$index_store;
   nop;
-  nop;
-  nop;
+
+signal_irq:
+  irq;
