@@ -3,17 +3,27 @@ space_left_in_page_not_enough:
   add 0+$space_left_in_page;
 len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
+signal_irq:
+  irq;
 ##############################################
 
 main_algo:
   null;
-  add 0+$index_store;
-  add 0+$index_increment;
-  and $index_mask;
-  sto $index_store;
+  add 1+$index_ptr_store;
+## padding
+  nop; # padding
+## padding
+  and $index_ptr_mask;
+  sto $index_ptr_store;
 
-  add 0+$D__begin_addr_low__begin_addr_high;
+  cmp/inl :(+3 instructions);
+  null;
+  add 0+INDEX;
+
+  cmp/nop :exit_from_main_algo;
+
   inl; # index load
+
   null;
   add 0+(INDEX+D($begin_addr_high -> $begin_addr_low));
   o_1;
@@ -44,11 +54,11 @@ continue_0:
   nop;
   nop (INDEX+D($len_left -> $other_bits));
 
-## 30 instructions
+## 32 instructions
 
 exec_transfer():
 #  sto $transfer_size;
-  or  INDEX;  # $other_bits; # approx
+  or  (INDEX+D($other_bits -> $begin_addr_low));  # $other_bits; # approx
 
 # IMPORTANT! $other_bits _MUST_ have a random one on some unused slot
 #            to enable some hacks later on in the code
@@ -59,9 +69,6 @@ exec_transfer():
 
 
 update_transfer():
-  null;
-  add 0+$index_store;
-  inl; # index load
   i_1
   add 0+INDEX;
   sto (INDEX+D($begin_addr_low -> $begin_addr_high));
@@ -75,18 +82,13 @@ update_transfer():
   add 1+INDEX;
   sto (INDEX+D($len_left -> $other_bits)); # needed for section
 
-## 13 instructions
+## 10 instructions
 
-## padding
-#  nop;
-#  nop;
-#  nop;
   and $0x8000;
   cmp/or INDEX :signal_irq;
   cmp/nop (:main_algo +2); # IMPORTANT! this is the place that needs a one
 
-  add 0+$index_store;
+  add 1+$index_ptr_store;
   nop;
 
-signal_irq:
-  irq;
+## 5 instructions
