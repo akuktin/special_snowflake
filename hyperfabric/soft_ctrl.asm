@@ -10,9 +10,6 @@ signal_irq:
 main_algo:
   null;
   add 1+$index_ptr_store;
-## padding
-  nop; # padding
-## padding
   and $index_ptr_mask;
   sto $index_ptr_store;
 
@@ -37,7 +34,8 @@ main_algo:
   sto $space_left_in_page;
 
   sub INDEX;
-  and $0x4000; # adapted to handle the special bits embedded in $len_left
+  and 0;
+  add s+0;
   # (acc != 0) => (len_left > space_left_in_page)
 
   cmp/ones :space_left_in_page_not_enough;
@@ -46,7 +44,7 @@ main_algo:
   add 0+INDEX;
 continue_0:
   sto $len_for_transfer__less_block_size;
-  and $0x8000;
+  and $0x8000; # magically right :)
 
   cmp/ones :len_for_transfer_shorter_than_block_size;
   cmp/null :exec_transfer();
@@ -75,20 +73,21 @@ update_transfer():
   null;
   add s+INDEX;
   sto (INDEX+D($begin_addr_high -> $len_left));
-  i_1;
+  i_1/not;
 # the below instruction is the first one that can exist at or after
 # the trg_gb_0 or trg_gb_1 signals
-  xor 0xffff;
   add 1+INDEX;
   sto (INDEX+D($len_left -> $other_bits)); # needed for section
 
-## 10 instructions
+## 9 instructions
 
-  and $0x8000;
-  cmp/or INDEX :signal_irq;
-  cmp/nop (:main_algo +2); # IMPORTANT! this is the place that needs a one
+  lin; # logic invert
+  i_2/or;
 
+  cmp/or INDEX :signal_irq; # for the section, and the certain one
+  cmp/nop (:main_algo +2);  # IMPORTANT! this is the place that needs a one
+# ----
   add 1+$index_ptr_store;
   nop;
 
-## 5 instructions
+## 6 instructions

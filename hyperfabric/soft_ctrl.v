@@ -250,21 +250,33 @@ module Gremlin(input CLK,
 	    end
 
 	    4'h4: accumulator <= TIME_REG;
-	    4'h5: accumulator <= input_reg[instr_o[2:0]];
-//	    4'h6
+	    4'h5: begin
+	      if (instr_o[14])
+		accumulator <= ~input_reg[instr_o[2:0]];
+	      else
+		accumulator <= input_reg[instr_o[2:0]];
+	    end
+	    // the lin instruction: Logic INvert
+	    4'h6: begin
+	      if (accumulator == 0)
+		accumulator <= 16'h8000;
+	      else
+		accumulator <= 0;
+	    end
 //	    4'h7
 
 //	    4'h8 // store
 	    4'h9: begin
 	      irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
-	      IRQ_DESC <= accumulator[1:0]; // other bits to be used
+	      IRQ_DESC <= accumulator[12:11]; // maybe
 	    end
 	    4'ha: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
 	    end
 	    4'hb: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
-	      if (accumulator[13:2] != 0) // provisional
+	      if (accumulator[15] &&
+		  (accumulator[13:2] != 0)) // provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
 		end
