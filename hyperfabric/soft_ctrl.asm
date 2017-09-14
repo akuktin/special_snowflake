@@ -5,23 +5,25 @@ len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
 signal_irq:
   irq;
+  and $index_ptr_mask;
 ##############################################
 
 main_algo:
+## padding
+  nop; # padding
+## padding
   null;
   add 1+$index_ptr_store;
   and $index_ptr_mask;
   sto $index_ptr_store;
 
   cmp/inl :(+3 instructions);
-  null;
   add 0+INDEX;
 
   cmp/nop :exit_from_main_algo;
 
   inl; # index load
 
-  null;
   add 0+(INDEX+D($begin_addr_high -> $begin_addr_low));
   o_1;
 
@@ -57,10 +59,6 @@ continue_0:
 exec_transfer():
 #  sto $transfer_size;
   or  (INDEX+D($other_bits -> $begin_addr_low));  # $other_bits; # approx
-
-# IMPORTANT! $other_bits _MUST_ have a random one on some unused slot
-#            to enable some hacks later on in the code
-
   o_3;
 
 ## 2 instructions
@@ -73,21 +71,25 @@ update_transfer():
   null;
   add s+INDEX;
   sto (INDEX+D($begin_addr_high -> $len_left));
-  i_1/not;
+  i_1;
 # the below instruction is the first one that can exist at or after
 # the trg_gb_0 or trg_gb_1 signals
+  xor 0xffff;
   add 1+INDEX;
-  sto (INDEX+D($len_left -> $other_bits)); # needed for section
+  sto (INDEX+D($len_left -> $care_about_interrupt)); # needed for section
 
-## 9 instructions
+## 10 instructions
 
-  lin; # logic invert
-  i_2/or;
+# NOT GOOD ENOUGH! -> $len_left == 0, no interrupt or don't care about them
 
-  cmp/or INDEX :signal_irq; # for the section, and the certain one
-  cmp/nop (:main_algo +2);  # IMPORTANT! this is the place that needs a one
+  cmp/i_2 :main_algo;
+  and (INDEX+D($care_about_interrupt -> $other_bits));
+  cmp/or INDEX :signal_irq; # for the section
 # ----
-  add 1+$index_ptr_store;
-  nop;
 
-## 6 instructions
+  add 1+$index_ptr_store; # works fine, they live in different bits
+  cmp/nop (:main_algo +4);
+  nop;
+  and $index_ptr_mask;
+
+## 7 instructions
