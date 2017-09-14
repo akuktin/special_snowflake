@@ -271,7 +271,10 @@ module Gremlin(input CLK,
 		end
 	    end
 
-	    4'hc: index_reg <= accumulator[7:0];
+	    4'hc: begin
+	      index_reg <= accumulator[7:0];
+	      accumulator <= 0;
+	    end
 	    4'hd: accumulator <= accumulator & memory_operand;
 	    4'he: accumulator <= accumulator | memory_operand;
 	    4'hf: accumulator <= accumulator ^ memory_operand;
