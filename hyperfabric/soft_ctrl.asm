@@ -3,29 +3,24 @@ space_left_in_page_not_enough:
   add 0+$space_left_in_page;
 len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
-signal_irq:
-  irq;
-  and $index_ptr_mask;
 ##############################################
 
 main_algo:
-## padding
-  nop; # padding
-## padding
   null;
   add 1+$index_ptr_store;
-  and $index_ptr_mask;
+  nop;
   sto $index_ptr_store;
-
-  cmp/inl :(+3 instructions);
+  inl;  # index load
   add 0+INDEX;
-
-  cmp/nop :exit_from_main_algo;
-
-  inl; # index load
+  cmp/inl (:+5 instructions);
 
   add 0+(INDEX+D($begin_addr_high -> $begin_addr_low));
   o_1;
+
+# not part of main loop
+  ones;
+  cmp/nop :exit_from_main_algo;
+# not part of main loop
 
   null;
   add 0+(INDEX+D($begin_addr_low -> $len_left));
@@ -54,7 +49,7 @@ continue_0:
   nop;
   nop (INDEX+D($len_left -> $other_bits));
 
-## 32 instructions
+## 30 instructions
 
 exec_transfer():
 #  sto $transfer_size;
@@ -76,20 +71,28 @@ update_transfer():
 # the trg_gb_0 or trg_gb_1 signals
   xor 0xffff;
   add 1+INDEX;
-  sto (INDEX+D($len_left -> $care_about_interrupt)); # needed for section
+  sto (INDEX+D($len_left -> $other_bits)); # needed for section
 
 ## 10 instructions
 
-# NOT GOOD ENOUGH! -> $len_left == 0, no interrupt or don't care about them
-
-  cmp/i_2 :main_algo;
-  and (INDEX+D($care_about_interrupt -> $other_bits));
-  cmp/or INDEX :signal_irq; # for the section
+  cmp/i_2 :check_irq_in;
+  or  INDEX; # sets section
+# save the irq/abort bits
+  sto (INDEX+D($other_bits -> $careof_interrupt_abort));
+  irq;
+  cmp/null (:main_algo +2);
 # ----
-
-  add 1+$index_ptr_store; # works fine, they live in different bits
-  cmp/nop (:main_algo +4);
+  add 1+$index_ptr_store;
   nop;
-  and $index_ptr_mask;
 
-## 7 instructions
+check_irq_in:
+  and (INDEX+D($careof_interrupt_abort -> $other_bits));
+  cmp/or INDEX :signal_irq;
+# ----
+  cmp/nop (:main_algo +3);
+  add 1+$index_ptr_store;
+  nop;
+signal_irq:
+  irq;
+
+## the rest of the way to 48 instructions
