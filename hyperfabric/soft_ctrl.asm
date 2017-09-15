@@ -71,14 +71,14 @@ update_transfer():
 # the trg_gb_0 or trg_gb_1 signals
   xor 0xffff;
   add 1+INDEX;
-  sto (INDEX+D($len_left -> $section_and_certain_01));
+  sto (INDEX+D($len_left -> $irq_desc_and_certain_01));
 
 ## 10 instructions
 
   cmp/i_2 :check_irq_in;
-  or  INDEX; # sets section
+  or  (INDEX+D($irq_desc_and_certain_01 -> $store_irq_abort));
 # save the irq/abort bits
-  sto (INDEX+D($section_and_certain_01 -> $careof_interrupt_abort));
+  sto (INDEX+D($store_irq_abort -> $careof_interrupt_abort));
   irq;
   cmp/null (:main_algo +2);
 # ----
@@ -86,7 +86,7 @@ update_transfer():
   nop;
 
 check_irq_in:
-  and (INDEX+D($careof_interrupt_abort -> $section_and_certain_01));
+  and (INDEX+D($careof_interrupt_abort -> $irq_desc_and_certain_01));
   cmp/or INDEX :signal_irq;
 # ----
   cmp/nop (:main_algo +3);
