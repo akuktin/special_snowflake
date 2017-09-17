@@ -40,5 +40,5 @@ prepare_trans:
 
 #### 46 instructions all together !!!!
 
-nop;
+sto $index_ptr_store;  # basically, reset it.
 nop;

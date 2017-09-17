@@ -60,7 +60,7 @@ exec_transfer():
 
 
 update_transfer():
-  i_1
+  i_1;
   add 0+INDEX;
   sto (INDEX+D($begin_addr_low -> $begin_addr_high));
   null;
