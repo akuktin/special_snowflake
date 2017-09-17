@@ -268,10 +268,11 @@ module Gremlin(input CLK,
 	    end
 	    4'hb: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
-	      if (accumulator[15] &&
-		  (accumulator[13:2] != 0)) // provisional
+	      if (accumulator[13:2] != 0) // provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
+
+		  accumulator <= 0; // maybe overly accomodative with this
 		end
 	    end
 
