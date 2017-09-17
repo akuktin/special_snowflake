@@ -185,7 +185,8 @@ module Gremlin(input CLK,
 
   assign d_r_addr_sys = instr[12] ? index : instr[7:0];
   assign d_w_addr_sys = instr_o[12] ? index_reg : instr_o[7:0];
-  assign d_w_en_sys   = instr_o[11:8] == 4'h8; // store
+  assign d_w_en_sys   = (instr_o[11:8] == 4'h6) || // store
+			(instr_o[11:8] == 4'h7);
   assign d_r_en_sys   = !instr[14];
 
   assign {cur_carry,accumulator_adder} = accumulator + memory_operand +
@@ -251,13 +252,16 @@ module Gremlin(input CLK,
 
 	    4'h4: accumulator <= TIME_REG;
 	    4'h5: accumulator <= input_reg[instr_o[2:0]];
-//	    4'h6
-//	    4'h7
+//	    4'h6 // store
+	    4'h7: begin // store w/ clear
+	      accumulator <= 0;
+	    end
 
-//	    4'h8 // store
+//	    4'h8
 	    4'h9: begin
 	      irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
 	      IRQ_DESC <= accumulator[12:11]; // maybe
+	      accumulator <= 0; // probably a good idea
 	    end
 	    4'ha: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
