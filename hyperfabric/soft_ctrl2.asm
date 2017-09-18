@@ -3,6 +3,8 @@ space_left_in_page_not_enough:
   add 0+$space_left_in_page;
 len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
+care_of_irq:
+  add $0xc000;  # mask for both IRQ and ABORT
 ##############################################
 
 check_irq_in_gb_0:
@@ -100,7 +102,7 @@ exec_transfer_gb_1:
 
 #####################
 
-  and 0+$mb_flipflop_ctrl;
+  add 0+$mb_flipflop_ctrl;
   cmp/null :prepare_mb_trans;
 
 #####################
@@ -268,3 +270,129 @@ exec_transfer_gb_0:
   o_3_gb; # nulls
 
 ## 145 instructions
+
+  add 0+$0x8000;
+  add 0+$mb_flipflop_ctrl;
+  stc $mb_flipflop_ctrl;
+
+  add 0+$gb_0_active;
+  cmp/null :jump_over_prepare_gb_0; # 150
+
+  add 0+$signal_bits_gb_0;
+  and $0x8000;
+
+# escape sequence goes here
+
+jump_over_prepare_gb_0:
+  stc $gb_0_active;
+
+  nop;  # allow the CPU to write data
+
+  add 0+$len_left_gb_0;
+  add 0+$0x0003;
+  and $0xfffc;
+  stc $len_left_gb_0;
+
+  add 0+$signal_bits_gb_0;
+  and $section_mask; # 160
+  or  $certain_01;
+  stc $section_and_certain_01_gb_0;
+
+  add 0+$signal_bits_gb_0;
+  and $location_of_careofint_bit;
+  cmp/ones :care_of_irq;
+  cmp/nop (:+2 instructions);
+  null;
+  add $0x4000;  # mask for only ABORT
+  stc $careof_interrupt_abort_gb_0;
+
+
+  add 0+$gb_1_active; # 170
+  cmp/null :jump_over_prepare_gb_1;
+
+  add 0+$signal_bits_gb_1;
+  and $0x8000;
+
+# escape seqence goes here
+
+jump_over_prepare_gb_1:
+  stc $gb_1_active;
+
+  nop;  # allow the CPU to write data
+
+  add 0+$len_left_gb_1;
+  add 0+$0x0003;
+  and $0xfffc;
+  stc $len_left_gb_1;
+
+  add 0+$signal_bits_gb_1; # 180
+  and $section_mask;
+  or  $certain_01;
+  stc $section_and_certain_01_gb_1;
+
+  add 0+$signal_bits_gb_1;
+  and $location_of_careofint_bit;
+  cmp/ones :care_of_irq;
+  cmp/nop (:+2 instructions);
+  null;
+  add $0x4000;  # mask for only ABORT
+  stc $careof_interrupt_abort_gb_1; # 190
+
+## 190 instructions up to this point
+
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+
+
+prepare_mb:
+  ones;
+  cmp/nop :grab_ip;
+grab_ip:
+  null;  # origin of counting # 1
+  add 1+$cur_mb_trans_ptr;
+  and $cur_mb_trans_ptr_mask;
+  sto $cur_mb_trans_ptr;
+  inl;
+  add 0+INDEX;
+  inl;  # loaded with $mb_active;
+
+  add 0+(INDEX+D($mb_active -> $signal_bits));
+  cmp/null :jump_over_prepare_mb;
+  add 0+(INDEX+D($len_left -> $mb_active)); # 10
+  and $0x8000;
+
+# escape sequence goes here
+
+jump_over_prepare_mb:
+  stc (INDEX+D($mb_active -> $len_left));
+
+  nop;  # allow the CPU to write data
+
+  add 0+INDEX;
+  add 0+$0x0003;
+  and $0xfffc;
+  stc (INDEX+D($len_left -> $signal_bits));
+
+  add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
+  and $section_mask;
+  or  $certain_01; # 20
+  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits));
+
+  add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
+  and $location_of_careofint_bit;
+  cmp/ones :care_of_irq;
+  cmp/nop (:+2 instructions);
+  null;
+  add $0x4000;
+  stc INDEX;
+
+  add 0+$cur_mb_trans_ptr;
+  sto $next_index; # 30
+  sub 1;
+  inl;
+
+# 32 instructions since origin
