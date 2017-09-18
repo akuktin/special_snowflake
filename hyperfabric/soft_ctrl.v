@@ -263,7 +263,8 @@ module Gremlin(input CLK,
 	      IRQ_DESC <= accumulator[12:11]; // maybe
 	      accumulator <= 0; // probably a good idea
 	    end
-//	    4'ha
+	    // fucking load instrunction, bitch!
+	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
 	      if (instr_p[13] && (accumulator[13:2] != 0)) // provisional
