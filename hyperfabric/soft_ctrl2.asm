@@ -24,6 +24,7 @@ grab_meta_gb_0:
   i_1_gb;
   add 0+$gb_0_begin_addr_low;
 
+#esc
 # not part of main execution
   ones;
   cmp/null :exit_into_exec_gb_1;
@@ -42,6 +43,7 @@ continue_grab_meta_gb_0:
   or  $gb_0_irq_desc_and_certain_01;
   sto $gb_0_store_irq_abort; # 15
   nop;
+#miniesc
   nop;
   nop;
   nop;
@@ -61,13 +63,14 @@ exec_gb_1:
   add 0+$gb_1_begin_addr_high;
   o_1_gb;
 
+#esc
 # not part of main execution
   ones;
   cmp/null :some_exit;
 # end not part of main execution
 
 continue_gb_1__0:
-  null;
+  null;  # load
   add 0+$gb_1_begin_addr_low;
   o_2_gb;
   and $page_addr_submask;
@@ -113,6 +116,7 @@ exec_transfer_gb_1:
   i_1_mb; # 50
   add 0+INDEX;
 
+#esc
 # escape goes here
 
 continue_grab_meta_mb:
@@ -128,6 +132,7 @@ continue_grab_meta_mb:
   or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_store_irq_abort)); # 60
   sto (INDEX+D($mb_store_irq_abort -> $mb_careof_int_abt));
 
+#miniesc
 # nop trail comes here. You can also change the INDEX about.
 
 check_irq_in_mb:
@@ -155,10 +160,11 @@ exec_mb_other:
   add 0+(INDEX+D($mb_begin_addr_high -> $mb_begin_addr_low));
   o_1_mb;
 
+#esc
 # escape sequence goes here.
 
 continue_mb__0:
-  null;
+  null; # load
   add 0+(INDEX+D($mb_begin_addr_low -> $mb_len_left));
   o_2_mb;
   and $page_addr_submask;
@@ -188,20 +194,21 @@ continue_mb__1:
 exec_transfer_mb:
   nop (INDEX+D($mb_len_left -> $mb_other_bits));
   or  (INDEX+D($mb_other_bits -> $mb_active));
-  o_3_mb;
+  o_3_mb;  # nulls
 
 ## 96 instructions + 2 for the mb trans prepare branch
 
 ## 98 instructions
 
 grab_meta_gb_1:
-  null;
+  null;  # load
   add 0+$gb_1_active; # 100
   cmp/nop :continue_grab_meta_gb_1;
 
   i_1_gb;
   add 0+$gb_1_begin_addr_low;
 
+#esc
 # escape sequence
 
 continue_grab_meta_gb_1:
@@ -217,6 +224,7 @@ continue_grab_meta_gb_1:
   or  $gb_1_irq_desc_and_certain_01;
   sto $gb_1_store_irq_abort;
 
+#miniesc
 # nop trail
 
 check_irq_in_gb_1:
@@ -237,10 +245,11 @@ exec_gb_0:
   add 0+$gb_0_begin_addr_high;
   o_1_gb;
 
+#esc
 # escape sequence
 
 continue_gb_0__0:
-  null;
+  null; # load
   add 0+$gb_0_begin_addr_low;
   o_2_gb;
   and $page_addr_submask;
@@ -281,12 +290,11 @@ exec_transfer_gb_0:
   add 0+$signal_bits_gb_0;
   and $0x8000;
 
+#esc
 # escape sequence goes here
 
 jump_over_prepare_gb_0:
   stc $gb_0_active;
-
-  nop;  # allow the CPU to write data
 
   add 0+$len_left_gb_0;
   add 0+$0x0003;
@@ -294,8 +302,8 @@ jump_over_prepare_gb_0:
   stc $len_left_gb_0;
 
   add 0+$signal_bits_gb_0;
-  and $section_mask; # 160
-  or  $certain_01;
+  and $section_mask;
+  or  $certain_01; # 160
   stc $section_and_certain_01_gb_0;
 
   add 0+$signal_bits_gb_0;
@@ -307,27 +315,26 @@ jump_over_prepare_gb_0:
   stc $careof_interrupt_abort_gb_0;
 
 
-  add 0+$gb_1_active; # 170
-  cmp/null :jump_over_prepare_gb_1;
+  add 0+$gb_1_active;
+  cmp/null :jump_over_prepare_gb_1; # 170
 
   add 0+$signal_bits_gb_1;
   and $0x8000;
 
+#esc
 # escape seqence goes here
 
 jump_over_prepare_gb_1:
   stc $gb_1_active;
-
-  nop;  # allow the CPU to write data
 
   add 0+$len_left_gb_1;
   add 0+$0x0003;
   and $0xfffc;
   stc $len_left_gb_1;
 
-  add 0+$signal_bits_gb_1; # 180
+  add 0+$signal_bits_gb_1;
   and $section_mask;
-  or  $certain_01;
+  or  $certain_01; # 180
   stc $section_and_certain_01_gb_1;
 
   add 0+$signal_bits_gb_1;
@@ -336,10 +343,12 @@ jump_over_prepare_gb_1:
   cmp/nop (:+2 instructions);
   null;
   add $0x4000;  # mask for only ABORT
-  stc $careof_interrupt_abort_gb_1; # 190
+  stc $careof_interrupt_abort_gb_1;
 
-## 190 instructions up to this point
+## 188 instructions up to this point
 
+nop;
+nop; # 190
 nop;
 nop;
 nop;
@@ -352,25 +361,24 @@ prepare_mb:
   ones;
   cmp/nop :grab_ip;
 grab_ip:
-  null;  # origin of counting # 1
+  null;  # origin of counting # 1 # load
   add 1+$cur_mb_trans_ptr;
   and $cur_mb_trans_ptr_mask;
   sto $cur_mb_trans_ptr;
   inl;
   add 0+INDEX;
-  inl;  # loaded with $mb_active;
+  inl;  # loaded with $mb_active
 
   add 0+(INDEX+D($mb_active -> $signal_bits));
   cmp/null :jump_over_prepare_mb;
   add 0+(INDEX+D($len_left -> $mb_active)); # 10
   and $0x8000;
 
+#esc
 # escape sequence goes here
 
 jump_over_prepare_mb:
   stc (INDEX+D($mb_active -> $len_left));
-
-  nop;  # allow the CPU to write data
 
   add 0+INDEX;
   add 0+$0x0003;
@@ -379,8 +387,8 @@ jump_over_prepare_mb:
 
   add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
   and $section_mask;
-  or  $certain_01; # 20
-  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits));
+  or  $certain_01;
+  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits)); # 20
 
   add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
   and $location_of_careofint_bit;
@@ -391,8 +399,8 @@ jump_over_prepare_mb:
   stc INDEX;
 
   add 0+$cur_mb_trans_ptr;
-  sto $next_index; # 30
-  sub 1;
+  sto $next_index;
+  sub 1; # 30
   inl;
 
-# 32 instructions since origin
+# 31 instructions since origin
