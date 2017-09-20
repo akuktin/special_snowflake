@@ -250,8 +250,8 @@ module Gremlin(input CLK,
 	      save_carry <= cur_carry;
 	    end
 
-	    4'h4: accumulator <= TIME_REG;
-	    4'h5: accumulator <= input_reg[instr_o[2:0]];
+	    4'h4: accumulator <= input_reg[{1'b0,instr_o[14:13]}];
+	    4'h5: accumulator <= input_reg[{1'b1,instr_o[14:13]}];
 //	    4'h6 // store
 	    4'h7: begin // store w/ clear
 	      accumulator <= 0;
@@ -267,7 +267,7 @@ module Gremlin(input CLK,
 	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
 	      output_reg[instr_o[2:0]] <= accumulator;
-	      if (instr_p[13] && (accumulator[13:2] != 0)) // provisional
+	      if (instr_o[13] && (accumulator[13:2] != 0)) // provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
 

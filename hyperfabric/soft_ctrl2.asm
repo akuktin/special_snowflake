@@ -351,10 +351,6 @@ nop;
 nop; # 190
 nop;
 nop;
-nop;
-nop;
-nop;
-nop;
 
 
 prepare_mb:
