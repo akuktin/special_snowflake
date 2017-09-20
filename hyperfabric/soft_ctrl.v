@@ -223,9 +223,22 @@ module Gremlin(input CLK,
 
 	  if (instr_o[11:8] != 4'hc)
 	    index_reg <= index;
+	  if (instr_o[11:8] != 4'h8)
+	    begin
+	      instr_f <= instr;
+	      instr_o <= instr_f;
+	    end
+	  else
+	    begin
+	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
+	      if (accumulator == 0)
+		// accumulator will be nonzero by the time the instruction
+		// hits execution
 
-	  instr_f <= instr;
-	  instr_o <= instr_f;
+		// cmp/null {instr_o[7:0]};
+		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
+	    end
+
 	  case (instr_f[11:8])
 	    4'h0: add_carry <= 0;
 	    4'h1: add_carry <= 1;
@@ -257,7 +270,9 @@ module Gremlin(input CLK,
 	      accumulator <= 0;
 	    end
 
-//	    4'h8
+	    4'h8: begin // wait
+	      accumulator <= accumulator -1;
+	    end
 	    4'h9: begin
 	      irq_strobe_strobe[0] <= !irq_strobe[0]; // provisional
 	      IRQ_DESC <= accumulator[12:11]; // maybe
