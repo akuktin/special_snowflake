@@ -15,11 +15,10 @@ grab_meta_gb_0:
   i_1_gb;
   add 0+$gb_0_begin_addr_low;
 
-#esc
 # not part of main execution
-  ones;
-  cmp/null :exit_into_exec_gb_1;
-# end not part of main execution
+  lod $distance_gb_0__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 check_irq_in_gb_0:
   and $gb_0_careof_int_abt;
@@ -60,15 +59,13 @@ exec_gb_1:
   add 0+$gb_1_begin_addr_high;
   o_1_gb;
 
-#esc
 # not part of main execution
-  ones;
-  cmp/null :some_exit;
-# end not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 continue_gb_1__0:
-  null;  # load
-  add 0+$gb_1_begin_addr_low;
+  lod $gb_1_begin_addr_low;
   o_2_gb;
   and $page_addr_submask;
   xor 0xffff; # 30
@@ -102,6 +99,7 @@ exec_transfer_gb_1:
 
 #####################
 
+check_if_exec_mb:
   add 0+$mb_flipflop_ctrl;
   cmp/null :prepare_mb_trans;
 
@@ -113,8 +111,10 @@ exec_transfer_gb_1:
   i_1_mb; # 50
   add 0+INDEX;
 
-#esc
-# escape goes here
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 check_irq_in_mb:
   and (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
@@ -158,8 +158,10 @@ exec_mb_other:
   add 0+(INDEX+D($mb_begin_addr_high -> $mb_begin_addr_low));
   o_1_mb;
 
-#esc
-# escape sequence goes here.
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 continue_mb__0:
   null; # load
@@ -199,15 +201,16 @@ exec_transfer_mb:
 ## 98 instructions
 
 grab_meta_gb_1:
-  null;  # load
-  add 0+$gb_1_active; # 100
+  lod $gb_1_active;
   cmp/nop :continue_grab_meta_gb_1;
 
   i_1_gb;
   add 0+$gb_1_begin_addr_low;
 
-#esc
-# escape sequence
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 check_irq_in_gb_1:
   and $gb_1_careof_int_abt;
@@ -244,12 +247,13 @@ exec_gb_0:
   add 0+$gb_0_begin_addr_high;
   o_1_gb;
 
-#esc
-# escape sequence
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 continue_gb_0__0:
-  null; # load
-  add 0+$gb_0_begin_addr_low;
+  lod $gb_0_begin_addr_low;
   o_2_gb;
   and $page_addr_submask;
   xor 0xffff; # 128
@@ -289,8 +293,10 @@ exec_transfer_gb_0:
   add 0+$signal_bits_gb_0;
   and $0x8000;
 
-#esc
-# escape sequence goes here
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 jump_over_prepare_gb_0:
   stc $gb_0_active;
@@ -320,8 +326,10 @@ jump_over_prepare_gb_0:
   add 0+$signal_bits_gb_1;
   and $0x8000;
 
-#esc
-# escape seqence goes here
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 jump_over_prepare_gb_1:
   stc $gb_1_active;
@@ -346,14 +354,15 @@ jump_over_prepare_gb_1:
 
 ## 188 instructions up to this point
 
-wait :grab_meta_gb_0;
+  lod $balancing_wait_cycles;
+  wait :grab_meta_gb_0;
 
 
 prepare_mb:
   ones;
   cmp/nop :grab_ip;
 grab_ip:
-  null;  # origin of counting # 1 # load
+  null;  # origin of counting # 1
   add 1+$cur_mb_trans_ptr;
   and $cur_mb_trans_ptr_mask;
   sto $cur_mb_trans_ptr;
@@ -366,8 +375,10 @@ grab_ip:
   add 0+(INDEX+D($len_left -> $mb_active)); # 10
   and $0x8000;
 
-#esc
-# escape sequence goes here
+# not part of main execution
+  lod $distance_gb_01__mb;
+  wait :check_if_exec_mb;
+# not part of main execution
 
 jump_over_prepare_mb:
   stc (INDEX+D($mb_active -> $len_left));
