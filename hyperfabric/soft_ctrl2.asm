@@ -7,15 +7,6 @@ care_of_irq:
   add $0xc000;  # mask for both IRQ and ABORT
 ##############################################
 
-check_irq_in_gb_0:
-  and $gb_0_careof_int_abt;
-  cmp/nop :signal_irq_gb_0;  # OH THE PAIN!!!
-  or  $gb_0_irq_des_and_certain_01;
-  cmp/nop :exec_gb_1; # 20
-  null;
-  nop;
-
-
 grab_meta_gb_0:
   null;
   add 0+$gb_0_active;
@@ -30,6 +21,14 @@ grab_meta_gb_0:
   cmp/null :exit_into_exec_gb_1;
 # end not part of main execution
 
+check_irq_in_gb_0:
+  and $gb_0_careof_int_abt;
+  cmp/nop :signal_irq_gb_0;  # OH THE PAIN!!!
+  or  $gb_0_irq_des_and_certain_01;
+  cmp/nop :exec_gb_1; # 20
+  null;
+  nop;
+
 continue_grab_meta_gb_0:
   stc $gb_0_begin_addr_low; # store w/ clear
   add s+$gb_0_begin_addr_high;
@@ -42,13 +41,11 @@ continue_grab_meta_gb_0:
   cmp/i_2_gb :check_irq_in_gb_0;
   or  $gb_0_irq_desc_and_certain_01;
   sto $gb_0_store_irq_abort; # 15
-  nop;
-#miniesc
-  nop;
-  nop;
-  nop;
-  nop;
-  nop;
+
+  null;
+  wait (:+1 instruction);
+  or $gb_0_irq_desc_and_certain_01;
+
 signal_irq_gb_0:
   irq;
   sto $gb_0_active;
@@ -119,6 +116,14 @@ exec_transfer_gb_1:
 #esc
 # escape goes here
 
+check_irq_in_mb:
+  and (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
+  cmp/nop :signal_irq_mb; # much, much less pain now, all of a sudden :)
+  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_active));
+  cmp/nop :exec_mb_other;
+  null;
+  nop;
+
 continue_grab_meta_mb:
   stc (INDEX+D($mb_begin_addr_low -> $mb_begin_addr_high));
   add s+INDEX;
@@ -132,16 +137,9 @@ continue_grab_meta_mb:
   or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_store_irq_abort)); # 60
   sto (INDEX+D($mb_store_irq_abort -> $mb_careof_int_abt));
 
-#miniesc
-# nop trail comes here. You can also change the INDEX about.
-
-check_irq_in_mb:
-  and (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
-  cmp/nop :signal_irq_mb; # much, much less pain now, all of a sudden :)
-  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_active));
-  cmp/nop :exec_mb_other;
-  null;
-  nop;
+  null (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
+  wait (:+1 instruction);
+  or   (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_active));
 
 signal_irq_mb:
   irq;
@@ -211,6 +209,14 @@ grab_meta_gb_1:
 #esc
 # escape sequence
 
+check_irq_in_gb_1:
+  and $gb_1_careof_int_abt;
+  cmp/nop :signal_irq_gb_1; # OH THE PAIN!!!! (not really :) )
+  or  $gb_1_irq_desc_and_certain_01;
+  cmp/nop :exec_gb_0;
+  null;
+  nop;
+
 continue_grab_meta_gb_1:
   stc $gb_1_begin_addr_low;
   add s+$gb_1_begin_addr_high;
@@ -224,16 +230,9 @@ continue_grab_meta_gb_1:
   or  $gb_1_irq_desc_and_certain_01;
   sto $gb_1_store_irq_abort;
 
-#miniesc
-# nop trail
-
-check_irq_in_gb_1:
-  and $gb_1_careof_int_abt;
-  cmp/nop :signal_irq_gb_1; # OH THE PAIN!!!! (not really :) )
-  or  $gb_1_irq_desc_and_certain_01;
-  cmp/nop :exec_gb_0;
   null;
-  nop;
+  wait (:+1 instruction);
+  or $gb_1_irq_desc_and_certain_01;
 
 signal_irq_gb_1:
   irq;
@@ -347,10 +346,7 @@ jump_over_prepare_gb_1:
 
 ## 188 instructions up to this point
 
-nop;
-nop; # 190
-nop;
-nop;
+wait :grab_meta_gb_0;
 
 
 prepare_mb:
