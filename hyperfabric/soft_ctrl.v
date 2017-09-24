@@ -54,7 +54,7 @@ module Gremlin(input CLK,
   reg [15:0] accumulator, memory_operand, input_reg,
 	     instr_f, instr_o, TIME_REG;
   reg [7:0]  ip, index;
-  reg 	     add_carry, save_carry;
+  reg 	     add_carry, save_carry, waitkill;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
@@ -225,17 +225,20 @@ module Gremlin(input CLK,
 	    index_reg <= index;
 	  if (instr_o[11:8] != 4'h8)
 	    begin
-	      instr_f <= instr;
+	      waitkill <= 0;
+	      if (! waitkill)
+		instr_f <= instr;
 	      instr_o <= instr_f;
 	    end
 	  else
 	    begin
+	      waitkill <= 1;
 	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
 	      if (accumulator == 0)
 		// accumulator will be nonzero by the time the instruction
 		// hits execution
 
-		// cmp/null {instr_o[7:0]};
+		// cmp/and 0 {instr_o[7:0]};
 		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
 	    end
 
