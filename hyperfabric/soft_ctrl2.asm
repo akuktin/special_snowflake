@@ -8,8 +8,7 @@ care_of_irq:
 ##############################################
 
 grab_meta_gb_0:
-  null;
-  add 0+$gb_0_active;
+  lod $gb_0_active;
   cmp/nop :continue_grab_meta_gb_0;
 
   i_1_gb;
@@ -164,8 +163,7 @@ exec_mb_other:
 # not part of main execution
 
 continue_mb__0:
-  null; # load
-  add 0+(INDEX+D($mb_begin_addr_low -> $mb_len_left));
+  lod (INDEX+D($mb_begin_addr_low -> $mb_len_left));
   o_2_mb;
   and $page_addr_submask;
   xor 0xffff;
@@ -407,3 +405,6 @@ jump_over_prepare_mb:
   inl;
 
 # 31 instructions since origin
+
+  lod $delay_for_prepare_mb;
+  wait :grab_meta_gb_1;
