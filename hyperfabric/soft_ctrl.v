@@ -233,7 +233,7 @@ module Gremlin(input CLK,
   assign {cur_carry,accumulator_adder} = accumulator + memory_operand +
 					 add_carry;
 
-  assign IRQ <= irq_strobe[0] ^ irq_strobe[1];
+  assign IRQ = irq_strobe[0] ^ irq_strobe[1];
 
   always @(index_reg or instr_f[12] or instr_f[7:0])
     if (instr_f[12])
