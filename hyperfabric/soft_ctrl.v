@@ -101,6 +101,11 @@ module Gremlin(input CLK,
 	d_r_en_cpu <= 0; d_r_en_cpu_delay <= 0;
 	READ_CPU_ACK <= 0; WRITE_CPU_ACK <= 0;
 	OUT_CPU <= 0;
+
+	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0 <= 0;
+	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1 <= 0;
+	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2 <= 0;
+	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3 <= 0;
       end
     else
       begin
@@ -111,6 +116,29 @@ module Gremlin(input CLK,
 	    low_addr_bits_w <= 0;
 
 	    WRITE_CPU_ACK <= 0;
+
+	    case (IN_CPU[57:56])
+	      2'h0: begin
+		LEN_0 <= IN_CPU[47:32];
+		DIR_0 <= IN_CPU[58];
+		EN_STB_0 <= !EN_STB_0; // WRONG!
+	      end
+	      2'h1: begin
+		LEN_1 <= IN_CPU[47:32];
+		DIR_1 <= IN_CPU[58];
+		EN_STB_1 <= !EN_STB_1; // WRONG!
+	      end
+	      2'h2: begin
+		LEN_2 <= IN_CPU[47:32];
+		DIR_2 <= IN_CPU[58];
+		EN_STB_2 <= !EN_STB_2; // WRONG!
+	      end
+	      2'h3: begin
+		LEN_3 <= IN_CPU[47:32];
+		DIR_3 <= IN_CPU[58];
+		EN_STB_3 <= !EN_STB_3; // WRONG!
+	      end
+	    endcase // case (IN_CPU[57:56])
 	  end
 	else
 	  begin
