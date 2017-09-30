@@ -85,14 +85,14 @@ module Gremlin(input CLK,
 		    .WCLKE(1'b1), // 1 in
 		    .WCLK(CLK)); // 1 in
 
-  assign d_r_addr = d_r_en_cpu ? {3'h0,ADDR_CPU,1'b0,low_addr_bits_r} :
-		                 d_r_addr_sys;
-  assign d_w_addr = d_w_en_cpu ? {3'h0,ADDR_CPU,low_addr_bits_w} :
-		                 d_w_addr_sys;
+  assign d_r_addr = d_r_en_sys ? d_r_addr_sys :
+		                 {3'h0,ADDR_CPU,1'b0,low_addr_bits_r};
+  assign d_w_addr = d_w_en_sys ? d_w_addr_sys :
+		                 {3'h0,ADDR_CPU,low_addr_bits_w};
 
   assign d_r_en = d_r_en_cpu || d_r_en_sys;
   assign d_w_en = d_w_en_cpu || d_w_en_sys;
-  assign d_w_data = d_w_en_cpu ? from_cpu_word : accumulator;
+  assign d_w_data = d_w_en_sys ? accumulator : from_cpu_word;
 
   always @(low_addr_bits_w or IN_CPU)
     case (low_addr_bits_w)
@@ -122,10 +122,10 @@ module Gremlin(input CLK,
 	  end
 	else
 	  begin
-	    if (d_w_en_cpu)
+	    if (d_w_en_cpu && !d_w_en_sys)
 	      low_addr_bits_w <= low_addr_bits_w +1;
 
-	    if (low_addr_bits_w == 2'b11)
+	    if ((low_addr_bits_w == 2'b11) && !d_w_en_sys)
 	      begin
 		d_w_en_cpu <= 0;
 		WRITE_CPU_ACK <= 1;
@@ -143,10 +143,10 @@ module Gremlin(input CLK,
 	  end
 	else
 	  begin
-	    if (d_r_en_cpu)
+	    if (d_r_en_cpu && !d_r_en_sys)
 	      low_addr_bits_r <= low_addr_bits_r +1;
 
-	    if (low_addr_bits_r == 1'b1)
+	    if ((low_addr_bits_r == 1'b1) && !d_r_en_sys)
 	      d_r_en_cpu <= 0;
 
 	    if (d_r_en_cpu_delay && (low_addr_bits_r == 1'b0))
@@ -155,8 +155,8 @@ module Gremlin(input CLK,
 	      READ_CPU_ACK <= 0;
 	  end // else: !if(READ_CPU && !READ_CPU_r)
 
-	d_w_en_cpu_delay <= d_w_en_cpu;
-	d_r_en_cpu_delay <= d_r_en_cpu;
+	d_w_en_cpu_delay <= (d_w_en_cpu && !d_w_en_sys);
+	d_r_en_cpu_delay <= (d_r_en_cpu && !d_r_en_sys);
 	if (d_r_en_cpu_delay)
 	  begin
 	    if (low_addr_bits_r == 1'b1) // no delay register
@@ -168,7 +168,7 @@ module Gremlin(input CLK,
 
   iceram16 prog_mem(.RDATA(instr), // 16 out
 		    .RADDR(ip_nxt), // 8 in
-		    .RE(sys_cpu_en), // 1 in // !!! very important !!!
+		    .RE(1'b1), // 1 in
 		    .RCLKE(1'b1), // 1 in
 		    .RCLK(CLK), // 1 in
 		    .WDATA(0), // 16 in
@@ -180,14 +180,12 @@ module Gremlin(input CLK,
 
   assign ip_nxt = (instr_o[15] && (accumulator != 16'd0)) ?
 		  instr_o[7:0] : ip +1;
-  assign sys_cpu_en = d_r_en_sys &&
-		      (! (d_w_en_cpu_delay || d_r_en_cpu_delay));
 
   assign d_r_addr_sys = instr[12] ? index : instr[7:0];
   assign d_w_addr_sys = instr_o[12] ? index_reg : instr_o[7:0];
   assign d_w_en_sys   = (instr_o[11:8] == 4'h6) || // store
 			(instr_o[11:8] == 4'h7);
-  assign d_r_en_sys   = !instr[14];
+  assign d_r_en_sys   = (!instr[14]) && (!waitkill);
 
   assign {cur_carry,accumulator_adder} = accumulator + memory_operand +
 					 add_carry;
@@ -211,7 +209,7 @@ module Gremlin(input CLK,
     else
       begin
 	irq_strobe[1] <= irq_strobe[0];
-      if (sys_cpu_en)
+
 	begin
 	  ip <= ip_nxt;
 	  case (instr_f[14:13])
@@ -301,7 +299,7 @@ module Gremlin(input CLK,
 	    4'he: accumulator <= accumulator | memory_operand;
 	    4'hf: accumulator <= accumulator ^ memory_operand;
 	  endcase // case (instr_o[11:8])
-	end // if (sys_cpu_en)
+	end
       end // else: !if(!RST)
 
   assign small_carousel_reset = small_carousel == 8'hbf;
