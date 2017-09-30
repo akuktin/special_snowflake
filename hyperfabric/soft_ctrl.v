@@ -71,6 +71,8 @@ module Gremlin(input CLK,
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans;
 
+  reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
+
   wire 	     trg_gb_0, trg_gb_1, trg_mb, time_rfrs, trans_activate,
 	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
 	     blck_abort;
