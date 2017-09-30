@@ -30,7 +30,21 @@ module Gremlin(input CLK,
 	         /* begin MCU */
 	       output [19:0] 	 MCU_PAGE_ADDR,
 	       output [1:0] 	 MCU_REQUEST_ALIGN, // aka DRAM_SEL
-	       input [1:0] 	 MCU_GRANT_ALIGN);
+	       input [1:0] 	 MCU_GRANT_ALIGN,
+		    // ---------------------
+
+	       output reg [23:0] LEN_0,
+	       output reg 	 DIR_0,
+	       output reg 	 EN_STB_0,
+	       output reg [23:0] LEN_1,
+	       output reg 	 DIR_1,
+	       output reg 	 EN_STB_1,
+	       output reg [23:0] LEN_2,
+	       output reg 	 DIR_2,
+	       output reg 	 EN_STB_2,
+	       output reg [23:0] LEN_3,
+	       output reg 	 DIR_3,
+	       output reg 	 EN_STB_3);
 
   reg        d_r_en_cpu, d_r_en_cpu_delay,
 	     d_w_en_cpu, d_w_en_cpu_delay,
@@ -102,10 +116,10 @@ module Gremlin(input CLK,
 	READ_CPU_ACK <= 0; WRITE_CPU_ACK <= 0;
 	OUT_CPU <= 0;
 
-	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0 <= 0;
-	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1 <= 0;
-	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2 <= 0;
-	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3 <= 0;
+	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0 <= 0; EN_STB_0_pre <= 0;
+	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1 <= 0; EN_STB_1_pre <= 0;
+	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2 <= 0; EN_STB_2_pre <= 0;
+	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3 <= 0; EN_STB_3_pre <= 0;
       end
     else
       begin
@@ -119,24 +133,24 @@ module Gremlin(input CLK,
 
 	    case (IN_CPU[57:56])
 	      2'h0: begin
-		LEN_0 <= IN_CPU[47:32];
+		LEN_0 <= {8'h0,IN_CPU[47:32]};
 		DIR_0 <= IN_CPU[58];
-		EN_STB_0 <= !EN_STB_0; // WRONG!
+		EN_STB_0_pre <= !EN_STB_0_pre;
 	      end
 	      2'h1: begin
-		LEN_1 <= IN_CPU[47:32];
+		LEN_1 <= {8'h0,IN_CPU[47:32]};
 		DIR_1 <= IN_CPU[58];
-		EN_STB_1 <= !EN_STB_1; // WRONG!
+		EN_STB_1_pre <= !EN_STB_1_pre;
 	      end
 	      2'h2: begin
-		LEN_2 <= IN_CPU[47:32];
+		LEN_2 <= {8'h0,IN_CPU[47:32]};
 		DIR_2 <= IN_CPU[58];
-		EN_STB_2 <= !EN_STB_2; // WRONG!
+		EN_STB_2_pre <= !EN_STB_2_pre;
 	      end
 	      2'h3: begin
-		LEN_3 <= IN_CPU[47:32];
+		LEN_3 <= {8'h0,IN_CPU[47:32]};
 		DIR_3 <= IN_CPU[58];
-		EN_STB_3 <= !EN_STB_3; // WRONG!
+		EN_STB_3_pre <= !EN_STB_3_pre;
 	      end
 	    endcase // case (IN_CPU[57:56])
 	  end
@@ -403,6 +417,13 @@ module Gremlin(input CLK,
 	    MCU_REQUEST_ALIGN <= 0;
 	    trans_active <= 0;
 	    RST_MVBLCK <= 2'h0;
+
+	    case (BLCK_SECTION)
+	      2'h0: EN_STB_0 <= EN_STB_0_pre;
+	      2'h1: EN_STB_1 <= EN_STB_1_pre;
+	      2'h2: EN_STB_2 <= EN_STB_2_pre;
+	      2'h3: EN_STB_3 <= EN_STB_3_pre;
+	    endcase // case (BLCK_SECTION)
 
 	    if (active_trans_thistrans == 1'b0)
 	      begin
