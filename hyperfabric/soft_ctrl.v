@@ -58,7 +58,8 @@ module Gremlin(input CLK,
   reg 	     trans_active, blck_working_prev, active_trans_thistrans;
 
   wire 	     trg_gb_0, trg_gb_1, trg_mb, time_rfrs, trans_activate,
-	     refresh_ctr_mismatch, active_trans, small_carousel_reset;
+	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
+	     blck_abort;
 
   reg [15:0] output_reg[7:0], input_reg[7:0];
 
@@ -306,6 +307,8 @@ module Gremlin(input CLK,
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
   assign active_trans = (trg_gb_0 || trg_gb_1);
 
+  assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
+
   initial
     begin
       input_reg[0] <= 0; input_reg[1] <= 0;
@@ -375,17 +378,17 @@ module Gremlin(input CLK,
 
 	    if (active_trans_thistrans == 1'b0)
 	      begin
-		input_reg[0] <= input_0;
-		input_reg[1] <= input_1;
-		input_reg[2] <= input_2;
-		input_reg[3] <= input_3;
+		input_reg[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
+		input_reg[1] <= {BLCK_IRQ,blck_abort,14'h0};
+		input_reg[2] <= 0;
+		input_reg[3] <= 0;
 	      end
 	    else
 	      begin
-		input_reg[4] <= input_0;
-		input_reg[5] <= input_1;
-		input_reg[6] <= input_2;
-		input_reg[7] <= input_3;
+		input_reg[4] <= {8'h0,BLCK_COUNT_SENT,2'h0};
+		input_reg[5] <= {BLCK_IRQ,blck_abort,14'h0};
+		input_reg[6] <= 0;
+		input_reg[7] <= 0;
 	      end
 	  end
 
