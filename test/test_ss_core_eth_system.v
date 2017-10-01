@@ -28,7 +28,8 @@
 `include "../hyperfabric/transport.v"
 `include "../hyperfabric/mvblck_todram.v"
 `include "../hyperfabric/mvblck_frdram.v"
-`include "../hyperfabric/mvblck_lsab_dram.v"
+//`include "../hyperfabric/mvblck_lsab_dram.v"
+`include "../hyperfabric/soft_ctrl.v"
 
 // Special Snowflake
 `include "../special_snowflake/core.v"
@@ -429,7 +430,7 @@ module GLaDOS;
 	(! mut.core.empty.am_working) &&
 	mut.core.empty.ISSUE)
       $display("START_ADDRESS %x", mut.core.empty.START_ADDRESS);
-
+/*
   always @(posedge mut.core.dma_interlink.CLK)
     if (mut.core.dma_interlink.RST)
       begin
@@ -486,7 +487,7 @@ module GLaDOS;
 		   mut.core.restarter.NEW_ADDR[31:12],
 		   mut.core.restarter.NEW_ADDR[11:0]);
       end // if (RST)
-
+*/
   always @(posedge mut.eth.eth.eth.recv.second_stage.CLK)
     if (mut.eth.eth.eth.recv.second_stage.RST &&
 	(mut.eth.eth.eth.recv.second_stage.terminating |

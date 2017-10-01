@@ -17,10 +17,10 @@ module Gremlin(input CLK,
 	       output reg 	 MCU_REFRESH_STROBE,
 
 		 /* begin BLOCK MOVER */
-	       output [11:0] 	 BLCK_START,
-	       output [5:0] 	 BLCK_COUNT_REQ,
+	       output reg [11:0] BLCK_START,
+	       output reg [5:0]  BLCK_COUNT_REQ,
 	       output 		 BLCK_ISSUE,
-	       output [1:0] 	 BLCK_SECTION,
+	       output reg [1:0]  BLCK_SECTION,
 	       input [5:0] 	 BLCK_COUNT_SENT,
 	       input 		 BLCK_WORKING,
 	       input 		 BLCK_IRQ,
@@ -28,8 +28,8 @@ module Gremlin(input CLK,
 	       input 		 BLCK_FRDRAM_DEVERR,
 	       input [24:0] 	 BLCK_ANCILL,
 	         /* begin MCU */
-	       output [19:0] 	 MCU_PAGE_ADDR,
-	       output [1:0] 	 MCU_REQUEST_ALIGN, // aka DRAM_SEL
+	       output reg [19:0] MCU_PAGE_ADDR,
+	       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL
 	       input [1:0] 	 MCU_GRANT_ALIGN,
 		    // ---------------------
 
@@ -56,8 +56,8 @@ module Gremlin(input CLK,
   wire [7:0]  d_w_addr, d_r_addr;
   wire 	      d_w_en, d_r_en;
 
-  reg [15:0] accumulator, memory_operand, input_reg,
-	     instr_f, instr_o, TIME_REG;
+  reg [15:0] accumulator, memory_operand,
+	     instr_f, instr_o;
   reg [7:0]  ip, index, index_reg;
   reg [1:0]  wrote_3_req, irq_strobe;
   reg 	     add_carry, save_carry, waitkill;
@@ -73,7 +73,7 @@ module Gremlin(input CLK,
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
-  wire 	     trg_gb_0, trg_gb_1, trg_mb, time_rfrs, trans_activate,
+  wire 	     trg_gb_0, trg_gb_1, time_mb, time_rfrs, trans_activate,
 	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
 	     blck_abort;
 
