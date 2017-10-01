@@ -118,10 +118,10 @@ module Gremlin(input CLK,
 	READ_CPU_ACK <= 0; WRITE_CPU_ACK <= 0;
 	OUT_CPU <= 0;
 
-	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0 <= 0; EN_STB_0_pre <= 0;
-	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1 <= 0; EN_STB_1_pre <= 0;
-	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2 <= 0; EN_STB_2_pre <= 0;
-	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3 <= 0; EN_STB_3_pre <= 0;
+	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0_pre <= 0;
+	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1_pre <= 0;
+	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2_pre <= 0;
+	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3_pre <= 0;
       end
     else
       begin
@@ -371,6 +371,7 @@ module Gremlin(input CLK,
 	blck_working_prev <= 0; issue_op <= 0;
 	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
 	active_trans_thistrans <= 0;
+	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
       end
     else
       begin
