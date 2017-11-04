@@ -65,15 +65,15 @@ module ddr_memory_controler(input CLK_n,
 
 			     .ADDRESS_RAND(rand_req_address),
 			     .WE_RAND(rand_req_we),
-			     .REQUEST_ACCESS_RAND(rand_req),
+			     .port_REQUEST_ACCESS_RAND(rand_req),
 			     .GRANT_ACCESS_RAND(rand_req_ack),
 			     .WE_ARRAY_RAND(rand_req_we_array),
 
 			     .ADDRESS_BULK(bulk_req_address),
 			     .WE_BULK(bulk_req_we),
-			     .REQUEST_ACCESS_BULK(bulk_req),
+			     .port_REQUEST_ACCESS_BULK(bulk_req),
 			     .GRANT_ACCESS_BULK(bulk_req_ack),
-			     .REQUEST_ALIGN_BULK(bulk_req_algn),
+			     .port_REQUEST_ALIGN_BULK(bulk_req_algn),
 			     .GRANT_ALIGN_BULK(bulk_req_algn_ack),
 			     .WE_ARRAY_BULK(bulk_req_we_array),
 
