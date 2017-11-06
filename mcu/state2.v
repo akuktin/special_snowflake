@@ -72,14 +72,14 @@ module state2(input CLK,
   assign row_request_live_rand = ADDRESS_RAND[25:14];
   assign bank_request_live_rand = ADDRESS_RAND[13:12];
 
-  assign correct_page_rand_w <= ({port_REQUEST_ACCESS_RAND,
-				  port_REQUEST_ALIGN_BULK,
-				  REFRESH_TIME,
-				  SOME_PAGE_ACTIVE,
-				  row_request_live_rand,
-				  bank_request_live_rand}
-				 == {4'b1001,
-				     page_current});
+  assign correct_page_rand_w = ({port_REQUEST_ACCESS_RAND,
+				 port_REQUEST_ALIGN_BULK,
+				 REFRESH_TIME,
+				 SOME_PAGE_ACTIVE,
+				 row_request_live_rand,
+				 bank_request_live_rand}
+				== {4'b1001,
+				    page_current});
 
   assign row_request_live_bulk = ADDRESS_BULK[25:14];
   assign bank_request_live_bulk = ADDRESS_BULK[13:12];
