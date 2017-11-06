@@ -38,13 +38,16 @@ module state2(input CLK,
 				     REQUEST_ACCESS_BULK,
 				     REQUEST_ALIGN_BULK,
 				     correct_page_rand, correct_page_bulk,
-				     correct_page_algn;
+				     correct_page_algn, correct_page_any,
+				     correct_page_rdy;
   reg [2:0] 			     command_reg2, actv_timeout;
   reg [3:0] 			     counter;
   reg [13:0] 			     page_current;
 
-  wire 				     issue_com, correct_page_any,
-				     correct_page_rdy,
+  wire 				     issue_com,
+				     correct_page_rand_w,
+				     correct_page_bulk_w,
+				     correct_page_algn_w,
 				     change_possible_w_n, write_match,
 				     timeout_norm_comp_n,
 				     timeout_dlay_comp_n,
@@ -69,11 +72,33 @@ module state2(input CLK,
   assign row_request_live_rand = ADDRESS_RAND[25:14];
   assign bank_request_live_rand = ADDRESS_RAND[13:12];
 
+  assign correct_page_rand_w <= ({port_REQUEST_ACCESS_RAND,
+				  port_REQUEST_ALIGN_BULK,
+				  REFRESH_TIME,
+				  SOME_PAGE_ACTIVE,
+				  row_request_live_rand,
+				  bank_request_live_rand}
+				 == {4'b1001,
+				     page_current});
+
   assign row_request_live_bulk = ADDRESS_BULK[25:14];
   assign bank_request_live_bulk = ADDRESS_BULK[13:12];
 
-  assign correct_page_any = correct_page_rand || correct_page_bulk;
-  assign correct_page_rdy = correct_page_rand || correct_page_algn;
+  assign correct_page_bulk_w = ({port_REQUEST_ACCESS_BULK,
+				 REFRESH_TIME,
+				 SOME_PAGE_ACTIVE,
+				 row_request_live_bulk,
+				 bank_request_live_bulk}
+				== {3'b101,
+				    page_current});
+
+  assign correct_page_algn_w = ({port_REQUEST_ALIGN_BULK,
+				 REFRESH_TIME,
+				 SOME_PAGE_ACTIVE,
+				 row_request_live_bulk,
+				 bank_request_live_bulk}
+				== {3'b101,
+				    page_current});
 
   assign write_match = REQUEST_ACCESS_BULK ? WE_BULK :
 		       (REQUEST_ACCESS_RAND && WE_RAND);
@@ -162,6 +187,7 @@ module state2(input CLK,
 	REQUEST_ACCESS_RAND <= 0; REQUEST_ACCESS_BULK <= 0;
 	REQUEST_ALIGN_BULK <= 0; correct_page_rand <= 0;
 	correct_page_bulk <= 0; correct_page_algn <= 0;
+	correct_page_any <= 0; correct_page_rdy <= 0;
       end
     else
       begin
@@ -169,30 +195,11 @@ module state2(input CLK,
 	REQUEST_ACCESS_BULK <= port_REQUEST_ACCESS_BULK;
 	REQUEST_ALIGN_BULK <= port_REQUEST_ALIGN_BULK;
 
-	correct_page_rand <= ({port_REQUEST_ACCESS_RAND,
-			       port_REQUEST_ALIGN_BULK,
-			       REFRESH_TIME,
-			       SOME_PAGE_ACTIVE,
-			       row_request_live_rand,
-			       bank_request_live_rand}
-			      == {4'b1001,
-				  page_current});
-
-	correct_page_bulk <= ({port_REQUEST_ACCESS_BULK,
-			       REFRESH_TIME,
-			       SOME_PAGE_ACTIVE,
-			       row_request_live_bulk,
-			       bank_request_live_bulk}
-			      == {3'b101,
-				  page_current});
-
-	correct_page_algn <= ({port_REQUEST_ALIGN_BULK,
-			       REFRESH_TIME,
-			       SOME_PAGE_ACTIVE,
-			       row_request_live_bulk,
-			       bank_request_live_bulk}
-			      == {3'b101,
-				  page_current});
+	correct_page_rand <= correct_page_rand_w;
+	correct_page_bulk <= correct_page_bulk_w;
+	correct_page_algn <= correct_page_algn_w;
+	correct_page_any <= correct_page_rand_w || correct_page_bulk_w;
+	correct_page_rdy <= correct_page_rand_w || correct_page_algn_w;
 
 	REQUEST_ALIGN_BULK_dly <= REQUEST_ALIGN_BULK;
 
