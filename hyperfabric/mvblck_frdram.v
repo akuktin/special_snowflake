@@ -33,12 +33,12 @@ module hyper_mvblck_frdram(input CLK,
 			   output reg [11:0] MCU_COLL_ADDRESS,
 			   output [1:0]      MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n,
-					     wr_device_error;
+					     wr_device_error, read_more;
   reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
 
   wire 					     release_trigger, we_trigger,
-					     read_more, uneven_len;
+					     uneven_len;
   wire [5:0] 				     compute_len, assign_len;
 
   /* This signal used to be a normal, proper register whose logic was
@@ -60,8 +60,6 @@ module hyper_mvblck_frdram(input CLK,
   assign uneven_len = COUNT_REQ[0] ^ START_ADDRESS[0];
   assign compute_len = COUNT_REQ + {5'h0,uneven_len} + 1;
   assign assign_len = {compute_len[5:1],1'b0};
-
-  assign read_more = len_left != 6'h1;
 
   always @(LSAB_0_FULL or LSAB_1_FULL or
 	   LSAB_2_FULL or LSAB_3_FULL or
@@ -95,7 +93,7 @@ module hyper_mvblck_frdram(input CLK,
     if (!RST)
       begin
 	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
-	WORKING <= 0; am_working <= 0; len_left <= 6'h1;
+	WORKING <= 0; am_working <= 0; len_left <= 6'h1; read_more <= 0;
 	MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0;
 	ABRUPT_STOP <= 0; DEVICE_ERROR <= 0;
 	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
@@ -109,6 +107,7 @@ module hyper_mvblck_frdram(input CLK,
 	      begin
 		am_working <= 1;
 		len_left <= assign_len;
+		read_more <= 1;
 
 		MCU_COLL_ADDRESS <= {START_ADDRESS[11:1],1'b0};
 		LSAB_SECTION <= SECTION;
@@ -125,6 +124,7 @@ module hyper_mvblck_frdram(input CLK,
 	      begin
 		MCU_COLL_ADDRESS <= MCU_COLL_ADDRESS +1;
 		len_left <= len_left -1;
+		read_more <= (len_left > 6'h2);
 	      end
 	    else
 	      begin
@@ -139,6 +139,7 @@ module hyper_mvblck_frdram(input CLK,
 		endcase // case (LSAB_SECTION)
 
 		am_working <= 0;
+		read_more <= 0;
 		if (! read_more)
 		  begin
 		    if (uneven_len)
