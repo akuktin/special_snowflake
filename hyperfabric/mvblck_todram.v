@@ -39,10 +39,9 @@ module hyper_mvblck_todram(input CLK,
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
 
-  wire 					     trigger, read_more;
+  wire 					     trigger;
 
   assign trigger = track_addr[0];
-  assign read_more = len_left != 0;
 
   always @(LSAB_0_STOP or LSAB_1_STOP or
 	   LSAB_2_STOP or LSAB_3_STOP or
@@ -50,25 +49,25 @@ module hyper_mvblck_todram(input CLK,
 	   LSAB_2_INT or LSAB_3_INT or
 	   LSAB_0_ANCILL or LSAB_1_ANCILL or
 	   LSAB_2_ANCILL or LSAB_3_ANCILL or
-	   LSAB_SECTION or read_more)
+	   LSAB_SECTION or LSAB_READ)
     case (LSAB_SECTION)
       2'b00: begin
-	stop_n <= (read_more && !LSAB_0_STOP);
+	stop_n <= (LSAB_READ && !LSAB_0_STOP);
 	irq <= LSAB_0_INT;
 	ancill <= LSAB_0_ANCILL;
       end
       2'b01: begin
-	stop_n <= (read_more && !LSAB_1_STOP);
+	stop_n <= (LSAB_READ && !LSAB_1_STOP);
 	irq <= LSAB_1_INT;
 	ancill <= LSAB_1_ANCILL;
       end
       2'b10: begin
-	stop_n <= (read_more && !LSAB_2_STOP);
+	stop_n <= (LSAB_READ && !LSAB_2_STOP);
 	irq <= LSAB_2_INT;
 	ancill <= LSAB_2_ANCILL;
       end
       2'b11: begin
-	stop_n <= (read_more && !LSAB_3_STOP);
+	stop_n <= (LSAB_READ && !LSAB_3_STOP);
 	irq <= LSAB_3_INT;
 	ancill <= LSAB_3_ANCILL;
       end
@@ -119,7 +118,7 @@ module hyper_mvblck_todram(input CLK,
 
 	    COUNT_SENT <= COUNT_REQ - len_left;
 	    IRQ_OUT <= irq;
-	    ABRUPT_STOP <= read_more;
+	    ABRUPT_STOP <= LSAB_READ;
 	    ANCILL_OUT <= ancill;
 	  end
 	stop_prev_n <= stop_n;
