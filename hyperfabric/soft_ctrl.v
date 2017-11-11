@@ -70,7 +70,7 @@ module Gremlin(input CLK,
   reg [7:0]  small_carousel;
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
-	     trans_activate;
+	     trans_activate, write_output_reg;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
@@ -251,6 +251,7 @@ module Gremlin(input CLK,
 	save_carry <= 0; ip <= 0; index_reg <= 0;
 	instr_f <= 0; instr_o <= 0; wrote_3_req <= 0;
 	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
+	write_output_reg <= 0;
       end
     else
       begin
@@ -269,6 +270,7 @@ module Gremlin(input CLK,
 	    index_reg <= index;
 	  if (instr_o[11:8] != 4'h8)
 	    begin
+	      write_output_reg <= (instr_f[11:8] == 4'hb);
 	      waitkill <= 0;
 	      if (! waitkill)
 		instr_f <= instr;
@@ -276,6 +278,7 @@ module Gremlin(input CLK,
 	    end
 	  else
 	    begin
+	      write_output_reg <= 0;
 	      waitkill <= 1;
 	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
 	      if (accumulator == 0)
@@ -328,7 +331,7 @@ module Gremlin(input CLK,
 	    // fucking load instrunction, bitch!
 	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
-	      output_reg[instr_o[2:0]] <= accumulator;
+//	      write_output_reg controlled writing of output is way below
 	      if (instr_o[13] && (accumulator[13:2] != 0)) // provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
@@ -345,6 +348,8 @@ module Gremlin(input CLK,
 	    4'he: accumulator <= accumulator | memory_operand;
 	    4'hf: accumulator <= accumulator ^ memory_operand;
 	  endcase // case (instr_o[11:8])
+	  if (write_output_reg)
+	    output_reg[instr_o[2:0]] <= accumulator;
 	end
       end // else: !if(!RST)
 
