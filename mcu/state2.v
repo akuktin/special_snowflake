@@ -147,12 +147,12 @@ module state2(input CLK,
 
   assign address_in = REQUEST_ALIGN_BULK ? ADDRESS_BULK : ADDRESS_RAND;
 
-  /* The below three are ported from an earlier iteration. They probably
-   * could not be developed with this module microarchitecture if the
-   * module were to be developed from scratch. */
-  assign address = correct_page_rdy ?
-		   {address_in[11:0],1'b0} :
-		   {address_in[25:24],1'b0,address_in[23:14]};
+  assign address = (SOME_PAGE_ACTIVE &&
+                    (! correct_page_rdy)) ?
+                   13'h0400 :
+                   (correct_page_rdy ?
+		    {address_in[11:0],1'b0} :
+		    {address_in[25:24],1'b0,address_in[23:14]});
   assign page = correct_page_rdy ?
 		page_current :
 		address_in[25:12];
@@ -222,16 +222,14 @@ module state2(input CLK,
 	    command_reg2 <= `NOOP;
 	  end
 
-	if (SOME_PAGE_ACTIVE &&
-	    (! correct_page_rdy))
-	  ADDRESS_REG <= 13'h0400;
-	else
-	  if (issue_com)
-	    begin
-	      page_current <= page;
-	      ADDRESS_REG <= address;
-	      BANK_REG <= bank_addr;
-	    end
+	ADDRESS_REG <= address;
+	if ((!(SOME_PAGE_ACTIVE &&
+	       (! correct_page_rdy))) &&
+	    (issue_com))
+	  begin
+	    page_current <= page;
+	    BANK_REG <= bank_addr;
+	  end
 
 	// The below used to be in the state tracker
 	// -----------------------------------------

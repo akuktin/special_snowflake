@@ -69,11 +69,12 @@ module Gremlin(input CLK,
   reg [3:0]  big_carousel;
   reg [7:0]  small_carousel;
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
-  reg 	     trans_active, blck_working_prev, active_trans_thistrans;
+  reg 	     trans_active, blck_working_prev, active_trans_thistrans,
+	     trans_activate;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
-  wire 	     trg_gb_0, trg_gb_1, time_mb, time_rfrs, trans_activate,
+  wire 	     trg_gb_0, trg_gb_1, time_mb, time_rfrs,
 	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
 	     blck_abort;
 
@@ -368,7 +369,7 @@ module Gremlin(input CLK,
 	big_carousel <= 4'h3; refresh_req <= 0; refresh_ack <= 0;
 	MCU_REFRESH_STROBE <= 0; wrote_3_ack <= 0; trans_active <= 0;
 	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0; MCU_PAGE_ADDR <= 0;
-	blck_working_prev <= 0; issue_op <= 0;
+	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
 	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
 	active_trans_thistrans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
@@ -383,7 +384,9 @@ module Gremlin(input CLK,
 	else
 	  small_carousel <= small_carousel +1;
 
-	if (trans_activate &&
+	trans_activate <= (wrote_3_req != wrote_3_ack);
+
+	if (trans_activate && (! trans_active) &&
 	    (trg_gb_0 || trg_gb_1 || (time_mb && small_carousel != 0)))
 	  begin
 	    active_trans_thistrans <= active_trans;
@@ -458,7 +461,6 @@ module Gremlin(input CLK,
 ///////////////////////////////////////////////////////////////
 
   assign refresh_ctr_mismatch = refresh_req != refresh_ack;
-  assign trans_activate = (wrote_3_req != wrote_3_ack) && (! trans_active);
 
   // Up to a maximum of 2 simultaneous 1 Gbps transactions.
   // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
