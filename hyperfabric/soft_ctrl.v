@@ -76,13 +76,12 @@ module Gremlin(input CLK,
   reg [2:0]  write_output_desc;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
 	     trans_activate, write_output_reg, issue_op_new, ready_trans,
-	     rdmem_op, opon_data;
+	     rdmem_op, opon_data, trg_gb_0, trg_gb_1, time_mb, time_rfrs,
+	     small_carousel_reset;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
-  wire 	     trg_gb_0, trg_gb_1, time_mb, time_rfrs,
-	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
-	     blck_abort;
+  wire 	     refresh_ctr_mismatch, active_trans, blck_abort;
 
   reg [15:0] input_reg_0[1:0], input_reg_1[1:0];
 
@@ -389,7 +388,6 @@ module Gremlin(input CLK,
 	end
       end
 
-  assign small_carousel_reset = small_carousel == 8'hbf;
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
   assign active_trans = (trg_gb_0 || trg_gb_1);
 
@@ -397,19 +395,42 @@ module Gremlin(input CLK,
 
   initial
     begin
-	small_carousel <= 8'hc1; // Out of bounds. // FIXME!!
-	big_carousel <= 4'h3; wrote_3_ack <= 0;
-	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
-	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
-	refresh_req <= 0; refresh_ack <= 0; issue_op_new <= 0;
-	MCU_REFRESH_STROBE <= 0; trans_active <= 0; ready_trans <= 0;
-	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0;
+      small_carousel = 8'hc1; // Out of bounds. // FIXME!!
+      big_carousel = 4'h3; wrote_3_ack = 0;
+      blck_working_prev = 0; issue_op = 0; trans_activate = 0;
+      EN_STB_0 = 0; EN_STB_1 = 0; EN_STB_2 = 0; EN_STB_3 = 0;
+      refresh_req = 0; refresh_ack = 0; issue_op_new = 0;
+      MCU_REFRESH_STROBE = 0; trans_active = 0; ready_trans = 0;
+      RST_MVBLCK = 0; MCU_REQUEST_ALIGN = 0; small_carousel_reset = 0;
+      trg_gb_0 = 0; trg_gb_1 = 0; time_mb = 0; time_rfrs = 0;
     end
 
   always @(posedge CLK)
     begin
       if (RST)
 	begin
+
+	  // Up to a maximum of 2 simultaneous 1 Gbps transactions.
+	  // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
+
+	  trg_gb_0 <= small_carousel == 8'h00;
+	  trg_gb_1 <= small_carousel == 8'h60;
+	  //  assign trg_mb   = small_carousel == 8'h02;
+
+	  time_mb <= (big_carousel == 4'h4) || (big_carousel == 4'h6) ||
+		     (big_carousel == 4'h8) || (big_carousel == 4'ha) ||
+		     (big_carousel == 4'hc) || (big_carousel == 4'he);
+
+	  /* Having mb and rfrs on the same big_carousel cycle is simply
+	   * not supported, at least on the gb_0 side of the cycle. */
+	  time_rfrs <= (big_carousel == 4'h1) || (big_carousel == 4'h3) ||
+		       (big_carousel == 4'h5) || (big_carousel == 4'h7) ||
+		       (big_carousel == 4'h9) || (big_carousel == 4'hb) ||
+		       (big_carousel == 4'hd) || (big_carousel == 4'hf);
+
+	  ///////////////////////////////////////////////////////////////
+
+	  small_carousel_reset <= (small_carousel == 8'hbe);
 	  if (small_carousel_reset)
 	    begin
 	      small_carousel <= 0;
@@ -432,7 +453,7 @@ module Gremlin(input CLK,
 	trans_activate <= (wrote_3_req != wrote_3_ack);
 
 	if (trans_activate && (! (trans_active || ready_trans)) &&
-	    (trg_gb_0 || trg_gb_1 || (time_mb && small_carousel != 0)))
+	    (trg_gb_0 || trg_gb_1 || (time_mb && !trg_gb_0)))
 	  begin
 	    rdmem_op <= active_trans ? reg_rdmem_op_1 : reg_rdmem_op_0;
 	    opon_data <= active_trans ? reg_opon_data_1 : reg_opon_data_0;
@@ -501,26 +522,5 @@ module Gremlin(input CLK,
 ///////////////////////////////////////////////////////////////
 
   assign refresh_ctr_mismatch = refresh_req != refresh_ack;
-
-  // Up to a maximum of 2 simultaneous 1 Gbps transactions.
-  // Up to a maximum of 6 simultaneous 12.5 Mbps transactions.
-
-  assign trg_gb_0 = small_carousel == 8'h00;
-  assign trg_gb_1 = small_carousel == 8'h60;
-//  assign trg_mb   = small_carousel == 8'h02;
-
-  assign time_mb = (big_carousel == 4'h4) || (big_carousel == 4'h6) ||
-		   (big_carousel == 4'h8) || (big_carousel == 4'ha) ||
-		   (big_carousel == 4'hc) || (big_carousel == 4'he);
-
-  /* Having mb and rfrs on the same big_carousel cycle is simply not
-   * supported, at least on the gb_0 side of the cycle. */
-  assign time_rfrs = (big_carousel == 4'h1) || (big_carousel == 4'h3) ||
-		     (big_carousel == 4'h5) || (big_carousel == 4'h7) ||
-		     (big_carousel == 4'h9) || (big_carousel == 4'hb) ||
-		     (big_carousel == 4'hd) || (big_carousel == 4'hf);
-
-///////////////////////////////////////////////////////////////
-
 
 endmodule // Gremlin
