@@ -64,7 +64,7 @@ module Gremlin(input CLK,
 	     instr_f, instr_o, acc_output;
   reg [7:0]  ip, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req, irq_strobe;
-  reg 	     add_carry, save_carry, waitkill;
+  reg 	     add_carry, save_carry, waitkill, accumulator_nulled;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
@@ -116,11 +116,11 @@ module Gremlin(input CLK,
 
   initial
     begin
-	WRITE_CPU_r <= 1; READ_CPU_r <= 1;
-	low_addr_bits_w <= 0;
-	d_w_en_cpu <= 0; d_r_en_cpu <= 0;
-	EN_STB_0_pre <= 0; EN_STB_1_pre <= 0;
-	EN_STB_2_pre <= 0; EN_STB_3_pre <= 0;
+      WRITE_CPU_r = 1; READ_CPU_r = 1;
+      low_addr_bits_w = 0;
+      d_w_en_cpu = 0; d_r_en_cpu = 0;
+      EN_STB_0_pre = 0; EN_STB_1_pre = 0;
+      EN_STB_2_pre = 0; EN_STB_3_pre = 0;
     end
 
   always @(posedge CLK)
@@ -244,9 +244,9 @@ module Gremlin(input CLK,
 
   initial
     begin
-	instr_f[15:8] <= 8'h4e; instr_o[15:8] <= 8'h4e;
-	wrote_3_req <= 0;
-	ip <= 0; irq_strobe <= 0; waitkill <= 0;
+      instr_f[15:8] = 8'h4e; instr_o[15:8] = 8'h4e;
+      wrote_3_req = 0;
+      ip = 0; irq_strobe = 0; waitkill = 0;
     end
 
   always @(posedge CLK)
@@ -275,12 +275,14 @@ module Gremlin(input CLK,
 	  if (instr_o[11:8] != 4'h8)
 	    instr_o <= instr_f;
 	  else
-	    if (accumulator == 0)
+	    if (accumulator_nulled) // FIXME!!! test for bugs!
 		// accumulator will be nonzero by the time the instruction
 		// hits execution
 
 		// cmp/and 0 {instr_o[7:0]};
 		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
+
+	  accumulator_nulled <= accumulator == 0;
 
 	  write_output_reg <= (instr_o[11:8] == 4'hb);
 	  write_output_desc <= instr_o[2:0];
