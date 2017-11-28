@@ -51,6 +51,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [1:0]		xMXALT;			// From ctrl of aexm_ctrl.v
    wire [2:0]		rMXALU;			// From ctrl of aexm_ctrl.v
    wire [1:0]		rMXDST;			// From ctrl of aexm_ctrl.v
+   wire 		rMXDST_use_combined;	// From ctrl of aexm_ctrl.v
    wire [1:0]		xMXSRC;			// From ctrl of aexm_ctrl.v
    wire [1:0]		xMXTGT;			// From ctrl of aexm_ctrl.v
    wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
@@ -134,6 +135,7 @@ module aexm_edk32 (/*AUTOARG*/
      ctrl (/*AUTOINST*/
 	   // Outputs
 	   .rMXDST			(rMXDST[1:0]),
+	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
 	   .xMXSRC			(xMXSRC[1:0]),
 	   .xMXTGT			(xMXTGT[1:0]),
@@ -197,6 +199,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRW				(rRW[4:0]),
 	   .rRD				(rRD[4:0]),
 	   .rMXDST			(rMXDST[1:0]),
+	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
 	   .rPC				(rPC[31:2]),
 	   .rRESULT			(rRESULT[31:0]),

@@ -1,7 +1,8 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, MEMOP_MXDST, xMXSRC, xMXTGT, xMXALT, rMXALU, rRW, dSTRLOD, dLOD,
-   aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
+   rMXDST, rMXDST_use_combined, MEMOP_MXDST, xMXSRC, xMXTGT, xMXALT,
+   rMXALU, rRW, dSTRLOD, dLOD, aexm_dcache_precycle_we,
+   aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    cpu_interrupt, gclk, d_en, x_en
@@ -10,6 +11,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [1:0]  rMXDST, xMXSRC, xMXTGT, xMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
+  output 	 rMXDST_use_combined;
   output 	 fSTALL;
   output 	 MEMOP_MXDST;
 
@@ -130,16 +132,14 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DELAY SLOT REGISTERS ------------------------------
 
+  reg  rMXDST_use_combined;
   wire MEMOP_MXDST;
 
-   always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
+   always @(fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
 	    or fSTR or rRD)
      if (xSKIP) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
 	xMXDST <= 2'h0;
 	xRW <= 5'h0;
-	// End of automatics
      end else begin
 	xMXDST <= (fSTR | fRTD | fBCC) ? 2'o3 :
 		  (fLOD | fGET) ? 2'o2 :
@@ -162,15 +162,12 @@ module aexm_ctrl (/*AUTOARG*/
 
   initial
     begin
-      rMXALU <= 3'h0;
-      rMXDST <= 2'h0;
-      rRW <= 5'h0;
-      xRW_valid <= 0;
-      rRW_valid <= 0;
+      rMXALU = 3'h0; rMXDST = 2'h0; rRW = 5'h0;
+      xRW_valid = 0; rRW_valid = 0; rMXDST_use_combined = 0;
 
-      fSFT <= 0; fLOG <= 0; fMUL <= 0; fBSF <= 0; fDIV <= 0; fRTD <= 0;
-      fBCC <= 0; fBRU <= 0; fIMM <= 0; fMOV <= 0; fLOD <= 0; fSTR <= 0;
-      fLOD_r <= 0; fLDST <= 0; fPUT <= 0; fGET <= 0;
+      fSFT = 0; fLOG = 0; fMUL = 0; fBSF = 0; fDIV = 0; fRTD = 0;
+      fBCC = 0; fBRU = 0; fIMM = 0; fMOV = 0; fLOD = 0; fSTR = 0;
+      fLOD_r = 0; fLDST = 0; fPUT = 0; fGET = 0;
     end
 
    always @(posedge gclk)
@@ -185,6 +182,8 @@ module aexm_ctrl (/*AUTOARG*/
        fDIV <= wDIV; fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;
        fIMM <= wIMM; fMOV <= wMOV; fLOD <= wLOD; fSTR <= wSTR;
        fLOD_r <= wLOD_r; fLDST <= wLDST; fPUT <= wPUT; fGET <= wGET;
+
+       rMXDST_use_combined <= (xMXDST != 2'h0);
      end
 
 

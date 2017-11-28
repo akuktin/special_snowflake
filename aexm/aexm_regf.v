@@ -2,8 +2,8 @@ module aexm_regf (/*AUTOARG*/
    // Outputs
    xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
-   rOPC, rRW, rRD, rMXDST, MEMOP_MXDST, rPC, rRESULT, rDWBSEL,
-   aexm_dcache_datai, gclk, grst, x_en, d_en,
+   rOPC, rRW, rRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
+   rRESULT, rDWBSEL, aexm_dcache_datai, gclk, grst, x_en, d_en,
    regf_rRA, regf_rRB, regf_rRD
    );
    // INTERNAL
@@ -17,6 +17,7 @@ module aexm_regf (/*AUTOARG*/
    input [31:0]  rRESULT;
    input [3:0] 	 rDWBSEL;
    input [4:0] 	 regf_rRA, regf_rRB, regf_rRD;
+  input 	 rMXDST_use_combined;
 
    // MCU interface
    output [31:0] aexm_dcache_datao;
@@ -67,8 +68,8 @@ module aexm_regf (/*AUTOARG*/
   wire 		 do_write;
   assign do_write = ((fRDWE | !grst) && w_en && (rMXDST != 2'o3));
 
-  always @(rMXDST or combined_input or rRESULT)
-    if (rMXDST == 2'h0)
+  always @(rMXDST_use_combined or combined_input or rRESULT)
+    if (!rMXDST_use_combined)
       xWDAT <= rRESULT;
     else
       xWDAT <= combined_input;
