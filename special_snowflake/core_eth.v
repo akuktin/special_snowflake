@@ -1,4 +1,3 @@
-/*
 module top_level(input REF_CLK,
                  // -------------------
 		 output        iCLK_P,
@@ -30,56 +29,13 @@ module top_level(input REF_CLK,
 	    // -------------------
 		 input 	       ETH_WIRE_RX,
 		 output        ETH_WIRE_TX);
-  wire FRST_RST, SCND_RST, SYS_CLK, SYS_CLK_DELAYED, CPU_CLK;
-  reg PLL_RESET, SYS_RST;
+  wire 			       SYS_RST, SYS_CLK, SYS_CLK_DELAYED, CPU_CLK;
 
-  reg [7:0] 			 long_counter_h, long_counter_l;
-  reg 				 long_counter_o,
-				 reg_FRST_RST, reg_SCND_RST;
-
-  initial
-    begin
-      PLL_RESET = 0; SYS_RST = 0;
-      long_counter_h = 0; long_counter_l = 0;
-      long_counter_o = 0;
-      reg_FRST_RST = 0; reg_SCND_RST = 0;
-    end
-
-  always @(posedge REF_CLK)
-    begin
-      PLL_RESET <= 1;
-      reg_FRST_RST <= FRST_RST;
-      reg_SCND_RST <= SCND_RST;
-
-      if (! (reg_FRST_RST && reg_SCND_RST))
-	begin
-	  long_counter_h <= 0;
-	  long_counter_l <= 0;
-	  long_counter_o <= 0;
-	end
-      else
-	begin
-	  {long_counter_o,long_counter_l} <= long_counter_l +1;
-	  if (long_counter_o)
-	    long_counter_h <= long_counter_h +1;
-	  if (long_counter_h == 8'hff) // BUG!! waits too long!
-	    SYS_RST <= 1;
-	end
-    end
-
-  ss_pll_0_01 pll_0(.REFERENCECLK(REF_CLK),
-                    .PLLOUTCOREA(SYS_CLK),
-                    .PLLOUTCOREB(SYS_CLK_DELAYED),
-                    .PLLOUTGLOBALA(),
-                    .PLLOUTGLOBALB(),
-                    .RESET(PLL_RESET),
-                    .LOCK(FRST_RST));
-
-  ss_pll_1_01 pll_1(.REFERENCECLK(SYS_CLK_DELAYED),
-                    .PLLOUTCORE(CPU_CLK),
-                    .PLLOUTGLOBAL(),
-                    .RESET(PLL_RESET),
-                    .LOCK(SCND_RST));
+  clockblock the_clocks(.REF_CLK(REF_CLK),
+			.SYS_RST(SYS_RST),
+			.SYS_CLK(SYS_CLK),
+			.SYS_CLK_DELAYED(SYS_CLK_DELAYED),
+			.CPU_CLK(CPU_CLK));
 
   chip the_chip(.RST(SYS_RST),
 		.CLK_n(SYS_CLK),
@@ -119,8 +75,63 @@ module top_level(input REF_CLK,
 		.ETH_WIRE_RX(ETH_WIRE_RX),
 		.ETH_WIRE_TX(ETH_WIRE_TX));
 
-endmodule
-*/
+endmodule // top_level
+
+module clockblock(input REF_CLK,
+		  output reg SYS_RST,
+		  output     SYS_CLK,
+		  output     SYS_CLK_DELAYED,
+		  output     CPU_CLK);
+  reg [7:0] 		     long_counter_h, long_counter_l;
+  reg 			     long_counter_o, pll_rst,
+			     frst_rst_r, scnd_rst_r;
+
+  wire 			     frst_rst, scnd_rst;
+  initial
+    begin
+      pll_rst = 0; SYS_RST = 0;
+      long_counter_h = 0; long_counter_l = 0;
+      long_counter_o = 0;
+      frst_rst_r = 0; scnd_rst_r = 0;
+    end
+
+  always @(posedge REF_CLK)
+    begin
+      pll_rst <= 1;
+      frst_rst_r <= frst_rst;
+      scnd_rst_r <= scnd_rst;
+
+      if (! (frst_rst_r && scnd_rst_r))
+	begin
+	  long_counter_h <= 0;
+	  long_counter_l <= 0;
+	  long_counter_o <= 0;
+	end
+      else
+	begin
+	  {long_counter_o,long_counter_l} <= long_counter_l +1;
+	  if (long_counter_o)
+	    long_counter_h <= long_counter_h +1;
+	  if (long_counter_h == 8'hff) // BUG!! waits too long!
+	    SYS_RST <= 1;
+	end
+    end
+
+  ss_pll_0_01 pll_0(.REFERENCECLK(REF_CLK),
+                    .PLLOUTCOREA(),
+                    .PLLOUTCOREB(SYS_CLK_DELAYED),
+                    .PLLOUTGLOBALA(SYS_CLK),
+                    .PLLOUTGLOBALB(),
+                    .RESET(pll_rst),
+                    .LOCK(frst_rst));
+
+  ss_pll_1_02 pll_1(.REFERENCECLK(REF_CLK),
+                    .PLLOUTCORE(CPU_CLK),
+                    .PLLOUTGLOBAL(),
+                    .RESET(pll_rst),
+                    .LOCK(scnd_rst));
+
+endmodule // clockblock
 
 module chip(input RST,
 	    input 	  CLK_n,
