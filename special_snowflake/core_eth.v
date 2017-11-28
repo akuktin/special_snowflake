@@ -44,8 +44,6 @@ module top_level(input REF_CLK,
       PLL_RESET <= 1;
       if ((!FRST_RST) && (!SCND_RST))
         SYS_RST <= 1;
-      else
-        SYS_RST <= 0; // may be a bad idea
     end
 
   ss_pll_0_01 pll_0(.REFERENCECLK(REF_CLK),
