@@ -236,6 +236,9 @@ module GlaDOS;
   reg [31:0]  TEST_output_lsab_cw_1_count;
   wire [31:0] TEST_output_lsab_cw_1_data;
 
+  reg 	      SYS_RST, long_counter_o;
+  reg [7:0]   long_counter_h, long_counter_l;
+
   wire [31:0] w_data0_cr, w_data1_cr, w_data2_cr, w_data3_cr;
   wire 	      w_write_cr, w_read_cr, w_write_cw, w_read_cw;
   wire [1:0]  w_write_fifo_cr, w_read_fifo_cr,
@@ -366,7 +369,7 @@ module GlaDOS;
 			    .INT0(w_int0_cr), .INT1(w_int1_cr),
 			    .INT2(w_int2_cr), .INT3(w_int3_cr));
 
-  special_snowflake_core core(.RST_MASTER(RST),
+  special_snowflake_core core(.RST_MASTER(SYS_RST),
 			      .RST_CPU_TRANS(RST_CPU_pre),
 			      .CLK_n(CLK_n),
 			      .CLK_dn(CLK_dn),
@@ -468,7 +471,7 @@ module GlaDOS;
   initial
     begin
       RST <= 0; RST_CPU <= 0; counter <= 0; readcount_r <= 0;
-      RST_CPU_pre <= 0;
+      RST_CPU_pre <= 0; SYS_RST <= 0;
       #14875 RST <= 1;
       #400000000;
       RST_CPU_pre <= 1;
@@ -493,6 +496,29 @@ module GlaDOS;
   initial
     begin
       cache_vmem <= 0; cache_inhibit <= 0;
+    end
+
+  always @(posedge CLK_n)
+    begin
+//      PLL_RESET <= 1;
+//      reg_FRST_RST <= FRST_RST;
+//      reg_SCND_RST <= SCND_RST;
+
+//      if (! (reg_FRST_RST && reg_SCND_RST))
+      if (!RST)
+	begin
+	  long_counter_h <= 0;
+	  long_counter_l <= 0;
+	  long_counter_o <= 0;
+	end
+      else
+	begin
+	  {long_counter_o,long_counter_l} <= long_counter_l +1;
+	  if (long_counter_o)
+	    long_counter_h <= long_counter_h +1;
+	  if (long_counter_h == 8'hff)
+	    SYS_RST <= 1;
+	end
     end
 
 /*

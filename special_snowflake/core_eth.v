@@ -33,17 +33,38 @@ module top_level(input REF_CLK,
   wire FRST_RST, SCND_RST, SYS_CLK, SYS_CLK_DELAYED, CPU_CLK;
   reg PLL_RESET, SYS_RST;
 
+  reg [7:0] 			 long_counter_h, long_counter_l;
+  reg 				 long_counter_o,
+				 reg_FRST_RST, reg_SCND_RST;
+
   initial
     begin
-      force PLL_RESET <= 0;
-      force SYS_RST <= 0;
+      PLL_RESET = 0; SYS_RST = 0;
+      long_counter_h = 0; long_counter_l = 0;
+      long_counter_o = 0;
+      reg_FRST_RST = 0; reg_SCND_RST = 0;
     end
 
   always @(posedge REF_CLK)
     begin
       PLL_RESET <= 1;
-      if ((!FRST_RST) && (!SCND_RST))
-        SYS_RST <= 1;
+      reg_FRST_RST <= FRST_RST;
+      reg_SCND_RST <= SCND_RST;
+
+      if (! (reg_FRST_RST && reg_SCND_RST))
+	begin
+	  long_counter_h <= 0;
+	  long_counter_l <= 0;
+	  long_counter_o <= 0;
+	end
+      else
+	begin
+	  {long_counter_o,long_counter_l} <= long_counter_l +1;
+	  if (long_counter_o)
+	    long_counter_h <= long_counter_h +1;
+	  if (long_counter_h == 8'hff) // BUG!! waits too long!
+	    SYS_RST <= 1;
+	end
     end
 
   ss_pll_0_01 pll_0(.REFERENCECLK(REF_CLK),
