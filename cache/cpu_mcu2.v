@@ -1,8 +1,3 @@
-/* README!
- * For disallowing or fixing ghost reads, probably the best place is
- * cache_hit, which can be fixed to only assert if another logic determines
- * there are no timing conflicts between cache memory reads and writes. */
-
 module snowball_cache(input CPU_CLK,
 		      input 		MCU_CLK,
 		      input 		RST,
@@ -50,7 +45,7 @@ module snowball_cache(input CPU_CLK,
 			    mandatory_lookup_sig, mandatory_lookup_pre_sig,
 			    mandatory_lookup_sig_recv, mandatory_lookup_exp,
 			    mandatory_lookup_capture, datain_mux_dma,
-			    cache_prev_we, ghost_hit_vld, mcu_active,
+			    cache_prev_we, mcu_active,
 			    mcu_active_reg, cache_cycle_force_miss_n;
   reg [2:0] 		    read_counter;
   reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
@@ -72,8 +67,7 @@ module snowball_cache(input CPU_CLK,
   wire 			    cache_work, wdata_we, tlb_we, op_type_w,
 			    activate_tlb, activate_cache,
 			    tlb_reinit, cache_reinit, mandatory_lookup,
-			    mandatory_lookup_act, mem_lookup,
-			    ghost_hit, cache_same_word_read;
+			    mandatory_lookup_act, mem_lookup;
 
   reg 			    mcu_valid_data, capture_data;
 
@@ -167,14 +161,8 @@ module snowball_cache(input CPU_CLK,
   assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
 
-  assign ghost_hit = (prev_paddr_block[31:1] ==
-		      {vmem_rsp_tag,cache_cycle_addr[15:1]}) ?
-		     ghost_hit_vld : 0;
-  assign cache_same_word_read = prev_paddr_block[0] ==
-				cache_cycle_addr[0];
-
   assign mem_lookup = (cache_vld && (!w_MMU_FAULT) &&
-		       ((! (cache_hit || ghost_hit)) ||
+		       ((! cache_hit) ||
 			cache_cycle_we ||
 			mandatory_lookup_act)) ||
 		      cache_tlb;
@@ -184,7 +172,7 @@ module snowball_cache(input CPU_CLK,
       vmem = 0; MMU_FAULT = 0; cache_vld = 0; cache_tlb = 0;
       mcu_responded = 0; mcu_responded_reg = 0;
       tlb_en_sticky = 0; cache_en_sticky = 0;
-      ghost_hit_vld = 0; cache_busy_real = 0; cache_busy = 0;
+      cache_busy_real = 0; cache_busy = 0;
       mandatory_lookup_exp = 0; mandatory_lookup_sig_recv = 0;
       cache_prev_we = 0; mcu_active_trans = 0;
       cache_datai = 0;
@@ -210,8 +198,6 @@ module snowball_cache(input CPU_CLK,
 	  begin
 	    if (cache_hit)
 	      cache_datai <= data_cache;
-	    else if (cache_same_word_read)
-	      cache_datai <= data_mcu_trans;
 	    else
 	      cache_datai <= data_mcu_trans_other;
 	  end
@@ -236,21 +222,12 @@ module snowball_cache(input CPU_CLK,
 	    if (cache_cycle_we)
 	      begin
 		mandatory_lookup_exp <= !mandatory_lookup_exp;
-		ghost_hit_vld <= 0;
-	      end
-	    else
-	      begin
-		prev_paddr_block <= {vmem_rsp_tag,cache_cycle_addr[15:0]};
-		ghost_hit_vld <= 1;
 	      end
 	  end
 	else
 	  begin
 	    if (mcu_responded)
 	      cache_busy_real <= 0;
-
-	    if (cache_vld)
-	      ghost_hit_vld <= 0;
 	  end // else: !if(mem_lookup)
 
 	if (mem_lookup || fake_miss)
