@@ -72,12 +72,12 @@ module Gremlin(input CLK,
 
   reg [3:0]  big_carousel;
   reg [7:0]  small_carousel;
-  reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
+  reg [1:0]  issue_op, wrote_3_ack;
   reg [2:0]  write_output_desc;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
 	     trans_activate, write_output_reg, issue_op_new, ready_trans,
 	     rdmem_op, opon_data, trg_gb_0, trg_gb_1, time_mb, time_rfrs,
-	     small_carousel_reset;
+	     small_carousel_reset, refresh_req;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
@@ -399,7 +399,7 @@ module Gremlin(input CLK,
       big_carousel = 4'h3; wrote_3_ack = 0;
       blck_working_prev = 0; issue_op = 0; trans_activate = 0;
       EN_STB_0 = 0; EN_STB_1 = 0; EN_STB_2 = 0; EN_STB_3 = 0;
-      refresh_req = 0; refresh_ack = 0; issue_op_new = 0;
+      refresh_req = 0; issue_op_new = 0;
       MCU_REFRESH_STROBE = 0; trans_active = 0; ready_trans = 0;
       RST_MVBLCK = 0; MCU_REQUEST_ALIGN = 0; small_carousel_reset = 0;
       trg_gb_0 = 0; trg_gb_1 = 0; time_mb = 0; time_rfrs = 0;
@@ -440,12 +440,11 @@ module Gremlin(input CLK,
 	    small_carousel <= small_carousel +1;
 
           if (trg_gb_0 && time_rfrs)
-            refresh_req <= refresh_req +1;
+            refresh_req <= !refresh_req;
 
 	  if (refresh_ctr_mismatch &&
 	      ! (trans_active || ready_trans))
 	    begin
-	      refresh_ack <= refresh_ack +1;
 	      MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
 	    end
 	end // if (RST)
@@ -521,6 +520,6 @@ module Gremlin(input CLK,
 
 ///////////////////////////////////////////////////////////////
 
-  assign refresh_ctr_mismatch = refresh_req != refresh_ack;
+  assign refresh_ctr_mismatch = refresh_req != MCU_REFRESH_STROBE;
 
 endmodule // Gremlin
