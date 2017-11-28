@@ -182,15 +182,15 @@ module state2(input CLK,
 
   initial
     begin
-	COMMAND_REG <= `NOOP; SOME_PAGE_ACTIVE <= 0;
-	GRANT_ACCESS_RAND <= 0; GRANT_ACCESS_BULK <= 0;
-	GRANT_ALIGN_BULK <= 0; REFRESH_TIME <= 0;
-	change_possible_n <= 1; state_is_readwrite <= 0;
-	refresh_strobe_ack <= 0; second_stroke <= 1;
-	actv_timeout <= 3'h7; counter <= 4'hf;
-	do_extra_pass <= 1; correct_page_algn <= 0;
+      COMMAND_REG = `NOOP; SOME_PAGE_ACTIVE = 0;
+      GRANT_ACCESS_RAND = 0; GRANT_ACCESS_BULK = 0;
+      GRANT_ALIGN_BULK = 0; REFRESH_TIME = 0;
+      change_possible_n = 1; state_is_readwrite = 0;
+      refresh_strobe_ack = 0; second_stroke = 1;
+      actv_timeout = 3'h7; counter = 4'hf;
+      do_extra_pass = 1; correct_page_algn = 0;
 
-	command_reg2 <= `NOOP;
+      command_reg2 = `NOOP;
     end
 
   always @(posedge CLK)
@@ -342,12 +342,12 @@ module outputs(input 		 CLK_n,
 
   initial
     begin
-      dqdm_z_prectrl <= 0; dqs_z_prectrl <= 0;
-      active <= 0; high_bits <= 0;
+      dqdm_z_prectrl = 0; dqs_z_prectrl = 0;
+      active = 0; high_bits = 0;
 
-      DATA_R <= 0;
+      DATA_R = 0;
 
-      dqs_z_ctrl <= 0;
+      dqs_z_ctrl = 0;
     end
 
   always @(posedge CLK_n)
