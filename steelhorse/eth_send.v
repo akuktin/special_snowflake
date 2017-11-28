@@ -106,68 +106,76 @@ module data_encload(input CLK,
 		    input [15:0] DATA,
 		    output BIT,
 		    output reg ENDOFSHOW);
-  reg [15:0]		sendreg;
+  reg [7:0]		sendreg;
+  reg [1:0] 		preamble_counter, crc_counter, data_counter;
   reg			high, endisnigh;
-  reg			end_buff, preamble;
 
-  wire			end_start;
-
-  assign end_start = END_DATA & (~end_buff);
   assign BIT = sendreg[0];
+
+  assign preamble = preamble_counter != 2'h3;
 
   always @(posedge CLK)
     if (!RST)
       begin
-	end_buff <= 0;
-	high <= 0;
+	high <= 1;
 	endisnigh <= 0;
-	preamble <= 1;
-	sendreg <= 16'h5555; /* preamble, part 1 */
+	sendreg <= 8'h55; /* preamble, part 1 */
 	ENDOFSHOW <= 0;
+
+	preamble_counter <= 0;
+	crc_counter <= 0;
+	data_conter <= 0;
       end
     else
       if (DO_GO)
       begin
 	if (OCTET)
 	  begin
-	    if (end_start)
+	    if (preamble)
 	      begin
-		end_buff <= 1;
-		sendreg <=
-	{CRC[16],CRC[17],CRC[18],CRC[19], CRC[20],CRC[21],CRC[22],CRC[23],
-	 CRC[24],CRC[25],CRC[26],CRC[27], CRC[28],CRC[29],CRC[30],CRC[31]};
-		high <= 0;
-	      end
-	    else
-	      begin
-		high <= ~high;
-		if (high)
-		  begin
-		    if (end_buff)
-		      begin
-			sendreg <=
-	{CRC[0], CRC[1], CRC[2], CRC[3],  CRC[4], CRC[5], CRC[6], CRC[7],
-	 CRC[8], CRC[9], CRC[10],CRC[11], CRC[12],CRC[13],CRC[14],CRC[15]};
-			endisnigh <= 1;
-		      end
-		    else
-		      if (preamble)
-			begin
-			  preamble <= 0;
-			  sendreg <= 16'hd555; /* preamble, part 2 */
-			end
-		      else
-			  sendreg <= {DATA[7:0],DATA[15:8]};
-		  end
-		else
-		  sendreg <= {1'b0,sendreg[15:1]};
+		preamble_counter <= preamble_counter +1;
+		case (preamble_counter)
+		  2'h0: sendreg <= 8'h55;
+		  2'h1: sendreg <= 8'h55;
+		  2'h2: sendreg <= 8'hd5;
+		endcase
 	      end
 
-	    if (high & endisnigh)
+	    if (END_DATA)
+	      begin
+		crc_counter <= crc_counter +1;
+		case (crc_counter)
+		  2'h0:
+		    sendreg <= {CRC[24],CRC[25],CRC[26],CRC[27],
+				CRC[28],CRC[29],CRC[30],CRC[31]};
+		  2'h1:
+		    sendreg <= {CRC[16],CRC[17],CRC[18],CRC[19],
+				CRC[20],CRC[21],CRC[22],CRC[23]};
+		  2'h2:
+		    sendreg <= {CRC[8], CRC[9], CRC[10],CRC[11],
+				CRC[12],CRC[13],CRC[14],CRC[15]};
+		  2'h3: begin
+		    sendreg <= {CRC[0], CRC[1], CRC[2], CRC[3],
+				CRC[4], CRC[5], CRC[6], CRC[7]};
+		    endisnigh <= 1;
+		  end
+		endcase // case (crc_counter)
+	      end // if (END_DATA)
+
+	    if ((crc_counter == 2'h3) && endisnigh)
 	      ENDOFSHOW <= 1;
-	  end
+
+	    if (!preamble && !END_DATA)
+	      begin
+		high <= !high;
+		if (high)
+		  sendreg <= DATA[15:8];
+		else
+		  sendreg <= DATA[7:0];
+	      end
+	  end // if (OCTET)
 	else
-	  sendreg <= {1'b0,sendreg[15:1]};
+	  sendreg <= {1'b0,sendreg[7:1]};
       end
 
 endmodule
