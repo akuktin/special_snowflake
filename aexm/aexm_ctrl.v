@@ -1,7 +1,7 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXDST_use_combined, MEMOP_MXDST, xMXSRC, xMXTGT, xMXALT,
-   rMXALU, rRW, dSTRLOD, dLOD, aexm_dcache_precycle_we,
+   rMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
    aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
@@ -11,6 +11,7 @@ module aexm_ctrl (/*AUTOARG*/
    output [1:0]  rMXDST, xMXSRC, xMXTGT, xMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
+  output 	 rRDWE;
   output 	 rMXDST_use_combined;
   output 	 fSTALL;
   output 	 MEMOP_MXDST;
@@ -87,6 +88,7 @@ module aexm_ctrl (/*AUTOARG*/
 
   assign dRW_valid = (!(wBRU || wBCC || wBRA)) && !fSTALL;
 
+  reg 		 rRDWE;
    wire 	 wRDWE = |xRW;
    wire		 late_forward_A = (rRW == wRA) && rRW_valid;
    wire		 late_forward_B = (rRW == wRB) && rRW_valid;
@@ -162,7 +164,7 @@ module aexm_ctrl (/*AUTOARG*/
 
   initial
     begin
-      rMXALU = 3'h0; rMXDST = 2'h0; rRW = 5'h0;
+      rMXALU = 3'h0; rMXDST = 2'h0; rRW = 5'h0; rRDWE = 0;
       xRW_valid = 0; rRW_valid = 0; rMXDST_use_combined = 0;
 
       fSFT = 0; fLOG = 0; fMUL = 0; fBSF = 0; fDIV = 0; fRTD = 0;
@@ -172,11 +174,10 @@ module aexm_ctrl (/*AUTOARG*/
 
    always @(posedge gclk)
      if (d_en) begin
-	rMXDST <= xMXDST;
-	rMXALU <= xMXALU;
-	rRW <= xRW;
-	xRW_valid <= dRW_valid;
-	rRW_valid <= xRW_valid && !xSKIP;
+       rMXDST <= xMXDST; rMXALU <= xMXALU;
+       rRW <= xRW; rRDWE <= wRDWE;
+       xRW_valid <= dRW_valid;
+       rRW_valid <= xRW_valid && !xSKIP;
 
        fSFT <= wSFT; fLOG <= wLOG; fMUL <= wMUL; fBSF <= wBSF;
        fDIV <= wDIV; fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;

@@ -70,6 +70,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [31:0]		xRESULT;		// From xecu of aexm_xecu.v
    wire [31:0]		rRESULT;		// From xecu of aexm_xecu.v
    wire [4:0]		rRW;			// From ctrl of aexm_ctrl.v
+   wire 		rRDWE;			// From ctrl of aexm_ctrl.v
    wire [31:0]		xSIMM;			// From ibuf of aexm_ibuf.v
    wire			fSTALL;			// From ibuf of aexm_ibuf.v
    wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
@@ -142,6 +143,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xMXALT			(xMXALT[1:0]),
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
+	   .rRDWE		        (rRDWE),
 	   .dSTRLOD                     (dSTRLOD),
 	   .dLOD                        (dLOD),
 	   .fSTALL			(fSTALL),
@@ -197,6 +199,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .regf_rRB                    (regf_rRB),
 	   .regf_rRD                    (regf_rRD),
 	   .rRW				(rRW[4:0]),
+	   .rRDWE		        (rRDWE),
 	   .rRD				(rRD[4:0]),
 	   .rMXDST			(rMXDST[1:0]),
 	   .rMXDST_use_combined		(rMXDST_use_combined),
@@ -206,7 +209,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .aexm_dcache_datai           (aexm_dcache_datai),
 	   .gclk			(gclk),
-	   .grst			(grst),
 	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));
 

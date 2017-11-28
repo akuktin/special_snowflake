@@ -1,9 +1,9 @@
-module aexm_regf (/*AUTOARG*/
+module aexm_regf (
    // Outputs
    xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
-   rOPC, rRW, rRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
-   rRESULT, rDWBSEL, aexm_dcache_datai, gclk, grst, x_en, d_en,
+   rOPC, rRW, rRDWE, rRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
+   rRESULT, rDWBSEL, aexm_dcache_datai, gclk, x_en, d_en,
    regf_rRA, regf_rRB, regf_rRD
    );
    // INTERNAL
@@ -18,13 +18,14 @@ module aexm_regf (/*AUTOARG*/
    input [3:0] 	 rDWBSEL;
    input [4:0] 	 regf_rRA, regf_rRB, regf_rRD;
   input 	 rMXDST_use_combined;
+  input 	 rRDWE;
 
    // MCU interface
    output [31:0] aexm_dcache_datao;
    input [31:0]  aexm_dcache_datai;
 
    // SYSTEM
-   input 	 gclk, grst, x_en, d_en;
+   input 	 gclk, x_en, d_en;
 
    // --- LOAD SIZER ----------------------------------------------
    // Moves the data bytes around depending on the size of the
@@ -62,11 +63,9 @@ module aexm_regf (/*AUTOARG*/
   wire [31:0] 	 xREGA, xREGB, xREGD;
   reg [31:0] 	 rREGD;
 
-   wire 	 fRDWE = |rRW;
-
    reg [31:0] 	 xWDAT;
   wire 		 do_write;
-  assign do_write = ((fRDWE | !grst) && w_en && (rMXDST != 2'o3));
+  assign do_write = (rRDWE && w_en && (rMXDST != 2'o3));
 
   always @(rMXDST_use_combined or combined_input or rRESULT)
     if (!rMXDST_use_combined)
@@ -133,15 +132,15 @@ module aexm_regf (/*AUTOARG*/
    reg [31:0] 	 xDWBDO;
 
    wire [31:0] 	 xDST;
-   wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;
-   wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & fRDWE;
+   wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & rRDWE;
+   wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & rRDWE;
 
    assign 	 aexm_dcache_datao = xDWBDO;
    assign 	 xDST = (fDFWD_M) ? rDWBDI :
 			(fDFWD_R) ? rRESULT :
 			rREGD;
 
-   always @(/*AUTOSENSE*/rOPC or xDST)
+   always @(rOPC or xDST)
      case (rOPC[1:0])
        // 8'bit
        2'h0: xDWBDO <= {(4){xDST[7:0]}};
