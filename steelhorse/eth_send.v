@@ -1,5 +1,6 @@
 module data_crcload(input CLK,
 		     input RST,
+		     input DO_GO,
 		     input [10:0] SENDLEN,
 		     input [31:0] DATA,
 		     output RUN,
@@ -47,6 +48,7 @@ module data_crcload(input CLK,
 	READ <= 0;
       end
     else
+      if (DO_GO)
       begin
 	r1 <= counter[3];
 	counter <= counter +1;
@@ -97,6 +99,7 @@ endmodule
 
 module data_encload(input CLK,
 		    input RST,
+		    input DO_GO,
 		    input END_DATA,
 		    input OCTET,
 		    input [31:0] CRC,
@@ -123,6 +126,7 @@ module data_encload(input CLK,
 	ENDOFSHOW <= 0;
       end
     else
+      if (DO_GO)
       begin
 	if (OCTET)
 	  begin
@@ -225,6 +229,7 @@ endmodule
 module send_integration(input CLK,
 			input enc_CLK,
 			input RST,
+			input DO_GO,
 			input [10:0] SENDLEN,
 			input [31:0] DATA,
 			input SENDPULSE,
@@ -247,6 +252,7 @@ module send_integration(input CLK,
 
   data_crcload crcloader(.CLK(CLK),
 			 .RST(RST),
+			 .DO_GO(DO_GO),
 			 .SENDLEN(SENDLEN),
 			 .DATA(DATA),
 			 .RUN(run_enc),
@@ -260,6 +266,7 @@ module send_integration(input CLK,
 			 .READ(READ));
   data_encload encloader(.CLK(CLK),
 			 .RST(run_enc),
+			 .DO_GO(DO_GO),
 			 .END_DATA(end_data),
 			 .OCTET(octet),
 			 .CRC(CRC_BUFF),
@@ -281,6 +288,7 @@ module send_integration(input CLK,
     if (!RST)
       DONE <= 0;
     else
+      if (DO_GO)
       DONE <= (endofshow | SENDPULSE);
 
 endmodule

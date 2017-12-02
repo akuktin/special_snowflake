@@ -172,11 +172,11 @@ module cooldown_counter(input recv_CLK,
      everything. The tracker register is one way of doing that. */
   reg [2:0]		tracker_hwy, tracker_lgt;
   reg [9:0]		target;
-  reg [6:0]		count_recv;
-  reg [15:0]		count_send;
+  reg [7:0]		count_recv;
+  reg [16:0]		count_send;
 
-  assign COOL_RECV = count_recv[6];
-  assign COOL_SEND = count_send[15:6] == target;
+  assign COOL_RECV = count_recv[7];
+  assign COOL_SEND = count_send[16:7] == target;
 
   always @(posedge recv_CLK)
     if (!RST)
@@ -226,6 +226,7 @@ endmodule
 
 module arbitrer(input CLK,
 		input RST,
+		input DO_GO,
 		input SENDREG_OUT,
 		input COOL,
 		input SENDDONE,
@@ -258,6 +259,7 @@ module arbitrer(input CLK,
 	ABORTTARGET <= 1;
       end
     else
+      if (DO_GO)
       begin
 	if (~MODE)
 	  begin
@@ -322,6 +324,7 @@ endmodule
 module integration(input sampler_CLK,
 		   input recv_CLK,
 		   input master_RST,
+                   input DO_GO,
 		   input WIRE_RX,
 		   output [9:0] ADDR,
 		   output [31:0] DATA_RECV,
@@ -388,6 +391,7 @@ module integration(input sampler_CLK,
   send_integration send(.CLK(send_CLK),
 			.enc_CLK(enc_CLK),
 			.RST(rst_send),
+			.DO_GO(DO_GO),
 			.SENDLEN(SENDLEN),
 			.DATA(DATA_SEND),
 			.SENDPULSE(sendpulse),
@@ -437,6 +441,7 @@ module integration(input sampler_CLK,
 			    .COOL_SEND(cool_send));
   arbitrer modeselector(.CLK(send_CLK),
 			.RST(master_RST),
+			.DO_GO(DO_GO),
 			.SENDREG_OUT(SENDREG_RQ),
 			.COOL(cool_send),
 			.SENDDONE(donesend),
@@ -457,6 +462,7 @@ module integration(input sampler_CLK,
 	mode_r2 <= 0;
       end
     else
+      if (DO_GO)
       begin
 	READ_DATA_SEND <= read_w || (mode_wire && !mode);
 	mode <= mode_wire;
@@ -496,6 +502,8 @@ module Steelhorse(input sampler_CLK,
   wire			rnd_first, abandon, sendreg_an;
   wire [10:0]		recv_len;
 
+  reg 			DO_GO;
+
   assign rnd_first = rnd[1] ^ rnd[0];
 
   assign INTRFC_DATAOUT = {16'h0000,5'h00,recv_len};
@@ -503,6 +511,7 @@ module Steelhorse(input sampler_CLK,
   integration eth(.sampler_CLK(sampler_CLK),
 		  .recv_CLK(recv_CLK),
 		  .master_RST(RST),
+		  .DO_GO(DO_GO),
 		  .WIRE_RX(WIRE_RX),
 		  .ADDR(DATA_ADDR),
 		  .DATA_RECV(DATA_RECV),
@@ -545,8 +554,12 @@ module Steelhorse(input sampler_CLK,
 	signal2 <= 0;
 	intrfc_reg_send <= 0;
 	BUSY <= 0;
+	DO_GO <= 0;
       end
     else
+      begin
+	DO_GO <= !DO_GO;
+      if (DO_GO)
       begin
 	rnd <= {rnd_first,rnd[15:1]};
 	if (signal1 ^ signal2)
@@ -563,6 +576,7 @@ module Steelhorse(input sampler_CLK,
 	  BUSY <= 1;
 	else
 	  BUSY <= 0;
+      end // if (DO_GO)
       end
 
 endmodule
