@@ -103,13 +103,14 @@ module hyper_mvblck_frdram(input CLK,
       begin
 	if (! am_working)
 	  begin
+	    MCU_COLL_ADDRESS <= {START_ADDRESS[11:1],1'b0};
+
 	    if (ISSUE)
 	      begin
 		am_working <= 1;
 		len_left <= assign_len;
 		read_more <= 1;
 
-		MCU_COLL_ADDRESS <= {START_ADDRESS[11:1],1'b0};
 		LSAB_SECTION <= SECTION;
 
 		if (START_ADDRESS[0])
@@ -120,9 +121,10 @@ module hyper_mvblck_frdram(input CLK,
 	  end
 	else
 	  begin
+	    MCU_COLL_ADDRESS <= MCU_COLL_ADDRESS +1;
+
 	    if (read_more && abrupt_stop_n)
 	      begin
-		MCU_COLL_ADDRESS <= MCU_COLL_ADDRESS +1;
 		len_left <= len_left -1;
 		read_more <= (len_left > 6'h2);
 	      end
