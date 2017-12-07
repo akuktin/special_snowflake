@@ -106,7 +106,6 @@ module hyper_mvblck_todram(input CLK,
 	begin
 	if (stop_n)
 	  begin
-	    track_addr <= track_addr +1;
 	    len_left <= len_left -1;
 
 	    LSAB_READ <= (len_left > 1);
@@ -121,6 +120,7 @@ module hyper_mvblck_todram(input CLK,
 	    ABRUPT_STOP <= LSAB_READ;
 	    ANCILL_OUT <= ancill;
 	  end
+	track_addr <= track_addr +1;
 	stop_prev_n <= stop_n;
 
 	if (trigger)
