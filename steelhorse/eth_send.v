@@ -24,7 +24,7 @@ module data_crcload(input CLK,
 
   assign computed_len = lenreg +5;
   assign OCTET = r1 ^ counter[3];
-  assign WRITE_CRCBITS = delayreg_fast & ~CRCHALT;
+  assign WRITE_CRCBITS = delayreg_fast & ~CRCHALT & DO_GO;
   assign DELAYDATA = stagingreg2;
   assign ADDR = addrreg;
   assign CRCBIT = complement_counter[5] ? crcbits[0] : ~crcbits[0];

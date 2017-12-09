@@ -347,13 +347,14 @@ module integration(input sampler_CLK,
 		/* ------------------- */
 		   output COLLISION);
   reg			mode, mode_r1, mode_r2;
+  reg 			crc_done;
   wire			cool_recv, cool_send;
   wire			active_recv_hwy, active_recv_lgt,
 			active_recv_hwy_complex;
   wire			recv_bit, recv_write_bit;
   wire			crc_recv_rst, crc_recv_bit, crc_recv_write;
   wire			crc_send_rst, crc_send_bit, crc_send_write;
-  wire			crc_done, crc_safe, sendpulse;
+  wire			crc_done_w, crc_safe, sendpulse;
   wire			mode_wire, abort_send;
   wire			donesend, crc_send_term, crc_recv_term;
   wire [31:0]		crc_send_buff, crc_recv_buff;
@@ -420,7 +421,7 @@ module integration(input sampler_CLK,
 		     .BITS(crc_recv_bit),
 		     .WRITE_BITS(crc_recv_write),
 		     .TERM(crc_recv_term),
-		     .DONE(crc_done),
+		     .DONE(crc_done_w),
 		     .CRC(crc_recv_buff));
   crc32ieee crc_send(.CLK(send_CLK),
 		     .RST(crc_send_rst),
@@ -460,14 +461,19 @@ module integration(input sampler_CLK,
 	mode <= 0;
 	mode_r1 <= 0;
 	mode_r2 <= 0;
+	crc_done <= 0;
       end
     else
+      begin
+	crc_done <= crc_done_w;
+
       if (DO_GO)
       begin
 	READ_DATA_SEND <= read_w || (mode_wire && !mode);
 	mode <= mode_wire;
 	mode_r1 <= mode;
 	mode_r2 <= mode_r1;
+      end
       end
 
 endmodule

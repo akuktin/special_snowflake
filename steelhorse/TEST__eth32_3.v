@@ -29,8 +29,8 @@ module GLaDOS;
 */
   Steelhorse send(.sampler_CLK(sampler_CLK),
 		  .enc_CLK(enc_CLK),
-		  .recv_CLK(recv_CLK),
-		  .send_CLK(send_CLK),
+		  .recv_CLK(enc_CLK),
+		  .send_CLK(enc_CLK),
 		  .RST(_RST),
 		  .WIRE_RX(__WIRE_3),
 		  .WIRE_TX(__WIRE_1),
@@ -46,8 +46,8 @@ module GLaDOS;
 		  .INTRFC_DATAIN({16'h0,idatain_send}),
 		  .INTRFC_DATAOUT(idataout_send));
   Steelhorse recv(.sampler_CLK(sampler_CLK),
-		  .recv_CLK(recv_CLK),
-		  .send_CLK(send_CLK),
+		  .recv_CLK(enc_CLK),
+		  .send_CLK(enc_CLK),
 		  .enc_CLK(enc_CLK),
 		  .RST(_RST),
 		  .WIRE_RX(__WIRE_1),
