@@ -682,10 +682,11 @@ module GlaDOS;
       core.cpu.regf.RAM_D.ram.r_data[10] <= 32'h0000_0002;
 
 
-`include "test_CPU_proof_of_life.bin"
-//`include "test_special_snowflake_core_prog2.bin"
+//`include "test_CPU_proof_of_life.bin"
 //`include "test_branches_allofthem.bin"
-// `include "test_shifter_prog.bin"
+`include "test_shifter_prog.bin"
+
+//`include "test_special_snowflake_core_prog2.bin"
     end
 
 endmodule // GlaDOS
