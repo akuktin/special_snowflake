@@ -292,7 +292,7 @@ module snowball_cache(input CPU_CLK,
 	// Ofcourse, if it gliches, then we have a problem.
 	mcu_responded <= mcu_responded_trans ^ mcu_responded_reg;
 	if (mcu_responded)
-	  mcu_responded_reg <= !mcu_responded_reg[0];
+	  mcu_responded_reg <= !mcu_responded_reg;
 	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
       end // else: !if(!RST)
 
