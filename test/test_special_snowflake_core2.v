@@ -19,16 +19,13 @@
 `include "../aexm/aexm_xecu.v"
 `include "../aexm/aexm_ibuf.v"
 `include "../aexm/aexm_edk32.v"
-//`include "aexm/aexm_aux.v"
-
-// LSAB
-`include "../hyperfabric/lsab.v"
 
 // Hyperfabric
+`include "../hyperfabric/lsab.v"
 `include "../hyperfabric/transport.v"
 `include "../hyperfabric/mvblck_todram.v"
 `include "../hyperfabric/mvblck_frdram.v"
-`include "../hyperfabric/mvblck_lsab_dram.v"
+`include "../hyperfabric/soft_ctrl.v"
 
 // Special Snowflake
 `include "../special_snowflake/core.v"
@@ -533,61 +530,61 @@ module GlaDOS;
       irq_strobe_slow <= irq_strobe;
       irq_strobe_slow_prev <= irq_strobe_slow;
       RST_CPU <= RST_CPU_pre;
-      if (core.cpu.regf.mDRAM[31] == 32'd0)
+      if (core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0)
 	begin
 	  $display("halting");
 	  $display("wMSR %x", core.cpu.xecu.wMSR);
 	  $display(" r0: %x,  r1: %x,  r2: %x  r3: %x",
-		   core.cpu.regf.mDRAM[0], core.cpu.regf.mDRAM[1],
-		   core.cpu.regf.mDRAM[2], core.cpu.regf.mDRAM[3]);
+		   core.cpu.regf.RAM_D.ram.r_data[0], core.cpu.regf.RAM_D.ram.r_data[1],
+		   core.cpu.regf.RAM_D.ram.r_data[2], core.cpu.regf.RAM_D.ram.r_data[3]);
 	  $display(" r4: %x,  r5: %x,  r6: %x  r7: %x",
-		   core.cpu.regf.mDRAM[4], core.cpu.regf.mDRAM[5],
-		   core.cpu.regf.mDRAM[6], core.cpu.regf.mDRAM[7]);
+		   core.cpu.regf.RAM_D.ram.r_data[4], core.cpu.regf.RAM_D.ram.r_data[5],
+		   core.cpu.regf.RAM_D.ram.r_data[6], core.cpu.regf.RAM_D.ram.r_data[7]);
 	  $display(" r8: %x,  r9: %x, r10: %x r11: %x",
-		   core.cpu.regf.mDRAM[8], core.cpu.regf.mDRAM[9],
-		   core.cpu.regf.mDRAM[10], core.cpu.regf.mDRAM[11]);
+		   core.cpu.regf.RAM_D.ram.r_data[8], core.cpu.regf.RAM_D.ram.r_data[9],
+		   core.cpu.regf.RAM_D.ram.r_data[10], core.cpu.regf.RAM_D.ram.r_data[11]);
 	  $display("r12: %x, r13: %x, r14: %x r15: %x",
-		   core.cpu.regf.mDRAM[12], core.cpu.regf.mDRAM[13],
-		   core.cpu.regf.mDRAM[14], core.cpu.regf.mDRAM[15]);
+		   core.cpu.regf.RAM_D.ram.r_data[12], core.cpu.regf.RAM_D.ram.r_data[13],
+		   core.cpu.regf.RAM_D.ram.r_data[14], core.cpu.regf.RAM_D.ram.r_data[15]);
 	  $display("r16: %x, r17: %x, r18: %x r19: %x",
-		   core.cpu.regf.mDRAM[16], core.cpu.regf.mDRAM[17],
-		   core.cpu.regf.mDRAM[18], core.cpu.regf.mDRAM[19]);
+		   core.cpu.regf.RAM_D.ram.r_data[16], core.cpu.regf.RAM_D.ram.r_data[17],
+		   core.cpu.regf.RAM_D.ram.r_data[18], core.cpu.regf.RAM_D.ram.r_data[19]);
 	  $display("r20: %x, r21: %x, r22: %x r23: %x",
-		   core.cpu.regf.mDRAM[20], core.cpu.regf.mDRAM[21],
-		   core.cpu.regf.mDRAM[22], core.cpu.regf.mDRAM[23]);
+		   core.cpu.regf.RAM_D.ram.r_data[20], core.cpu.regf.RAM_D.ram.r_data[21],
+		   core.cpu.regf.RAM_D.ram.r_data[22], core.cpu.regf.RAM_D.ram.r_data[23]);
 	  $display("r24: %x, r25: %x, r26: %x r27: %x",
-		   core.cpu.regf.mDRAM[24], core.cpu.regf.mDRAM[25],
-		   core.cpu.regf.mDRAM[26], core.cpu.regf.mDRAM[27]);
+		   core.cpu.regf.RAM_D.ram.r_data[24], core.cpu.regf.RAM_D.ram.r_data[25],
+		   core.cpu.regf.RAM_D.ram.r_data[26], core.cpu.regf.RAM_D.ram.r_data[27]);
 	  $display("r28: %x, r29: %x, r30: %x r31: %x",
-		   core.cpu.regf.mDRAM[28], core.cpu.regf.mDRAM[29],
-		   core.cpu.regf.mDRAM[30], core.cpu.regf.mDRAM[31]);
+		   core.cpu.regf.RAM_D.ram.r_data[28], core.cpu.regf.RAM_D.ram.r_data[29],
+		   core.cpu.regf.RAM_D.ram.r_data[30], core.cpu.regf.RAM_D.ram.r_data[31]);
 	  $finish;
 	end
 /*
 	  $display(" r0: %x,  r1: %x,  r2: %x  r3: %x",
-		   core.cpu.regf.mDRAM[0], core.cpu.regf.mDRAM[1],
-		   core.cpu.regf.mDRAM[2], core.cpu.regf.mDRAM[3]);
+		   core.cpu.regf.RAM_D.ram.r_data[0], core.cpu.regf.RAM_D.ram.r_data[1],
+		   core.cpu.regf.RAM_D.ram.r_data[2], core.cpu.regf.RAM_D.ram.r_data[3]);
 	  $display(" r4: %x,  r5: %x,  r6: %x  r7: %x",
-		   core.cpu.regf.mDRAM[4], core.cpu.regf.mDRAM[5],
-		   core.cpu.regf.mDRAM[6], core.cpu.regf.mDRAM[7]);
+		   core.cpu.regf.RAM_D.ram.r_data[4], core.cpu.regf.RAM_D.ram.r_data[5],
+		   core.cpu.regf.RAM_D.ram.r_data[6], core.cpu.regf.RAM_D.ram.r_data[7]);
 	  $display(" r8: %x,  r9: %x, r10: %x r11: %x",
-		   core.cpu.regf.mDRAM[8], core.cpu.regf.mDRAM[9],
-		   core.cpu.regf.mDRAM[10], core.cpu.regf.mDRAM[11]);
+		   core.cpu.regf.RAM_D.ram.r_data[8], core.cpu.regf.RAM_D.ram.r_data[9],
+		   core.cpu.regf.RAM_D.ram.r_data[10], core.cpu.regf.RAM_D.ram.r_data[11]);
 	  $display("r12: %x, r13: %x, r14: %x r15: %x",
-		   core.cpu.regf.mDRAM[12], core.cpu.regf.mDRAM[13],
-		   core.cpu.regf.mDRAM[14], core.cpu.regf.mDRAM[15]);
+		   core.cpu.regf.RAM_D.ram.r_data[12], core.cpu.regf.RAM_D.ram.r_data[13],
+		   core.cpu.regf.RAM_D.ram.r_data[14], core.cpu.regf.RAM_D.ram.r_data[15]);
 	  $display("r16: %x, r17: %x, r18: %x r19: %x",
-		   core.cpu.regf.mDRAM[16], core.cpu.regf.mDRAM[17],
-		   core.cpu.regf.mDRAM[18], core.cpu.regf.mDRAM[19]);
+		   core.cpu.regf.RAM_D.ram.r_data[16], core.cpu.regf.RAM_D.ram.r_data[17],
+		   core.cpu.regf.RAM_D.ram.r_data[18], core.cpu.regf.RAM_D.ram.r_data[19]);
 	  $display("r20: %x, r21: %x, r22: %x r23: %x",
-		   core.cpu.regf.mDRAM[20], core.cpu.regf.mDRAM[21],
-		   core.cpu.regf.mDRAM[22], core.cpu.regf.mDRAM[23]);
+		   core.cpu.regf.RAM_D.ram.r_data[20], core.cpu.regf.RAM_D.ram.r_data[21],
+		   core.cpu.regf.RAM_D.ram.r_data[22], core.cpu.regf.RAM_D.ram.r_data[23]);
 	  $display("r24: %x, r25: %x, r26: %x r27: %x",
-		   core.cpu.regf.mDRAM[24], core.cpu.regf.mDRAM[25],
-		   core.cpu.regf.mDRAM[26], core.cpu.regf.mDRAM[27]);
+		   core.cpu.regf.RAM_D.ram.r_data[24], core.cpu.regf.RAM_D.ram.r_data[25],
+		   core.cpu.regf.RAM_D.ram.r_data[26], core.cpu.regf.RAM_D.ram.r_data[27]);
 	  $display("r28: %x, r29: %x, r30: %x r31: %x",
-		   core.cpu.regf.mDRAM[28], core.cpu.regf.mDRAM[29],
-		   core.cpu.regf.mDRAM[30], core.cpu.regf.mDRAM[31]);
+		   core.cpu.regf.RAM_D.ram.r_data[28], core.cpu.regf.RAM_D.ram.r_data[29],
+		   core.cpu.regf.RAM_D.ram.r_data[30], core.cpu.regf.RAM_D.ram.r_data[31]);
 */
       if (RST_CPU_pre && 0)
 	begin
@@ -645,47 +642,48 @@ module GlaDOS;
         end // for (i=0;i<256;i=i+1)
 
       core.d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
-      core.cpu.regf.mARAM[27] <= 32'h0000_0000;
-      core.cpu.regf.mBRAM[27] <= 32'h0000_0000;
-      core.cpu.regf.mDRAM[27] <= 32'h0000_0000;
+      core.cpu.regf.RAM_A.ram.r_data[27] <= 32'h0000_0000;
+      core.cpu.regf.RAM_B.ram.r_data[27] <= 32'h0000_0000;
+      core.cpu.regf.RAM_D.ram.r_data[27] <= 32'h0000_0000;
 
-      core.cpu.regf.mARAM[8] <= 32'hc000_0000;
-      core.cpu.regf.mBRAM[8] <= 32'hc000_0000;
-      core.cpu.regf.mDRAM[8] <= 32'hc000_0000;
+      core.cpu.regf.RAM_A.ram.r_data[8] <= 32'hc000_0000;
+      core.cpu.regf.RAM_B.ram.r_data[8] <= 32'hc000_0000;
+      core.cpu.regf.RAM_D.ram.r_data[8] <= 32'hc000_0000;
 
 
       // into data DRAM
-      core.cpu.regf.mARAM[9] <= 32'h8d00_0045;
-      core.cpu.regf.mBRAM[9] <= 32'h8d00_0045;
-      core.cpu.regf.mDRAM[9] <= 32'h8d00_0045;
+      core.cpu.regf.RAM_A.ram.r_data[9] <= 32'h8d00_0045;
+      core.cpu.regf.RAM_B.ram.r_data[9] <= 32'h8d00_0045;
+      core.cpu.regf.RAM_D.ram.r_data[9] <= 32'h8d00_0045;
 
 /*
       // into instruction DRAM
-      core.cpu.regf.mARAM[9] <= 32'h8500_0045;
-      core.cpu.regf.mBRAM[9] <= 32'h8500_0045;
-      core.cpu.regf.mDRAM[9] <= 32'h8500_0045;
+      core.cpu.regf.RAM_A.ram.r_data[9] <= 32'h8500_0045;
+      core.cpu.regf.RAM_B.ram.r_data[9] <= 32'h8500_0045;
+      core.cpu.regf.RAM_D.ram.r_data[9] <= 32'h8500_0045;
  */
 /*
       // nothing at all
-      core.cpu.regf.mARAM[9] <= 32'h0000_0045;
-      core.cpu.regf.mBRAM[9] <= 32'h0000_0045;
-      core.cpu.regf.mDRAM[9] <= 32'h0000_0045;
+      core.cpu.regf.RAM_A.ram.r_data[9] <= 32'h0000_0045;
+      core.cpu.regf.RAM_B.ram.r_data[9] <= 32'h0000_0045;
+      core.cpu.regf.RAM_D.ram.r_data[9] <= 32'h0000_0045;
  */
 
       // interrupt
-      core.cpu.regf.mARAM[9] <= 32'hfe00_0045;
-      core.cpu.regf.mBRAM[9] <= 32'hfe00_0045;
-      core.cpu.regf.mDRAM[9] <= 32'hfe00_0045;
-//      cpu.regf.mARAM[9] <= 32'hfe00_0005;
-//      cpu.regf.mBRAM[9] <= 32'hfe00_0005;
-//      cpu.regf.mDRAM[9] <= 32'hfe00_0005;
+      core.cpu.regf.RAM_A.ram.r_data[9] <= 32'hfe00_0045;
+      core.cpu.regf.RAM_B.ram.r_data[9] <= 32'hfe00_0045;
+      core.cpu.regf.RAM_D.ram.r_data[9] <= 32'hfe00_0045;
+//      cpu.regf.RAM_A.ram.r_data[9] <= 32'hfe00_0005;
+//      cpu.regf.RAM_B.ram.r_data[9] <= 32'hfe00_0005;
+//      cpu.regf.RAM_D.ram.r_data[9] <= 32'hfe00_0005;
 
-      core.cpu.regf.mARAM[10] <= 32'h0000_0002;
-      core.cpu.regf.mBRAM[10] <= 32'h0000_0002;
-      core.cpu.regf.mDRAM[10] <= 32'h0000_0002;
+      core.cpu.regf.RAM_A.ram.r_data[10] <= 32'h0000_0002;
+      core.cpu.regf.RAM_B.ram.r_data[10] <= 32'h0000_0002;
+      core.cpu.regf.RAM_D.ram.r_data[10] <= 32'h0000_0002;
 
 
-`include "test_special_snowflake_core_prog2.bin"
+`include "test_CPU_proof_of_life.bin"
+//`include "test_special_snowflake_core_prog2.bin"
 //`include "test_branches_allofthem.bin"
 // `include "test_shifter_prog.bin"
     end
