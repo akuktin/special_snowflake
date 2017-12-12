@@ -272,8 +272,8 @@ module aexm_xecu (/*AUTOARG*/
 
    reg [3:0] 	    rDWBSEL, xDWBSEL;
 //   assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
-  assign aexm_dcache_precycle_addr = {xRESULT[31:29],2'h0,
-				      xRESULT[28:2]};
+  assign aexm_dcache_precycle_addr = {rRES_ADD[31:29],2'h0,
+				      rRES_ADD[28:2]};
 
    always @(/*AUTOSENSE*/rOPC or wADD)
      case (rOPC[1:0])
