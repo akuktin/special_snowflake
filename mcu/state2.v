@@ -103,7 +103,9 @@ module state2(input CLK,
   assign write_match = REQUEST_ACCESS_BULK ? WE_BULK :
 		       (REQUEST_ACCESS_RAND && WE_RAND);
 
-  assign issue_com = (correct_page_any && issue_enable_on_page) ||
+  assign issue_com = (((correct_page_rand && port_REQUEST_ACCESS_RAND) ||
+		       (correct_page_bulk && port_REQUEST_ACCESS_BULK))
+		      && issue_enable_on_page) ||
 		     issue_enable_override;
 
   assign issue_enable_on_page = second_stroke && state_is_readwrite &&
