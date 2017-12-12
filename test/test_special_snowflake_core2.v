@@ -517,6 +517,23 @@ module GlaDOS;
 		      i_mcu.interdictor_tracker.GRANT_ALIGN_BULK});
  */
  	  end
+
+        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE)
+          begin
+            $display("ic %x icop %x icvr %x RAR %x Wr %x",
+                     core.d_mcu.interdictor_tracker.issue_com,
+                     core.d_mcu.interdictor_tracker.issue_enable_on_page,
+                     core.d_mcu.interdictor_tracker.issue_enable_override,
+                     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
+                     core.d_mcu.interdictor_tracker.WE_RAND);
+            $display("cpra %x cpbu %x cpal %x cpan %x cprd %x",
+                     core.d_mcu.interdictor_tracker.correct_page_rand,
+                     core.d_mcu.interdictor_tracker.correct_page_bulk,
+                     core.d_mcu.interdictor_tracker.correct_page_algn,
+                     core.d_mcu.interdictor_tracker.correct_page_any,
+                     core.d_mcu.interdictor_tracker.correct_page_rdy);
+            $display("-----------------------------------------------------");
+          end
       end
 
   always @(posedge CPU_CLK)
@@ -684,7 +701,9 @@ module GlaDOS;
 
 //`include "test_CPU_proof_of_life.bin"
 //`include "test_branches_allofthem.bin"
-`include "test_shifter_prog.bin"
+//`include "test_shifter_prog.bin"
+
+`include "test_memops.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
