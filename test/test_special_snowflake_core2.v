@@ -534,6 +534,7 @@ module GlaDOS;
                      core.d_mcu.interdictor_tracker.correct_page_rdy);
             $display("-----------------------------------------------------");
           end
+
       end
 
   always @(posedge CPU_CLK)
@@ -550,6 +551,20 @@ module GlaDOS;
       if (core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0)
 	begin
 	  $display("halting");
+          $display("acc %x",
+            core.hyper_softcore.accumulator);
+	    for (i=0; i<(256/8); i=i+1)
+	      begin
+		$display("%x: %x %x %x %x  %x %x %x %x", (i*8),
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+1][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+2][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+3][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+4][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+5][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+6][15:0],
+		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+7][15:0]);
+	      end
 	  $display("wMSR %x", core.cpu.xecu.wMSR);
 	  $display(" r0: %x,  r1: %x,  r2: %x  r3: %x",
 		   core.cpu.regf.RAM_D.ram.r_data[0], core.cpu.regf.RAM_D.ram.r_data[1],
@@ -656,7 +671,11 @@ module GlaDOS;
           core.d_cache.cachetag.ram.r_data[i] <= 0;
           core.d_cache.tlb.ram.r_data[i] <= 0;
           core.d_cache.tlbtag.ram.r_data[i] <= 0;
+	  core.hyper_softcore.data_mem.ram.r_data[i] <= 16'h0000;
+	  core.hyper_softcore.prog_mem.ram.r_data[i] <= 16'h4e00;
         end // for (i=0;i<256;i=i+1)
+      core.hyper_softcore.prog_mem.ram.r_data[16] <= 16'h4100;
+      core.hyper_softcore.prog_mem.ram.r_data[18] <= 16'h4603;
 
       core.d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
       core.cpu.regf.RAM_A.ram.r_data[27] <= 32'h0000_0000;

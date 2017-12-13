@@ -47,7 +47,7 @@ module Gremlin(input CLK,
 	       output reg 	 EN_STB_3);
 
   reg        d_r_en_cpu, d_r_en_cpu_delay,
-	     d_w_en_cpu, d_w_en_cpu_delay,
+	     d_w_en_cpu,
 	     READ_CPU_r, WRITE_CPU_r, low_addr_bits_r;
   reg [1:0]  low_addr_bits_w;
   reg [15:0] from_cpu_word;
@@ -114,7 +114,7 @@ module Gremlin(input CLK,
       begin
 	WRITE_CPU_r <= 1; READ_CPU_r <= 1;
 	low_addr_bits_w <= 0; low_addr_bits_r <= 0;
-	d_w_en_cpu <= 0; d_w_en_cpu_delay <= 0;
+	d_w_en_cpu <= 0;
 	d_r_en_cpu <= 0; d_r_en_cpu_delay <= 0;
 	READ_CPU_ACK <= 0; WRITE_CPU_ACK <= 0;
 	OUT_CPU <= 0;
@@ -192,7 +192,6 @@ module Gremlin(input CLK,
 	      READ_CPU_ACK <= 0;
 	  end // else: !if(READ_CPU && !READ_CPU_r)
 
-	d_w_en_cpu_delay <= (d_w_en_cpu && !d_w_en_sys);
 	d_r_en_cpu_delay <= (d_r_en_cpu && !d_r_en_sys);
 	if (d_r_en_cpu_delay)
 	  begin
@@ -249,7 +248,7 @@ module Gremlin(input CLK,
       begin
 	accumulator <= 0; memory_operand <= 0; add_carry <= 0;
 	save_carry <= 0; ip <= 0; index_reg <= 0;
-	instr_f <= 0; instr_o <= 0; wrote_3_req <= 0;
+	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
 	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
 	write_output_reg <= 0;
       end
