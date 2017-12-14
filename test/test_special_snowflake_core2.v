@@ -518,7 +518,7 @@ module GlaDOS;
  */
  	  end
 
-        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE)
+        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 0)
           begin
             $display("ic %x icop %x icvr %x RAR %x Wr %x",
                      core.d_mcu.interdictor_tracker.issue_com,
@@ -548,6 +548,51 @@ module GlaDOS;
       irq_strobe_slow <= irq_strobe;
       irq_strobe_slow_prev <= irq_strobe_slow;
       RST_CPU <= RST_CPU_pre;
+
+/*
+      if (core.d_cache.cache_vld && (! core.d_cache.cache_cycle_we))
+	  begin
+	    if (core.d_cache.cache_hit)
+	      begin
+		$display("####### option 1 %x", core.d_cache.data_cache);
+	      end
+	    else if (core.d_cache.cache_same_word_read)
+	      begin
+		$display("####### option 2 %x", core.d_cache.data_mcu_trans);
+	      end
+	    else
+	      begin
+		$display("####### option 3 %x", core.d_cache.data_mcu_trans_other);
+	      end
+	  end
+	else if (core.d_cache.mcu_responded)
+	  begin
+	    $display("####### option 4 %x", core.d_cache.data_mcu_trans);
+	  end
+      if (core.d_cache.mem_lookup)
+	begin
+	  $display("### mem_lookup cv %x wMF %x ch %x gh %x ccw %x mla %x ct %x",
+		   core.d_cache.cache_vld,
+		   core.d_cache.w_MMU_FAULT,
+		   core.d_cache.cache_hit,
+		   core.d_cache.ghost_hit,
+		   core.d_cache.cache_cycle_we,
+		   core.d_cache.mandatory_lookup_act,
+		   core.d_cache.cache_tlb);
+	end // if (core.d_cache.mem_lookup)
+ */
+/*
+      if ((core.d_cache.mcu_responded_trans ^
+	   core.d_cache.mcu_responded_reg) &&
+	  !core.d_cache.mcu_responded)
+	begin
+	  $display("mrt %x mrr %x mr%",
+		   core.d_cache.mcu_responded_trans,
+		   core.d_cache.mcu_responded_reg,
+		   core.d_cache.mcu_responded);
+	end
+ */
+
       if (core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0)
 	begin
 	  $display("halting");
@@ -675,7 +720,7 @@ module GlaDOS;
 	  core.hyper_softcore.prog_mem.ram.r_data[i] <= 16'h4e00;
         end // for (i=0;i<256;i=i+1)
       core.hyper_softcore.prog_mem.ram.r_data[16] <= 16'h4100;
-      core.hyper_softcore.prog_mem.ram.r_data[18] <= 16'h4603;
+      core.hyper_softcore.prog_mem.ram.r_data[18] <= 16'h4608;
 
       core.d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
       core.cpu.regf.RAM_A.ram.r_data[27] <= 32'h0000_0000;
@@ -722,7 +767,8 @@ module GlaDOS;
 //`include "test_branches_allofthem.bin"
 //`include "test_shifter_prog.bin"
 
-`include "test_memops.bin"
+//`include "test_memops.bin"
+`include "test_dmaops0.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
