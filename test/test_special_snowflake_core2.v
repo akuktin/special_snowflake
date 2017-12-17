@@ -593,7 +593,8 @@ module GlaDOS;
 	end
  */
 
-      if (core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0)
+      if ((core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0) ||
+          (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0))
 	begin
 	  $display("halting");
           $display("acc %x",
@@ -716,11 +717,12 @@ module GlaDOS;
           core.d_cache.cachetag.ram.r_data[i] <= 0;
           core.d_cache.tlb.ram.r_data[i] <= 0;
           core.d_cache.tlbtag.ram.r_data[i] <= 0;
-	  core.hyper_softcore.data_mem.ram.r_data[i] <= 16'h0000;
+	  core.hyper_softcore.data_mem.ram.r_data[i] <= 16'hxxxx;
 	  core.hyper_softcore.prog_mem.ram.r_data[i] <= 16'h4e00;
         end // for (i=0;i<256;i=i+1)
-      core.hyper_softcore.prog_mem.ram.r_data[16] <= 16'h4100;
-      core.hyper_softcore.prog_mem.ram.r_data[18] <= 16'h4608;
+      core.hyper_softcore.data_mem.ram.r_data[255] <= 16'h0000;
+//      core.hyper_softcore.prog_mem.ram.r_data[16] <= 16'h4100;
+//      core.hyper_softcore.prog_mem.ram.r_data[18] <= 16'h4608;
 
       core.d_cache.cachedat.ram.r_data[4] <= 32'hffff_ffff;
       core.cpu.regf.RAM_A.ram.r_data[27] <= 32'h0000_0000;
@@ -768,7 +770,8 @@ module GlaDOS;
 //`include "test_shifter_prog.bin"
 
 //`include "test_memops.bin"
-`include "test_dmaops0.bin"
+//`include "test_dmaops0.bin"
+`include "test_dmaops1.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
