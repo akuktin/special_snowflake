@@ -138,22 +138,22 @@ module Gremlin(input CLK,
 	      2'h0: begin
 		LEN_0 <= {8'h0,IN_CPU[47:32]};
 		DIR_0 <= IN_CPU[58];
-		EN_STB_0_pre <= !EN_STB_0;
+		EN_STB_0_pre <= !EN_STB_0_pre;
 	      end
 	      2'h1: begin
 		LEN_1 <= {8'h0,IN_CPU[47:32]};
 		DIR_1 <= IN_CPU[58];
-		EN_STB_1_pre <= !EN_STB_1;
+		EN_STB_1_pre <= !EN_STB_1_pre;
 	      end
 	      2'h2: begin
 		LEN_2 <= {8'h0,IN_CPU[47:32]};
 		DIR_2 <= IN_CPU[58];
-		EN_STB_2_pre <= !EN_STB_2;
+		EN_STB_2_pre <= !EN_STB_2_pre;
 	      end
 	      2'h3: begin
 		LEN_3 <= {8'h0,IN_CPU[47:32]};
 		DIR_3 <= IN_CPU[58];
-		EN_STB_3_pre <= !EN_STB_3;
+		EN_STB_3_pre <= !EN_STB_3_pre;
 	      end
 	    endcase // case (IN_CPU[57:56])
 	  end
