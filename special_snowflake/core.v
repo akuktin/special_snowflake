@@ -67,12 +67,12 @@ module special_snowflake_core(input RST,
 			      output [23:0]    ph_len_2,
 			      output [23:0]    ph_len_3,
 			      output 	       ph_dir_0,
-			      output 	       ph_enstb_0,
 			      output 	       ph_dir_1,
-			      output 	       ph_enstb_1,
 			      output 	       ph_dir_2,
-			      output 	       ph_enstb_2,
 			      output 	       ph_dir_3,
+			      output 	       ph_enstb_0,
+			      output 	       ph_enstb_1,
+			      output 	       ph_enstb_2,
 			      output 	       ph_enstb_3);
   // --------------------------------------------------------
   reg 					       RST_CPU;

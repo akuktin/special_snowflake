@@ -417,7 +417,21 @@ module GlaDOS;
 			      .errack0_cw(),
 			      .errack1_cw(),
 			      .errack2_cw(),
-			      .errack3_cw());
+			      .errack3_cw(),
+			      // ----------------------
+			      // ----------------------
+			      .ph_len_0(),
+			      .ph_len_1(),
+			      .ph_len_2(),
+			      .ph_len_3(),
+			      .ph_dir_0(),
+			      .ph_dir_1(),
+			      .ph_dir_2(),
+			      .ph_dir_3(),
+			      .ph_enstb_0(),
+			      .ph_enstb_1(),
+			      .ph_enstb_2(),
+			      .ph_enstb_3());
 
 
 /*
