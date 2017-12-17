@@ -314,8 +314,6 @@ module GlaDOS;
   wire 	       d_dma_read, d_dma_wrte, d_dma_read_ack, d_dma_wrte_ack;
   wire [31:0]  d_dma_out;
 
-  reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
-
   wire [23:0]  ph_len_0, ph_len_1, ph_len_2, ph_len_3;
   wire 	       ph_dir_0, ph_enstb_0, ph_dir_1, ph_enstb_1,
 	       ph_dir_2, ph_enstb_2, ph_dir_3, ph_enstb_3;
@@ -474,6 +472,16 @@ module GlaDOS;
       end
     else
       begin
+        if (core.hyper_softcore.instr_o[11:8] == 4'h8)
+          $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
+	if (core.hyper_softcore.trans_activate &&
+	    (! core.hyper_softcore.trans_active) &&
+	    (core.hyper_softcore.trg_gb_0 ||
+	     core.hyper_softcore.trg_gb_1 ||
+	     (core.hyper_softcore.time_mb &&
+	      core.hyper_softcore.small_carousel != 0)))
+	  $display("transactions starts! CTR %x", ctr);
+
 	ph_enstb_0_prev <= core.ph_enstb_0;
 	ph_enstb_1_prev <= core.ph_enstb_1;
 	ph_enstb_2_prev <= core.ph_enstb_2;
@@ -540,14 +548,15 @@ module GlaDOS;
   always @(posedge CPU_CLK)
     if (!RST)
       begin
-	irq_strobe_slow <= 0;
-	irq_strobe_slow_prev <= 0;
       end
     else
     begin
-      irq_strobe_slow <= irq_strobe;
-      irq_strobe_slow_prev <= irq_strobe_slow;
       RST_CPU <= RST_CPU_pre;
+      if (core.cpu.sys_int_i)
+	begin
+	  $display("INTERRUPT! DESC %x",
+		   core.hyper_softcore.IRQ_DESC);
+	end
 
 /*
       if (core.d_cache.cache_vld && (! core.d_cache.cache_cycle_we))
@@ -596,21 +605,31 @@ module GlaDOS;
       if ((core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0) ||
           (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0))
 	begin
-	  $display("halting");
+	  $display("halting CTR %x", ctr);
           $display("acc %x",
             core.hyper_softcore.accumulator);
-	    for (i=0; i<(256/8); i=i+1)
-	      begin
-		$display("%x: %x %x %x %x  %x %x %x %x", (i*8),
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+1][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+2][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+3][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+4][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+5][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+6][15:0],
-		  core.hyper_softcore.data_mem.ram.r_data[(i*8)+7][15:0]);
-	      end
+          $display("input_reg  %x %x %x %x  %x %x %x %x",
+            core.hyper_softcore.input_reg[0],core.hyper_softcore.input_reg[1],
+            core.hyper_softcore.input_reg[2],core.hyper_softcore.input_reg[3],
+            core.hyper_softcore.input_reg[4],core.hyper_softcore.input_reg[5],
+            core.hyper_softcore.input_reg[6],core.hyper_softcore.input_reg[7]);
+          $display("output_reg %x %x %x %x  %x %x %x %x",
+          core.hyper_softcore.output_reg[0],core.hyper_softcore.output_reg[1],
+          core.hyper_softcore.output_reg[2],core.hyper_softcore.output_reg[3],
+          core.hyper_softcore.output_reg[4],core.hyper_softcore.output_reg[5],
+          core.hyper_softcore.output_reg[6],core.hyper_softcore.output_reg[7]);
+          for (i=0; i<(256/8); i=i+1)
+            begin
+              $display("%x: %x %x %x %x  %x %x %x %x", (i*8),
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+1][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+2][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+3][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+4][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+5][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+6][15:0],
+                core.hyper_softcore.data_mem.ram.r_data[(i*8)+7][15:0]);
+            end
 	  $display("wMSR %x", core.cpu.xecu.wMSR);
 	  $display(" r0: %x,  r1: %x,  r2: %x  r3: %x",
 		   core.cpu.regf.RAM_D.ram.r_data[0], core.cpu.regf.RAM_D.ram.r_data[1],

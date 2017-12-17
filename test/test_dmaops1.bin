@@ -100,6 +100,14 @@ core.hyper_softcore.prog_mem.ram.r_data[36] <= 16'h4614; // 0x14 => 0xfffe
 
 //// DATA !
 core.hyper_softcore.data_mem.ram.r_data[0] <= 16'h0018; //// DATA !
+core.hyper_softcore.input_reg[0] <= 16'h3210;
+core.hyper_softcore.input_reg[1] <= 16'h4321;
+core.hyper_softcore.input_reg[2] <= 16'h5432;
+core.hyper_softcore.input_reg[3] <= 16'h6543;
+core.hyper_softcore.input_reg[4] <= 16'h7654;
+core.hyper_softcore.input_reg[5] <= 16'h8765;
+core.hyper_softcore.input_reg[6] <= 16'h9876;
+core.hyper_softcore.input_reg[7] <= 16'ha987;
 //// DATA !
 
 core.hyper_softcore.prog_mem.ram.r_data[37] <= 16'h0a00;
@@ -129,6 +137,22 @@ core.hyper_softcore.prog_mem.ram.r_data[59] <= 16'h4100;
 core.hyper_softcore.prog_mem.ram.r_data[60] <= 16'h4100;
 core.hyper_softcore.prog_mem.ram.r_data[61] <= 16'h0013;
 core.hyper_softcore.prog_mem.ram.r_data[62] <= 16'h462b; // 0x2b => 0xffff
+
+core.hyper_softcore.prog_mem.ram.r_data[63] <= 16'h0400;
+core.hyper_softcore.prog_mem.ram.r_data[64] <= 16'h4630; // 0x30 => 0x3210
+core.hyper_softcore.prog_mem.ram.r_data[65] <= 16'h4500;
+core.hyper_softcore.prog_mem.ram.r_data[66] <= 16'h4631; // 0x31 => 0x9876
+
+core.hyper_softcore.prog_mem.ram.r_data[67] <= 16'hc947; // IRQ (11)
+core.hyper_softcore.prog_mem.ram.r_data[68] <= 16'h4100;
+core.hyper_softcore.prog_mem.ram.r_data[69] <= 16'h4100;
+core.hyper_softcore.prog_mem.ram.r_data[70] <= 16'h4100;
+core.hyper_softcore.prog_mem.ram.r_data[71] <= 16'h4632; // 0x32 => 2
+
+core.hyper_softcore.prog_mem.ram.r_data[72] <= 16'h4b01; // o[1] => 2
+core.hyper_softcore.prog_mem.ram.r_data[73] <= 16'h0130;
+core.hyper_softcore.prog_mem.ram.r_data[74] <= 16'h6b02; // o[2] => 0x3213+tran
+core.hyper_softcore.prog_mem.ram.r_data[75] <= 16'h4633; // 0x33 => 0
 
 
 core.hyper_softcore.prog_mem.ram.r_data[254] <= 16'h6a00;

@@ -278,7 +278,6 @@ module Gremlin(input CLK,
 	    end
 	  else
 	    begin
-//	      $display("wait cycle");
 	      write_output_reg <= 0;
 	      waitkill <= 1;
 	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
