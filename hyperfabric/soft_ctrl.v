@@ -58,7 +58,7 @@ module Gremlin(input CLK,
 
   reg [15:0] accumulator, memory_operand,
 	     instr_f, instr_o;
-  reg [7:0]  ip, index, index_reg;
+  reg [7:0]  ip, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req, irq_strobe;
   reg 	     add_carry, save_carry, waitkill;
 
@@ -227,7 +227,7 @@ module Gremlin(input CLK,
 		  instr_o[7:0] : ip +1;
 
   assign d_r_addr_sys = instr[12] ? index : instr[7:0];
-  assign d_w_addr_sys = instr_o[12] ? index_reg : instr_o[7:0];
+  assign d_w_addr_sys = instr_o[12] ? index_capture : instr_o[7:0];
   assign d_w_en_sys   = (instr_o[11:8] == 4'h6) || // store
 			(instr_o[11:8] == 4'h7);
   assign d_r_en_sys   = (!instr[14]) && (!waitkill);
@@ -247,7 +247,7 @@ module Gremlin(input CLK,
     if (!RST)
       begin
 	accumulator <= 0; memory_operand <= 0; add_carry <= 0;
-	save_carry <= 0; ip <= 0; index_reg <= 0;
+	save_carry <= 0; ip <= 0; index_reg <= 0; index_capture <= 0;
 	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
 	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
 	write_output_reg <= 0;
@@ -265,6 +265,7 @@ module Gremlin(input CLK,
 	    2'h3: memory_operand <= 16'hffff;
 	  endcase // case (instr_f[14:13])
 
+	  index_capture <= index_reg;
 	  if (instr_o[11:8] != 4'hc)
 	    index_reg <= index;
 	  if (instr_o[11:8] != 4'h8)
@@ -277,6 +278,7 @@ module Gremlin(input CLK,
 	    end
 	  else
 	    begin
+//	      $display("wait cycle");
 	      write_output_reg <= 0;
 	      waitkill <= 1;
 	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
