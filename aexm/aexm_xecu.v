@@ -48,7 +48,7 @@ module aexm_xecu (/*AUTOARG*/
        rOPA <= 0;
      else if (d_en)
      case (xMXSRC)
-       2'o0: rOPA <= xREGA;
+       2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
        2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
        2'o2: rOPA <= rDWBDI;
        2'o3: rOPA <= {rIPC, 2'o0};
