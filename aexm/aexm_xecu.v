@@ -50,8 +50,8 @@ module aexm_xecu (/*AUTOARG*/
      case (xMXSRC)
        2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
        2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
-       2'o2: rOPA <= rDWBDI;
-       2'o3: rOPA <= {rIPC, 2'o0};
+       2'o2: rOPA <= fSUB ? ~rDWBDI : rDWBDI;
+       2'o3: rOPA <= fSUB ? ~({rIPC, 2'o0}) : {rIPC, 2'o0};
      endcase // case (xMXSRC)
 
    always @(posedge gclk)
