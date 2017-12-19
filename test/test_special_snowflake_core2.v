@@ -514,6 +514,10 @@ module GlaDOS;
 	i_mcu_req_access_prev <= core.i_mcu_req_access;
 	refresh_strobe_prev <= core.refresh_strobe;
 
+	if (core.lsab_in.we && 0)
+	  $display("LSAB wr%x addr %x data %x", core.lsab_in.WRITE_FIFO,
+		   core.lsab_in.write_addr, core.lsab_in.in_mem);
+
 //	if (i_mcu_req_access & ! i_mcu_req_access_prev)
 //	if (refresh_strobe ^ refresh_strobe_prev)
 //	if (i_mcu_algn_req && ! i_mcu_algn_ack)
@@ -697,7 +701,7 @@ module GlaDOS;
 		   core.cpu.regf.RAM_D.ram.r_data[28], core.cpu.regf.RAM_D.ram.r_data[29],
 		   core.cpu.regf.RAM_D.ram.r_data[30], core.cpu.regf.RAM_D.ram.r_data[31]);
 */
-      if (RST_CPU_pre && 0)
+      if (RST_CPU_pre && 1)
 	begin
 //      $display("c_vld %x req_tag %x ^ rsp %x idx %x en %x/%x",
 //	       core.i_cache.cachehit_vld, core.i_cache.req_tag,
@@ -709,29 +713,39 @@ module GlaDOS;
 		   core.i_cache_pc_addr, core.i_cache_c_addr,
                     core.i_cache_datai, core.i_cache_enable);
  */
-
+/*
 	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x cpu_en %x fSTALL %x rOP %o",
 		   core.i_cache_pc_addr, core.i_cache_datai,
 		   core.i_cache_enable, core.i_cache_busy,
 		   core.cpu.cpu_enable, core.cpu.fSTALL,
 		   {core.cpu.ibuf.rOPC});
-/*
-	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
-		   cpu.bpcu.pre_rIPC, cpu.bpcu.pc_inc, cpu.bpcu.xIPC,
-		   cpu.cpu_mode_memop);
-
-	  $display("rRESULT %x rRW %x rSIMM %x rOPA %x rOPB %x",
-		   cpu.rRESULT, cpu.rRW, cpu.rSIMM,
-		   cpu.xecu.rOPA, cpu.xecu.rOPB);
  */
-	  $display("xWDAT %x en %x rDWBDI %x rRW %x",
+
+	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
+		   core.cpu.bpcu.pre_rIPC, core.cpu.bpcu.pc_inc,
+		   core.cpu.bpcu.xIPC, core.cpu.cpu_mode_memop);
+	  $display("xMXSRC %x xMXTGT %x xRESULT %x",
+		   core.cpu.xMXSRC, core.cpu.xMXTGT,core.cpu.xecu.xRESULT);
+	  $display("rRESULT %x rRW %x rOPC %o rOPA %x rOPB %x",
+		   core.cpu.rRESULT, core.cpu.rRW, core.cpu.rOPC,
+		   core.cpu.xecu.rOPA, core.cpu.xecu.rOPB);
+ 	  $display("xWDAT %x aA %x dA %x aB %x dB %x aD %x dD %x",
+		   core.cpu.regf.xWDAT,
+		   core.cpu.regf.regf_rRA, core.cpu.regf.xREGA,
+		   core.cpu.regf.regf_rRB, core.cpu.regf.xREGB,
+		   core.cpu.regf.regf_rRD, core.cpu.regf.xREGD);
+
+/*
+ 	  $display("xWDAT %x en %x rDWBDI %x rRW %x",
 		   core.cpu.regf.xWDAT,
 		   {core.cpu.regf.grst,core.cpu.regf.fRDWE,core.cpu.regf.w_en},
 		   core.cpu.regf.rDWBDI, core.cpu.regf.rRW);
-
+ */
+/*
 	  $display("dpcadr %x ddi %x ddo %x den %x dwe %x dbsy %x",
 		   {core.d_cache_pc_addr,2'b00}, core.d_cache_datai, core.d_cache_datao,
 		   core.d_cache_enable, core.d_cache_we, core.d_cache_busy);
+ */
 
 	  $display("---------------------------------------------------");
 	end // if (CPU_RST)
@@ -804,7 +818,8 @@ module GlaDOS;
 
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
-`include "test_dmaops1.bin"
+//`include "test_dmaops1.bin"
+`include "test_dmaops2.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
