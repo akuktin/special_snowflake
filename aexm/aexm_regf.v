@@ -85,7 +85,7 @@ module aexm_regf (/*AUTOARG*/
 		 .WADDR({3'h0,rRW}),
 		 .WE(do_write),
 		 .WCLKE(1'b1),
-		 .WCLK(gclk));
+		 .WCLK(!gclk));
 
   iceram32 RAM_B(.RDATA(xREGB),
 		 .RADDR({3'h0,regf_rRB}),
@@ -97,7 +97,7 @@ module aexm_regf (/*AUTOARG*/
 		 .WADDR({3'h0,rRW}),
 		 .WE(do_write),
 		 .WCLKE(1'b1),
-		 .WCLK(gclk));
+		 .WCLK(!gclk));
 
   iceram32 RAM_D(.RDATA(xREGD),
 		 .RADDR({3'h0,regf_rRD}),
@@ -109,7 +109,7 @@ module aexm_regf (/*AUTOARG*/
 		 .WADDR({3'h0,rRW}),
 		 .WE(do_write),
 		 .WCLKE(1'b1),
-		 .WCLK(gclk));
+		 .WCLK(!gclk));
 
    always @(posedge gclk)
      begin
