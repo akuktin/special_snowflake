@@ -3,7 +3,7 @@ module aexm_bpcu (/*AUTOARG*/
    aexm_icache_precycle_addr, rIPC, rPC, rPCLNK,
    dSKIP, xSKIP,
    // Inputs
-   xMXALT, rOPC, rRD, rRA, xRESULT, rDWBDI, xREGA,
+   xMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
    cpu_mode_memop, xIREG, cpu_interrupt,
    gclk, grst, x_en, d_en
    );
@@ -23,7 +23,7 @@ module aexm_bpcu (/*AUTOARG*/
    input [5:0] 	   rOPC;
    input [4:0] 	   rRD, rRA;
    input [31:0]    xRESULT; // ALU
-   input [31:0]    rDWBDI; // RAM
+   input [31:0]    c_io_rg;
    input [31:0]    xREGA;
   input [31:0] 	   xIREG;
    //input [1:0] 	   rXCE;
@@ -49,7 +49,7 @@ module aexm_bpcu (/*AUTOARG*/
       wREGA <= 0;
     else if (d_en)
       case (xMXALT)
-	2'o2: wREGA <= rDWBDI;
+	2'o2: wREGA <= c_io_rg;
 	2'o1: wREGA <= xRESULT;
 	default: wREGA <= xREGA;
       endcase // case (xMXALT)

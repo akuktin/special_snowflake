@@ -724,10 +724,13 @@ module GlaDOS;
 	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
 		   core.cpu.bpcu.pre_rIPC, core.cpu.bpcu.pc_inc,
 		   core.cpu.bpcu.xIPC, core.cpu.cpu_mode_memop);
-	  $display("xMXSRC %x xMXTGT %x xRESULT %x",
-		   core.cpu.xMXSRC, core.cpu.xMXTGT,core.cpu.xecu.xRESULT);
-	  $display("rRESULT %x rRW %x rOPC %o rOPA %x rOPB %x",
-		   core.cpu.rRESULT, core.cpu.rRW, core.cpu.rOPC,
+	  $display("xMXSRC %x xMXTGT %x xRESULT %x wREGA %x c_io_rg %x",
+		   core.cpu.xMXSRC, core.cpu.xMXTGT,
+		   core.cpu.xecu.xRESULT, core.cpu.bpcu.wREGA,
+		   core.cpu.bpcu.c_io_rg);
+	  $display("rRESULT %x rRW %x we %x rOPC %o rOPA %x rOPB %x",
+		   core.cpu.rRESULT, core.cpu.rRW, core.cpu.regf.w_en,
+                   core.cpu.rOPC,
 		   core.cpu.xecu.rOPA, core.cpu.xecu.rOPB);
  	  $display("xWDAT %x aA %x dA %x aB %x dB %x aD %x dD %x",
 		   core.cpu.regf.xWDAT,
@@ -747,6 +750,8 @@ module GlaDOS;
 		   core.d_cache_enable, core.d_cache_we, core.d_cache_busy);
  */
 
+          if (core.cpu.bpcu.xBRA)
+            $display("took branch");
 	  $display("---------------------------------------------------");
 	end // if (CPU_RST)
     end
@@ -815,11 +820,12 @@ module GlaDOS;
 //`include "test_CPU_proof_of_life.bin"
 //`include "test_branches_allofthem.bin"
 //`include "test_shifter_prog.bin"
+`include "test_forward.bin"
 
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-`include "test_dmaops2.bin"
+//`include "test_dmaops2.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end

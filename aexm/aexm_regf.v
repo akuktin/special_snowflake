@@ -1,6 +1,6 @@
 module aexm_regf (/*AUTOARG*/
    // Outputs
-   xREGA, xREGB, rDWBDI, aexm_dcache_datao,
+   xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
    rOPC, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
    aexm_dcache_datai, gclk, grst, x_en, d_en,
@@ -8,7 +8,7 @@ module aexm_regf (/*AUTOARG*/
    );
    // INTERNAL
    output [31:0] xREGA, xREGB;
-   output [31:0] rDWBDI;
+   output [31:0] c_io_rg;
    input [5:0] 	 rOPC;
    input [4:0] 	 rRW, rRD;
    input [1:0] 	 rMXDST;
@@ -57,7 +57,7 @@ module aexm_regf (/*AUTOARG*/
   reg 		 w_en;
 
   wire [31:0] 	 xREGA, xREGB, xREGD;
-  reg [31:0] 	 rREGD, rREGA, rREGB;
+  reg [31:0] 	 rREGD;
 
    wire 	 fRDWE = |rRW;
 
@@ -116,10 +116,12 @@ module aexm_regf (/*AUTOARG*/
        rDWBDI <= xDWBDI;
        w_en <= x_en;
 
-       rREGA <= xREGA;
-       rREGB <= xREGB;
        rREGD <= xREGD;
      end
+
+  assign c_io_rg = ((rRW == regf_rRA) ||
+		    (rRW == regf_rRB)) ?
+		   rRESULT : rDWBDI;
 
    // --- STORE SIZER ---------------------------------------------
    // Replicates the data bytes across depending on the size of the

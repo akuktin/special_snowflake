@@ -4,7 +4,7 @@ module aexm_xecu (/*AUTOARG*/
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    xREGA, xREGB, xMXSRC, xMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
-   xSIMM, rIMM, rOPC, xOPC, rRD, rDWBDI, rIPC, rPC, gclk, grst, d_en, x_en
+   xSIMM, rIMM, rOPC, xOPC, rRD, c_io_rg, rIPC, rPC, gclk, grst, d_en, x_en
    );
    parameter DW=32;
 
@@ -29,7 +29,7 @@ module aexm_xecu (/*AUTOARG*/
    input [15:0]    rIMM;
    input [5:0] 	   rOPC, xOPC;
    input [4:0] 	   rRD;
-   input [31:0]    rDWBDI;
+   input [31:0]    c_io_rg;
    input [31:2]    rIPC, rPC;
 
    // SYSTEM
@@ -50,7 +50,7 @@ module aexm_xecu (/*AUTOARG*/
      case (xMXSRC)
        2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
        2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
-       2'o2: rOPA <= fSUB ? ~rDWBDI : rDWBDI;
+       2'o2: rOPA <= fSUB ? ~c_io_rg : c_io_rg;
        2'o3: rOPA <= fSUB ? ~({rIPC, 2'o0}) : {rIPC, 2'o0};
      endcase // case (xMXSRC)
 
@@ -61,7 +61,7 @@ module aexm_xecu (/*AUTOARG*/
      case (xMXTGT)
        2'o0: rOPB <= xREGB;
        2'o1: rOPB <= xRESULT;
-       2'o2: rOPB <= rDWBDI;
+       2'o2: rOPB <= c_io_rg;
        2'o3: rOPB <= xSIMM;
      endcase // case (xMXTGT)
 

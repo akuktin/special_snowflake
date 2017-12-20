@@ -99,6 +99,8 @@ module aexm_ctrl (/*AUTOARG*/
    // --- OPERAND SELECTOR ---------------------------------
 
    wire 	 wRDWE = |xRW;
+   wire		 late_forward_A = (rRW == wRA);
+   wire		 late_forward_B = (rRW == wRB);
    wire 	 wAFWD_M = (xRW == wRA) & (xMXDST == 2'o2) & wRDWE;
    wire 	 wBFWD_M = (xRW == wRB) & (xMXDST == 2'o2) & wRDWE;
    wire 	 wAFWD_R = (xRW == wRA) & (xMXDST == 2'o0) & wRDWE;
@@ -110,13 +112,16 @@ module aexm_ctrl (/*AUTOARG*/
 	xMXSRC <= (wBRU | wBCC) ? 2'o3 : // PC
 		  (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
+		  (late_forward_A) ? 2'o2 :
 		  2'o0; // REG
 	xMXTGT <= (wOPC[3]) ? 2'o3 : // IMM
 		  (wBFWD_M) ? 2'o2 : // RAM
 		  (wBFWD_R) ? 2'o1 : // FWD
+		  (late_forward_B) ? 2'o2 :
 		  2'o0; // REG
 	xMXALT <= (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
+		  (late_forward_A) ? 2'o2 :
 		  2'o0; // REG
      end
 

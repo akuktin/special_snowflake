@@ -44,7 +44,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
    wire			dSKIP;
    wire			xSKIP;
-   wire [31:0]		rDWBDI;			// From regf of aexm_regf.v
+   wire [31:0]		c_io_rg;		// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
    wire			rMSR_IE;		// From xecu of aexm_xecu.v
@@ -176,7 +176,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRA				(rRA[4:0]),
 	   .xIREG			(xIREG[31:0]),
 	   .xRESULT			(xRESULT[31:0]),
-	   .rDWBDI			(rDWBDI[31:0]),
+	   .c_io_rg			(c_io_rg[31:0]),
 	   .xREGA			(xREGA[31:0]),
 	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
@@ -189,7 +189,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   // Outputs
 	   .xREGA			(xREGA[31:0]),
 	   .xREGB			(xREGB[31:0]),
-	   .rDWBDI			(rDWBDI[31:0]),
+	   .c_io_rg			(c_io_rg[31:0]),
 	   .aexm_dcache_datao           (aexm_dcache_datao),
 	   // Inputs
 	   .rOPC			(rOPC[5:0]),
@@ -231,7 +231,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rOPC			(rOPC[5:0]),
 	   .xOPC			(xOPC[5:0]),
 	   .rRD				(rRD[4:0]),
-	   .rDWBDI			(rDWBDI[31:0]),
+	   .c_io_rg			(c_io_rg[31:0]),
 	   .rIPC			(rIPC[31:2]),
 	   .rPC				(rPC[31:2]),
 	   .gclk			(gclk),
