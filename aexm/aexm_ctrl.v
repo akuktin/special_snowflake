@@ -106,8 +106,8 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wAFWD_R = (xRW == wRA) & (xMXDST == 2'o0) & wRDWE;
    wire 	 wBFWD_R = (xRW == wRB) & (xMXDST == 2'o0) & wRDWE;
 
-   always @(/*AUTOSENSE*/wAFWD_M or wAFWD_R or wBCC or wBFWD_M
-	    or wBFWD_R or wBRU or wOPC)
+   always @(wAFWD_M or wAFWD_R or wBCC or wBFWD_M or wBFWD_R or
+	    wBRU or wOPC or late_forward_A or late_forward_B)
      begin
 	xMXSRC <= (wBRU | wBCC) ? 2'o3 : // PC
 		  (wAFWD_M) ? 2'o2 : // RAM
