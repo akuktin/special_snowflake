@@ -720,29 +720,37 @@ module GlaDOS;
 		   core.cpu.cpu_enable, core.cpu.fSTALL,
 		   {core.cpu.ibuf.rOPC});
  */
-
+/*
 	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
 		   core.cpu.bpcu.pre_rIPC, core.cpu.bpcu.pc_inc,
 		   core.cpu.bpcu.xIPC, core.cpu.cpu_mode_memop);
-	  $display("xMXSRC %x xMXTGT %x xRESULT %x wREGA %x c_io_rg %x",
-		   core.cpu.xMXSRC, core.cpu.xMXTGT,
+ */
+/*
+	  $display("xMXSRC %x xMXTGT %x xMXALT %x xRESULT %x wREGA %x c_io_rg %x",
+		   core.cpu.xMXSRC, core.cpu.xMXTGT, core.cpu.xMXALT,
 		   core.cpu.xecu.xRESULT, core.cpu.bpcu.wREGA,
 		   core.cpu.bpcu.c_io_rg);
+ */
+/*
+	  $display("lfA %x lfB %x AfwM %x BfwM %x AfwR %x BfwR %x xMXSRC %x xMXTGT %x xMXALT %x",
+		   core.cpu.ctrl.late_forward_A, core.cpu.ctrl.late_forward_B,
+                   core.cpu.ctrl.wAFWD_M, core.cpu.ctrl.wBFWD_M,
+                   core.cpu.ctrl.wAFWD_R, core.cpu.ctrl.wBFWD_R,
+                   core.cpu.ctrl.xMXSRC, core.cpu.ctrl.xMXTGT,
+                   core.cpu.ctrl.xMXALT);
+ */
+/*
 	  $display("rRESULT %x rRW %x we %x rOPC %o rOPA %x rOPB %x",
 		   core.cpu.rRESULT, core.cpu.rRW, core.cpu.regf.w_en,
                    core.cpu.rOPC,
 		   core.cpu.xecu.rOPA, core.cpu.xecu.rOPB);
+ */
+/*
  	  $display("xWDAT %x aA %x dA %x aB %x dB %x aD %x dD %x",
 		   core.cpu.regf.xWDAT,
 		   core.cpu.regf.regf_rRA, core.cpu.regf.xREGA,
 		   core.cpu.regf.regf_rRB, core.cpu.regf.xREGB,
 		   core.cpu.regf.regf_rRD, core.cpu.regf.xREGD);
-
-/*
- 	  $display("xWDAT %x en %x rDWBDI %x rRW %x",
-		   core.cpu.regf.xWDAT,
-		   {core.cpu.regf.grst,core.cpu.regf.fRDWE,core.cpu.regf.w_en},
-		   core.cpu.regf.rDWBDI, core.cpu.regf.rRW);
  */
 /*
 	  $display("dpcadr %x ddi %x ddo %x den %x dwe %x dbsy %x",
@@ -750,9 +758,9 @@ module GlaDOS;
 		   core.d_cache_enable, core.d_cache_we, core.d_cache_busy);
  */
 
-          if (core.cpu.bpcu.xBRA)
-            $display("took branch");
-	  $display("---------------------------------------------------");
+//          if (core.cpu.bpcu.xBRA)
+//            $display("took branch");
+//          $display("---------------------------------------------------");
 	end // if (CPU_RST)
     end
 
@@ -820,12 +828,13 @@ module GlaDOS;
 //`include "test_CPU_proof_of_life.bin"
 //`include "test_branches_allofthem.bin"
 //`include "test_shifter_prog.bin"
-`include "test_forward.bin"
+//`include "test_forward.bin"
+//`include "test_branchbug.bin"
 
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-//`include "test_dmaops2.bin"
+`include "test_dmaops2.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
