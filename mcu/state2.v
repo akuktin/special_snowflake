@@ -12,13 +12,13 @@ module state2(input CLK,
 	      input 		REFRESH_STROBE,
 	      /* random port */
 	      input [25:0] 	ADDRESS_RAND,
-	      input 		WE_RAND,
+	      input 		port_WE_RAND,
 	      input 		port_REQUEST_ACCESS_RAND,
 	      output reg 	GRANT_ACCESS_RAND,
 	      input [3:0] 	WE_ARRAY_RAND,
 	      /* bulk_port */
 	      input [25:0] 	ADDRESS_BULK,
-	      input 		WE_BULK,
+	      input 		port_WE_BULK,
 	      input 		port_REQUEST_ACCESS_BULK,
 	      output reg 	GRANT_ACCESS_BULK,
 	      input 		port_REQUEST_ALIGN_BULK,
@@ -34,8 +34,8 @@ module state2(input CLK,
 				     refresh_strobe_ack, state_is_write,
 				     SOME_PAGE_ACTIVE, second_stroke,
 				     REFRESH_TIME, REQUEST_ALIGN_BULK_dly,
-				     REQUEST_ACCESS_RAND,
-				     REQUEST_ACCESS_BULK,
+				     REQUEST_ACCESS_RAND, WE_RAND,
+				     REQUEST_ACCESS_BULK, WE_BULK,
 				     REQUEST_ALIGN_BULK,
 				     correct_page_rand, correct_page_bulk,
 				     correct_page_algn, correct_page_any,
@@ -188,14 +188,16 @@ module state2(input CLK,
 
 	REQUEST_ACCESS_RAND <= 0; REQUEST_ACCESS_BULK <= 0;
 	REQUEST_ALIGN_BULK <= 0; correct_page_rand <= 0;
-	correct_page_bulk <= 0; correct_page_algn <= 0;
-	correct_page_any <= 0; correct_page_rdy <= 0;
+	correct_page_bulk <= 0; correct_page_algn <= 0; WE_BULK <= 0;
+	correct_page_any <= 0; correct_page_rdy <= 0; WE_RAND <= 0;
       end
     else
       begin
 	REQUEST_ACCESS_RAND <= port_REQUEST_ACCESS_RAND;
 	REQUEST_ACCESS_BULK <= port_REQUEST_ACCESS_BULK;
 	REQUEST_ALIGN_BULK <= port_REQUEST_ALIGN_BULK;
+	WE_BULK <= port_WE_BULK;
+	WE_RAND <= port_WE_RAND;
 
 	correct_page_rand <= correct_page_rand_w;
 	correct_page_bulk <= correct_page_bulk_w;
