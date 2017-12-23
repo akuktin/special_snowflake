@@ -70,7 +70,7 @@ module Gremlin(input CLK,
   reg [7:0]  small_carousel;
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
-	     trans_activate, write_output_reg;
+	     trans_activate, write_output_reg, issue_op_new;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
@@ -328,15 +328,15 @@ module Gremlin(input CLK,
 	      IRQ_DESC <= accumulator[12:11]; // maybe
 	      accumulator <= 0; // probably a good idea
 	    end
-	    // fucking load instrunction, bitch!
+	    // fucking load instruction, bitch!
 	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
 //	      write_output_reg controlled writing of output is way below
-	      if (instr_o[13] && (accumulator[13:2] != 0)) // provisional
+	      if ((!instr_o[14]) && (accumulator[13:2] != 0))// provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
 
-		  accumulator <= 0; // maybe overly accomodative with this
+		  accumulator <= 0;
 		end
 	    end
 
@@ -376,7 +376,7 @@ module Gremlin(input CLK,
 	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0; MCU_PAGE_ADDR <= 0;
 	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
 	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
-	active_trans_thistrans <= 0;
+	active_trans_thistrans <= 0; issue_op_new <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
       end
     else
@@ -397,6 +397,7 @@ module Gremlin(input CLK,
 	    active_trans_thistrans <= active_trans;
 	    trans_active <= 1;
 	    wrote_3_ack <= wrote_3_ack +1;
+	    issue_op_new <= !issue_op_new;
 
 	    // provisional
 	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
@@ -418,7 +419,7 @@ module Gremlin(input CLK,
 	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
 	     (MCU_REQUEST_ALIGN[1] && MCU_GRANT_ALIGN[1])) &&
 	    trans_active)
-	  issue_op[0] <= !issue_op[0];
+	  issue_op[0] <= issue_op_new;
 	// once more, supposed to be out of the if block
 	issue_op[1] <= issue_op[0];
 
