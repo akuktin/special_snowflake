@@ -456,6 +456,8 @@ module special_snowflake_core(input RST,
 			 // ---------------------
 			 .RST_MVBLCK({mvblck_RST_fill,mvblck_RST_empty}),
 			 .MCU_REFRESH_STROBE(refresh_strobe),
+			 .SWCH_ISEL(w_isel),
+			 .SWCH_OSEL(w_osel),
 			 // ---------------------
 			 .BLCK_START(w_start_address),
 			 .BLCK_COUNT_REQ(w_count_req),

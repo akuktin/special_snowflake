@@ -15,6 +15,8 @@ module Gremlin(input CLK,
 
 	       output reg [1:0]  RST_MVBLCK,
 	       output reg 	 MCU_REFRESH_STROBE,
+	       output reg [2:0]  SWCH_ISEL,
+	       output reg [2:0]  SWCH_OSEL,
 
 		 /* begin BLOCK MOVER */
 	       output reg [11:0] BLCK_START,
@@ -378,6 +380,7 @@ module Gremlin(input CLK,
 	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
 	active_trans_thistrans <= 0; issue_op_new <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
+	SWCH_ISEL <= 0; SWCH_OSEL <= 0;
       end
     else
       begin
@@ -414,6 +417,16 @@ module Gremlin(input CLK,
 	    // perhaps
 	    RST_MVBLCK <= {output_reg[{active_trans,2'h2}][14],
 			   ~output_reg[{active_trans,2'h2}][14]};
+	    SWCH_ISEL <= output_reg[{active_trans,2'h2}][14] ?
+			 3'b100 :
+			 {1'b0,
+			  output_reg[{active_trans,2'h2}][15],
+			  ~output_reg[{active_trans,2'h2}][15]};
+	    SWCH_OSEL <= output_reg[{active_trans,2'h2}][14] ?
+			 {1'b0,
+			  output_reg[{active_trans,2'h2}][15],
+			  ~output_reg[{active_trans,2'h2}][15]} :
+			 3'b100;
 	  end // if (trans_activate &&...
 
 	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
