@@ -17,13 +17,13 @@ module state2(input CLK,
 	      output reg 	GRANT_ACCESS_RAND,
 	      input [3:0] 	WE_ARRAY_RAND,
 	      /* bulk_port */
-	      input [25:0] 	ADDRESS_BULK,
+	      input [25:0] 	port_ADDRESS_BULK,
 	      input 		port_WE_BULK,
 	      input 		port_REQUEST_ACCESS_BULK,
 	      output reg 	GRANT_ACCESS_BULK,
 	      input 		port_REQUEST_ALIGN_BULK,
 	      output reg 	GRANT_ALIGN_BULK,
-	      input [3:0] 	WE_ARRAY_BULK,
+	      input [3:0] 	port_WE_ARRAY_BULK,
 	      /* end ports */
 	      output reg [12:0] ADDRESS_REG,
 	      output reg [1:0] 	BANK_REG,
@@ -41,8 +41,9 @@ module state2(input CLK,
 				     correct_page_algn, correct_page_any,
 				     correct_page_rdy;
   reg [2:0] 			     command_reg2, actv_timeout;
-  reg [3:0] 			     counter;
+  reg [3:0] 			     counter, WE_ARRAY_BULK;
   reg [13:0] 			     page_current;
+  reg [25:0] 			     ADDRESS_BULK;
 
   wire 				     issue_com,
 				     correct_page_rand_w,
@@ -104,7 +105,7 @@ module state2(input CLK,
 		       (REQUEST_ACCESS_RAND && WE_RAND);
 
   assign issue_com = (((correct_page_rand && port_REQUEST_ACCESS_RAND) ||
-		       (correct_page_bulk && port_REQUEST_ACCESS_BULK))
+		       (correct_page_bulk && REQUEST_ACCESS_BULK))
 		      && issue_enable_on_page) ||
 		     issue_enable_override;
 
@@ -198,6 +199,8 @@ module state2(input CLK,
 	REQUEST_ALIGN_BULK <= port_REQUEST_ALIGN_BULK;
 	WE_BULK <= port_WE_BULK;
 	WE_RAND <= port_WE_RAND;
+	ADDRESS_BULK <= port_ADDRESS_BULK;
+	WE_ARRAY_BULK <= port_WE_ARRAY_BULK;
 
 	correct_page_rand <= correct_page_rand_w;
 	correct_page_bulk <= correct_page_bulk_w;
