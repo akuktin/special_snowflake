@@ -299,12 +299,12 @@ module outputs(input CLK_p,
 	       input 	     RST,
 	       input [3:0]   COMMAND_LATCHED,
 	       input [3:0]   WE_ARRAY,
-	       input [31:0]  DATA_W,
+	       input [31:0]  port_DATA_W,
 	       inout [15:0]  DQ,
 	       inout 	     DQS,
 	       output [31:0] DATA_R,
 	       output 	     DM);
-  reg [31:0] 			 data_gapholder, dq_predriver;
+  reg [31:0] 			 data_gapholder, dq_predriver, DATA_W;
   reg [3:0] 			 we_gapholder;
   reg [1:0] 			 we_longholder;
   reg [1:0] 			 dm_predriver, dqs_predriver, active;
@@ -343,11 +343,12 @@ module outputs(input CLK_p,
       begin
 	data_gapholder <= 0; we_gapholder <= 0; we_longholder <= 0;
 	dq_predriver <= 0; dm_predriver <= 0; dqdm_z_prectrl <= 0;
-	dqs_predriver <= 0;
+	dqs_predriver <= 0; DATA_W <= 0;
 	active <= 0; high_bits <= 0;
       end
     else
       begin
+	DATA_W <= port_DATA_W;
 	data_gapholder <= DATA_W;
 	dq_predriver <= data_gapholder;
 
