@@ -401,6 +401,16 @@ module Gremlin(input CLK,
 	    rdmem_op <= output_reg[{active_trans,2'h2}][14];
 	    opon_data <= output_reg[{active_trans,2'h2}][15];
 	    ready_trans <= 1;
+
+	    // something
+	    BLCK_SECTION <= output_reg[{active_trans,2'h2}][1:0];
+	    // maybe
+	    BLCK_COUNT_REQ <= output_reg[{active_trans,2'h2}][13:2];
+	    // provisional
+	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
+	    // provisional
+	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
+			      output_reg[{active_trans,2'h0}][15:12]};
 	  end
 	else
 	  ready_trans <= 0;
@@ -412,15 +422,6 @@ module Gremlin(input CLK,
 	    wrote_3_ack <= wrote_3_ack +1;
 	    issue_op_new <= !issue_op_new;
 
-	    // provisional
-	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
-	    // something
-	    BLCK_SECTION <= output_reg[{active_trans,2'h2}][1:0];
-	    // maybe
-	    BLCK_COUNT_REQ <= output_reg[{active_trans,2'h2}][13:2];
-	    // provisional
-	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
-			      output_reg[{active_trans,2'h0}][15:12]};
 	    // actually supposed to be the top usable bit in the address
 	    MCU_REQUEST_ALIGN <= {opon_data,~opon_data};
 	    // perhaps
