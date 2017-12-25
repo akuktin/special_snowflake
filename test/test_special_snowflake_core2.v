@@ -231,6 +231,11 @@ module GlaDOS;
         #3   CPU_CLK <= 0;
       end
 
+  reg         TEST_output_lsab_cw_1, TEST_output_lsab_cw_1_dly,
+	      TEST_output_lsab_cw_1_dly2;
+  reg [31:0]  TEST_output_lsab_cw_1_count;
+  wire [31:0] TEST_output_lsab_cw_1_data;
+
   wire [31:0] w_data0_cr, w_data1_cr, w_data2_cr, w_data3_cr;
   wire 	      w_write_cr, w_read_cr, w_write_cw, w_read_cw;
   wire [1:0]  w_write_fifo_cr, w_read_fifo_cr,
@@ -403,11 +408,11 @@ module GlaDOS;
 			      .int3_cr(w_int3_cr),
 			      // ----------------------
 			      .read0_cw(1),
-			      .read1_cw(1),
+			      .read1_cw(TEST_output_lsab_cw_1),
 			      .read2_cw(1),
 			      .read3_cw(1),
 			      .data0_cw(),
-			      .data1_cw(),
+			      .data1_cw(TEST_output_lsab_cw_1_data),
 			      .data2_cw(),
 			      .data3_cw(),
 			      .err0_cw(0),
@@ -483,19 +488,114 @@ module GlaDOS;
 	ctr <= 0;
 	ph_enstb_0_prev <= 0; ph_enstb_1_prev <= 0;
 	ph_enstb_2_prev <= 0; ph_enstb_3_prev <= 0;
+	TEST_output_lsab_cw_1 <= 0; TEST_output_lsab_cw_1_count <= 0;
+	TEST_output_lsab_cw_1_dly <= 0; TEST_output_lsab_cw_1_dly2 <= 0;
       end
     else
       begin
         if (core.hyper_softcore.instr_o[11:8] == 4'h8)
           $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
+/*
 	if (core.hyper_softcore.trans_activate &&
 	    (! core.hyper_softcore.trans_active) &&
 	    (core.hyper_softcore.trg_gb_0 ||
 	     core.hyper_softcore.trg_gb_1 ||
 	     (core.hyper_softcore.time_mb &&
 	      core.hyper_softcore.small_carousel != 0)))
-	  $display("transactions starts! CTR %x", ctr);
+	  begin
+	    $display("transactions starts! CTR %x  gb0 %x gb1 %x mb/sc %x/%x",
+		     ctr, core.hyper_softcore.trg_gb_0,
+		     core.hyper_softcore.trg_gb_1,
+		     core.hyper_softcore.time_mb,
+		     core.hyper_softcore.small_carousel);
+	    $display("active_trans %x rst_mvblck reg %x",
+		     core.hyper_softcore.active_trans,
+		     core.hyper_softcore.output_reg[{
+			    core.hyper_softcore.active_trans,2'h2}]);
+	  end // if (core.hyper_softcore.trans_activate &&...
+ */
+/*
+	if (((core.hyper_softcore.MCU_REQUEST_ALIGN[0] &&
+	      core.hyper_softcore.MCU_GRANT_ALIGN[0]) ||
+	     (core.hyper_softcore.MCU_REQUEST_ALIGN[1] &&
+	      core.hyper_softcore.MCU_GRANT_ALIGN[1])) &&
+	    core.hyper_softcore.trans_active)
+	  $display("transactions goes into execution! CTR %x", ctr);
+ */
+	if (core.hyper_softcore.blck_working_prev &&
+	    !core.hyper_softcore.BLCK_WORKING)
+	  begin
+//	    $display("transactions ends! CTR %x", ctr);
+	    TEST_output_lsab_cw_1 <= 1;
+	    TEST_output_lsab_cw_1_count <= 0;
+	  end
+	if (TEST_output_lsab_cw_1 && (w_read_fifo_cw == 2'h1))
+	  begin
+	    TEST_output_lsab_cw_1_count <= TEST_output_lsab_cw_1_count +1;
+	    if (TEST_output_lsab_cw_1_count >= 2)
+	      TEST_output_lsab_cw_1 <= 0;
+	    TEST_output_lsab_cw_1_dly <= 1;
+	  end
+	else
+	  begin
+	    TEST_output_lsab_cw_1_dly <= 0;
+	  end
+	TEST_output_lsab_cw_1_dly2 <= TEST_output_lsab_cw_1_dly;
+	if (TEST_output_lsab_cw_1_dly2)
+	  $display("lsab_cw data_out %x",
+		   TEST_output_lsab_cw_1_data);
 
+/*
+        if (core.hyper_softcore.d_w_en_cpu)
+	  $display("we %x wec %x wes %x iO %x addrc %x datac %x",
+		   core.hyper_softcore.d_w_en, core.hyper_softcore.d_w_en_cpu,
+		   core.hyper_softcore.d_w_en_sys,
+		   core.hyper_softcore.instr_o[11:8],
+		   {3'h0,core.hyper_softcore.ADDR_CPU,
+		    core.hyper_softcore.low_addr_bits_w},
+		   core.hyper_softcore.from_cpu_word);
+ */
+/*
+	if (core.fill.RST)
+	  begin
+	    if (core.fill.ISSUE && ! core.fill.am_working)
+	      begin
+		$display("activating hyper_mvblck_todram (FILL) module SECTION %x",
+			 core.fill.SECTION);
+	      end
+	    if (!core.fill.stop_n && core.fill.am_working)
+	      begin
+		$display("deactivating hyper_mvblck_todram (FILL) module");
+	      end
+	    if (core.fill.trigger && core.fill.am_working && 0)
+	      $display("we_arr %x coll_addr %x req_acc %x",
+		       {core.fill.stop_prev_n,core.fill.stop_prev_n,
+			core.fill.stop_n,core.fill.stop_n},
+		       {core.fill.track_addr[11:1],1'b0},
+		       core.fill.DRAM_SEL);
+	  end
+	if (core.empty.RST)
+	  begin
+	    if (core.empty.ISSUE && ! core.empty.am_working)
+	      begin
+		$display("activating hyper_mvblck_frdram (EMPTY) module SECTION %x",
+			 core.empty.SECTION);
+	      end
+	  end
+
+	if (core.lsab_out.we)
+	  begin
+	    $display("lsab_out we %x waddr %x wdata %x",
+		     core.lsab_out.we, core.lsab_out.write_addr,
+		     core.lsab_out.IN);
+	  end
+	if (core.lsab_out.re || core.lsab_out.re_prev)
+	  begin
+	    $display("lsab_out re/p %x raddr %x rdata %x",
+		     {core.lsab_out.re,core.lsab_out.re_prev},
+		     core.lsab_out.read_addr, core.lsab_out.out_mem);
+	  end
+ */
 	ph_enstb_0_prev <= core.ph_enstb_0;
 	ph_enstb_1_prev <= core.ph_enstb_1;
 	ph_enstb_2_prev <= core.ph_enstb_2;
@@ -518,31 +618,54 @@ module GlaDOS;
 	  $display("LSAB wr%x addr %x data %x", core.lsab_in.WRITE_FIFO,
 		   core.lsab_in.write_addr, core.lsab_in.in_mem);
 
-//	if (i_mcu_req_access & ! i_mcu_req_access_prev)
-//	if (refresh_strobe ^ refresh_strobe_prev)
-//	if (i_mcu_algn_req && ! i_mcu_algn_ack)
-//	if ((ctr >= 66820) && (ctr < 66900))
-	if ((ctr >= 66740) && (ctr < 66760) && 0)
+	if (core.fill.RST && core.fill.am_working && 0)
 	  begin
-	    $display("@ %d fl %x ep %x", ctr,
-		     core.i_hf_req_access_fill, core.i_hf_req_access_empty);
+	    $display("@ %d i_fl %x i_ep %x d_fl %x d_ep %x", ctr,
+		     core.i_hf_req_access_fill,
+		     core.i_hf_req_access_empty,
+		     core.d_hf_req_access_fill,
+		     core.d_hf_req_access_empty);
 	    $display("addr %x we %x wea %x req %x algnr %x algna %x",
-		     {core.mcu_page_addr,core.mcu_coll_addr}, core.i_mcu_we,
-		     core.hf_we_array_fill, core.i_mcu_req_access,
-		     core.i_mcu_algn_req, core.i_mcu_algn_ack);
+		     {core.mcu_page_addr,core.mcu_coll_addr},
+		     core.d_mcu_we,
+		     core.hf_we_array_fill, core.d_mcu_req_access,
+		     core.d_mcu_algn_req, core.d_mcu_algn_ack);
+
+	    $display("wm %x RAB %x web %x RAR %X wer %x",
+		     core.d_mcu.interdictor_tracker.write_match,
+		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
+		     core.d_mcu.interdictor_tracker.WE_BULK,
+		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
+		     core.d_mcu.interdictor_tracker.WE_RAND);
 /*
 	    $display("ss %x chp_n %x (%x %x %x %x)",
-		     i_mcu.interdictor_tracker.second_stroke,
-		     !i_mcu.interdictor_tracker.change_possible_n,
-		     {i_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
-		      i_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
-		      i_mcu.interdictor_tracker.REQUEST_ALIGN_BULK},
-		     i_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
-		     i_mcu.interdictor_tracker.REFRESH_TIME,
-		     {i_mcu.interdictor_tracker.REQUEST_ALIGN_BULK_dly,
-		      i_mcu.interdictor_tracker.GRANT_ALIGN_BULK});
+		     core.d_mcu.interdictor_tracker.second_stroke,
+		     !core.d_mcu.interdictor_tracker.change_possible_n,
+		     {core.d_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
+		      core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
+		      core.d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK},
+		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
+		     core.d_mcu.interdictor_tracker.REFRESH_TIME,
+		     {core.d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK_dly,
+		      core.d_mcu.interdictor_tracker.GRANT_ALIGN_BULK});
  */
- 	  end
+	  end // if (core.fill.RST && core.fill.am_working)
+
+	if (core.fill.RST && core.fill.am_working &&
+	    core.d_mcu.interdictor_tracker.issue_com)
+	  begin
+	    $display("cmd %x addr %x",
+		     core.d_mcu.interdictor_tracker.command,
+		     core.d_mcu.interdictor_tracker.address_in);
+	  end
+
+	if (core.lsab_in.re_prev)
+	  $display("lsb_do %x swc_is %x swc_dc %x swx_os %x swc_do %x",
+		   core.w_out_cr,
+		   core.hyperfabric_switch.isel,
+		   core.hyperfabric_switch.fan_block_0,
+		   core.hyperfabric_switch.osel,
+		   core.hyperfabric_switch.out_1);
 
         if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 0)
           begin
@@ -834,7 +957,8 @@ module GlaDOS;
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-`include "test_dmaops2.bin"
+//`include "test_dmaops2.bin"
+`include "test_dmaops3.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
