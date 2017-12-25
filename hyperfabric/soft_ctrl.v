@@ -72,7 +72,8 @@ module Gremlin(input CLK,
   reg [7:0]  small_carousel;
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
-	     trans_activate, write_output_reg, issue_op_new;
+	     trans_activate, write_output_reg, issue_op_new, ready_trans,
+	     rdmem_op, opon_data;
 
   reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
 
@@ -378,9 +379,9 @@ module Gremlin(input CLK,
 	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0; MCU_PAGE_ADDR <= 0;
 	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
 	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
-	active_trans_thistrans <= 0; issue_op_new <= 0;
+	active_trans_thistrans <= 0; issue_op_new <= 0; ready_trans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
-	SWCH_ISEL <= 0; SWCH_OSEL <= 0;
+	SWCH_ISEL <= 0; SWCH_OSEL <= 0; rdmem_op <= 0; opon_data <= 0;
       end
     else
       begin
@@ -394,8 +395,17 @@ module Gremlin(input CLK,
 
 	trans_activate <= (wrote_3_req != wrote_3_ack);
 
-	if (trans_activate && (! trans_active) &&
+	if (trans_activate && (! (trans_active || ready_trans)) &&
 	    (trg_gb_0 || trg_gb_1 || (time_mb && small_carousel != 0)))
+	  begin
+	    rdmem_op <= output_reg[{active_trans,2'h2}][14];
+	    opon_data <= output_reg[{active_trans,2'h2}][15];
+	    ready_trans <= 1;
+	  end
+	else
+	  ready_trans <= 0;
+
+	if (ready_trans)
 	  begin
 	    active_trans_thistrans <= active_trans;
 	    trans_active <= 1;
@@ -412,21 +422,11 @@ module Gremlin(input CLK,
 	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
 			      output_reg[{active_trans,2'h0}][15:12]};
 	    // actually supposed to be the top usable bit in the address
-	    MCU_REQUEST_ALIGN <= {output_reg[{active_trans,2'h2}][15],
-				  ~output_reg[{active_trans,2'h2}][15]};
+	    MCU_REQUEST_ALIGN <= {opon_data,~opon_data};
 	    // perhaps
-	    RST_MVBLCK <= {output_reg[{active_trans,2'h2}][14],
-			   ~output_reg[{active_trans,2'h2}][14]};
-	    SWCH_ISEL <= output_reg[{active_trans,2'h2}][14] ?
-			 3'b100 :
-			 {1'b0,
-			  output_reg[{active_trans,2'h2}][15],
-			  ~output_reg[{active_trans,2'h2}][15]};
-	    SWCH_OSEL <= output_reg[{active_trans,2'h2}][14] ?
-			 {1'b0,
-			  output_reg[{active_trans,2'h2}][15],
-			  ~output_reg[{active_trans,2'h2}][15]} :
-			 3'b100;
+	    RST_MVBLCK <= {rdmem_op,~rdmem_op};
+	    SWCH_ISEL <= rdmem_op ? 3'b100 : {1'b0,opon_data,~opon_data};
+	    SWCH_OSEL <= rdmem_op ? {1'b0,opon_data,~opon_data} : 3'b100;
 	  end // if (trans_activate &&...
 
 	if (((MCU_REQUEST_ALIGN[0] && MCU_GRANT_ALIGN[0]) ||
@@ -470,7 +470,7 @@ module Gremlin(input CLK,
           refresh_req <= refresh_req +1;
 
 	if (refresh_ctr_mismatch &&
-	    ! trans_active)
+	    ! (trans_active || ready_trans))
 	  begin
 	    refresh_ack <= refresh_ack +1;
 	    MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
