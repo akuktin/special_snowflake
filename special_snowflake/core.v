@@ -123,7 +123,7 @@ module special_snowflake_core(input RST,
   wire 	      ww_irq;
   wire [1:0]  ww_select_dram;
 
-  wire 	      w_careof_int;
+  wire 	      w_careof_int; // BUG
   wire [2:0]  w_isel, w_osel;
 
   wire 	      res_irq, res_write_mem, res_read_mem;
@@ -492,6 +492,10 @@ module special_snowflake_core(input RST,
 
   initial
     begin
+      // WARNING!
+      // FIXME!
+      // Use Verilog force statements or $readmemh/$readmemb here instead
+      // of the current arrangement.
       cache_vmem <= 0; cache_inhibit <= 0;
     end
 

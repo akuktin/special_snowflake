@@ -306,7 +306,6 @@ module outputs(input CLK_p,
 	       output 	     DM);
   reg [31:0] 			 data_gapholder, dq_predriver, DATA_W;
   reg [3:0] 			 we_gapholder;
-  reg [1:0] 			 we_longholder;
   reg [1:0] 			 dm_predriver, dqs_predriver, active;
   reg 				 dqs_z_prectrl, dqs_z_ctrl, dqdm_z_prectrl,
 				 high_bits;
@@ -341,7 +340,7 @@ module outputs(input CLK_p,
   always @(posedge CLK_n)
     if (!RST)
       begin
-	data_gapholder <= 0; we_gapholder <= 0; we_longholder <= 0;
+	data_gapholder <= 0; we_gapholder <= 0;
 	dq_predriver <= 0; dm_predriver <= 0; dqdm_z_prectrl <= 0;
 	dqs_predriver <= 0; DATA_W <= 0;
 	active <= 0; high_bits <= 0;
@@ -353,7 +352,6 @@ module outputs(input CLK_p,
 	dq_predriver <= data_gapholder;
 
 	we_gapholder <= WE_ARRAY;
-	we_longholder <= we_gapholder[1:0];
 
 	high_bits <= did_issue_write;
 

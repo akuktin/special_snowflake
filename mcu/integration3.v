@@ -31,16 +31,10 @@ module ddr_memory_controler(input CLK_n,
 			    input [31:0]  bulk_req_datain,
 			    output [31:0] user_req_dataout);
   wire [31:0] 				         user_req_datain;
-  wire [2:0] 					 command_user,
-						 command_statechange_req,
-						 cur_state;
+  wire [2:0] 					 command_user;
   wire [12:0] 					 address_user;
   wire [1:0] 					 bank_user;
-  wire 						 rst_user,
-						 change_requested,
-						 change_possible,
-						 some_page_active,
-						 refresh_time;
+  wire 						 rst_user;
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;
 

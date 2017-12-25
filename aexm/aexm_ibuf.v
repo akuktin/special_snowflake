@@ -36,7 +36,6 @@ module aexm_ibuf (/*AUTOARG*/
    assign 	 {rRB, rALT} = rIMM;
 
    reg [31:0] 	rSIMM, xSIMM;
-   reg 		rSTALL;
 
    wire [31:0] 	wXCEOP = 32'hBA2D0008; // Vector 0x08
    wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0060}; // register to be

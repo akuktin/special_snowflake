@@ -35,7 +35,7 @@ core.i_cache.cachedat.ram.r_data[8] <= {6'o10,5'h6,5'h0,16'h0020};
 
 
 
-core.i_cache.cachedat.ram.r_data[9] <= {6'o10,5'h18,5'h0,16'h0001e};
+core.i_cache.cachedat.ram.r_data[9] <= {6'o10,5'h18,5'h0,16'h001e};
 //core.i_cache.cachedat.ram.r_data[9] <= {6'o10,5'h18,5'h0,16'h000e};
 
 core.i_cache.cachedat.ram.r_data[10] <= {6'o01,5'h18,5'h2,5'h18,11'h2};

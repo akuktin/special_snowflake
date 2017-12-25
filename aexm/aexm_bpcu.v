@@ -56,7 +56,7 @@ module aexm_bpcu (/*AUTOARG*/
 
 
   reg 		   careof_equal_n, careof_ltgt, expect_equal, expect_ltgt,
-		   xDLY, xBRA, invert_answer, chain_endpoint, rSKIP_n, xSKIP,
+		   xBRA, invert_answer, chain_endpoint, rSKIP_n, xSKIP,
 		   fSKIP, dSKIP;
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
 		   wBCC, wBRU;
@@ -69,7 +69,6 @@ module aexm_bpcu (/*AUTOARG*/
       expect_equal <= 1;
       expect_ltgt <= 0;
       invert_answer <= 0;
-      xDLY <= 0;
       if (grst)
 	rSKIP_n <= 1;
       else
@@ -200,7 +199,7 @@ module aexm_bpcu (/*AUTOARG*/
 
        xIPC <= (xBRA) ? xRESULT[31:2] : (pre_rIPC + pc_inc);
      end
-
+/*
    // --- ATOMIC CONTROL ---------------------------------------------
    // This is used to indicate 'safe' instruction borders.
 
@@ -212,9 +211,9 @@ module aexm_bpcu (/*AUTOARG*/
    wire 	fATOM = ~(wIMM | wRTD | wBCC | wBRU);
    reg [1:0] 	rATOM, xATOM;
 
-   always @(/*AUTOSENSE*/fATOM or rATOM)
+   always @(fATOM or rATOM)
      xATOM <= {rATOM[0], (rATOM[0] ^ fATOM)};
-
+*/
 
    // --- SYNC PIPELINE ----------------------------------------------
 
@@ -222,7 +221,7 @@ module aexm_bpcu (/*AUTOARG*/
      if (grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
-	rATOM <= 2'h0;
+//	rATOM <= 2'h0;
 	rIPC <= 30'h0;
         pre_rIPC <= 30'h0;
 	rPC <= 30'h0;
@@ -234,7 +233,7 @@ module aexm_bpcu (/*AUTOARG*/
         rIPC <= #1 pre_rIPC;
 	rPC <= #1 xPC;
 	rPCLNK <= #1 xPCLNK;
-	rATOM <= #1 xATOM;
+//	rATOM <= #1 xATOM;
        xSKIP <= #1 dSKIP;
      end
 

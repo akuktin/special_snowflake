@@ -127,7 +127,7 @@ module aexm_regf (/*AUTOARG*/
    // Replicates the data bytes across depending on the size of the
    // operation.
 
-   reg [31:0] 	 rDWBDO, xDWBDO;
+   reg [31:0] 	 xDWBDO;
 
    wire [31:0] 	 xDST;
    wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & fRDWE;

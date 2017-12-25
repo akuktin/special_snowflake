@@ -89,7 +89,7 @@ module Gremlin(input CLK,
 		    .RCLKE(1'b1), // 1 in
 		    .RCLK(CLK), // 1 in
 		    .WDATA(d_w_data), // 16 in
-		    .MASK(0), // 16 in
+		    .MASK({(16){1'b0}}), // 16 in
 		    .WADDR(d_w_addr), // 8 in
 		    .WE(d_w_en), // 1 in
 		    .WCLKE(1'b1), // 1 in
@@ -210,15 +210,19 @@ module Gremlin(input CLK,
 		    .RE(1'b1), // 1 in
 		    .RCLKE(1'b1), // 1 in
 		    .RCLK(CLK), // 1 in
-		    .WDATA(0), // 16 in
-		    .MASK(0), // 16 in
-		    .WADDR(0), // 8 in
-		    .WE(0), // 1 in
-		    .WCLKE(0), // 1 in
+		    .WDATA({(16){1'b0}}), // 16 in
+		    .MASK({(16){1'b0}}), // 16 in
+		    .WADDR({(8){1'b0}}), // 8 in
+		    .WE(1'b0), // 1 in
+		    .WCLKE(1'b0), // 1 in
 		    .WCLK(CLK)); // 1 in
 
   initial
     begin
+      // WARNING!
+      // FIXME!
+      // Use Verilog force statements or $readmemh/$readmemb here instead
+      // of the current arrangement.
       output_reg[0] <= 0; output_reg[1] <= 0;
       output_reg[2] <= 0; output_reg[3] <= 0;
       output_reg[4] <= 0; output_reg[5] <= 0;
@@ -364,6 +368,10 @@ module Gremlin(input CLK,
 
   initial
     begin
+      // WARNING!
+      // FIXME!
+      // Use Verilog force statements or $readmemh/$readmemb here instead
+      // of the current arrangement.
       input_reg[0] <= 0; input_reg[1] <= 0;
       input_reg[2] <= 0; input_reg[3] <= 0;
       input_reg[4] <= 0; input_reg[5] <= 0;

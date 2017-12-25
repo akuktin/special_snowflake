@@ -91,9 +91,9 @@ module aexm_ctrl (/*AUTOARG*/
    reg [1:0] 	 rMXDST, xMXDST;
    reg [4:0] 	 rRW, xRW;
 
-   reg [1:0] 	 rMXSRC, xMXSRC;
-   reg [1:0] 	 rMXTGT, xMXTGT;
-   reg [1:0] 	 rMXALT, xMXALT;
+   reg [1:0] 	 xMXSRC;
+   reg [1:0] 	 xMXTGT;
+   reg [1:0] 	 xMXALT;
 
 
    // --- OPERAND SELECTOR ---------------------------------
@@ -174,20 +174,14 @@ module aexm_ctrl (/*AUTOARG*/
      if (grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
-	rMXALT <= 2'h0;
 	rMXALU <= 3'h0;
 	rMXDST <= 2'h0;
-	rMXSRC <= 2'h0;
-	rMXTGT <= 2'h0;
 	rRW <= 5'h0;
 	// End of automatics
      end else if (d_en) begin // if (grst)
 	rMXDST <= #1 xMXDST;
-	rRW <= #1 xRW;
-	rMXSRC <= #1 xMXSRC;
-	rMXTGT <= #1 xMXTGT;
-	rMXALT <= #1 xMXALT;
 	rMXALU <= #1 xMXALU;
+	rRW <= #1 xRW;
      end
 
 
