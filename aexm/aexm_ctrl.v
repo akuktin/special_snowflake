@@ -98,9 +98,12 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- OPERAND SELECTOR ---------------------------------
 
+  reg 		 rRW_valid, rRW_valid_dly;
+  wire 		 xRW_valid;
+
    wire 	 wRDWE = |xRW;
-   wire		 late_forward_A = (rRW == wRA);
-   wire		 late_forward_B = (rRW == wRB);
+   wire		 late_forward_A = (rRW == wRA) && !rRW_valid_dly;
+   wire		 late_forward_B = (rRW == wRB) && !rRW_valid_dly;
    wire 	 wAFWD_M = (xRW == wRA) & (xMXDST == 2'o2) & wRDWE;
    wire 	 wBFWD_M = (xRW == wRB) & (xMXDST == 2'o2) & wRDWE;
    wire 	 wAFWD_R = (xRW == wRA) & (xMXDST == 2'o0) & wRDWE;
@@ -177,11 +180,15 @@ module aexm_ctrl (/*AUTOARG*/
 	rMXALU <= 3'h0;
 	rMXDST <= 2'h0;
 	rRW <= 5'h0;
+	rRW_valid <= 0;
+	rRW_valid_dly <= 0;
 	// End of automatics
      end else if (d_en) begin // if (grst)
 	rMXDST <= #1 xMXDST;
 	rMXALU <= #1 xMXALU;
 	rRW <= #1 xRW;
+	rRW_valid <= #1 xRW_valid;
+	rRW_valid_dly <= #1 rRW_valid;
      end
 
 
