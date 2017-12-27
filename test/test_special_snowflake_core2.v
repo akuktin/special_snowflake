@@ -824,7 +824,7 @@ module GlaDOS;
 		   core.cpu.regf.RAM_D.ram.r_data[28], core.cpu.regf.RAM_D.ram.r_data[29],
 		   core.cpu.regf.RAM_D.ram.r_data[30], core.cpu.regf.RAM_D.ram.r_data[31]);
 */
-      if (RST_CPU_pre && 1)
+      if (RST_CPU_pre && 0)
 	begin
 //      $display("c_vld %x req_tag %x ^ rsp %x idx %x en %x/%x",
 //	       core.i_cache.cachehit_vld, core.i_cache.req_tag,
@@ -855,6 +855,14 @@ module GlaDOS;
 		   core.cpu.bpcu.c_io_rg);
  */
 /*
+	  $display("wBRU %x wBCC %x wBRA %x dRWv %x xRWv %x rRWv %x wOPC %o fS %x xS %x",
+		   core.cpu.ctrl.wBRU, core.cpu.ctrl.wBCC,
+		   core.cpu.ctrl.wBRA, core.cpu.ctrl.dRW_valid,
+		   core.cpu.ctrl.xRW_valid, core.cpu.ctrl.rRW_valid,
+		   core.cpu.ctrl.wOPC, core.cpu.ctrl.fSTALL,
+		   core.cpu.ctrl.xSKIP);
+ */
+/*
 	  $display("lfA %x lfB %x AfwM %x BfwM %x AfwR %x BfwR %x xMXSRC %x xMXTGT %x xMXALT %x",
 		   core.cpu.ctrl.late_forward_A, core.cpu.ctrl.late_forward_B,
                    core.cpu.ctrl.wAFWD_M, core.cpu.ctrl.wBFWD_M,
@@ -881,9 +889,9 @@ module GlaDOS;
 		   core.d_cache_enable, core.d_cache_we, core.d_cache_busy);
  */
 
-//          if (core.cpu.bpcu.xBRA)
-//            $display("took branch");
-//          $display("---------------------------------------------------");
+          if (core.cpu.bpcu.xBRA)
+            $display("took branch");
+          $display("---------------------------------------------------");
 	end // if (CPU_RST)
     end
 
