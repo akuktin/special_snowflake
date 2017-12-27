@@ -17,6 +17,7 @@ module Gremlin(input CLK,
 	       output reg 	 MCU_REFRESH_STROBE,
 	       output reg [2:0]  SWCH_ISEL,
 	       output reg [2:0]  SWCH_OSEL,
+	       output reg 	 CAREOF_INT,
 
 		 /* begin BLOCK MOVER */
 	       output reg [11:0] BLCK_START,
@@ -390,6 +391,7 @@ module Gremlin(input CLK,
 	active_trans_thistrans <= 0; issue_op_new <= 0; ready_trans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
 	SWCH_ISEL <= 0; SWCH_OSEL <= 0; rdmem_op <= 0; opon_data <= 0;
+	CAREOF_INT <= 0;
       end
     else
       begin
@@ -413,12 +415,14 @@ module Gremlin(input CLK,
 	    // something
 	    BLCK_SECTION <= output_reg[{active_trans,2'h2}][1:0];
 	    // maybe
-	    BLCK_COUNT_REQ <= output_reg[{active_trans,2'h2}][13:2];
+	    BLCK_COUNT_REQ <= output_reg[{active_trans,2'h2}][12:2];
 	    // provisional
 	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
 	    // provisional
 	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
 			      output_reg[{active_trans,2'h0}][15:12]};
+	    // provisional
+	    CAREOF_INT <= output_reg[{active_trans,2'h2}][13];
 	  end
 	else
 	  ready_trans <= 0;

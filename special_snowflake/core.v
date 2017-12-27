@@ -123,7 +123,7 @@ module special_snowflake_core(input RST,
   wire 	      ww_irq;
   wire [1:0]  ww_select_dram;
 
-  wire 	      w_careof_int; // BUG
+  wire 	      w_careof_int;
   wire [2:0]  w_isel, w_osel;
 
   wire 	      res_irq, res_write_mem, res_read_mem;
@@ -458,6 +458,7 @@ module special_snowflake_core(input RST,
 			 .MCU_REFRESH_STROBE(refresh_strobe),
 			 .SWCH_ISEL(w_isel),
 			 .SWCH_OSEL(w_osel),
+			 .CAREOF_INT(w_careof_int),
 			 // ---------------------
 			 .BLCK_START(w_start_address),
 			 .BLCK_COUNT_REQ(w_count_req),
