@@ -17,7 +17,7 @@ module Gremlin(input CLK,
 	       output reg 	 MCU_REFRESH_STROBE,
 	       output reg [2:0]  SWCH_ISEL,
 	       output reg [2:0]  SWCH_OSEL,
-	       output reg 	 CAREOF_INT,
+	       output 		 CAREOF_INT,
 
 		 /* begin BLOCK MOVER */
 	       output reg [11:0] BLCK_START,
@@ -48,6 +48,7 @@ module Gremlin(input CLK,
 	       output reg [23:0] LEN_3,
 	       output reg 	 DIR_3,
 	       output reg 	 EN_STB_3);
+  assign CAREOF_INT = 1'b1;
 
   reg        d_r_en_cpu, d_r_en_cpu_delay,
 	     d_w_en_cpu,
@@ -82,7 +83,7 @@ module Gremlin(input CLK,
 	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
 	     blck_abort;
 
-  reg [15:0] input_reg[7:0];
+  reg [15:0] input_reg_0[1:0], input_reg_1[1:0];
 
   iceram16 data_mem(.RDATA(d_r_data), // 16 out
 		    .RADDR(d_r_addr), // 8 in
@@ -242,8 +243,8 @@ module Gremlin(input CLK,
   reg [3:0] reg_page_lo_0, reg_page_lo_1;
   reg [11:0] reg_start_0, reg_start_1;
   reg [15:0] reg_page_hi_0, reg_page_hi_1;
-  reg 	     reg_opon_data_0, reg_rdmem_op_0, reg_care_int_0,
-	     reg_opon_data_1, reg_rdmem_op_1, reg_care_int_1;
+  reg 	     reg_opon_data_0, reg_rdmem_op_0,
+	     reg_opon_data_1, reg_rdmem_op_1;
   reg [10:0] reg_count_req_0, reg_count_req_1;
   reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
 
@@ -259,8 +260,8 @@ module Gremlin(input CLK,
 	reg_page_lo_0 <= 0; reg_page_lo_1 <= 0;
 	reg_start_0 <= 0; reg_start_1 <= 0;
 	reg_page_hi_0 <= 0; reg_page_hi_1 <= 0;
-	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0;// reg_care_int_0 <= 0;
-	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0;// reg_care_int_1 <= 0;
+	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0;
+	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0;
 	reg_count_req_0 <= 0; reg_count_req_1 <= 0;
 	reg_blck_sec_0 <= 0; reg_blck_sec_1 <= 0;
       end
@@ -325,8 +326,8 @@ module Gremlin(input CLK,
 	      save_carry <= cur_carry;
 	    end
 
-	    4'h4: accumulator <= input_reg[{1'b0,instr_o[14:13]}];
-	    4'h5: accumulator <= input_reg[{1'b1,instr_o[14:13]}];
+	    4'h4: accumulator <= input_reg_0[instr_o[13]];
+	    4'h5: accumulator <= input_reg_1[instr_o[13]];
 //	    4'h6 // store
 	    4'h7: begin // store w/ clear
 	      accumulator <= 0;
@@ -375,8 +376,7 @@ module Gremlin(input CLK,
 		    2'h2: begin
 		      reg_opon_data_1 <= accumulator[15];
 		      reg_rdmem_op_1 <= accumulator[14];
-//		      reg_care_int_1 <= accumulator[13];
-		      reg_count_req_1 <= accumulator[12:2];
+		      reg_count_req_1 <= accumulator[13:2];
 		      reg_blck_sec_1 <= accumulator[1:0];
 		    end
 		  endcase // case (instr[1:0])
@@ -394,8 +394,7 @@ module Gremlin(input CLK,
 		    2'h2: begin
 		      reg_opon_data_0 <= accumulator[15];
 		      reg_rdmem_op_0 <= accumulator[14];
-//		      reg_care_int_0 <= accumulator[13];
-		      reg_count_req_0 <= accumulator[12:2];
+		      reg_count_req_0 <= accumulator[13:2];
 		      reg_blck_sec_0 <= accumulator[1:0];
 		    end
 		  endcase // case (instr[1:0])
@@ -416,10 +415,8 @@ module Gremlin(input CLK,
       // FIXME!
       // Use Verilog force statements or $readmemh/$readmemb here instead
       // of the current arrangement.
-      input_reg[0] <= 0; input_reg[1] <= 0;
-      input_reg[2] <= 0; input_reg[3] <= 0;
-      input_reg[4] <= 0; input_reg[5] <= 0;
-      input_reg[6] <= 0; input_reg[7] <= 0;
+      input_reg_0[0] <= 0; input_reg_0[1] <= 0;
+      input_reg_1[0] <= 0; input_reg_1[1] <= 0;
     end
 
   always @(posedge CLK)
@@ -434,7 +431,6 @@ module Gremlin(input CLK,
 	active_trans_thistrans <= 0; issue_op_new <= 0; ready_trans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
 	SWCH_ISEL <= 0; SWCH_OSEL <= 0; rdmem_op <= 0; opon_data <= 0;
-	CAREOF_INT <= 1;
       end
     else
       begin
@@ -462,7 +458,6 @@ module Gremlin(input CLK,
 	    MCU_PAGE_ADDR <= active_trans ?
 			     {reg_page_hi_1, reg_page_lo_1} :
 			     {reg_page_hi_0, reg_page_lo_0};
-//	    CAREOF_INT <= active_trans ? reg_care_int_1 : reg_care_int_0;
 	  end
 	else
 	  ready_trans <= 0;
@@ -505,17 +500,13 @@ module Gremlin(input CLK,
 
 	    if (active_trans_thistrans == 1'b0)
 	      begin
-		input_reg[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg[1] <= {BLCK_IRQ,blck_abort,14'h0};
-		input_reg[2] <= 0;
-		input_reg[3] <= 0;
+		input_reg_0[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
+		input_reg_0[1] <= {BLCK_IRQ,blck_abort,14'h0};
 	      end
 	    else
 	      begin
-		input_reg[4] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg[5] <= {BLCK_IRQ,blck_abort,14'h0};
-		input_reg[6] <= 0;
-		input_reg[7] <= 0;
+		input_reg_1[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
+		input_reg_1[1] <= {BLCK_IRQ,blck_abort,14'h0};
 	      end
 	  end
 
