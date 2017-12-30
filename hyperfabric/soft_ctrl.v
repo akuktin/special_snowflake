@@ -259,8 +259,8 @@ module Gremlin(input CLK,
 	reg_page_lo_0 <= 0; reg_page_lo_1 <= 0;
 	reg_start_0 <= 0; reg_start_1 <= 0;
 	reg_page_hi_0 <= 0; reg_page_hi_1 <= 0;
-	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0 reg_care_int_0 <= 0;
-	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0 reg_care_int_1 <= 0;
+	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0;// reg_care_int_0 <= 0;
+	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0;// reg_care_int_1 <= 0;
 	reg_count_req_0 <= 0; reg_count_req_1 <= 0;
 	reg_blck_sec_0 <= 0; reg_blck_sec_1 <= 0;
       end
@@ -375,7 +375,7 @@ module Gremlin(input CLK,
 		    2'h2: begin
 		      reg_opon_data_1 <= accumulator[15];
 		      reg_rdmem_op_1 <= accumulator[14];
-		      reg_care_int_1 <= accumulator[13];
+//		      reg_care_int_1 <= accumulator[13];
 		      reg_count_req_1 <= accumulator[12:2];
 		      reg_blck_sec_1 <= accumulator[1:0];
 		    end
@@ -394,7 +394,7 @@ module Gremlin(input CLK,
 		    2'h2: begin
 		      reg_opon_data_0 <= accumulator[15];
 		      reg_rdmem_op_0 <= accumulator[14];
-		      reg_care_int_0 <= accumulator[13];
+//		      reg_care_int_0 <= accumulator[13];
 		      reg_count_req_0 <= accumulator[12:2];
 		      reg_blck_sec_0 <= accumulator[1:0];
 		    end
@@ -434,7 +434,7 @@ module Gremlin(input CLK,
 	active_trans_thistrans <= 0; issue_op_new <= 0; ready_trans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
 	SWCH_ISEL <= 0; SWCH_OSEL <= 0; rdmem_op <= 0; opon_data <= 0;
-	CAREOF_INT <= 0;
+	CAREOF_INT <= 1;
       end
     else
       begin
@@ -462,7 +462,7 @@ module Gremlin(input CLK,
 	    MCU_PAGE_ADDR <= active_trans ?
 			     {reg_page_hi_1, reg_page_lo_1} :
 			     {reg_page_hi_0, reg_page_lo_0};
-	    CAREOF_INT <= active_trans ? reg_care_int_1 : reg_care_int_0;
+//	    CAREOF_INT <= active_trans ? reg_care_int_1 : reg_care_int_0;
 	  end
 	else
 	  ready_trans <= 0;
