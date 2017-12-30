@@ -82,7 +82,7 @@ module Gremlin(input CLK,
 	     refresh_ctr_mismatch, active_trans, small_carousel_reset,
 	     blck_abort;
 
-  reg [15:0] output_reg[7:0], input_reg[7:0];
+  reg [15:0] input_reg[7:0];
 
   iceram16 data_mem(.RDATA(d_r_data), // 16 out
 		    .RADDR(d_r_addr), // 8 in
@@ -218,18 +218,6 @@ module Gremlin(input CLK,
 		    .WCLKE(1'b0), // 1 in
 		    .WCLK(CLK)); // 1 in
 
-  initial
-    begin
-      // WARNING!
-      // FIXME!
-      // Use Verilog force statements or $readmemh/$readmemb here instead
-      // of the current arrangement.
-      output_reg[0] <= 0; output_reg[1] <= 0;
-      output_reg[2] <= 0; output_reg[3] <= 0;
-      output_reg[4] <= 0; output_reg[5] <= 0;
-      output_reg[6] <= 0; output_reg[7] <= 0;
-    end
-
 
   assign ip_nxt = (instr_o[15] && (accumulator != 16'd0)) ?
 		  instr_o[7:0] : ip +1;
@@ -251,6 +239,14 @@ module Gremlin(input CLK,
     else
       index <= index_reg;
 
+  reg [3:0] reg_page_lo_0, reg_page_lo_1;
+  reg [11:0] reg_start_0, reg_start_1;
+  reg [15:0] reg_page_hi_0, reg_page_hi_1;
+  reg 	     reg_opon_data_0, reg_rdmem_op_0, reg_care_int_0,
+	     reg_opon_data_1, reg_rdmem_op_1, reg_care_int_1;
+  reg [10:0] reg_count_req_0, reg_count_req_1;
+  reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
+
   always @(posedge CLK)
     if (!RST)
       begin
@@ -259,6 +255,14 @@ module Gremlin(input CLK,
 	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
 	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
 	write_output_reg <= 0;
+
+	reg_page_lo_0 <= 0; reg_page_lo_1 <= 0;
+	reg_start_0 <= 0; reg_start_1 <= 0;
+	reg_page_hi_0 <= 0; reg_page_hi_1 <= 0;
+	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0 reg_care_int_0 <= 0;
+	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0 reg_care_int_1 <= 0;
+	reg_count_req_0 <= 0; reg_count_req_1 <= 0;
+	reg_blck_sec_0 <= 0; reg_blck_sec_1 <= 0;
       end
     else
       begin
@@ -357,7 +361,46 @@ module Gremlin(input CLK,
 	    4'hf: accumulator <= accumulator ^ memory_operand;
 	  endcase // case (instr_o[11:8])
 	  if (write_output_reg)
-	    output_reg[instr_o[2:0]] <= accumulator;
+	    begin
+	      if (instr_o[2] == 1'b1)
+		begin
+		  case (instr_o[1:0])
+		    2'h0: begin
+		      reg_page_lo_1 <= accumulator[15:12];
+		      reg_start_1 <= accumulator[11:0];
+		    end
+		    2'h1: begin
+		      reg_page_hi_1 <= accumulator;
+		    end
+		    2'h2: begin
+		      reg_opon_data_1 <= accumulator[15];
+		      reg_rdmem_op_1 <= accumulator[14];
+		      reg_care_int_1 <= accumulator[13];
+		      reg_count_req_1 <= accumulator[12:2];
+		      reg_blck_sec_1 <= accumulator[1:0];
+		    end
+		  endcase // case (instr[1:0])
+		end
+	      else
+		begin
+		  case (instr_o[1:0])
+		    2'h0: begin
+		      reg_page_lo_0 <= accumulator[15:12];
+		      reg_start_0 <= accumulator[11:0];
+		    end
+		    2'h1: begin
+		      reg_page_hi_0 <= accumulator;
+		    end
+		    2'h2: begin
+		      reg_opon_data_0 <= accumulator[15];
+		      reg_rdmem_op_0 <= accumulator[14];
+		      reg_care_int_0 <= accumulator[13];
+		      reg_count_req_0 <= accumulator[12:2];
+		      reg_blck_sec_0 <= accumulator[1:0];
+		    end
+		  endcase // case (instr[1:0])
+		end
+	    end
 	end
       end // else: !if(!RST)
 
@@ -408,21 +451,18 @@ module Gremlin(input CLK,
 	if (trans_activate && (! (trans_active || ready_trans)) &&
 	    (trg_gb_0 || trg_gb_1 || (time_mb && small_carousel != 0)))
 	  begin
-	    rdmem_op <= output_reg[{active_trans,2'h2}][14];
-	    opon_data <= output_reg[{active_trans,2'h2}][15];
+	    rdmem_op <= active_trans ? reg_rdmem_op_1 : reg_rdmem_op_0;
+	    opon_data <= active_trans ? reg_opon_data_1 : reg_opon_data_0;
 	    ready_trans <= 1;
 
-	    // something
-	    BLCK_SECTION <= output_reg[{active_trans,2'h2}][1:0];
-	    // maybe
-	    BLCK_COUNT_REQ <= output_reg[{active_trans,2'h2}][12:2];
-	    // provisional
-	    BLCK_START <= output_reg[{active_trans,2'h0}][11:0];
-	    // provisional
-	    MCU_PAGE_ADDR <= {output_reg[{active_trans,2'h1}],
-			      output_reg[{active_trans,2'h0}][15:12]};
-	    // provisional
-	    CAREOF_INT <= output_reg[{active_trans,2'h2}][13];
+	    BLCK_SECTION <= active_trans ? reg_blck_sec_1 : reg_blck_sec_0;
+	    BLCK_COUNT_REQ <= active_trans ?
+			      reg_count_req_1 : reg_count_req_0;
+	    BLCK_START <= active_trans ? reg_start_1 : reg_start_0;
+	    MCU_PAGE_ADDR <= active_trans ?
+			     {reg_page_hi_1, reg_page_lo_1} :
+			     {reg_page_hi_0, reg_page_lo_0};
+	    CAREOF_INT <= active_trans ? reg_care_int_1 : reg_care_int_0;
 	  end
 	else
 	  ready_trans <= 0;
