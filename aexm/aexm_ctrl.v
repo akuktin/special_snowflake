@@ -1,17 +1,17 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, xMXSRC, xMXTGT, xMXALT, rMXALU, rRW, dSTRLOD, dLOD,
+   rMXDST, MEMOP_MXDST, xMXSRC, xMXTGT, xMXALT, rMXALU, rRW, dSTRLOD, dLOD,
    aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
    cpu_interrupt, gclk, grst, d_en, x_en
    );
    // INTERNAL
-   output [1:0]  rMXDST;
-   output [1:0]  xMXSRC, xMXTGT, xMXALT;
+   output [1:0]  rMXDST, xMXSRC, xMXTGT, xMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
   output 	 fSTALL;
+  output 	 MEMOP_MXDST;
 
   input 	 xSKIP;
    input [15:0]  rIMM;
@@ -148,6 +148,8 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DELAY SLOT REGISTERS ------------------------------
 
+  wire MEMOP_MXDST;
+
    always @(/*AUTOSENSE*/fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
 	    or fSTR or rRD)
      if (xSKIP) begin
@@ -164,6 +166,7 @@ module aexm_ctrl (/*AUTOARG*/
 	xRW <= rRD;
      end
 
+  assign MEMOP_MXDST = (fLOD | fGET) && !xSKIP;
 
    // --- DATA MEMORY INTERFACE ----------------------------------
 

@@ -2,7 +2,7 @@ module aexm_regf (/*AUTOARG*/
    // Outputs
    xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
-   rOPC, rRW, rRD, rMXDST, rPCLNK, rRESULT, rDWBSEL,
+   rOPC, rRW, rRD, rMXDST, MEMOP_MXDST, rPC, rRESULT, rDWBSEL,
    aexm_dcache_datai, gclk, grst, x_en, d_en,
    regf_rRA, regf_rRB, regf_rRD
    );
@@ -12,7 +12,8 @@ module aexm_regf (/*AUTOARG*/
    input [5:0] 	 rOPC;
    input [4:0] 	 rRW, rRD;
    input [1:0] 	 rMXDST;
-   input [31:2]  rPCLNK;
+   input  	 MEMOP_MXDST;
+   input [31:2]  rPC;
    input [31:0]  rRESULT;
    input [3:0] 	 rDWBSEL;
    input [4:0] 	 regf_rRA, regf_rRB, regf_rRD;
@@ -54,6 +55,7 @@ module aexm_regf (/*AUTOARG*/
    // LUT RAM implementation is smaller and faster. R0 gets written
    // during reset with 0x00 and doesn't change after.
 
+  reg [31:0]     combined_input;
   reg 		 w_en;
 
   wire [31:0] 	 xREGA, xREGB, xREGD;
@@ -65,15 +67,11 @@ module aexm_regf (/*AUTOARG*/
   wire 		 do_write;
   assign do_write = ((grst | fRDWE) && w_en && (rMXDST != 2'o3));
 
-   always @(/*AUTOSENSE*/rDWBDI or rMXDST or rPCLNK
-	    or rRESULT)
-     case (rMXDST)
-       2'o2: xWDAT <= rDWBDI;
-       2'o1: xWDAT <= {rPCLNK, 2'o0};
-       2'o0: xWDAT <= rRESULT;
-       2'o3: xWDAT <= 32'hX;
-//       2'o3: xWDAT <= rREGW; // No change
-     endcase // case (rMXDST)
+  always @(rMXDST or combined_input or rRESULT)
+    if (rMXDST == 2'h0)
+      xWDAT <= rRESULT;
+    else
+      xWDAT <= combined_input;
 
   iceram32 RAM_A(.RDATA(xREGA),
 		 .RADDR({3'h0,regf_rRA}),
@@ -115,6 +113,10 @@ module aexm_regf (/*AUTOARG*/
      begin
        rDWBDI <= xDWBDI;
        w_en <= x_en;
+       if (MEMOP_MXDST)
+	 combined_input <= rDWBDI;
+       else
+	 combined_input <= {rPC,2'h0};
 
        rREGD <= xREGD;
      end

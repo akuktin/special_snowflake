@@ -57,7 +57,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [5:0]		xOPC;			// From ibuf of aexm_ibuf.v
    wire [31:2]		rIPC;			// From bpcu of aexm_bpcu.v
    wire [31:2]		rPC;			// From bpcu of aexm_bpcu.v
-   wire [31:2]		rPCLNK;			// From bpcu of aexm_bpcu.v
+   wire 		MEMOP_MXDST;		// From ctrl of aexm_ctrl.v
    wire [4:0]		rRA;			// From ibuf of aexm_ibuf.v
    wire [4:0]		rRB;			// From ibuf of aexm_ibuf.v
    wire [4:0]		regf_rRA;		// From ibuf of aexm_ibuf.v
@@ -134,6 +134,7 @@ module aexm_edk32 (/*AUTOARG*/
      ctrl (/*AUTOINST*/
 	   // Outputs
 	   .rMXDST			(rMXDST[1:0]),
+	   .MEMOP_MXDST			(MEMOP_MXDST),
 	   .xMXSRC			(xMXSRC[1:0]),
 	   .xMXTGT			(xMXTGT[1:0]),
 	   .xMXALT			(xMXALT[1:0]),
@@ -165,7 +166,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rIPC			(rIPC[31:2]),
 	   .rPC				(rPC[31:2]),
-	   .rPCLNK			(rPCLNK[31:2]),
 	   .dSKIP			(dSKIP),
 	   .xSKIP			(xSKIP),
 	   // Inputs
@@ -199,7 +199,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rRW				(rRW[4:0]),
 	   .rRD				(rRD[4:0]),
 	   .rMXDST			(rMXDST[1:0]),
-	   .rPCLNK			(rPCLNK[31:2]),
+	   .MEMOP_MXDST			(MEMOP_MXDST),
+	   .rPC				(rPC[31:2]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),
 	   .aexm_dcache_datai           (aexm_dcache_datai),
