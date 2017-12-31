@@ -61,7 +61,7 @@ module Gremlin(input CLK,
   wire 	      d_w_en, d_r_en;
 
   reg [15:0] accumulator, memory_operand,
-	     instr_f, instr_o;
+	     instr_f, instr_o, acc_output;
   reg [7:0]  ip, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req, irq_strobe;
   reg 	     add_carry, save_carry, waitkill;
@@ -73,6 +73,7 @@ module Gremlin(input CLK,
   reg [3:0]  big_carousel;
   reg [7:0]  small_carousel;
   reg [1:0]  refresh_req, refresh_ack, issue_op, wrote_3_ack;
+  reg [2:0]  write_output_desc;
   reg 	     trans_active, blck_working_prev, active_trans_thistrans,
 	     trans_activate, write_output_reg, issue_op_new, ready_trans,
 	     rdmem_op, opon_data;
@@ -245,7 +246,7 @@ module Gremlin(input CLK,
   reg [15:0] reg_page_hi_0, reg_page_hi_1;
   reg 	     reg_opon_data_0, reg_rdmem_op_0,
 	     reg_opon_data_1, reg_rdmem_op_1;
-  reg [10:0] reg_count_req_0, reg_count_req_1;
+  reg [11:0] reg_count_req_0, reg_count_req_1;
   reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
 
   always @(posedge CLK)
@@ -255,7 +256,7 @@ module Gremlin(input CLK,
 	save_carry <= 0; ip <= 0; index_reg <= 0; index_capture <= 0;
 	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
 	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
-	write_output_reg <= 0;
+	write_output_reg <= 0; write_output_desc <= 0; acc_output <= 0;
 
 	reg_page_lo_0 <= 0; reg_page_lo_1 <= 0;
 	reg_start_0 <= 0; reg_start_1 <= 0;
@@ -283,7 +284,6 @@ module Gremlin(input CLK,
 	    index_reg <= index;
 	  if (instr_o[11:8] != 4'h8)
 	    begin
-	      write_output_reg <= (instr_f[11:8] == 4'hb);
 	      waitkill <= 0;
 	      if (! waitkill)
 		instr_f <= instr;
@@ -291,7 +291,6 @@ module Gremlin(input CLK,
 	    end
 	  else
 	    begin
-	      write_output_reg <= 0;
 	      waitkill <= 1;
 	      instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
 	      if (accumulator == 0)
@@ -300,7 +299,10 @@ module Gremlin(input CLK,
 
 		// cmp/and 0 {instr_o[7:0]};
 		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
-	    end
+	    end // else: !if(instr_o[11:8] != 4'h8)
+	  write_output_reg <= (instr_o[11:8] == 4'hb);
+	  write_output_desc <= instr_o[2:0];
+	  acc_output <= accumulator;
 
 	  case (instr_f[11:8])
 	    4'h0: add_carry <= 0;
@@ -344,7 +346,6 @@ module Gremlin(input CLK,
 	    // fucking load instruction, bitch!
 	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
-//	      write_output_reg controlled writing of output is way below
 	      if ((!instr_o[14]) && (accumulator[13:2] != 0))// provisional
 		begin
 		  wrote_3_req <= wrote_3_req +1;
@@ -363,39 +364,39 @@ module Gremlin(input CLK,
 	  endcase // case (instr_o[11:8])
 	  if (write_output_reg)
 	    begin
-	      if (instr_o[2] == 1'b1)
+	      if (write_output_desc[2] == 1'b1)
 		begin
-		  case (instr_o[1:0])
+		  case (write_output_desc[1:0])
 		    2'h0: begin
-		      reg_page_lo_1 <= accumulator[15:12];
-		      reg_start_1 <= accumulator[11:0];
+		      reg_page_lo_1 <= acc_output[15:12];
+		      reg_start_1 <= acc_output[11:0];
 		    end
 		    2'h1: begin
-		      reg_page_hi_1 <= accumulator;
+		      reg_page_hi_1 <= acc_output;
 		    end
 		    2'h2: begin
-		      reg_opon_data_1 <= accumulator[15];
-		      reg_rdmem_op_1 <= accumulator[14];
-		      reg_count_req_1 <= accumulator[13:2];
-		      reg_blck_sec_1 <= accumulator[1:0];
+		      reg_opon_data_1 <= acc_output[15];
+		      reg_rdmem_op_1 <= acc_output[14];
+		      reg_count_req_1 <= acc_output[13:2];
+		      reg_blck_sec_1 <= acc_output[1:0];
 		    end
 		  endcase // case (instr[1:0])
 		end
 	      else
 		begin
-		  case (instr_o[1:0])
+		  case (write_output_desc[1:0])
 		    2'h0: begin
-		      reg_page_lo_0 <= accumulator[15:12];
-		      reg_start_0 <= accumulator[11:0];
+		      reg_page_lo_0 <= acc_output[15:12];
+		      reg_start_0 <= acc_output[11:0];
 		    end
 		    2'h1: begin
-		      reg_page_hi_0 <= accumulator;
+		      reg_page_hi_0 <= acc_output;
 		    end
 		    2'h2: begin
-		      reg_opon_data_0 <= accumulator[15];
-		      reg_rdmem_op_0 <= accumulator[14];
-		      reg_count_req_0 <= accumulator[13:2];
-		      reg_blck_sec_0 <= accumulator[1:0];
+		      reg_opon_data_0 <= acc_output[15];
+		      reg_rdmem_op_0 <= acc_output[14];
+		      reg_count_req_0 <= acc_output[13:2];
+		      reg_blck_sec_0 <= acc_output[1:0];
 		    end
 		  endcase // case (instr[1:0])
 		end
