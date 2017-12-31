@@ -749,16 +749,18 @@ module GlaDOS;
 	  $display("halting CTR %x", ctr);
           $display("acc %x",
             core.hyper_softcore.accumulator);
-          $display("input_reg  %x %x %x %x  %x %x %x %x",
-            core.hyper_softcore.input_reg[0],core.hyper_softcore.input_reg[1],
-            core.hyper_softcore.input_reg[2],core.hyper_softcore.input_reg[3],
-            core.hyper_softcore.input_reg[4],core.hyper_softcore.input_reg[5],
-            core.hyper_softcore.input_reg[6],core.hyper_softcore.input_reg[7]);
-          $display("output_reg %x %x %x %x  %x %x %x %x",
-          core.hyper_softcore.output_reg[0],core.hyper_softcore.output_reg[1],
-          core.hyper_softcore.output_reg[2],core.hyper_softcore.output_reg[3],
-          core.hyper_softcore.output_reg[4],core.hyper_softcore.output_reg[5],
-          core.hyper_softcore.output_reg[6],core.hyper_softcore.output_reg[7]);
+          $display("input_reg  %x %x       %x %x",
+        core.hyper_softcore.input_reg_0[0],core.hyper_softcore.input_reg_0[1],
+        core.hyper_softcore.input_reg_1[0],core.hyper_softcore.input_reg_1[1]);
+          $display("output_reg %x %x %x  %x %x %x",
+        {core.hyper_softcore.reg_page_lo_0,core.hyper_softcore.reg_start_0},
+        core.hyper_softcore.reg_page_hi_0,{core.hyper_softcore.reg_opon_data_0,
+        core.hyper_softcore.reg_rdmem_op_0,core.hyper_softcore.reg_count_req_0,
+        core.hyper_softcore.reg_blck_sec_0},
+        {core.hyper_softcore.reg_page_lo_1,core.hyper_softcore.reg_start_1},
+        core.hyper_softcore.reg_page_hi_1,{core.hyper_softcore.reg_opon_data_1,
+        core.hyper_softcore.reg_rdmem_op_1,core.hyper_softcore.reg_count_req_1,
+        core.hyper_softcore.reg_blck_sec_1});
           for (i=0; i<(256/8); i=i+1)
             begin
               $display("%x: %x %x %x %x  %x %x %x %x", (i*8),

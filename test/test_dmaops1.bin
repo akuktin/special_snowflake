@@ -100,14 +100,10 @@ core.hyper_softcore.prog_mem.ram.r_data[36] <= 16'h4614; // 0x14 => 0xfffe
 
 //// DATA !
 core.hyper_softcore.data_mem.ram.r_data[0] <= 16'h0018; //// DATA !
-core.hyper_softcore.input_reg[0] <= 16'h3210;
-core.hyper_softcore.input_reg[1] <= 16'h4321;
-core.hyper_softcore.input_reg[2] <= 16'h5432;
-core.hyper_softcore.input_reg[3] <= 16'h6543;
-core.hyper_softcore.input_reg[4] <= 16'h7654;
-core.hyper_softcore.input_reg[5] <= 16'h8765;
-core.hyper_softcore.input_reg[6] <= 16'h9876;
-core.hyper_softcore.input_reg[7] <= 16'ha987;
+core.hyper_softcore.input_reg_0[0] <= 16'h3210;
+core.hyper_softcore.input_reg_0[1] <= 16'h4321;
+core.hyper_softcore.input_reg_1[0] <= 16'h7654;
+core.hyper_softcore.input_reg_1[1] <= 16'h8765;
 //// DATA !
 
 core.hyper_softcore.prog_mem.ram.r_data[37] <= 16'h0a00;

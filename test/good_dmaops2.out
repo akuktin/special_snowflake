@@ -1,0 +1,98 @@
+At time 391802.000 ns PRE  : Addr[10] = 1, Bank = 01
+At time 391802.000 ns PRE  : Addr[10] = 1, Bank = 01
+At time 391898.000 ns EMR  : Extended Mode Register
+At time 391898.000 ns EMR  : Enable DLL
+At time 391898.000 ns EMR  : Extended Mode Register
+At time 391898.000 ns EMR  : Enable DLL
+At time 391994.000 ns LMR  : Load Mode Register
+At time 391994.000 ns LMR  : Burst Length = 4
+At time 391994.000 ns LMR  : CAS Latency = 2.5
+At time 391994.000 ns LMR  : Load Mode Register
+At time 391994.000 ns LMR  : Burst Length = 4
+At time 391994.000 ns LMR  : CAS Latency = 2.5
+At time 392090.000 ns PRE  : Addr[10] = 1, Bank = 00
+At time 392090.000 ns PRE  : Addr[10] = 1, Bank = 00
+At time 392186.000 ns AREF : Auto Refresh
+At time 392186.000 ns AREF : Auto Refresh
+At time 392282.000 ns AREF : Auto Refresh
+At time 392282.000 ns AREF : Auto Refresh
+GlaDOS.d_ddr_mem: at time 392282.000 ns MEMORY:  Power Up and Initialization Sequence is complete
+GlaDOS.i_ddr_mem: at time 392282.000 ns MEMORY:  Power Up and Initialization Sequence is complete
+At time 392378.000 ns LMR  : Load Mode Register
+At time 392378.000 ns LMR  : Burst Length = 4
+At time 392378.000 ns LMR  : CAS Latency = 2.5
+At time 392378.000 ns LMR  : Load Mode Register
+At time 392378.000 ns LMR  : Burst Length = 4
+At time 392378.000 ns LMR  : CAS Latency = 2.5
+At time 396704.000 ns AREF : Auto Refresh
+At time 396704.000 ns AREF : Auto Refresh
+At time 399008.000 ns AREF : Auto Refresh
+At time 399008.000 ns AREF : Auto Refresh
+At time 400298.000 ns ACT  : Bank = 0, Row = 0003
+lsb_do 00000000 swc_is 04 swc_dc 00000000 swx_os fc02 swc_do 00000000
+lsb_do 01000004 swc_is 04 swc_dc 00000000 swx_os fc02 swc_do 00000000
+cmd 4 addr 000c002
+lsb_do 01000005 swc_is 04 swc_dc 00000000 swx_os fc02 swc_do 01000004
+At time 400352.000 ns WRITE: Bank = 0, Col = 004
+At time 400364.000 ns WRITE: Bank = 0, Col = 008
+At time 400367.000 ns WRITE: Bank = 0, Row = 0003, Col = 006, Data = 0100
+At time 400370.000 ns WRITE: Bank = 0, Row = 0003, Col = 007, Data = 0004
+At time 400373.000 ns WRITE: Bank = 0, Row = 0003, Col = 008, Data = 0100
+At time 400376.000 ns WRITE: Bank = 0, Row = 0003, Col = 009, Data = 0005
+At time 400379.000 ns WRITE: Bank = 0, Row = 0003, Col = 00a, Data = 0100
+At time 400382.000 ns WRITE: Bank = 0, Row = 0003, Col = 00b, Data = 0006
+lsab_cw data_out 00000000
+lsab_cw data_out 00000000
+lsab_cw data_out 00000000
+At time 401312.000 ns PRE  : Addr[10] = 1, Bank = 00
+At time 401312.000 ns AREF : Auto Refresh
+At time 401336.000 ns AREF : Auto Refresh
+At time 403616.000 ns AREF : Auto Refresh
+At time 403616.000 ns AREF : Auto Refresh
+At time 405920.000 ns AREF : Auto Refresh
+At time 405920.000 ns AREF : Auto Refresh
+halting CTR 0000000000010914
+acc ffff
+input_reg  000c 0000       0000 0000
+output_reg c003 0000 c00d  0000 0000 0000
+0000000000: 0018 xxxx xxxx xxxx  ffff fffe e7ff e009
+0000000008: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000010: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000018: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000020: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000028: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000030: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000038: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000040: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000048: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000050: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000058: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000060: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000068: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000070: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000078: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000080: c003 0000 c00d xxxx  xxxx xxxx xxxx xxxx
+0000000088: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000090: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000098: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000a0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000a8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000b0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000b8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000c0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000c8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000d0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000d8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000e0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000e8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000f0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000f8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx 0000
+wMSR 00ed3200
+ r0: 00000000,  r1: ffffffff,  r2: fffffffe  r3: 00000001
+ r4: 00000000,  r5: 00000000,  r6: 8932d612  r7: 00000001
+ r8: c0000000,  r9: fe000045, r10: 00000002 r11: cecccc9d
+r12: 86bc380d, r13: eaa62ad5, r14: 0effe91d r15: 0509650a
+r16: 7968bdf2, r17: ec4b34d8, r18: 75c50deb r19: 571513ae
+r20: 85d79a0b, r21: 27f2554f, r22: bf23327e r23: 6c9c4bd9
+r24: ffffffff, r25: dbcd60b7, r26: adcbc05b r27: 00000000
+r28: 4b212f96, r29: 6457edc8, r30: 090cdb12 r31: 00000000

@@ -1,0 +1,52 @@
+wait cycle   acc 0005
+wait cycle   acc 0004
+wait cycle   acc 0003
+wait cycle   acc 0002
+wait cycle   acc 0001
+wait cycle   acc 0000
+INTERRUPT! DESC 2
+halting CTR 0000000000000105
+acc ffff
+input_reg  3210 4321       7654 8765
+output_reg 0000 0002 3213  0000 0000 0000
+0000000000: 0018 0018 xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000008: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000010: ffff ffff ffff 0000  fffe xxxx fffd 0001
+0000000018: 0001 0002 0002 fffe  fffe ffff ffff 0001
+0000000020: 0001 0003 xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000028: 0006 0005 xxxx ffff  xxxx xxxx xxxx xxxx
+0000000030: 3210 7654 0002 3213  xxxx xxxx xxxx xxxx
+0000000038: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000040: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000048: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000050: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000058: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000060: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000068: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000070: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000078: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000080: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000088: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000090: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000098: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000a0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000a8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000b0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000b8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000c0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000c8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000d0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000d8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000e0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000e8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000f0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+00000000f8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx ffff
+wMSR 00ed3200
+ r0: 00000000,  r1: 46df998d,  r2: 00f3e301  r3: 1e8dcd3d
+ r4: 7cfde9f9,  r5: d513d2aa,  r6: 8932d612  r7: e77696ce
+ r8: c0000000,  r9: fe000045, r10: 00000002 r11: cecccc9d
+r12: 86bc380d, r13: eaa62ad5, r14: 0effe91d r15: 0509650a
+r16: 7968bdf2, r17: ec4b34d8, r18: 75c50deb r19: 571513ae
+r20: 85d79a0b, r21: 27f2554f, r22: bf23327e r23: 6c9c4bd9
+r24: 4fa1559f, r25: dbcd60b7, r26: adcbc05b r27: 00000000
+r28: 4b212f96, r29: 6457edc8, r30: 090cdb12 r31: 00000001
