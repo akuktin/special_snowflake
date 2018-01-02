@@ -189,11 +189,11 @@ module aexm_ctrl (/*AUTOARG*/
 	rRW_valid <= 0;
 	// End of automatics
      end else if (d_en) begin // if (grst)
-	rMXDST <= #1 xMXDST;
-	rMXALU <= #1 xMXALU;
-	rRW <= #1 xRW;
-	xRW_valid <= #1 dRW_valid;
-	rRW_valid <= #1 xRW_valid && !xSKIP;
+	rMXDST <= xMXDST;
+	rMXALU <= xMXALU;
+	rRW <= xRW;
+	xRW_valid <= dRW_valid;
+	rRW_valid <= xRW_valid && !xSKIP;
      end
 
 

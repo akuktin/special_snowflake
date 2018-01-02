@@ -229,12 +229,12 @@ module aexm_bpcu (/*AUTOARG*/
        xSKIP <= 0;
 	// End of automatics
      end else if (x_en) begin
-	pre_rIPC <= #1 xIPC;
-        rIPC <= #1 pre_rIPC;
-	rPC <= #1 xPC;
-	rPCLNK <= #1 xPCLNK;
-//	rATOM <= #1 xATOM;
-       xSKIP <= #1 dSKIP;
+	pre_rIPC <= xIPC;
+        rIPC <= pre_rIPC;
+	rPC <= xPC;
+	rPCLNK <= xPCLNK;
+//	rATOM <= xATOM;
+       xSKIP <= dSKIP;
      end
 
 endmodule // aexm_bpcu

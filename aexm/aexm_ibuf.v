@@ -66,11 +66,10 @@ module aexm_ibuf (/*AUTOARG*/
 	// End of automatics
      end else begin
 	if (rMSR_IE)
-	  rDINT <= #1
-		   {rDINT[0], sys_int_i};
+	  rDINT <= {rDINT[0], sys_int_i};
 
-	rFINT <= #1 // still needs some work
-		 issued_interrupt ? 1'b0 :
+	// still needs some work
+	rFINT <= issued_interrupt ? 1'b0 :
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
@@ -119,8 +118,8 @@ module aexm_ibuf (/*AUTOARG*/
      end else if (d_en) begin // if (grst)
        issued_interrupt <= cpu_interrupt;
        cpu_interrupt <= do_interrupt;
-	{rOPC, rRD, rRA, rIMM} <= #1 xNXTINST;
-	rSIMM <= #1 xSIMM;
+	{rOPC, rRD, rRA, rIMM} <= xNXTINST;
+	rSIMM <= xSIMM;
      end
 
 endmodule // aexm_ibuf

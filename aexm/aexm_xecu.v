@@ -90,8 +90,8 @@ module aexm_xecu (/*AUTOARG*/
 
    always @(wADC or wADD /*or wCMP*/) begin
 // wCMP decommisioned until further notice
-//     {rRES_ADDC, rRES_ADD} <= #1 {wADC, wCMP, wADD[30:0]};
-     {rRES_ADDC, rRES_ADD} <= #1 {wADC, wADD[31:0]};
+//     {rRES_ADDC, rRES_ADD} <= {wADC, wCMP, wADD[30:0]};
+     {rRES_ADDC, rRES_ADD} <= {wADC, wADD[31:0]};
    end
 
    // --- LOGIC SELECTOR --------------------------------------
@@ -99,10 +99,10 @@ module aexm_xecu (/*AUTOARG*/
    reg [31:0] 	    rRES_LOG;
    always @(/*AUTOSENSE*/rOPA or rOPB or rOPC)
      case (rOPC[1:0])
-       2'o0: rRES_LOG <= #1 rOPA | rOPB;
-       2'o1: rRES_LOG <= #1 rOPA & rOPB;
-       2'o2: rRES_LOG <= #1 rOPA ^ rOPB;
-       2'o3: rRES_LOG <= #1 rOPA & ~rOPB;
+       2'o0: rRES_LOG <= rOPA | rOPB;
+       2'o1: rRES_LOG <= rOPA & rOPB;
+       2'o2: rRES_LOG <= rOPA ^ rOPB;
+       2'o3: rRES_LOG <= rOPA & ~rOPB;
      endcase // case (rOPC[1:0])
 
    // --- SHIFTER SELECTOR ------------------------------------
@@ -112,10 +112,10 @@ module aexm_xecu (/*AUTOARG*/
 
    always @(/*AUTOSENSE*/rIMM or rMSR_C or rOPA)
      case (rIMM[6:5])
-       2'o0: {rRES_SFT, rRES_SFTC} <= #1 {rOPA[31],rOPA[31:0]};
-       2'o1: {rRES_SFT, rRES_SFTC} <= #1 {rMSR_C,rOPA[31:0]};
-       2'o2: {rRES_SFT, rRES_SFTC} <= #1 {1'b0,rOPA[31:0]};
-       2'o3: {rRES_SFT, rRES_SFTC} <= #1 (rIMM[0]) ? { {(16){rOPA[15]}}, rOPA[15:0], rMSR_C} :
+       2'o0: {rRES_SFT, rRES_SFTC} <= {rOPA[31],rOPA[31:0]};
+       2'o1: {rRES_SFT, rRES_SFTC} <= {rMSR_C,rOPA[31:0]};
+       2'o2: {rRES_SFT, rRES_SFTC} <= {1'b0,rOPA[31:0]};
+       2'o3: {rRES_SFT, rRES_SFTC} <= (rIMM[0]) ? { {(16){rOPA[15]}}, rOPA[15:0], rMSR_C} :
 				      { {(24){rOPA[7]}}, rOPA[7:0], rMSR_C};
      endcase // case (rIMM[6:5])
 
@@ -195,9 +195,9 @@ module aexm_xecu (/*AUTOARG*/
 	rBSRL <= 32'h0;
 	// End of automatics
      end else if (!x_en) begin // TODO: maybe remove the if
-	rBSRL <= #1 xBSRL;
-	rBSRA <= #1 xBSRA;
-	rBSLL <= #1 xBSLL;
+	rBSRL <= xBSRL;
+	rBSRA <= xBSRA;
+	rBSLL <= xBSLL;
      end
 
    always @(/*AUTOSENSE*/rALT or rBSLL or rBSRA or rBSRL)
@@ -303,11 +303,11 @@ module aexm_xecu (/*AUTOARG*/
 	// End of automatics
      end else begin // if (grst)
        if (x_en) begin
-	rRESULT <= #1 xRESULT;
-	rMSR_C <= #1 xMSR_C;
-	rMSR_IE <= #1 xMSR_IE;
-	rMSR_BE <= #1 xMSR_BE;
-	rMSR_BIP <= #1 xMSR_BIP;
+	rRESULT <= xRESULT;
+	rMSR_C <= xMSR_C;
+	rMSR_IE <= xMSR_IE;
+	rMSR_BE <= xMSR_BE;
+	rMSR_BIP <= xMSR_BIP;
        end
        rDWBSEL <= xDWBSEL;
      end
