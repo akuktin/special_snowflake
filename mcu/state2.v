@@ -39,7 +39,8 @@ module state2(input CLK,
 				     REQUEST_ALIGN_BULK,
 				     correct_page_rand, correct_page_bulk,
 				     correct_page_algn, correct_page_any,
-				     correct_page_rdy;
+				     correct_page_rdy,
+				     do_extra_pass;
   reg [2:0] 			     command_reg2, actv_timeout;
   reg [3:0] 			     counter, WE_ARRAY_BULK;
   reg [13:0] 			     page_current;
@@ -170,7 +171,7 @@ module state2(input CLK,
    * the synthetizer. */
   assign change_possible_w_n = ~second_stroke ? 1 :
 			       correct_page_any ? timeout_norm_comp_n :
-			       (want_PRCH_delayable ?
+			       do_extra_pass ? 1 : (want_PRCH_delayable ?
 				timeout_dlay_comp_n : timeout_norm_comp_n);
 
   assign we_array = REQUEST_ACCESS_BULK ? WE_ARRAY_BULK : WE_ARRAY_RAND;
@@ -185,7 +186,7 @@ module state2(input CLK,
 	second_stroke <= 1; REFRESH_TIME <= 0;
 	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
 	page_current <= 0; GRANT_ALIGN_BULK <= 0; INTERNAL_WE_ARRAY <= 0;
-	REQUEST_ALIGN_BULK_dly <= 0;
+	REQUEST_ALIGN_BULK_dly <= 0; do_extra_pass <= 0;
 
 	REQUEST_ACCESS_RAND <= 0; REQUEST_ACCESS_BULK <= 0;
 	REQUEST_ALIGN_BULK <= 0; correct_page_rand <= 0;
@@ -253,7 +254,10 @@ module state2(input CLK,
 	    else if (command_reg2 != `NOOP)
 	      state_is_write <= 0;
 	    if (command_reg2 == `ARSR)
-	      refresh_strobe_ack <= REFRESH_STROBE;
+	      begin
+		refresh_strobe_ack <= REFRESH_STROBE;
+		do_extra_pass <= 1'b1;
+	      end
 
 	    case (command_reg2)
 	      `ARSR: counter <= 4'h3;
@@ -266,7 +270,11 @@ module state2(input CLK,
 	    endcase // case (command_reg2)
 	  end // if (!second_stroke)
 	else
-	  counter <= counter + change_possible_n;
+	  begin
+	    counter <= counter + change_possible_n;
+	    if (counter == 4'h0)
+	      do_extra_pass <= 0;
+	  end
 
 	if (issue_com)
 	  begin

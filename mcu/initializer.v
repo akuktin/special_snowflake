@@ -20,7 +20,7 @@ module initializer(input CLK_n,
 		   input [1:0] 	 BANK_USER,
 		   /* ----------------------- */
 		   output reg 	 RST_USER);
-  reg 				 long_counter_o;
+  reg 				 long_counter_o, other_cycle;
   reg [7:0] 			 long_counter_h, long_counter_l;
   reg [3:0] 			 intercommand_count,
 				 stage_count;
@@ -102,9 +102,12 @@ module initializer(input CLK_n,
 	stage_count <= 0;
 	aftercount <= 0;
 	COMMAND_ini <= `NOOP;
+	other_cycle <= 0;
       end
     else
       begin
+	other_cycle <= !other_cycle;
+
 	if (!CKE)
 	  begin
 	    {long_counter_o,long_counter_l} <= long_counter_l +1;
@@ -128,7 +131,7 @@ module initializer(input CLK_n,
 		else
 		  begin
 		    COMMAND_ini <= `NOOP;
-		    intercommand_count <= intercommand_count +1;
+		    intercommand_count <= intercommand_count + other_cycle;
 		  end // else: !if(step_init)
 	      end // if (core_init)
 	    else
