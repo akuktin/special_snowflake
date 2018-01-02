@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ps/1ps
 
 `include "test_inc.v"
 
@@ -218,17 +218,17 @@ module GlaDOS;
   initial
     forever
       begin
-        #1.5 CLK_n <= 0; CLK_p <= 1;
-        #1.5 CLK_dp <= 1; CLK_dn <= 0;
-        #1.5 CLK_n <= 1; CLK_p <= 0;
-        #1.5 CLK_dp <= 0; CLK_dn <= 1;
+        #1500 CLK_n <= 0; CLK_p <= 1;
+        #1500 CLK_dp <= 1; CLK_dn <= 0;
+        #1500 CLK_n <= 1; CLK_p <= 0;
+        #1500 CLK_dp <= 0; CLK_dn <= 1;
       end
   initial
     forever
       begin
-        #1.5;
-        #4.5 CPU_CLK <= 1;
-        #3   CPU_CLK <= 0;
+        #1500;
+        #4500 CPU_CLK <= 1;
+        #3000   CPU_CLK <= 0;
       end
 
   reg         TEST_output_lsab_cw_1, TEST_output_lsab_cw_1_dly,
@@ -325,6 +325,39 @@ module GlaDOS;
   reg 	       ph_enstb_0_prev, ph_enstb_1_prev,
 	       ph_enstb_2_prev, ph_enstb_3_prev;
 
+  ddr2 i_ddr2_mem(.ck(CLK_p),
+		  .ck_n(CLK_n),
+		  .cke(iCKE),
+		  .cs_n(iCS),
+		  .ras_n(iCOMMAND[2]),
+		  .cas_n(iCOMMAND[1]),
+		  .we_n(iCOMMAND[0]),
+		  .dm_rdqs({iDM,iDM}),
+		  .ba({1'b0,iBANK}),
+		  .addr(iADDRESS),
+		  .dq(iDQ),
+		  .dqs({iDQS,iDQS}),
+		  .dqs_n(),
+		  .rdqs_n(),
+		  .odt(1'b1));
+
+  ddr2 d_ddr2_mem(.ck(CLK_p),
+		  .ck_n(CLK_n),
+		  .cke(dCKE),
+		  .cs_n(dCS),
+		  .ras_n(dCOMMAND[2]),
+		  .cas_n(dCOMMAND[1]),
+		  .we_n(dCOMMAND[0]),
+		  .dm_rdqs({dDM,dDM}),
+		  .ba({1'b0,dBANK}),
+		  .addr(dADDRESS),
+		  .dq(dDQ),
+		  .dqs({dDQS,iDQS}),
+		  .dqs_n(),
+		  .rdqs_n(),
+		  .odt(1'b1));
+
+/*
   ddr i_ddr_mem(.Clk(CLK_p),
               .Clk_n(CLK_n),
               .Cke(iCKE),
@@ -350,7 +383,7 @@ module GlaDOS;
               .Dm({dDM,dDM}),
               .Dq(dDQ),
               .Dqs({dDQS,dDQS}));
-
+ */
 
   test_fill_lsab lsab_write(.CLK(CLK_n),
 			    .RST(RST),
@@ -456,13 +489,13 @@ module GlaDOS;
     begin
       RST <= 0; RST_CPU <= 0; counter <= 0; readcount_r <= 0;
       RST_CPU_pre <= 0;
-      #14.875 RST <= 1;
-      #400000;
+      #14875 RST <= 1;
+      #400000000;
       RST_CPU_pre <= 1;
 
 
-      #2000;
-      #20000;
+      #2000000;
+      #20000000;
       $display("addr %x we %x wea %x req %x algnr %x algna %x",
 	       {core.mcu_page_addr,mcu_coll_addr}, core.i_mcu_we,
 	       core.hf_we_array_fill, core.i_mcu_req_access,
@@ -472,7 +505,7 @@ module GlaDOS;
 	       core.i_mcu.interdictor_tracker.REFRESH_TIME,
 	       core.i_mcu.interdictor_tracker.actv_timeout[2],
 	       core.i_mcu.interdictor_tracker.REFRESH_TIME);
-      #20 $display("timeout"); $finish;
+      #20000 $display("timeout"); $finish;
     end
 
   reg i_mcu_req_access_prev, refresh_strobe_prev;

@@ -1,5 +1,8 @@
 `define x16
-`define sq5E
+// DDR
+//`define sq5E
+// DDR2
+`define sg25E
 
 module ram_dp_true_m(input [31:0] DataInA,
                      input [31:0]      DataInB,
@@ -90,4 +93,5 @@ module iceram16(output [15:0] RDATA,
 		    .QB());
 endmodule // iceram16
 
-`include "ddr.v"
+//`include "ddr.v"
+`include "ddr2.v"
