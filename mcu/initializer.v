@@ -110,7 +110,7 @@ module initializer(input CLK_n,
 	end
 	4'h3: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h380; // extended mode register
+	  address_rom = 13'h780; // extended mode register
 	  bank_rom    = 2'h1;
 	end
 	4'h4: begin
@@ -140,12 +140,12 @@ module initializer(input CLK_n,
 	end
 	4'h9: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h380; // extended mode register
+	  address_rom = 13'h780; // extended mode register
 	  bank_rom    = 2'h1;
 	end
 	4'ha: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h000; // extended mode register
+	  address_rom = 13'h400; // extended mode register
 	  bank_rom    = 2'h1;
 	end
 	default: begin

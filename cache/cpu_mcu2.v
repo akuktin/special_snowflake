@@ -385,8 +385,7 @@ module snowball_cache(input CPU_CLK,
 	if (((mem_do_act_reg && mem_ack_reg) ||
 	     (dma_read && dma_read_ack)) &&
 	    (! op_type_w))
-//	  read_counter <= 3'd2;
-	  read_counter <= 3'd4; // for testing only
+	  read_counter <= 3'd3;
 	else
 	  if (read_counter != 3'd0)
 	    read_counter <= read_counter +1;

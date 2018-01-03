@@ -352,7 +352,7 @@ module GlaDOS;
 		  .ba({1'b0,dBANK}),
 		  .addr(dADDRESS),
 		  .dq(dDQ),
-		  .dqs({dDQS,iDQS}),
+		  .dqs({dDQS,dDQS}),
 		  .dqs_n(),
 		  .rdqs_n(),
 		  .odt(1'b1));
@@ -997,11 +997,11 @@ module GlaDOS;
 //`include "test_forward.bin"
 //`include "test_branchbug.bin"
 
-//`include "test_memops.bin"
+`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
 //`include "test_dmaops2.bin"
-`include "test_dmaops3.bin"
+//`include "test_dmaops3.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end

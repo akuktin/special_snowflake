@@ -164,8 +164,8 @@ module state2(input CLK,
 		     BANK_REG :
 		     address_in[13:12];
 
-  assign timeout_norm_comp_n = !((counter == 4'hd) || (counter == 4'he));
-  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'h0)); // sped up
+  assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
+  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'he));
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
    * the synthetizer. */
@@ -262,9 +262,6 @@ module state2(input CLK,
 	    case (command_reg2)
 	      `ARSR: counter <= 4'h3;
 	      `ACTV: counter <= 4'hc;
-	      `PRCH: counter <= 4'hc; // sped up
-	      `READ: counter <= 4'hc; // sped up
-	      `WRTE: counter <= 4'hc; // sped up
 	      `NOOP: counter <= 4'he;
 	      default: counter <= 4'hb;
 	    endcase // case (command_reg2)
@@ -301,23 +298,24 @@ module state2(input CLK,
 endmodule // enter_state
 
 module outputs(input CLK_p,
-	       input 	     CLK_n,
-	       input 	     CLK_dp,
-	       input 	     CLK_dn,
-	       input 	     RST,
-	       input [3:0]   COMMAND_LATCHED,
-	       input [3:0]   WE_ARRAY,
-	       input [31:0]  port_DATA_W,
-	       inout [15:0]  DQ,
-	       inout 	     DQS,
-	       output [31:0] DATA_R,
-	       output 	     DM);
+	       input 		 CLK_n,
+	       input 		 CLK_dp,
+	       input 		 CLK_dn,
+	       input 		 RST,
+	       input [3:0] 	 COMMAND_LATCHED,
+	       input [3:0] 	 port_WE_ARRAY,
+	       input [31:0] 	 port_DATA_W,
+	       inout [15:0] 	 DQ,
+	       inout 		 DQS,
+	       output reg [31:0] DATA_R,
+	       output 		 DM);
   reg [31:0] 			 data_gapholder, dq_predriver, DATA_W;
-  reg [3:0] 			 we_gapholder;
+  reg [3:0] 			 we_gapholder, WE_ARRAY;
   reg [1:0] 			 dm_predriver, dqs_predriver, active;
   reg 				 dqs_z_prectrl, dqs_z_ctrl, dqdm_z_prectrl,
 				 high_bits;
 
+  wire [31:0] 			 dq_data_r;
   wire 				 did_issue_write;
 
   /* NOTICE: For whatever reason, or confusion, I made the WE (that is, DM)
@@ -333,17 +331,10 @@ module outputs(input CLK_p,
 		     .dqs_predriver(dqs_predriver),
 		     .dqs_z_ctrl(dqs_z_ctrl),
 		     .dqdm_z_prectrl(dqdm_z_prectrl),
-		     .dq_data_r(DATA_R),
+		     .dq_data_r(dq_data_r),
 		     .DQ(DQ),
 		     .DQS(DQS),
 		     .DM(DM));
-
-  always @(did_issue_write or active[0])
-    if ({did_issue_write,active[0]} == 2'b00)
-      dqs_z_prectrl <= 0;
-    else
-      dqs_z_prectrl <= 1;
-
 
   always @(posedge CLK_n)
     if (!RST)
@@ -359,6 +350,7 @@ module outputs(input CLK_p,
 	data_gapholder <= DATA_W;
 	dq_predriver <= data_gapholder;
 
+	WE_ARRAY <= port_WE_ARRAY;
 	we_gapholder <= WE_ARRAY;
 
 	high_bits <= did_issue_write;
@@ -366,11 +358,11 @@ module outputs(input CLK_p,
 	active <= {active[0],did_issue_write};
 
 	if (high_bits)
-	  dm_predriver <= we_gapholder[1:0];
-	else
 	  dm_predriver <= WE_ARRAY[3:2];
+	else
+	  dm_predriver <= we_gapholder[1:0];
 
-	if ({did_issue_write,active[0]} == 2'b00)
+	if (active == 2'b00)
 	  begin
 	    dqdm_z_prectrl <= 0;
 	    dqs_predriver <= 2'h0;
@@ -381,15 +373,17 @@ module outputs(input CLK_p,
 	    dqs_predriver <= 2'h2;
 	  end
 
-	/* This will be used when we switch over to DDR2.
-
 	if ({did_issue_write,active} == 3'b000)
 	  dqs_z_prectrl <= 0;
 	else
 	  dqs_z_prectrl <= 1;
-	 */
-
       end // else: !if(!RST)
+
+  always @(negedge CLK_n)
+    if (!RST)
+      DATA_R <= 0;
+    else
+      DATA_R <= dq_data_r;
 
   always @(negedge CLK_dn)
     if (!RST)
@@ -443,7 +437,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_00(.PACKAGE_PIN(DQ[15]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[31]),
@@ -456,7 +450,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_01(.PACKAGE_PIN(DQ[14]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[30]),
@@ -469,7 +463,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_02(.PACKAGE_PIN(DQ[13]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[29]),
@@ -482,7 +476,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_03(.PACKAGE_PIN(DQ[12]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[28]),
@@ -495,7 +489,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_04(.PACKAGE_PIN(DQ[11]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[27]),
@@ -508,7 +502,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_05(.PACKAGE_PIN(DQ[10]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[26]),
@@ -521,7 +515,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_06(.PACKAGE_PIN(DQ[9]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[25]),
@@ -534,7 +528,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_07(.PACKAGE_PIN(DQ[8]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[24]),
@@ -547,7 +541,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_08(.PACKAGE_PIN(DQ[7]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[23]),
@@ -560,7 +554,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_09(.PACKAGE_PIN(DQ[6]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[22]),
@@ -573,7 +567,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_10(.PACKAGE_PIN(DQ[5]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[21]),
@@ -586,7 +580,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_11(.PACKAGE_PIN(DQ[4]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[20]),
@@ -599,7 +593,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_12(.PACKAGE_PIN(DQ[3]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[19]),
@@ -612,7 +606,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_13(.PACKAGE_PIN(DQ[2]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[18]),
@@ -625,7 +619,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_14(.PACKAGE_PIN(DQ[1]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[17]),
@@ -638,7 +632,7 @@ module ddr_data_pins(input CLK_n,
   SB_IO DQ_15(.PACKAGE_PIN(DQ[0]),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(CLK_dn),
+	     .INPUT_CLK(! CLK_dn), // INVERTED!
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
 	     .D_OUT_0(dq_predriver[16]),
@@ -677,13 +671,13 @@ module SB_IO(inout PACKAGE_PIN,
       begin
 	out_en <= OUTPUT_ENABLE;
 	reg_out_0 <= D_OUT_0;
-	reg_out_1 <= D_OUT_1;
+//	reg_out_1 <= D_OUT_1;
       end
-//  always @(negedge OUTPUT_CLK)
-//    if (CLOCK_ENABLE)
-//      begin
-//        reg_out_1 <= D_OUT_1;
-//      end
+  always @(negedge OUTPUT_CLK)
+    if (CLOCK_ENABLE)
+      begin
+        reg_out_1 <= D_OUT_1;
+      end
 
 endmodule // SB_IO
 
@@ -715,12 +709,12 @@ module SB_IOeg(inout PACKAGE_PIN,
     if (CLOCK_ENABLE)
       begin
 	reg_out_0 <= D_OUT_0;
-	reg_out_1 <= D_OUT_1;
+//	reg_out_1 <= D_OUT_1;
       end
-//  always @(negedge OUTPUT_CLK)
-//    if (CLOCK_ENABLE)
-//      begin
-//        reg_out_1 <= D_OUT_1;
-//      end
+  always @(negedge OUTPUT_CLK)
+    if (CLOCK_ENABLE)
+      begin
+        reg_out_1 <= D_OUT_1;
+      end
 
 endmodule // SB_IO
