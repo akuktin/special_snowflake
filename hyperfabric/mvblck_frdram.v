@@ -34,12 +34,12 @@ module hyper_mvblck_frdram(input CLK,
 			   output [1:0]      MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n,
 					     wr_device_error, read_more,
+					     release_trigger, we_trigger,
 					     LSAB_WRITE_pre;
   reg [2:0] 				     we_counter, release_counter;
   reg [5:0] 				     len_left;
 
-  wire 					     release_trigger, we_trigger,
-					     uneven_len;
+  wire 					     uneven_len;
   wire [5:0] 				     compute_len, assign_len;
 
   /* This signal used to be a normal, proper register whose logic was
@@ -51,9 +51,6 @@ module hyper_mvblck_frdram(input CLK,
   assign MCU_REQUEST_ACCESS = am_working ?
 			      (DRAM_SEL & {(2){read_more}}) :
 			      (DRAM_SEL & {(2){(ISSUE && RST)}});
-
-  assign release_trigger = release_counter == 3'h7;
-  assign we_trigger = we_counter == 3'h7;
 
   /* Formula tested on paper.
    * May not fit in 3 LUT4s, depending on just
@@ -192,6 +189,10 @@ module hyper_mvblck_frdram(input CLK,
 	else
 	  if (LSAB_WRITE)
 	    COUNT_SENT <= COUNT_SENT +1;
+
+	release_trigger <= (release_counter == 3'h7);
+	we_trigger <= (we_counter == 3'h7);
+
 
 	/* The below two are VERY IMPORTANT! The counter MUST pass through
 	 * the trigger condition! Otherwise, the circuit will be stuck,
