@@ -303,15 +303,16 @@ module outputs(input CLK_p,
 	       input 		 CLK_dn,
 	       input 		 RST,
 	       input [3:0] 	 COMMAND_LATCHED,
-	       input [3:0] 	 port_WE_ARRAY,
+	       input [3:0] 	 WE_ARRAY,
 	       input [31:0] 	 port_DATA_W,
 	       inout [15:0] 	 DQ,
 	       inout 		 DQS,
 	       output reg [31:0] DATA_R,
 	       output 		 DM);
   reg [31:0] 			 data_gapholder, dq_predriver, DATA_W;
-  reg [3:0] 			 we_gapholder, WE_ARRAY;
-  reg [1:0] 			 dm_predriver, dqs_predriver, active;
+  reg [3:0] 			 we_gapholder;
+  reg [1:0] 			 dm_predriver, dqs_predriver, active,
+				 we_longholder;
   reg 				 dqs_z_prectrl, dqs_z_ctrl, dqdm_z_prectrl,
 				 high_bits;
 
@@ -339,7 +340,7 @@ module outputs(input CLK_p,
   always @(posedge CLK_n)
     if (!RST)
       begin
-	data_gapholder <= 0; we_gapholder <= 0;
+	data_gapholder <= 0; we_gapholder <= 0; we_longholder <= 0;
 	dq_predriver <= 0; dm_predriver <= 0; dqdm_z_prectrl <= 0;
 	dqs_predriver <= 0; DATA_W <= 0;
 	active <= 0; high_bits <= 0;
@@ -350,17 +351,17 @@ module outputs(input CLK_p,
 	data_gapholder <= DATA_W;
 	dq_predriver <= data_gapholder;
 
-	WE_ARRAY <= port_WE_ARRAY;
 	we_gapholder <= WE_ARRAY;
+	we_longholder <= we_gapholder[1:0];
 
 	high_bits <= did_issue_write;
 
 	active <= {active[0],did_issue_write};
 
 	if (high_bits)
-	  dm_predriver <= WE_ARRAY[3:2];
+	  dm_predriver <= we_gapholder[3:2];
 	else
-	  dm_predriver <= we_gapholder[1:0];
+	  dm_predriver <= we_longholder;
 
 	if (active == 2'b00)
 	  begin
