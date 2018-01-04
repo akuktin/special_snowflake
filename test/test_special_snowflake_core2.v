@@ -515,6 +515,16 @@ module GlaDOS;
       cache_vmem <= 0; cache_inhibit <= 0;
     end
 
+/*
+  always @(CLK_dn)
+    begin
+      if ((dDM == 1'b0) || (dDM == 1'b1))
+	begin
+	  $display("direct observation: dm %x data %x", dDM, dDQ);
+	end
+    end
+ */
+
   always @(posedge CLK_n)
     if (!RST)
       begin
@@ -651,17 +661,31 @@ module GlaDOS;
 	  $display("LSAB wr%x addr %x data %x", core.lsab_in.WRITE_FIFO,
 		   core.lsab_in.write_addr, core.lsab_in.in_mem);
 
-	if (core.fill.RST && core.fill.am_working && 0)
+	if (core.d_mcu_req_access)
+	  begin
+	    $display("MCU we %x wea %x",
+		     core.d_mcu_we, core.hf_we_array_fill);
+	  end
+
+	if (core.fill.RST && !core.fill.am_working && 0)
+	  begin
+	    $display("@ start_addr %x",
+		     core.w_start_address);
+	  end
+//	if (core.fill.RST && core.fill.am_working && 1)
+	if (core.d_mcu.bulk_req_algn && 0)
 	  begin
 	    $display("@ %d i_fl %x i_ep %x d_fl %x d_ep %x", ctr,
 		     core.i_hf_req_access_fill,
 		     core.i_hf_req_access_empty,
 		     core.d_hf_req_access_fill,
 		     core.d_hf_req_access_empty);
-	    $display("addr %x we %x wea %x req %x algnr %x algna %x",
+	    $display("addr %x we %x wea %x dt %x req %x algnr %x algna %x",
 		     {core.mcu_page_addr,core.mcu_coll_addr},
 		     core.d_mcu_we,
-		     core.hf_we_array_fill, core.d_mcu_req_access,
+		     core.hf_we_array_fill,
+		     core.d_mcu.data_driver.port_DATA_W,
+		     core.d_mcu_req_access,
 		     core.d_mcu_algn_req, core.d_mcu_algn_ack);
 
 	    $display("wm %x RAB %x web %x RAR %X wer %x",
@@ -684,13 +708,20 @@ module GlaDOS;
  */
 	  end // if (core.fill.RST && core.fill.am_working)
 
-	if (core.fill.RST && core.fill.am_working &&
-	    core.d_mcu.interdictor_tracker.issue_com)
+//	if (core.fill.RST && core.fill.am_working &&
+//	    core.d_mcu.interdictor_tracker.issue_com)
+	if (!core.d_mcu.interdictor_tracker.second_stroke)
 	  begin
-	    $display("cmd %x addr %x",
-		     core.d_mcu.interdictor_tracker.command,
-		     core.d_mcu.interdictor_tracker.address_in);
-	  end
+	    $display("d cmd %x addr %x bank %x we %x data %x predata %x",
+//		     core.d_mcu.interdictor_tracker.command,
+//		     core.d_mcu.interdictor_tracker.address_in,
+		     core.d_mcu.interdictor_tracker.COMMAND_REG,
+		     core.d_mcu.interdictor_tracker.ADDRESS_REG,
+		     core.d_mcu.interdictor_tracker.BANK_REG,
+		     core.d_mcu.data_driver.WE_ARRAY,
+		     core.d_mcu.data_driver.DATA_W,
+		     core.d_mcu.data_driver.dq_predriver);
+	  end // if (!core.d_mcu.interdictor_tracker.second_stroke)
 
 	if (core.lsab_in.re_prev)
 	  $display("lsb_do %x swc_is %x swc_dc %x swx_os %x swc_do %x",
@@ -997,10 +1028,10 @@ module GlaDOS;
 //`include "test_forward.bin"
 //`include "test_branchbug.bin"
 
-`include "test_memops.bin"
+//`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-//`include "test_dmaops2.bin"
+`include "test_dmaops2.bin"
 //`include "test_dmaops3.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
