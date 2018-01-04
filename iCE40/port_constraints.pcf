@@ -1,0 +1,93 @@
+# ##############################################################################
+
+# iCEcube PCF
+
+# Version:            2017.01.27914
+
+# File Generated:     Dec 31 2017 00:54:25
+
+# Family & Device:    iCE40HX8K
+
+# Package:            CT256
+
+# ##############################################################################
+
+###IOSet List 77
+set_io iDQ[12] F3
+set_io iDQ[9] E3
+set_io iDQ[0] G2
+set_io dDQ[0] L16
+set_io iADDRESS[5] N4
+set_io dADDRESS[4] D15
+set_io dCKE H13
+set_io dDQ[9] P13
+set_io iCOMMAND[2] K1
+set_io dDQ[2] K15
+set_io iADDRESS[7] P4
+set_io iDQ[5] H1
+set_io dADDRESS[12] C13
+set_io dADDRESS[2] D16
+set_io dBANK[0] G13
+set_io dDQ[10] N16
+set_io iADDRESS[0] N2
+set_io iADDRESS[12] T3
+set_io iCOMMAND[0] J4
+set_io dADDRESS[9] D13
+set_io dCOMMAND[0] H14
+set_io dDQ[4] J13
+set_io iADDRESS[9] R4
+set_io iDQ[7] F1
+set_io dADDRESS[0] E16
+set_io dDQ[12] M14
+set_io iADDRESS[2] P1
+set_io dADDRESS[7] C14
+set_io dCOMMAND[2] G15
+set_io dDQ[15] R16
+set_io dDQ[6] L13
+set_io iDQ[1] G4
+set_io ETH_WIRE_TX L7
+set_io REF_CLK N7
+set_io iADDRESS[4] P2
+set_io iDQ[13] D1
+set_io iDQ[8] D2
+set_io ETH_WIRE_RX M9
+set_io dADDRESS[5] E14
+set_io dDQ[8] P15
+set_io iADDRESS[11] T1
+set_io iBANK[1] K3
+set_io iDQS C2
+set_io iDQ[3] H3
+set_io dCS F16
+set_io dDQ[1] K13
+set_io iADDRESS[6] R1
+set_io iDQ[11] E4
+set_io dADDRESS[11] B15
+set_io dADDRESS[3] D14
+set_io dBANK[1] G14
+set_io dDQ[11] M13
+set_io iCOMMAND[1] M2
+set_io OUT_RST N12
+set_io dDQ[3] J14
+set_io iADDRESS[8] R2
+set_io iDQ[4] H4
+set_io dADDRESS[1] F13
+set_io dDQ[13] P16
+set_io iADDRESS[1] M4
+set_io iCKE J3
+set_io iCS M1
+set_io iDQ[14] D3
+set_io dADDRESS[8] B16
+set_io dCOMMAND[1] F15
+set_io dDQ[5] K16
+set_io iDQ[6] G3
+set_io iADDRESS[3] R3
+set_io dADDRESS[6] C16
+set_io dDQ[14] P14
+set_io dDQ[7] M15
+set_io iBANK[0] K4
+set_io iDQ[10] E2
+set_io dADDRESS[10] E13
+set_io dDQS R15
+set_io iADDRESS[10] N3
+set_io iDQ[2] H2
+
