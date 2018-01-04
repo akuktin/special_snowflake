@@ -291,12 +291,12 @@ module GlaDOS;
   wire [63:0] res_in, res_out;
 
 
-  wire        iCKE, iDQS, iDM, iCS;
+  wire        iCKE, iUDQS, iLDQS, iDM, iCS, iODT;
   wire [2:0]  iCOMMAND;
   wire [12:0] iADDRESS;
   wire [1:0]  iBANK;
   wire [15:0] iDQ;
-  wire        dCKE, dDQS, dDM, dCS;
+  wire        dCKE, dUDQS, dLDQS, dDM, dCS, dODT;
   wire [2:0]  dCOMMAND;
   wire [12:0] dADDRESS;
   wire [1:0]  dBANK;
@@ -336,10 +336,10 @@ module GlaDOS;
 		  .ba({1'b0,iBANK}),
 		  .addr(iADDRESS),
 		  .dq(iDQ),
-		  .dqs({iDQS,iDQS}),
+		  .dqs({iUDQS,iLDQS}),
 		  .dqs_n(),
 		  .rdqs_n(),
-		  .odt(1'b1));
+		  .odt(iODT));
 
   ddr2 d_ddr2_mem(.ck(CLK_p),
 		  .ck_n(CLK_n),
@@ -352,38 +352,10 @@ module GlaDOS;
 		  .ba({1'b0,dBANK}),
 		  .addr(dADDRESS),
 		  .dq(dDQ),
-		  .dqs({dDQS,dDQS}),
+		  .dqs({dUDQS,dLDQS}),
 		  .dqs_n(),
 		  .rdqs_n(),
-		  .odt(1'b1));
-
-/*
-  ddr i_ddr_mem(.Clk(CLK_p),
-              .Clk_n(CLK_n),
-              .Cke(iCKE),
-              .Cs_n(iCS),
-              .Ras_n(iCOMMAND[2]),
-              .Cas_n(iCOMMAND[1]),
-              .We_n(iCOMMAND[0]),
-              .Ba(iBANK),
-              .Addr(iADDRESS),
-              .Dm({iDM,iDM}),
-              .Dq(iDQ),
-              .Dqs({iDQS,iDQS}));
-
-  ddr d_ddr_mem(.Clk(CLK_p),
-              .Clk_n(CLK_n),
-              .Cke(dCKE),
-              .Cs_n(dCS),
-              .Ras_n(dCOMMAND[2]),
-              .Cas_n(dCOMMAND[1]),
-              .We_n(dCOMMAND[0]),
-              .Ba(dBANK),
-              .Addr(dADDRESS),
-              .Dm({dDM,dDM}),
-              .Dq(dDQ),
-              .Dqs({dDQS,dDQS}));
- */
+		  .odt(dODT));
 
   test_fill_lsab lsab_write(.CLK(CLK_n),
 			    .RST(RST),
@@ -403,21 +375,25 @@ module GlaDOS;
 			      .CPU_CLK(CPU_CLK),
 			      // ----------------------
 			      .mem_iCKE(iCKE),
-			      .mem_iDQS(iDQS),
+			      .mem_iUDQS(iUDQS),
+			      .mem_iLDQS(iLDQS),
 			      .mem_iDM(iDM),
 			      .mem_iCS(iCS),
 			      .mem_iCOMMAND(iCOMMAND),
 			      .mem_iADDRESS(iADDRESS),
 			      .mem_iBANK(iBANK),
 			      .mem_iDQ(iDQ),
+			      .mem_iODT(iODT),
 			      .mem_dCKE(dCKE),
-			      .mem_dDQS(dDQS),
+			      .mem_dUDQS(dUDQS),
+			      .mem_dLDQS(dLDQS),
 			      .mem_dDM(dDM),
 			      .mem_dCS(dCS),
 			      .mem_dCOMMAND(dCOMMAND),
 			      .mem_dADDRESS(dADDRESS),
 			      .mem_dBANK(dBANK),
 			      .mem_dDQ(dDQ),
+			      .mem_dODT(dODT),
 			      // ----------------------
 			      // ----------------------
 			      .write_fifo_cr(w_write_fifo_cr),

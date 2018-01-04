@@ -306,7 +306,8 @@ module outputs(input CLK_p,
 	       input [3:0] 	 WE_ARRAY,
 	       input [31:0] 	 port_DATA_W,
 	       inout [15:0] 	 DQ,
-	       inout 		 DQS,
+	       inout 		 UDQS,
+	       inout 		 LDQS,
 	       output reg [31:0] DATA_R,
 	       output 		 DM);
   reg [31:0] 			 data_gapholder, dq_predriver,
@@ -335,7 +336,8 @@ module outputs(input CLK_p,
 		     .dqdm_z_prectrl(dqdm_z_prectrl),
 		     .dq_data_r(dq_data_r),
 		     .DQ(DQ),
-		     .DQS(DQS),
+		     .UDQS(UDQS),
+		     .LDQS(LDQS),
 		     .DM(DM));
 
   always @(posedge CLK_n)
@@ -406,12 +408,26 @@ module ddr_data_pins(input CLK_n,
 		     output [31:0] dq_data_r,
 		     /////////////////////
 		     inout [15:0]  DQ,
-		     inout 	   DQS,
+		     inout 	   UDQS,
+		     inout 	   LDQS,
 		     output 	   DM);
 
   defparam DQS_00.PIN_TYPE = 6'b100001;
   defparam DQS_00.IO_STANDARD = "SB_LVCMOS";
-  SB_IOeg DQS_00(.PACKAGE_PIN(DQS),
+  SB_IOeg DQS_00(.PACKAGE_PIN(UDQS),
+	     .LATCH_INPUT_VALUE(1'b0),
+	     .CLOCK_ENABLE(1'b1),
+	     .INPUT_CLK(1'b0),
+	     .OUTPUT_CLK(! CLK_n), // INVERTED!
+	     .OUTPUT_ENABLE(dqs_z_ctrl),
+	     .D_OUT_0(dqs_predriver[1]),
+	     .D_OUT_1(dqs_predriver[0]),
+	     .D_IN_0(),
+	     .D_IN_1());
+
+  defparam DQS_01.PIN_TYPE = 6'b100001;
+  defparam DQS_01.IO_STANDARD = "SB_LVCMOS";
+  SB_IOeg DQS_01(.PACKAGE_PIN(LDQS),
 	     .LATCH_INPUT_VALUE(1'b0),
 	     .CLOCK_ENABLE(1'b1),
 	     .INPUT_CLK(1'b0),
