@@ -34,7 +34,8 @@ module hyper_mvblck_todram(input CLK,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg [1:0]  MCU_REQUEST_ACCESS);
   reg 					     stop_prev_n, stop_n,
-					     am_working, irq;
+					     am_working, working_pre,
+					     irq;
   reg [24:0] 				     ancill;
   reg [5:0] 				     len_left;
   reg [11:0] 				     track_addr;
@@ -81,7 +82,7 @@ module hyper_mvblck_todram(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	am_working <= 0;
+	am_working <= 0; working_pre <= 0;
 	LSAB_READ <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0; WORKING <= 0;
 	MCU_COLL_ADDRESS <= 0; MCU_WE_ARRAY <= 0; MCU_REQUEST_ACCESS <= 0;
 	stop_prev_n <= 0; len_left <= 0; IRQ_OUT <= 0; ABRUPT_STOP <= 0;
@@ -135,9 +136,10 @@ module hyper_mvblck_todram(input CLK,
 	  end
 
 	end
-	// Slow it down one cycle to prevent the driver circuit from
+	// Slow it down two cycles to prevent the driver circuit from
 	// interferring with issuing commands to the MCU.
-	WORKING <= am_working;
+	working_pre <= am_working;
+	WORKING <= working_pre;
       end // else: !if(!RST)
 
 endmodule // hyper_mvblck_todram

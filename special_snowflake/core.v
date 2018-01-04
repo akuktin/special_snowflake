@@ -324,12 +324,13 @@ module special_snowflake_core(input RST,
 				.out_6(), .out_7(),
 				.in_0(i_user_req_dataout),
 				.in_1(d_user_req_dataout),
-				.in_2(0), .in_3(0),
+				.in_2(w_out_cr),
+				.in_3(0),
 				.in_4(0), .in_5(0),
 				.in_6(0), .in_7(0),
-				.lsab(w_out_cr),
+				.lsab(0),
 				.isel({5'h0,w_isel}),
-				.osel({8'hfc,5'h0,w_osel}));
+				.osel({8'hff,5'h0,w_osel}));
 
   lsab_cr lsab_in(.CLK(CLK_n),
 		  .RST(RST),
