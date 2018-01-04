@@ -291,12 +291,12 @@ module GlaDOS;
   wire [63:0] res_in, res_out;
 
 
-  wire        iCLK_P, iCLK_N, iCKE, iUDQS, iLDQS, iDM, iCS, iODT;
+  wire        iCLK_P, iCLK_N, iCKE, iUDQS, iLDQS, iUDM, iLDM, iCS, iODT;
   wire [2:0]  iCOMMAND;
   wire [12:0] iADDRESS;
   wire [1:0]  iBANK;
   wire [15:0] iDQ;
-  wire        dCLK_P, dCLK_N, dCKE, dUDQS, dLDQS, dDM, dCS, dODT;
+  wire        dCLK_P, dCLK_N, dCKE, dUDQS, dLDQS, dUDM, dLDM, dCS, dODT;
   wire [2:0]  dCOMMAND;
   wire [12:0] dADDRESS;
   wire [1:0]  dBANK;
@@ -332,7 +332,7 @@ module GlaDOS;
 		  .ras_n(iCOMMAND[2]),
 		  .cas_n(iCOMMAND[1]),
 		  .we_n(iCOMMAND[0]),
-		  .dm_rdqs({iDM,iDM}),
+		  .dm_rdqs({iUDM,iLDM}),
 		  .ba({1'b0,iBANK}),
 		  .addr(iADDRESS),
 		  .dq(iDQ),
@@ -348,7 +348,7 @@ module GlaDOS;
 		  .ras_n(dCOMMAND[2]),
 		  .cas_n(dCOMMAND[1]),
 		  .we_n(dCOMMAND[0]),
-		  .dm_rdqs({dDM,dDM}),
+		  .dm_rdqs({dUDM,dLDM}),
 		  .ba({1'b0,dBANK}),
 		  .addr(dADDRESS),
 		  .dq(dDQ),
@@ -379,7 +379,8 @@ module GlaDOS;
 			      .mem_iCKE(iCKE),
 			      .mem_iUDQS(iUDQS),
 			      .mem_iLDQS(iLDQS),
-			      .mem_iDM(iDM),
+			      .mem_iUDM(iUDM),
+			      .mem_iLDM(iLDM),
 			      .mem_iCS(iCS),
 			      .mem_iCOMMAND(iCOMMAND),
 			      .mem_iADDRESS(iADDRESS),
@@ -391,7 +392,8 @@ module GlaDOS;
 			      .mem_dCKE(dCKE),
 			      .mem_dUDQS(dUDQS),
 			      .mem_dLDQS(dLDQS),
-			      .mem_dDM(dDM),
+			      .mem_dUDM(dUDM),
+			      .mem_dLDM(dLDM),
 			      .mem_dCS(dCS),
 			      .mem_dCOMMAND(dCOMMAND),
 			      .mem_dADDRESS(dADDRESS),

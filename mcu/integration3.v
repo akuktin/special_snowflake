@@ -13,7 +13,8 @@ module ddr_memory_controler(input CLK_n,
 			    inout [15:0]  DQ,
 			    inout 	  UDQS,
 			    inout 	  LDQS,
-			    output 	  DM,
+			    output 	  UDM,
+			    output 	  LDM,
 			    output 	  CS,
 			    /* ------------------------- */
 			    input 	  refresh_strobe,
@@ -97,6 +98,7 @@ module ddr_memory_controler(input CLK_n,
 		      .UDQS(UDQS),
 		      .LDQS(LDQS),
 		      .DATA_R(user_req_dataout),
-		      .DM(DM));
+		      .UDM(UDM),
+		      .LDM(LDM));
 
 endmodule // ddr_memory_controler_stage1
