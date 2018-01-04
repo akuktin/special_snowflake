@@ -4,6 +4,8 @@ module ddr_memory_controler(input CLK_n,
 			    input 	  CLK_dn,
 			    input 	  RST,
 			    /* ------------------------- */
+			    output 	  MEM_CLK_P,
+			    output 	  MEM_CLK_N,
 			    output 	  CKE,
 			    output [2:0]  COMMAND,
 			    output [12:0] ADDRESS,
@@ -42,6 +44,11 @@ module ddr_memory_controler(input CLK_n,
   assign CS = 1'b0; // Always on.
   assign user_req_datain = bulk_req_algn ?
 			   bulk_req_datain : rand_req_datain;
+
+  clock_driver clock(.CLK_n(CLK_n),
+		     .RST(RST),
+		     .CLK_P(MEM_CLK_P),
+		     .CLK_N(MEM_CLK_N));
 
   initializer initializer_m(.CLK_n(CLK_n),
 			    .RST(RST),

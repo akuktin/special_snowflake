@@ -661,6 +661,39 @@ module ddr_data_pins(input CLK_n,
 
 endmodule // pins
 
+module clock_driver(input CLK_n,
+		    input  RST,
+		    output CLK_P,
+		    output CLK_N);
+
+  defparam CLK_POS.PIN_TYPE = 6'b110001;
+  defparam CLK_POS.IO_STANDARD = "SB_LVCMOS";
+  SB_IO CLK_POS(.PACKAGE_PIN(CLK_P),
+		.LATCH_INPUT_VALUE(1'b0),
+		.CLOCK_ENABLE(1'b1),
+		.INPUT_CLK(CLK_n),
+		.OUTPUT_CLK(CLK_n),
+		.OUTPUT_ENABLE(RST),
+		.D_OUT_0(1'b1),
+		.D_OUT_1(1'b0),
+		.D_IN_0(),
+		.D_IN_1());
+
+  defparam CLK_NEG.PIN_TYPE = 6'b110001;
+  defparam CLK_NEG.IO_STANDARD = "SB_LVCMOS";
+  SB_IO CLK_NEG(.PACKAGE_PIN(CLK_N),
+		.LATCH_INPUT_VALUE(1'b0),
+		.CLOCK_ENABLE(1'b1),
+		.INPUT_CLK(CLK_n),
+		.OUTPUT_CLK(CLK_n),
+		.OUTPUT_ENABLE(RST),
+		.D_OUT_0(1'b0),
+		.D_OUT_1(1'b1),
+		.D_IN_0(),
+		.D_IN_1());
+
+endmodule // clock_driver
+
 module SB_IO(inout PACKAGE_PIN,
 	     input  LATCH_INPUT_VALUE,
 	     input  CLOCK_ENABLE,

@@ -291,12 +291,12 @@ module GlaDOS;
   wire [63:0] res_in, res_out;
 
 
-  wire        iCKE, iUDQS, iLDQS, iDM, iCS, iODT;
+  wire        iCLK_P, iCLK_N, iCKE, iUDQS, iLDQS, iDM, iCS, iODT;
   wire [2:0]  iCOMMAND;
   wire [12:0] iADDRESS;
   wire [1:0]  iBANK;
   wire [15:0] iDQ;
-  wire        dCKE, dUDQS, dLDQS, dDM, dCS, dODT;
+  wire        dCLK_P, dCLK_N, dCKE, dUDQS, dLDQS, dDM, dCS, dODT;
   wire [2:0]  dCOMMAND;
   wire [12:0] dADDRESS;
   wire [1:0]  dBANK;
@@ -325,8 +325,8 @@ module GlaDOS;
   reg 	       ph_enstb_0_prev, ph_enstb_1_prev,
 	       ph_enstb_2_prev, ph_enstb_3_prev;
 
-  ddr2 i_ddr2_mem(.ck(CLK_p),
-		  .ck_n(CLK_n),
+  ddr2 i_ddr2_mem(.ck(iCLK_P),
+		  .ck_n(iCLK_N),
 		  .cke(iCKE),
 		  .cs_n(iCS),
 		  .ras_n(iCOMMAND[2]),
@@ -341,8 +341,8 @@ module GlaDOS;
 		  .rdqs_n(),
 		  .odt(iODT));
 
-  ddr2 d_ddr2_mem(.ck(CLK_p),
-		  .ck_n(CLK_n),
+  ddr2 d_ddr2_mem(.ck(dCLK_P),
+		  .ck_n(dCLK_N),
 		  .cke(dCKE),
 		  .cs_n(dCS),
 		  .ras_n(dCOMMAND[2]),
@@ -374,6 +374,8 @@ module GlaDOS;
 			      .CLK_dn(CLK_dn),
 			      .CPU_CLK(CPU_CLK),
 			      // ----------------------
+			      .mem_iCLK_P(iCLK_P),
+			      .mem_iCLK_N(iCLK_N),
 			      .mem_iCKE(iCKE),
 			      .mem_iUDQS(iUDQS),
 			      .mem_iLDQS(iLDQS),
@@ -384,6 +386,8 @@ module GlaDOS;
 			      .mem_iBANK(iBANK),
 			      .mem_iDQ(iDQ),
 			      .mem_iODT(iODT),
+			      .mem_dCLK_P(dCLK_P),
+			      .mem_dCLK_N(dCLK_N),
 			      .mem_dCKE(dCKE),
 			      .mem_dUDQS(dUDQS),
 			      .mem_dLDQS(dLDQS),
