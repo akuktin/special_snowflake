@@ -415,31 +415,23 @@ module ddr_data_pins(input CLK_n,
 		     output 	   UDM,
 		     output 	   LDM);
 
-  defparam DQS_00.PIN_TYPE = 6'b100001;
-  defparam DQS_00.IO_STANDARD = "SB_LVCMOS";
-  SB_IOeg DQS_00(.PACKAGE_PIN(UDQS),
-	     .LATCH_INPUT_VALUE(1'b0),
-	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(1'b0),
-	     .OUTPUT_CLK(! CLK_n), // INVERTED!
-	     .OUTPUT_ENABLE(dqs_z_ctrl),
-	     .D_OUT_0(dqs_predriver[1]),
-	     .D_OUT_1(dqs_predriver[0]),
-	     .D_IN_0(),
-	     .D_IN_1());
+  dqs_driver DQS_00(.PACKAGE_PIN(UDQS),
+		    .PATCHTHROUGH_INPUT_CLK(),
+		    .PATCHTHROUGH_OUTPUT_CLK(),
+		    .LATCH_CLK(CLK_dn),   // DOUBLE INVERTED!
+		    .OUTPUT_CLK(! CLK_n), // INVERTED!
+		    .OUTPUT_ENABLE(dqs_z_ctrl),
+		    .D_OUT_0(dqs_predriver[1]),
+		    .D_OUT_1(dqs_predriver[0]));
 
-  defparam DQS_01.PIN_TYPE = 6'b100001;
-  defparam DQS_01.IO_STANDARD = "SB_LVCMOS";
-  SB_IOeg DQS_01(.PACKAGE_PIN(LDQS),
-	     .LATCH_INPUT_VALUE(1'b0),
-	     .CLOCK_ENABLE(1'b1),
-	     .INPUT_CLK(1'b0),
-	     .OUTPUT_CLK(! CLK_n), // INVERTED!
-	     .OUTPUT_ENABLE(dqs_z_ctrl),
-	     .D_OUT_0(dqs_predriver[1]),
-	     .D_OUT_1(dqs_predriver[0]),
-	     .D_IN_0(),
-	     .D_IN_1());
+  dqs_driver DQS_01(.PACKAGE_PIN(LDQS),
+		    .PATCHTHROUGH_INPUT_CLK(),
+		    .PATCHTHROUGH_OUTPUT_CLK(),
+		    .LATCH_CLK(CLK_dn),   // DOUBLE INVERTED!
+		    .OUTPUT_CLK(! CLK_n), // INVERTED!
+		    .OUTPUT_ENABLE(dqs_z_ctrl),
+		    .D_OUT_0(dqs_predriver[1]),
+		    .D_OUT_1(dqs_predriver[0]));
 
   defparam DM_00.PIN_TYPE = 6'b110001;
   defparam DM_00.IO_STANDARD = "SB_LVCMOS";
@@ -710,6 +702,43 @@ module clock_driver(input CLK_n,
 
 endmodule // clock_driver
 
+module dqs_driver(inout PACKAGE_PIN,
+		  input PATCHTHROUGH_INPUT_CLK,
+		  input PATCHTHROUGH_OUTPUT_CLK,
+		  input LATCH_CLK,
+		  input OUTPUT_CLK,
+		  input OUTPUT_ENABLE,
+		  input D_OUT_0,
+		  input D_OUT_1);
+  reg 			reg_out_0, reg_out_1;
+  wire 			out_mux;
+
+  assign out_mux = OUTPUT_CLK ? reg_out_0 : reg_out_1;
+
+  defparam driver.PIN_TYPE = 6'b101001;
+  defparam driver.IO_STANDARD = "SB_LVCMOS";
+  SB_IOtri driver(.PACKAGE_PIN(PACKAGE_PIN),
+		  .LATCH_INPUT_VALUE(1'b0),
+		  .CLOCK_ENABLE(1'b1),
+		  .INPUT_CLK(PATCHTHROUGH_INPUT_CLK),
+		  .OUTPUT_CLK(PATCHTHROUGH_OUTPUT_CLK),
+		  .OUTPUT_ENABLE(OUTPUT_ENABLE),
+		  .D_OUT_0(out_mux),
+		  .D_OUT_1(1'b0),
+		  .D_IN_0(),
+		  .D_IN_1());
+
+  always @(posedge LATCH_CLK)
+    begin
+      reg_out_0 <= D_OUT_0;
+    end
+  always @(negedge LATCH_CLK)
+    begin
+      reg_out_1 <= D_OUT_1;
+    end
+
+endmodule // dqs_driver
+
 module SB_IO(inout PACKAGE_PIN,
 	     input  LATCH_INPUT_VALUE,
 	     input  CLOCK_ENABLE,
@@ -739,7 +768,6 @@ module SB_IO(inout PACKAGE_PIN,
       begin
 	out_en <= OUTPUT_ENABLE;
 	reg_out_0 <= D_OUT_0;
-//	reg_out_1 <= D_OUT_1;
       end
   always @(negedge OUTPUT_CLK)
     if (CLOCK_ENABLE)
@@ -775,14 +803,32 @@ module SB_IOeg(inout PACKAGE_PIN,
 
   always @(posedge OUTPUT_CLK)
     if (CLOCK_ENABLE)
-      begin
-	reg_out_0 <= D_OUT_0;
-//	reg_out_1 <= D_OUT_1;
-      end
+      reg_out_0 <= D_OUT_0;
   always @(negedge OUTPUT_CLK)
     if (CLOCK_ENABLE)
-      begin
-        reg_out_1 <= D_OUT_1;
-      end
+      reg_out_1 <= D_OUT_1;
 
 endmodule // SB_IO
+
+module SB_IOtri(inout PACKAGE_PIN,
+		input 	   LATCH_INPUT_VALUE,
+		input 	   CLOCK_ENABLE,
+		input 	   INPUT_CLK,
+		input 	   OUTPUT_CLK,
+		input 	   OUTPUT_ENABLE,
+		input 	   D_OUT_0,
+		input 	   D_OUT_1,
+		output reg D_IN_0,
+		output reg D_IN_1);
+
+  assign PACKAGE_PIN = OUTPUT_ENABLE ? D_OUT_0 : 1'bz;
+
+  always @(posedge INPUT_CLK)
+    if (CLOCK_ENABLE)
+      D_IN_0 <= PACKAGE_PIN;
+
+  always @(negedge INPUT_CLK)
+    if (CLOCK_ENABLE)
+      D_IN_1 <= PACKAGE_PIN;
+
+endmodule // SB_IOtri
