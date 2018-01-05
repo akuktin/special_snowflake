@@ -690,8 +690,8 @@ module clock_driver(input CLK_n,
 		.INPUT_CLK(CLK_n),
 		.OUTPUT_CLK(CLK_n),
 		.OUTPUT_ENABLE(RST),
-		.D_OUT_0(1'b1),
-		.D_OUT_1(1'b0),
+		.D_OUT_0(1'b0),
+		.D_OUT_1(1'b1),
 		.D_IN_0(),
 		.D_IN_1());
 
@@ -703,8 +703,8 @@ module clock_driver(input CLK_n,
 		.INPUT_CLK(CLK_n),
 		.OUTPUT_CLK(CLK_n),
 		.OUTPUT_ENABLE(RST),
-		.D_OUT_0(1'b0),
-		.D_OUT_1(1'b1),
+		.D_OUT_0(1'b1),
+		.D_OUT_1(1'b0),
 		.D_IN_0(),
 		.D_IN_1());
 
