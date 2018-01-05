@@ -500,9 +500,11 @@ module GlaDOS;
 /*
   always @(CLK_dn)
     begin
-      if ((dDM == 1'b0) || (dDM == 1'b1))
+      if (((dUDM == 1'b0) || (dUDM == 1'b1)) ||
+	  core.d_mcu.data_driver.dqs_z_ctrl)
 	begin
-	  $display("direct observation: dm %x data %x", dDM, dDQ);
+	  $display("direct observation: dqs %x dm %x data %x",
+		   {dUDQS,dLDQS}, {dUDM,dLDM}, dDQ);
 	end
     end
  */
@@ -640,7 +642,7 @@ module GlaDOS;
 	refresh_strobe_prev <= core.refresh_strobe;
 
 	if (core.lsab_in.we && 0)
-	  $display("LSAB wr%x addr %x data %x", core.lsab_in.WRITE_FIFO,
+	  $display("LSAB wr %x addr %x data %x", core.lsab_in.WRITE_FIFO,
 		   core.lsab_in.write_addr, core.lsab_in.in_mem);
 
 	if (core.d_mcu_req_access)
