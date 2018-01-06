@@ -1,6 +1,4 @@
 module ddr_memory_controler(input CLK_n,
-			    input 	  CLK_p,
-			    input 	  CLK_dp,
 			    input 	  CLK_dn,
 			    input 	  RST,
 			    /* ------------------------- */
@@ -86,9 +84,7 @@ module ddr_memory_controler(input CLK_n,
 			     .INTERNAL_COMMAND_LATCHED(internal_com_lat),
 			     .INTERNAL_WE_ARRAY(internal_we_array));
 
-  outputs data_driver(.CLK_p(CLK_p),
-		      .CLK_n(CLK_n),
-		      .CLK_dp(CLK_dp),
+  outputs data_driver(.CLK_n(CLK_n),
 		      .CLK_dn(CLK_dn),
 		      .RST(RST),
 		      .COMMAND_LATCHED(internal_com_lat),

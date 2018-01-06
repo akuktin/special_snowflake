@@ -297,9 +297,7 @@ module state2(input CLK,
 
 endmodule // enter_state
 
-module outputs(input CLK_p,
-	       input 		 CLK_n,
-	       input 		 CLK_dp,
+module outputs(input 		 CLK_n,
 	       input 		 CLK_dn,
 	       input 		 RST,
 	       input [3:0] 	 COMMAND_LATCHED,

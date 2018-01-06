@@ -22,7 +22,7 @@ module Steelhorse_Hyperfabric(input sampler_CLK,
 			      input [31:0]  INTRFC_DATAIN,
 			      output [31:0] INTRFC_DATAOUT);
   wire 					    raw_write, raw_read, raw_irq,
-					    raw_irq_vld, collison;
+					    raw_irq_vld, collision;
   wire [31:0] 				    data_raw_in;
 
   Steelhorse eth(.sampler_CLK(sampler_CLK),

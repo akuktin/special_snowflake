@@ -67,9 +67,7 @@ endmodule
 */
 
 module chip(input RST,
-	    input 	  CLK_p,
 	    input 	  CLK_n,
-	    input 	  CLK_dp,
 	    input 	  CLK_dn,
 	    input 	  CPU_CLK,
 	    input 	  sampler_CLK,
@@ -123,9 +121,7 @@ module chip(input RST,
 
   special_snowflake_core core(.RST(RST),
 			      .RST_CPU_pre(RST_CPU_pre),
-			      .CLK_p(CLK_p),
 			      .CLK_n(CLK_n),
-			      .CLK_dp(CLK_dp),
 			      .CLK_dn(CLK_dn),
 			      .CPU_CLK(CPU_CLK),
 			      // ----------------------

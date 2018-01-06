@@ -1,8 +1,6 @@
 module special_snowflake_core(input RST,
 			      input 	       RST_CPU_pre,
-			      input 	       CLK_p,
 			      input 	       CLK_n,
-			      input 	       CLK_dp,
 			      input 	       CLK_dn,
 			      input 	       CPU_CLK,
 			      // ----------------------
@@ -92,10 +90,9 @@ module special_snowflake_core(input RST,
 
   wire        w_read_cr, w_write_cw;
   wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
-  wire [3:0]  w_care_cr;
 
   wire [24:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
-  wire [24:0]  w_ancill_cr, w_ancill_sch;
+  wire [24:0]  w_ancill_cr;
 
   wire [31:0] w_out_cr, w_in_cw;
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;
@@ -126,22 +123,12 @@ module special_snowflake_core(input RST,
 
   assign mcu_coll_addr = hf_coll_addr_fill | hf_coll_addr_empty;
 
-  wire 	      ww_go, ww_ready, ww_eop, ww_frdram_deverr;
-  wire [1:0]  ww_new_section;
-  wire [5:0]  ww_block_length, ww_count_sent;
-  wire [31:0] ww_new_addr, ww_old_addr;
-
-  wire 	      drop;
   wire 	      refresh_strobe;
-  wire 	      ww_irq;
-  wire [1:0]  ww_select_dram;
 
   wire 	      w_careof_int;
   wire [2:0]  w_isel, w_osel;
 
-  wire 	      res_irq, res_write_mem, res_read_mem;
-  wire [2:0]  res_irq_desc, res_r_addr, res_w_addr;
-  wire [63:0] res_in, res_out;
+  wire 	      res_irq;
 
 
   wire [31:0]  i_user_req_address;
@@ -165,8 +152,6 @@ module special_snowflake_core(input RST,
   reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
-                             .CLK_p(CLK_p),
-                             .CLK_dp(CLK_dp),
                              .CLK_dn(CLK_dn),
                              .RST(RST),
 			     .MEM_CLK_P(mem_iCLK_P),
@@ -200,8 +185,6 @@ module special_snowflake_core(input RST,
                              .user_req_dataout(i_user_req_dataout));
 
   ddr_memory_controler d_mcu(.CLK_n(CLK_n),
-                             .CLK_p(CLK_p),
-                             .CLK_dp(CLK_dp),
                              .CLK_dn(CLK_dn),
                              .RST(RST),
 			     .MEM_CLK_P(mem_dCLK_P),
@@ -238,10 +221,9 @@ module special_snowflake_core(input RST,
   wire 	       i_cache_busy, d_cache_busy;
   wire [31:0]  d_cache_datao, d_cache_datai,
 	       i_cache_datai;
-  wire [31:0]  i_cache_pc_addr, i_cache_c_addr;
-  wire [31:0]  d_cache_pc_addr, d_cache_c_addr;
-  wire 	       i_cache_req;
-  wire 	       d_cache_we, d_cache_req;
+  wire [31:0]  i_cache_pc_addr;
+  wire [31:0]  d_cache_pc_addr;
+  wire 	       d_cache_we;
   wire 	       dcache_we_tlb, icache_we_tlb;
   wire 	       d_cache_force_miss;
 
@@ -271,9 +253,9 @@ module special_snowflake_core(input RST,
 //--------------------------------------------------
 			 .dma_wrte(),
 			 .dma_read(),
-			 .dma_wrte_ack(0),
-			 .dma_read_ack(0),
-			 .dma_data_read(0),
+			 .dma_wrte_ack(1'b0),
+			 .dma_read_ack(1'b0),
+			 .dma_data_read(32'd0),
 //--------------------------------------------------
 			 .VMEM_ACT(cache_vmem),
 			 .cache_inhibit(cache_inhibit),
@@ -380,7 +362,6 @@ module special_snowflake_core(input RST,
 		  .ANCILL_OUT_0(w_anc1_0), .ANCILL_OUT_1(w_anc1_1),
 		  .ANCILL_OUT_2(w_anc1_2), .ANCILL_OUT_3(w_anc1_3));
 
-  wire 	      drop_f;
   hyper_mvblck_todram fill(.CLK(CLK_n),
 			   .RST(mvblck_RST_fill),
 			   .LSAB_0_INT(w_i0_cr),
@@ -431,7 +412,6 @@ module special_snowflake_core(input RST,
 		   .BFULL_2(w_f2_cw),
 		   .BFULL_3(w_f3_cw));
 
-  wire 	      drop_e;
   hyper_mvblck_frdram empty(.CLK(CLK_n),
 			  .RST(mvblck_RST_empty),
 			  .LSAB_0_FULL(w_f0_cw),
