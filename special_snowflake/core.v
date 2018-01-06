@@ -144,7 +144,7 @@ module special_snowflake_core(input RST,
   wire 	       d_user_req_ack;
   wire [31:0]  d_user_req_dataout;
 
-  reg 	       cache_vmem, cache_inhibit;
+  wire 	       cache_vmem, cache_inhibit;
 
   wire 	       d_dma_read, d_dma_wrte, d_dma_read_ack, d_dma_wrte_ack;
   wire [31:0]  d_dma_out;
@@ -493,14 +493,13 @@ module special_snowflake_core(input RST,
 			 .DIR_3(ph_dir_3),
 			 .EN_STB_3(ph_enstb_3));
 
-  initial
-    begin
-      // WARNING!
-      // FIXME!
-      // Use Verilog force statements or $readmemh/$readmemb here instead
-      // of the current arrangement.
-      cache_vmem <= 0; cache_inhibit <= 0;
-    end
+//  initial
+//    begin
+//      $readmemb("../initial/1_bit_0.bin", cache_vmem);
+//      $readmemb("../initial/1_bit_0.bin", cache_inhibit);
+//    end
+  assign cache_vmem = 1'b0;
+  assign cache_inhibit = 1'b0;
 
   always @(posedge CLK_n)
     if (!RST)

@@ -116,10 +116,8 @@ module lolsab(input CLK,
   // To help the simulation. Not actually needed for silicon.
   initial
     begin
-      intbuff_0[0] <= 0; intbuff_0[1] <= 0;
-      intbuff_0[2] <= 0; intbuff_0[3] <= 0;
-      ancbuff_0[0] <= 0; ancbuff_0[1] <= 0;
-      ancbuff_0[2] <= 0; ancbuff_0[3] <= 0;
+      $readmemb("../initial/4x6_bit_0.bin", intbuff_0);
+      $readmemb("../initial/4x3_bit_0.bin", ancbuff_0);
     end
 
   always @(posedge CLK)

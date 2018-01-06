@@ -212,16 +212,16 @@ endmodule // hyper_scheduler_mem
 
 
 module GlaDOS;
-  reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, CPU_CLK, RST_CPU, RST_CPU_pre;
+  reg CLK_n, CLK_dn, RST, CPU_CLK, RST_CPU, RST_CPU_pre;
   reg [31:0] counter, minicounter, readcount, readcount2, readcount_r;
 
   initial
     forever
       begin
-        #1500 CLK_n <= 0; CLK_p <= 1;
-        #1500 CLK_dp <= 1; CLK_dn <= 0;
-        #1500 CLK_n <= 1; CLK_p <= 0;
-        #1500 CLK_dp <= 0; CLK_dn <= 1;
+        #1500 CLK_n <= 0;
+        #1500 CLK_dn <= 0;
+        #1500 CLK_n <= 1;
+        #1500 CLK_dn <= 1;
       end
   initial
     forever
@@ -368,9 +368,7 @@ module GlaDOS;
 
   special_snowflake_core core(.RST(RST),
 			      .RST_CPU_pre(RST_CPU_pre),
-			      .CLK_p(CLK_p),
 			      .CLK_n(CLK_n),
-			      .CLK_dp(CLK_dp),
 			      .CLK_dn(CLK_dn),
 			      .CPU_CLK(CPU_CLK),
 			      // ----------------------

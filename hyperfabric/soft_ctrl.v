@@ -412,12 +412,8 @@ module Gremlin(input CLK,
 
   initial
     begin
-      // WARNING!
-      // FIXME!
-      // Use Verilog force statements or $readmemh/$readmemb here instead
-      // of the current arrangement.
-      input_reg_0[0] <= 0; input_reg_0[1] <= 0;
-      input_reg_1[0] <= 0; input_reg_1[1] <= 0;
+      $readmemb("../initial/2x16_bit_0.bin", input_reg_0);
+      $readmemb("../initial/2x16_bit_0.bin", input_reg_1);
     end
 
   always @(posedge CLK)

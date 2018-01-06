@@ -68,12 +68,8 @@ module hyper_scheduler_mem(input CLK,
 
   initial
     begin
-      mem[0] <= 0; mem[1] <= 0; mem[2] <= 0; mem[3] <= 0;
-      mem[4] <= 0; mem[5] <= 0; mem[6] <= 0; mem[7] <= 0;
-      orig_len[0] <= 0; orig_len[1] <= 0;
-      orig_len[2] <= 0; orig_len[3] <= 0;
-      orig_len[4] <= 0; orig_len[5] <= 0;
-      orig_len[6] <= 0; orig_len[7] <= 0;
+      $readmemb("../initial/8x66_bit_0.bin", mem);
+      $readmemb("../initial/8x24_bit_0.bin", orig_len);
     end
 
   always @(posedge CLK)

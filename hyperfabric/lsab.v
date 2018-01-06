@@ -270,22 +270,14 @@ module lsab_cr(input CLK,
   // To help the simulation. Not actually needed for silicon.
   initial
     begin
-      intbuff_0[0] <= 0; intbuff_0[1] <= 0;
-      intbuff_0[2] <= 0; intbuff_0[3] <= 0;
-      intbuff_1[0] <= 0; intbuff_1[1] <= 0;
-      intbuff_1[2] <= 0; intbuff_1[3] <= 0;
-      intbuff_2[0] <= 0; intbuff_2[1] <= 0;
-      intbuff_2[2] <= 0; intbuff_2[3] <= 0;
-      intbuff_3[0] <= 0; intbuff_3[1] <= 0;
-      intbuff_3[2] <= 0; intbuff_3[3] <= 0;
-      ancbuff_0[0] <= 0; ancbuff_0[1] <= 0;
-      ancbuff_0[2] <= 0; ancbuff_0[3] <= 0;
-      ancbuff_1[0] <= 0; ancbuff_1[1] <= 0;
-      ancbuff_1[2] <= 0; ancbuff_1[3] <= 0;
-      ancbuff_2[0] <= 0; ancbuff_2[1] <= 0;
-      ancbuff_2[2] <= 0; ancbuff_2[3] <= 0;
-      ancbuff_3[0] <= 0; ancbuff_3[1] <= 0;
-      ancbuff_3[2] <= 0; ancbuff_3[3] <= 0;
+      $readmemb("../initial/4x6_bit_0.bin", intbuff_0);
+      $readmemb("../initial/4x6_bit_0.bin", intbuff_1);
+      $readmemb("../initial/4x6_bit_0.bin", intbuff_2);
+      $readmemb("../initial/4x6_bit_0.bin", intbuff_3);
+      $readmemb("../initial/4x25_bit_0.bin", ancbuff_0);
+      $readmemb("../initial/4x25_bit_0.bin", ancbuff_1);
+      $readmemb("../initial/4x25_bit_0.bin", ancbuff_2);
+      $readmemb("../initial/4x25_bit_0.bin", ancbuff_3);
     end
 
   always @(posedge CLK)
