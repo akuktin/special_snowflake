@@ -267,19 +267,6 @@ module lsab_cr(input CLK,
   assign intbuff_empty_3 = intbuff_raddr_3 == intbuff_waddr_3;
   assign intbuff_full_3 = intbuff_raddr_trail_3 == intbuff_waddr_3;
 
-  // To help the simulation. Not actually needed for silicon.
-  initial
-    begin
-      $readmemb("../initial/4x6_bit_0.bin", intbuff_0);
-      $readmemb("../initial/4x6_bit_0.bin", intbuff_1);
-      $readmemb("../initial/4x6_bit_0.bin", intbuff_2);
-      $readmemb("../initial/4x6_bit_0.bin", intbuff_3);
-      $readmemb("../initial/4x25_bit_0.bin", ancbuff_0);
-      $readmemb("../initial/4x25_bit_0.bin", ancbuff_1);
-      $readmemb("../initial/4x25_bit_0.bin", ancbuff_2);
-      $readmemb("../initial/4x25_bit_0.bin", ancbuff_3);
-    end
-
   always @(posedge CLK)
     if (!RST)
       begin

@@ -410,12 +410,6 @@ module Gremlin(input CLK,
 
   assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
 
-  initial
-    begin
-      $readmemb("../initial/2x16_bit_0.bin", input_reg_0);
-      $readmemb("../initial/2x16_bit_0.bin", input_reg_1);
-    end
-
   always @(posedge CLK)
     if (!RST)
       begin

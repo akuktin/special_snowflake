@@ -493,11 +493,6 @@ module special_snowflake_core(input RST,
 			 .DIR_3(ph_dir_3),
 			 .EN_STB_3(ph_enstb_3));
 
-//  initial
-//    begin
-//      $readmemb("../initial/1_bit_0.bin", cache_vmem);
-//      $readmemb("../initial/1_bit_0.bin", cache_inhibit);
-//    end
   assign cache_vmem = 1'b0;
   assign cache_inhibit = 1'b0;
 
