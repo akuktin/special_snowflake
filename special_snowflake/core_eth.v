@@ -48,9 +48,7 @@ module top_level(input REF_CLK,
                  .LOCK(SYS_RST));
 
   chip the_chip(.RST(SYS_RST),
-		.CLK_p(),
 		.CLK_n(SYS_CLK),
-		.CLK_dp(),
 		.CLK_dn(SYS_CLK_DELAYED),
 		.CPU_CLK(CPU_CLK),
 		.sampler_CLK(SYS_CLK),
