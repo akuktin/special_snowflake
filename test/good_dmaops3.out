@@ -1,66 +1,322 @@
-At time 391802.000 ns PRE  : Addr[10] = 1, Bank = 01
-At time 391802.000 ns PRE  : Addr[10] = 1, Bank = 01
-At time 391898.000 ns EMR  : Extended Mode Register
-At time 391898.000 ns EMR  : Enable DLL
-At time 391898.000 ns EMR  : Extended Mode Register
-At time 391898.000 ns EMR  : Enable DLL
-At time 391994.000 ns LMR  : Load Mode Register
-At time 391994.000 ns LMR  : Burst Length = 4
-At time 391994.000 ns LMR  : CAS Latency = 2.5
-At time 391994.000 ns LMR  : Load Mode Register
-At time 391994.000 ns LMR  : Burst Length = 4
-At time 391994.000 ns LMR  : CAS Latency = 2.5
-At time 392090.000 ns PRE  : Addr[10] = 1, Bank = 00
-At time 392090.000 ns PRE  : Addr[10] = 1, Bank = 00
-At time 392186.000 ns AREF : Auto Refresh
-At time 392186.000 ns AREF : Auto Refresh
-At time 392282.000 ns AREF : Auto Refresh
-At time 392282.000 ns AREF : Auto Refresh
-GlaDOS.d_ddr_mem: at time 392282.000 ns MEMORY:  Power Up and Initialization Sequence is complete
-GlaDOS.i_ddr_mem: at time 392282.000 ns MEMORY:  Power Up and Initialization Sequence is complete
-At time 392378.000 ns LMR  : Load Mode Register
-At time 392378.000 ns LMR  : Burst Length = 4
-At time 392378.000 ns LMR  : CAS Latency = 2.5
-At time 392378.000 ns LMR  : Load Mode Register
-At time 392378.000 ns LMR  : Burst Length = 4
-At time 392378.000 ns LMR  : CAS Latency = 2.5
-At time 396704.000 ns AREF : Auto Refresh
-At time 396704.000 ns AREF : Auto Refresh
-At time 399008.000 ns AREF : Auto Refresh
-At time 399008.000 ns AREF : Auto Refresh
-At time 400160.000 ns ACT  : Bank = 0, Row = 0000
-At time 400184.000 ns WRITE: Bank = 0, Col = 002
-At time 400193.000 ns WRITE: Bank = 0, Row = 0000, Col = 002, Data = 0000
-At time 400196.000 ns WRITE: Bank = 0, Row = 0000, Col = 003, Data = f004
-At time 400244.000 ns WRITE: Bank = 0, Col = 004
-At time 400253.000 ns WRITE: Bank = 0, Row = 0000, Col = 004, Data = 0000
-At time 400256.000 ns WRITE: Bank = 0, Row = 0000, Col = 005, Data = f005
-At time 400304.000 ns WRITE: Bank = 0, Col = 006
-At time 400313.000 ns WRITE: Bank = 0, Row = 0000, Col = 006, Data = 0000
-At time 400316.000 ns WRITE: Bank = 0, Row = 0000, Col = 007, Data = f006
-At time 400508.000 ns READ : Bank = 0, Col = 000
-At time 400520.000 ns READ : Bank = 0, Col = 004
-At time 400523.000 ns READ : Bank = 0, Row = 0000, Col = 000, Data = xxxx
-At time 400526.000 ns READ : Bank = 0, Row = 0000, Col = 001, Data = xxxx
-At time 400529.000 ns READ : Bank = 0, Row = 0000, Col = 002, Data = 0000
-At time 400532.000 ns READ : Bank = 0, Row = 0000, Col = 003, Data = f004
-At time 400535.000 ns READ : Bank = 0, Row = 0000, Col = 004, Data = 0000
-At time 400538.000 ns READ : Bank = 0, Row = 0000, Col = 005, Data = f005
-At time 400541.000 ns READ : Bank = 0, Row = 0000, Col = 006, Data = 0000
-At time 400544.000 ns READ : Bank = 0, Row = 0000, Col = 007, Data = f006
+./../mcu/state2.v:716: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:717: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:716: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:717: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:434: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:435: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:447: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:448: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:460: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:461: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:473: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:474: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:486: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:487: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:499: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:500: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:512: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:513: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:525: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:526: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:538: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:539: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:551: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:552: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:564: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:565: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:577: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:578: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:590: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:591: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:603: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:604: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:616: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:617: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:629: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:630: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:642: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:643: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:655: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:656: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:675: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_POS.
+./../mcu/state2.v:676: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_POS.
+./../mcu/state2.v:688: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
+./../mcu/state2.v:689: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
+./../mcu/state2.v:716: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:717: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:716: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:717: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:434: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:435: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:447: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:448: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:460: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:461: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:473: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:474: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:486: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:487: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:499: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:500: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:512: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:513: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:525: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:526: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:538: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:539: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:551: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:552: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:564: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:565: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:577: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:578: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:590: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:591: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:603: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:604: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:616: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:617: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:629: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:630: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:642: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:643: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:655: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:656: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:675: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_POS.
+./../mcu/state2.v:676: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_POS.
+./../mcu/state2.v:688: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
+./../mcu/state2.v:689: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
+./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1145: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1147: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1147: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1758: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1758: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1794: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1794: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1145: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1147: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1147: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1758: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1758: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1794: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1794: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1463: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1464: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1466: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1472: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1500: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1500: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1501: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1501: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1502: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1502: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+(null):0: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1511: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1512: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1527: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1527: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1528: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1528: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1529: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1529: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+(null):0: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1538: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1539: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1463: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1464: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1466: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1472: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1500: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1500: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1501: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1501: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1502: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1502: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+(null):0: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1511: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1512: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1527: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1527: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1528: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1528: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1529: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1529: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+(null):0: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1538: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1539: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
+GlaDOS.d_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
+GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
+GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.d_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.d_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
+d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
+d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400159500.0 ps INFO: Activate  bank 0 row 0000
+d cmd 3 addr 0000 bank 0 we c data 0000f004 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400183500.0 ps INFO: Write     bank 0 col 002, auto precharge 0
+d cmd 4 addr 0002 bank 0 we c data 0000f004 predata 0000f004
+GlaDOS.d_ddr2_mem.data_task: at time 400198500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 002 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400201500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 003 data = f004
+GlaDOS.d_ddr2_mem.data_task: at time 400204500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 000 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400207500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 001 data = xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 400243500.0 ps INFO: Write     bank 0 col 004, auto precharge 0
+d cmd 4 addr 0004 bank 0 we c data 0000f005 predata 0000f004
+GlaDOS.d_ddr2_mem.data_task: at time 400258500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 004 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400261500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 005 data = f005
+GlaDOS.d_ddr2_mem.data_task: at time 400264500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 006 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400267500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 007 data = xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 400303500.0 ps INFO: Write     bank 0 col 006, auto precharge 0
+d cmd 4 addr 0006 bank 0 we c data 0000f006 predata 0000f005
+GlaDOS.d_ddr2_mem.data_task: at time 400318500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 006 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400321500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 007 data = f006
+GlaDOS.d_ddr2_mem.data_task: at time 400324500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 004 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400327500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 005 data = f005
+MCU we 0 wea 0
+MCU we 0 wea 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 400507500.0 ps INFO: Read      bank 0 col 000, auto precharge 0
+MCU we 0 wea 0
+d cmd 5 addr 0000 bank 0 we 0 data 00000000 predata 00000000
+MCU we 0 wea 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 400519500.0 ps INFO: Read      bank 0 col 004, auto precharge 0
+d cmd 5 addr 0004 bank 0 we 0 data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.data_task: at time 400522500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 000 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400525500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 001 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400528500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 002 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400531500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 003 data = f004
+GlaDOS.d_ddr2_mem.data_task: at time 400534500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 004 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400537500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 005 data = f005
+GlaDOS.d_ddr2_mem.data_task: at time 400540500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 006 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400543500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 007 data = f006
 lsab_cw data_out 0000f004
 lsab_cw data_out 0000f005
 lsab_cw data_out 0000f006
-At time 401312.000 ns PRE  : Addr[10] = 1, Bank = 00
-At time 401312.000 ns AREF : Auto Refresh
-At time 401336.000 ns AREF : Auto Refresh
-At time 403616.000 ns AREF : Auto Refresh
-At time 403616.000 ns AREF : Auto Refresh
-At time 405920.000 ns AREF : Auto Refresh
-At time 405920.000 ns AREF : Auto Refresh
+GlaDOS.d_ddr2_mem.cmd_task: at time 401311500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 401311500.0 ps INFO: Refresh  
+d cmd 2 addr 0400 bank 0 we c data fffffffe predata fffffffe
+GlaDOS.d_ddr2_mem.cmd_task: at time 401341500.0 ps INFO: Refresh  
+d cmd 1 addr 1bff bank 2 we c data fffffffe predata fffffffe
+GlaDOS.d_ddr2_mem.cmd_task: at time 403615500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 403615500.0 ps INFO: Refresh  
+d cmd 1 addr 1bff bank 2 we c data fffffffe predata fffffffe
+GlaDOS.d_ddr2_mem.cmd_task: at time 405919500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 405919500.0 ps INFO: Refresh  
+d cmd 1 addr 1bff bank 2 we c data fffffffe predata fffffffe
 halting CTR 000000000001092e
 acc ffff
-input_reg  0008 0000       0000 0000
+input_reg  0008 0000       xxxx xxxx
 output_reg 0001 0000 800d  0000 0000 0000
 0000000000: 0018 xxxx xxxx xxxx  ffff fffe e7ff e009
 0000000008: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx

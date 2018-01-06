@@ -156,24 +156,125 @@
 ./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
-wait cycle   acc 0005
-wait cycle   acc 0004
-wait cycle   acc 0003
-wait cycle   acc 0002
-wait cycle   acc 0001
-wait cycle   acc 0000
-INTERRUPT! DESC 2
-halting CTR 0000000000000105
-acc ffff
-input_reg  3210 4321       7654 8765
-output_reg 0000 0002 3213  0000 0000 0000
-0000000000: 0018 0018 xxxx xxxx  xxxx xxxx xxxx xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
+GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
+GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.d_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.d_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
+d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
+d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+halting CTR 000000000001049d
+acc 0000
+input_reg  xxxx xxxx       xxxx xxxx
+output_reg 0000 0000 0000  0000 0000 0000
+0000000000: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000008: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
-0000000010: ffff ffff ffff 0000  fffe xxxx fffd 0001
-0000000018: 0001 0002 0002 fffe  fffe ffff ffff 0001
-0000000020: 0001 0003 xxxx xxxx  xxxx xxxx xxxx xxxx
-0000000028: 0006 0005 xxxx ffff  xxxx xxxx xxxx xxxx
-0000000030: 3210 7654 0002 3213  xxxx xxxx xxxx xxxx
+0000000010: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000018: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000020: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000028: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
+0000000030: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000038: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000040: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000048: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
@@ -198,13 +299,13 @@ output_reg 0000 0002 3213  0000 0000 0000
 00000000e0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 00000000e8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 00000000f0: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
-00000000f8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx ffff
+00000000f8: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx 0000
 wMSR 00ed3200
- r0: 00000000,  r1: 46df998d,  r2: 00f3e301  r3: 1e8dcd3d
- r4: 7cfde9f9,  r5: d513d2aa,  r6: 8932d612  r7: e77696ce
+ r0: 00000000,  r1: ffffffff,  r2: fffffffe  r3: 00000001
+ r4: 00000000,  r5: 00000000,  r6: 8932d612  r7: e77696ce
  r8: c0000000,  r9: fe000045, r10: 00000002 r11: cecccc9d
 r12: 86bc380d, r13: eaa62ad5, r14: 0effe91d r15: 0509650a
 r16: 7968bdf2, r17: ec4b34d8, r18: 75c50deb r19: 571513ae
 r20: 85d79a0b, r21: 27f2554f, r22: bf23327e r23: 6c9c4bd9
-r24: 4fa1559f, r25: dbcd60b7, r26: adcbc05b r27: 00000000
-r28: 4b212f96, r29: 6457edc8, r30: 090cdb12 r31: 00000001
+r24: 0000000f, r25: 00000007, r26: 00000003 r27: 00000000
+r28: 4b212f96, r29: 6457edc8, r30: 090cdb12 r31: 00000000
