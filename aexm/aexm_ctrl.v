@@ -38,28 +38,8 @@ module aexm_ctrl (/*AUTOARG*/
 
    assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG; // FIXME: Endian
 
-   wire 	 fSFT = (rOPC == 6'o44);
-   wire 	 fLOG = ({rOPC[5:4],rOPC[2]} == 3'o4);
-
-   wire 	 fMUL = (rOPC == 6'o20) | (rOPC == 6'o30);
-   wire 	 fBSF = (rOPC == 6'o21) | (rOPC == 6'o31);
-   wire 	 fDIV = (rOPC == 6'o22);
-
-   wire 	 fRTD = (rOPC == 6'o55);
-   wire 	 fBCC = (rOPC == 6'o47) | (rOPC == 6'o57);
-   wire 	 fBRU = (rOPC == 6'o46) | (rOPC == 6'o56);
-
-   wire 	 fIMM = (rOPC == 6'o54);
-   wire 	 fMOV = (rOPC == 6'o45);
-
-   wire 	 fLOD = ({rOPC[5:4],rOPC[2]} == 3'o6);
-   wire 	 fSTR = ({rOPC[5:4],rOPC[2]} == 3'o7);
-  wire 		 fLOD_r = (rOPC == 6'o62);
-   wire 	 fLDST = (&rOPC[5:4]);
-
-   wire          fPUT = (rOPC == 6'o33) & rRB[4];
-   wire 	 fGET = (rOPC == 6'o33) & !rRB[4];
-
+  reg fSFT, fLOG, fMUL, fBSF, fDIV, fRTD, fBCC, fBRU, fIMM, fMOV, fLOD,
+      fSTR, fLOD_r, fLDST, fPUT, fGET;
 
    wire 	 wSFT = (wOPC == 6'o44);
    wire 	 wLOG = ({wOPC[5:4],wOPC[2]} == 3'o4);
@@ -68,6 +48,7 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
    wire 	 wDIV = (wOPC == 6'o22);
 
+   wire 	 wRTD = (wOPC == 6'o55);
    wire 	 wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) &&
 		        !cpu_interrupt;
    wire 	 wBRU = ((wOPC == 6'o46) | (wOPC == 6'o56)) ||
@@ -79,6 +60,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
    wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
+  wire 		 wLOD_r = (wOPC == 6'o62);
    wire 	 wLDST = (&wOPC[5:4]);
 
    wire          wPUT = (wOPC == 6'o33) & wRB[4];
@@ -187,6 +169,10 @@ module aexm_ctrl (/*AUTOARG*/
 	rRW <= 5'h0;
         xRW_valid <= 0;
 	rRW_valid <= 0;
+
+       fSFT <= 0; fLOG <= 0; fMUL <= 0; fBSF <= 0; fDIV <= 0; fRTD <= 0;
+       fBCC <= 0; fBRU <= 0; fIMM <= 0; fMOV <= 0; fLOD <= 0; fSTR <= 0;
+       fLOD_r <= 0; fLDST <= 0; fPUT <= 0; fGET <= 0;
 	// End of automatics
      end else if (d_en) begin // if (grst)
 	rMXDST <= xMXDST;
@@ -194,6 +180,11 @@ module aexm_ctrl (/*AUTOARG*/
 	rRW <= xRW;
 	xRW_valid <= dRW_valid;
 	rRW_valid <= xRW_valid && !xSKIP;
+
+       fSFT <= wSFT; fLOG <= wLOG; fMUL <= wMUL; fBSF <= wBSF;
+       fDIV <= wDIV; fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;
+       fIMM <= wIMM; fMOV <= wMOV; fLOD <= wLOD; fSTR <= wSTR;
+       fLOD_r <= wLOD_r; fLDST <= wLDST; fPUT <= wPUT; fGET <= wGET;
      end
 
 
