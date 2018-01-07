@@ -4,7 +4,7 @@
 
 # Version:            2017.01.27914
 
-# File Generated:     Jan 7 2018 03:30:21
+# File Generated:     Jan 7 2018 05:01:51
 
 # Family & Device:    iCE40HX8K
 
@@ -12,7 +12,7 @@
 
 # ##############################################################################
 
-###IOSet List 92
+###IOSet List 94
 set_io iDQ[12] F3
 set_io iDQ[9] E3
 set_io iDQ[0] G2
@@ -37,7 +37,6 @@ set_io iLDM F4
 set_io iUDQS C2
 set_io dADDRESS[0] E16
 set_io dDQ[12] M14
-set_io iADDRESS[2] P1
 set_io iDQ[15] C1
 set_io dADDRESS[7] C14
 set_io dCOMMAND[2] G15
@@ -71,6 +70,7 @@ set_io iADDRESS[13] T2
 set_io iCOMMAND[1] M2
 set_io OUT_RST N12
 set_io dDQ[3] J14
+set_io dODT G16
 set_io iADDRESS[8] R2
 set_io iDQ[4] H4
 set_io dADDRESS[1] F13
@@ -86,6 +86,7 @@ set_io dCOMMAND[1] F15
 set_io dDQ[5] K16
 set_io iBANK[2] M3
 set_io iDQ[6] G3
+set_io iODT K5
 set_io iADDRESS[3] R3
 set_io iLDQS F2
 set_io dADDRESS[6] C16
@@ -105,4 +106,5 @@ set_io dDQ[10] N16
 set_io iCOMMAND[0] J4
 set_io iDQ[7] F1
 set_io iUDM D4
+set_io iADDRESS[2] P1
 
