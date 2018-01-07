@@ -1,37 +1,37 @@
 /* Reads a block from DRAM and writes it to lsab_cw. */
 module hyper_mvblck_frdram(input CLK,
-			   input 	     RST,
+			   input 	    RST,
 			   /* begin DEVICE ERR */
-			   input 	     DEV_0_ERR,
-			   input 	     DEV_1_ERR,
-			   input 	     DEV_2_ERR,
-			   input 	     DEV_3_ERR,
-			   output reg 	     DEV_0_ERR_ACK,
-			   output reg 	     DEV_1_ERR_ACK,
-			   output reg 	     DEV_2_ERR_ACK,
-			   output reg	     DEV_3_ERR_ACK,
+			   input 	    DEV_0_ERR,
+			   input 	    DEV_1_ERR,
+			   input 	    DEV_2_ERR,
+			   input 	    DEV_3_ERR,
+			   output reg 	    DEV_0_ERR_ACK,
+			   output reg 	    DEV_1_ERR_ACK,
+			   output reg 	    DEV_2_ERR_ACK,
+			   output reg 	    DEV_3_ERR_ACK,
 			   /* begin LSAB */
-			   input 	     LSAB_0_FULL,
-			   input 	     LSAB_1_FULL,
-			   input 	     LSAB_2_FULL,
-			   input 	     LSAB_3_FULL,
+			   input 	    LSAB_0_FULL,
+			   input 	    LSAB_1_FULL,
+			   input 	    LSAB_2_FULL,
+			   input 	    LSAB_3_FULL,
 			   // -----------------------
-			   output reg 	     LSAB_WRITE,
-			   output reg [1:0]  LSAB_SECTION,
+			   output reg 	    LSAB_WRITE,
+			   output reg [1:0] LSAB_SECTION,
 			   // -----------------------
 			   /* begin DRAM */
-			   input [11:0]      START_ADDRESS,
-			   input [5:0] 	     COUNT_REQ,
-			   input [1:0] 	     SECTION,
-			   input [1:0] 	     DRAM_SEL,
-			   input 	     ISSUE,
-			   output reg [5:0]  COUNT_SENT,
-			   output reg 	     WORKING,
-			   output reg 	     ABRUPT_STOP,
-			   output reg 	     DEVICE_ERROR,
+			   input [8:0] 	    START_ADDRESS,
+			   input [5:0] 	    COUNT_REQ,
+			   input [1:0] 	    SECTION,
+			   input [1:0] 	    DRAM_SEL,
+			   input 	    ISSUE,
+			   output reg [5:0] COUNT_SENT,
+			   output reg 	    WORKING,
+			   output reg 	    ABRUPT_STOP,
+			   output reg 	    DEVICE_ERROR,
 			   // -----------------------
-			   output reg [11:0] MCU_COLL_ADDRESS,
-			   output [1:0]      MCU_REQUEST_ACCESS);
+			   output reg [8:0] MCU_COLL_ADDRESS,
+			   output [1:0]     MCU_REQUEST_ACCESS);
   reg 					     am_working, abrupt_stop_n,
 					     wr_device_error, read_more,
 					     release_trigger, we_trigger,
@@ -101,7 +101,7 @@ module hyper_mvblck_frdram(input CLK,
       begin
 	if (! am_working)
 	  begin
-	    MCU_COLL_ADDRESS <= {START_ADDRESS[11:1],1'b0};
+	    MCU_COLL_ADDRESS <= {START_ADDRESS[8:1],1'b0};
 
 	    if (ISSUE)
 	      begin

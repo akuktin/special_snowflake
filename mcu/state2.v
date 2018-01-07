@@ -25,8 +25,8 @@ module state2(input CLK,
 	      output reg 	GRANT_ALIGN_BULK,
 	      input [3:0] 	port_WE_ARRAY_BULK,
 	      /* end ports */
-	      output reg [12:0] ADDRESS_REG,
-	      output reg [1:0] 	BANK_REG,
+	      output reg [13:0] ADDRESS_REG,
+	      output reg [2:0] 	BANK_REG,
 	      output reg [2:0] 	COMMAND_REG,
 	      output [3:0] 	INTERNAL_COMMAND_LATCHED,
 	      output reg [3:0] 	INTERNAL_WE_ARRAY);
@@ -43,7 +43,7 @@ module state2(input CLK,
 				     do_extra_pass;
   reg [2:0] 			     command_reg2, actv_timeout;
   reg [3:0] 			     counter, WE_ARRAY_BULK;
-  reg [13:0] 			     page_current;
+  reg [16:0] 			     page_current;
   reg [25:0] 			     ADDRESS_BULK;
 
   wire 				     issue_com,
@@ -56,23 +56,23 @@ module state2(input CLK,
 				     want_PRCH_delayable,
 				     issue_enable_override,
 				     issue_enable_on_page;
-  wire [1:0] 			     bank_addr,
+  wire [2:0] 			     bank_addr,
 				     bank_request_live_bulk,
 				     bank_request_live_rand;
   wire [2:0] 			     command, command_wr;
   wire [3:0] 			     we_array;
-  wire [11:0] 			     row_request_live_bulk,
+  wire [13:0] 			     row_request_live_bulk,
 				     row_request_live_rand;
-  wire [12:0] 			     address;
-  wire [13:0] 			     page;
+  wire [13:0] 			     address;
+  wire [16:0] 			     page;
   wire [25:0] 			     address_in;
 
   reg [2:0] 			     command_non_wr;
 
   assign INTERNAL_COMMAND_LATCHED = {second_stroke,command_reg2};
 
-  assign row_request_live_rand = ADDRESS_RAND[25:14];
-  assign bank_request_live_rand = ADDRESS_RAND[13:12];
+  assign row_request_live_rand = ADDRESS_RAND[25:12];
+  assign bank_request_live_rand = ADDRESS_RAND[11:9];
 
   assign correct_page_rand_w = ({port_REQUEST_ACCESS_RAND,
 				 port_REQUEST_ALIGN_BULK,
@@ -83,8 +83,8 @@ module state2(input CLK,
 				== {4'b1001,
 				    page_current});
 
-  assign row_request_live_bulk = ADDRESS_BULK[25:14];
-  assign bank_request_live_bulk = ADDRESS_BULK[13:12];
+  assign row_request_live_bulk = ADDRESS_BULK[25:12];
+  assign bank_request_live_bulk = ADDRESS_BULK[11:9];
 
   assign correct_page_bulk_w = ({port_REQUEST_ACCESS_BULK,
 				 REFRESH_TIME,
@@ -153,16 +153,16 @@ module state2(input CLK,
 
   assign address = (SOME_PAGE_ACTIVE &&
                     (! correct_page_rdy)) ?
-                   13'h0400 :
+                   14'h0400 :
                    (correct_page_rdy ?
-		    {address_in[11:0],1'b0} :
-		    {address_in[25:24],1'b0,address_in[23:14]});
+		    {4'h0,address_in[8:0],1'b0} :
+		    {address_in[25:12]});
   assign page = correct_page_rdy ?
 		page_current :
-		address_in[25:12];
+		address_in[25:9];
   assign bank_addr = correct_page_rdy ?
 		     BANK_REG :
-		     address_in[13:12];
+		     address_in[11:9];
 
   assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
   assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'he));
@@ -179,7 +179,7 @@ module state2(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	COMMAND_REG <= `NOOP; ADDRESS_REG <= 13'h0400; BANK_REG <= 0;
+	COMMAND_REG <= `NOOP; ADDRESS_REG <= 14'h0400; BANK_REG <= 0;
 	GRANT_ACCESS_RAND <= 0; GRANT_ACCESS_BULK <= 0;
 	change_possible_n <= 1; state_is_readwrite <= 0;
 	refresh_strobe_ack <= 0; state_is_write <= 0; SOME_PAGE_ACTIVE <= 0;

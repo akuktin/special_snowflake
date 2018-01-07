@@ -6,8 +6,8 @@ module ddr_memory_controler(input CLK_n,
 			    output 	  MEM_CLK_N,
 			    output 	  CKE,
 			    output [2:0]  COMMAND,
-			    output [12:0] ADDRESS,
-			    output [1:0]  BANK,
+			    output [13:0] ADDRESS,
+			    output [2:0]  BANK,
 			    inout [15:0]  DQ,
 			    inout 	  UDQS,
 			    inout 	  LDQS,
@@ -34,8 +34,8 @@ module ddr_memory_controler(input CLK_n,
 			    output [31:0] user_req_dataout);
   wire [31:0] 				         user_req_datain;
   wire [2:0] 					 command_user;
-  wire [12:0] 					 address_user;
-  wire [1:0] 					 bank_user;
+  wire [13:0] 					 address_user;
+  wire [2:0] 					 bank_user;
   wire 						 rst_user;
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;

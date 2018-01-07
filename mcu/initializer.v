@@ -12,12 +12,12 @@ module initializer(input CLK_n,
 		   /* ----------------------- */
 		   output reg 	 CKE,
 		   output [2:0]  COMMAND_PIN,
-		   output [12:0] ADDRESS_PIN,
-		   output [1:0]  BANK_PIN,
+		   output [13:0] ADDRESS_PIN,
+		   output [2:0]  BANK_PIN,
 		   /* ----------------------- */
 		   input [2:0] 	 COMMAND_USER,
-		   input [12:0]  ADDRESS_USER,
-		   input [1:0] 	 BANK_USER,
+		   input [13:0]  ADDRESS_USER,
+		   input [2:0] 	 BANK_USER,
 		   /* ----------------------- */
 		   output reg 	 RST_USER);
   reg 				 long_counter_o, other_cycle;
@@ -27,15 +27,15 @@ module initializer(input CLK_n,
   reg [7:0] 			 aftercount;
 
   reg [2:0] 			 COMMAND_ini;
-  reg [12:0] 			 ADDRESS_ini;
-  reg [1:0] 			 BANK_ini;
+  reg [13:0] 			 ADDRESS_ini;
+  reg [2:0] 			 BANK_ini;
 
   wire 				 step_init;
   wire 				 core_init;
 
   reg [2:0] 			 command_rom;
-  reg [12:0] 			 address_rom;
-  reg [1:0] 			 bank_rom;
+  reg [13:0] 			 address_rom;
+  reg [2:0] 			 bank_rom;
 
   assign COMMAND_PIN = RST_USER ? COMMAND_USER : COMMAND_ini;
   assign ADDRESS_PIN = RST_USER ? ADDRESS_USER : ADDRESS_ini;
@@ -46,112 +46,67 @@ module initializer(input CLK_n,
 
   always @(*)
     begin
-      // DDR
-/*
-      case (stage_count)
-	4'h0: begin
-	  command_rom = `PRCH;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h1;
-	end
-	4'h1: begin
-	  command_rom = `MRST;
-	  address_rom = 13'h000; // extended mode register
-	  bank_rom    = 2'h1;
-	end
-	4'h2: begin
-	  command_rom = `MRST;
-	  address_rom = 13'h162; // regular mode register
-	  bank_rom    = 2'h0;
-	end
-	4'h3: begin
-	  command_rom = `PRCH;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
-	end
-	4'h4: begin
-	  command_rom = `ARSR;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
-	end
-	4'h5: begin
-	  command_rom = `ARSR;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
-	end
-	4'h6: begin
-	  command_rom = `MRST;
-	  address_rom = 13'h062; // regular mode register
-	  bank_rom    = 2'h0;
-	end
-	default: begin
-	  command_rom = `NOOP;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
-	end
-      endcase
- */
       // DDR2
       case (stage_count)
 	4'h0: begin
 	  command_rom = `PRCH;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h1;
+	  address_rom = 14'h400;
+	  bank_rom    = 3'h1;
 	end
 	4'h1: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h000; // extended mode register 2
-	  bank_rom    = 2'h2;
+	  address_rom = 14'h000; // extended mode register 2
+	  bank_rom    = 3'h2;
 	end
 	4'h2: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h000; // extended mode register 3
-	  bank_rom    = 2'h3;
+	  address_rom = 14'h000; // extended mode register 3
+	  bank_rom    = 3'h3;
 	end
 	4'h3: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h780; // extended mode register
-	  bank_rom    = 2'h1;
+	  address_rom = 14'h780; // extended mode register
+	  bank_rom    = 3'h1;
 	end
 	4'h4: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h532; // regular mode register
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h532; // regular mode register
+	  bank_rom    = 3'h0;
 	end
 	4'h5: begin
 	  command_rom = `PRCH;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h400;
+	  bank_rom    = 3'h0;
 	end
 	4'h6: begin
 	  command_rom = `ARSR;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h400;
+	  bank_rom    = 3'h0;
 	end
 	4'h7: begin
 	  command_rom = `ARSR;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h400;
+	  bank_rom    = 3'h0;
 	end
 	4'h8: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h432; // regular mode register
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h432; // regular mode register
+	  bank_rom    = 3'h0;
 	end
 	4'h9: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h780; // extended mode register
-	  bank_rom    = 2'h1;
+	  address_rom = 14'h780; // extended mode register
+	  bank_rom    = 3'h1;
 	end
 	4'ha: begin
 	  command_rom = `MRST;
-	  address_rom = 13'h400; // extended mode register
-	  bank_rom    = 2'h1;
+	  address_rom = 14'h400; // extended mode register
+	  bank_rom    = 3'h1;
 	end
 	default: begin
 	  command_rom = `NOOP;
-	  address_rom = 13'h400;
-	  bank_rom    = 2'h0;
+	  address_rom = 14'h400;
+	  bank_rom    = 3'h0;
 	end
       endcase
     end

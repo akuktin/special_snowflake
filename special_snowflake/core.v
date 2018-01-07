@@ -13,8 +13,8 @@ module special_snowflake_core(input RST,
 			      inout 	       mem_iLDM,
 			      output 	       mem_iCS,
 			      output [2:0]     mem_iCOMMAND,
-			      output [12:0]    mem_iADDRESS,
-			      output [1:0]     mem_iBANK,
+			      output [13:0]    mem_iADDRESS,
+			      output [2:0]     mem_iBANK,
 			      inout [15:0]     mem_iDQ,
 			      output 	       mem_iODT,
 
@@ -27,8 +27,8 @@ module special_snowflake_core(input RST,
 			      inout 	       mem_dLDM,
 			      output 	       mem_dCS,
 			      output [2:0]     mem_dCOMMAND,
-			      output [12:0]    mem_dADDRESS,
-			      output [1:0]     mem_dBANK,
+			      output [13:0]    mem_dADDRESS,
+			      output [2:0]     mem_dBANK,
 			      inout [15:0]     mem_dDQ,
 			      output 	       mem_dODT,
 			      // ----------------------
@@ -102,7 +102,7 @@ module special_snowflake_core(input RST,
 
   wire [31:0] i_mcu_data_into, d_mcu_data_into;
 
-  wire [11:0] hf_coll_addr_fill, hf_coll_addr_empty, mcu_coll_addr;
+  wire [8:0] hf_coll_addr_fill, hf_coll_addr_empty, mcu_coll_addr;
   wire [3:0]  hf_we_array_fill;
   wire 	      i_hf_req_access_fill, d_hf_req_access_fill,
 	      i_hf_req_access_empty, d_hf_req_access_empty;
@@ -110,11 +110,11 @@ module special_snowflake_core(input RST,
   wire 	      w_issue, w_working_fill, w_working_empty;
   wire [1:0]  w_section;
   wire [5:0]  w_count_req, w_count_sent_fill, w_count_sent_empty;
-  wire [11:0] w_start_address;
+  wire [8:0]  w_start_address;
 
   wire 	      w_irq_cr, w_abstop_cr, w_abstop_cw, w_deverr_cw;
 
-  wire [19:0] mcu_page_addr;
+  wire [22:0] mcu_page_addr;
   wire 	      i_mcu_algn_req, i_mcu_algn_ack,
 	      d_mcu_algn_req, d_mcu_algn_ack;
 
@@ -173,7 +173,7 @@ module special_snowflake_core(input RST,
                              .rand_req(i_user_req),
                              .rand_req_ack(i_user_req_ack),
                              .rand_req_datain(i_user_req_datain),
-			     .bulk_req_address({mcu_page_addr[13:0],
+			     .bulk_req_address({mcu_page_addr[16:0],
 						mcu_coll_addr}),
 			     .bulk_req_we(i_mcu_we),
 			     .bulk_req_we_array(hf_we_array_fill),
@@ -206,7 +206,7 @@ module special_snowflake_core(input RST,
                              .rand_req(d_user_req),
                              .rand_req_ack(d_user_req_ack),
                              .rand_req_datain(d_user_req_datain),
-			     .bulk_req_address({mcu_page_addr[13:0],
+			     .bulk_req_address({mcu_page_addr[16:0],
 						mcu_coll_addr}),
 			     .bulk_req_we(d_mcu_we),
 			     .bulk_req_we_array(hf_we_array_fill),

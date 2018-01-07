@@ -20,7 +20,7 @@ module Gremlin(input CLK,
 	       output 		 CAREOF_INT,
 
 		 /* begin BLOCK MOVER */
-	       output reg [11:0] BLCK_START,
+	       output reg [8:0]  BLCK_START,
 	       output reg [5:0]  BLCK_COUNT_REQ,
 	       output 		 BLCK_ISSUE,
 	       output reg [1:0]  BLCK_SECTION,
@@ -31,7 +31,7 @@ module Gremlin(input CLK,
 	       input 		 BLCK_FRDRAM_DEVERR,
 	       input [24:0] 	 BLCK_ANCILL,
 	         /* begin MCU */
-	       output reg [19:0] MCU_PAGE_ADDR,
+	       output reg [22:0] MCU_PAGE_ADDR,
 	       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL
 	       input [1:0] 	 MCU_GRANT_ALIGN,
 		    // ---------------------
@@ -241,8 +241,8 @@ module Gremlin(input CLK,
     else
       index <= index_reg;
 
-  reg [3:0] reg_page_lo_0, reg_page_lo_1;
-  reg [11:0] reg_start_0, reg_start_1;
+  reg [6:0] reg_page_lo_0, reg_page_lo_1;
+  reg [8:0] reg_start_0, reg_start_1;
   reg [15:0] reg_page_hi_0, reg_page_hi_1;
   reg 	     reg_opon_data_0, reg_rdmem_op_0,
 	     reg_opon_data_1, reg_rdmem_op_1;
@@ -368,8 +368,8 @@ module Gremlin(input CLK,
 		begin
 		  case (write_output_desc[1:0])
 		    2'h0: begin
-		      reg_page_lo_1 <= acc_output[15:12];
-		      reg_start_1 <= acc_output[11:0];
+		      reg_page_lo_1 <= acc_output[15:9];
+		      reg_start_1 <= acc_output[8:0];
 		    end
 		    2'h1: begin
 		      reg_page_hi_1 <= acc_output;
@@ -386,8 +386,8 @@ module Gremlin(input CLK,
 		begin
 		  case (write_output_desc[1:0])
 		    2'h0: begin
-		      reg_page_lo_0 <= acc_output[15:12];
-		      reg_start_0 <= acc_output[11:0];
+		      reg_page_lo_0 <= acc_output[15:9];
+		      reg_start_0 <= acc_output[8:0];
 		    end
 		    2'h1: begin
 		      reg_page_hi_0 <= acc_output;

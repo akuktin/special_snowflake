@@ -19,7 +19,7 @@ module hyper_mvblck_todram(input CLK,
 			   output reg [1:0]  LSAB_SECTION,
 			   //------------------------
 			   /* begin DRAM */
-			   input [11:0]      START_ADDRESS,
+			   input [8:0] 	     START_ADDRESS,
 			   input [5:0] 	     COUNT_REQ,
 			   input [1:0] 	     SECTION,
 			   input [1:0] 	     DRAM_SEL,
@@ -30,7 +30,7 @@ module hyper_mvblck_todram(input CLK,
 			   output reg 	     ABRUPT_STOP,
 			   output reg [24:0] ANCILL_OUT,
 			   // -----------------------
-			   output reg [11:0] MCU_COLL_ADDRESS,
+			   output reg [8:0]  MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
 			   output reg [1:0]  MCU_REQUEST_ACCESS);
   reg 					     stop_prev_n, stop_n,
@@ -38,7 +38,7 @@ module hyper_mvblck_todram(input CLK,
 					     irq;
   reg [24:0] 				     ancill;
   reg [5:0] 				     len_left;
-  reg [11:0] 				     track_addr;
+  reg [8:0] 				     track_addr;
 
   wire 					     trigger;
 
@@ -127,7 +127,7 @@ module hyper_mvblck_todram(input CLK,
 	if (trigger)
 	  begin
 	    MCU_WE_ARRAY <= {stop_prev_n,stop_prev_n,stop_n,stop_n};
-	    MCU_COLL_ADDRESS <= {track_addr[11:1],1'b0};
+	    MCU_COLL_ADDRESS <= {track_addr[8:1],1'b0};
 	    MCU_REQUEST_ACCESS <= DRAM_SEL;
 	  end
 	else
