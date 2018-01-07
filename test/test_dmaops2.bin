@@ -63,7 +63,7 @@ core.i_cache.cachedat.ram.r_data[24] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd0};
 core.hyper_softcore.prog_mem.ram.r_data[0] <= 16'h4e00;
 //// DATA !
 core.hyper_softcore.data_mem.ram.r_data[0] <= 16'h0018; //// DATA !
-core.hyper_softcore.data_mem.ram.r_data[128] <= 16'hc003;
+core.hyper_softcore.data_mem.ram.r_data[128] <= 16'h3003;
 core.hyper_softcore.data_mem.ram.r_data[129] <= 16'h0000;
 core.hyper_softcore.data_mem.ram.r_data[130] <= 16'hc00d;
 //// DATA !

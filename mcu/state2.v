@@ -179,19 +179,15 @@ module state2(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	COMMAND_REG <= `NOOP; ADDRESS_REG <= 14'h0400; BANK_REG <= 0;
+	COMMAND_REG <= `NOOP; SOME_PAGE_ACTIVE <= 0;
 	GRANT_ACCESS_RAND <= 0; GRANT_ACCESS_BULK <= 0;
 	change_possible_n <= 1; state_is_readwrite <= 0;
-	refresh_strobe_ack <= 0; state_is_write <= 0; SOME_PAGE_ACTIVE <= 0;
-	second_stroke <= 1; REFRESH_TIME <= 0;
-	command_reg2 <= `NOOP; actv_timeout <= 3'h7; counter <= 4'he;
-	page_current <= 0; GRANT_ALIGN_BULK <= 0; INTERNAL_WE_ARRAY <= 0;
-	REQUEST_ALIGN_BULK_dly <= 0; do_extra_pass <= 0;
+	refresh_strobe_ack <= 0; second_stroke <= 1;
+	REFRESH_TIME <= 0; GRANT_ALIGN_BULK <= 0;
+	actv_timeout <= 3'h7; counter <= 4'hf;
+	do_extra_pass <= 1; correct_page_algn <= 0;
 
-	REQUEST_ACCESS_RAND <= 0; REQUEST_ACCESS_BULK <= 0;
-	REQUEST_ALIGN_BULK <= 0; correct_page_rand <= 0;
-	correct_page_bulk <= 0; correct_page_algn <= 0; WE_BULK <= 0;
-	correct_page_any <= 0; correct_page_rdy <= 0; WE_RAND <= 0;
+//	command_reg2 <= `NOOP; // maybe!
       end
     else
       begin
@@ -343,10 +339,7 @@ module outputs(input 		 CLK_n,
   always @(posedge CLK_n)
     if (!RST)
       begin
-	data_gapholder <= 0; we_gapholder <= 0; we_longholder <= 0;
-	dq_predriver <= 0; dm_predriver <= 0;
 	dqdm_z_prectrl <= 0; dqs_z_prectrl <= 0;
-	dqs_predriver <= 0; DATA_W <= 0;
 	active <= 0; high_bits <= 0;
       end
     else

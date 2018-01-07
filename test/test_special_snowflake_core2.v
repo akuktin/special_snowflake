@@ -293,13 +293,13 @@ module GlaDOS;
 
   wire        iCLK_P, iCLK_N, iCKE, iUDQS, iLDQS, iUDM, iLDM, iCS, iODT;
   wire [2:0]  iCOMMAND;
-  wire [12:0] iADDRESS;
-  wire [1:0]  iBANK;
+  wire [13:0] iADDRESS;
+  wire [2:0]  iBANK;
   wire [15:0] iDQ;
   wire        dCLK_P, dCLK_N, dCKE, dUDQS, dLDQS, dUDM, dLDM, dCS, dODT;
   wire [2:0]  dCOMMAND;
-  wire [12:0] dADDRESS;
-  wire [1:0]  dBANK;
+  wire [13:0] dADDRESS;
+  wire [2:0]  dBANK;
   wire [15:0] dDQ;
   wire [31:0]  i_user_req_address;
   wire         i_user_req_we, i_user_req;
@@ -333,8 +333,8 @@ module GlaDOS;
 		  .cas_n(iCOMMAND[1]),
 		  .we_n(iCOMMAND[0]),
 		  .dm_rdqs({iUDM,iLDM}),
-		  .ba({1'b0,iBANK}),
-		  .addr(iADDRESS),
+		  .ba(iBANK),
+		  .addr(iADDRESS[12:0]), // simulation limitation
 		  .dq(iDQ),
 		  .dqs({iUDQS,iLDQS}),
 		  .dqs_n(),
@@ -349,8 +349,8 @@ module GlaDOS;
 		  .cas_n(dCOMMAND[1]),
 		  .we_n(dCOMMAND[0]),
 		  .dm_rdqs({dUDM,dLDM}),
-		  .ba({1'b0,dBANK}),
-		  .addr(dADDRESS),
+		  .ba(dBANK),
+		  .addr(dADDRESS[12:0]), // simulation limitation
 		  .dq(dDQ),
 		  .dqs({dUDQS,dLDQS}),
 		  .dqs_n(),

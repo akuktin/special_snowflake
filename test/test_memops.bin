@@ -34,14 +34,14 @@ core.i_cache.cachedat.ram.r_data[6] <= {6'o52,5'h4,5'h0,16'h0124};
 core.i_cache.cachedat.ram.r_data[7] <= {6'o52,5'h5,5'h0,16'h0};
 
 
-core.i_cache.cachedat.ram.r_data[8] <= {6'o76,5'h2,5'h0,16'h4020};
+core.i_cache.cachedat.ram.r_data[8] <= {6'o76,5'h2,5'h0,16'h0820};
 core.i_cache.cachedat.ram.r_data[9] <= {6'o76,5'h3,5'h0,16'h0120};
 core.i_cache.cachedat.ram.r_data[10] <= {6'o76,5'h4,5'h0,16'h0124};
 core.i_cache.cachedat.ram.r_data[11] <= {6'o52,5'h5,5'h0,16'h0};
 core.i_cache.cachedat.ram.r_data[12] <= {6'o52,5'h5,5'h0,16'h0};
 core.i_cache.cachedat.ram.r_data[13] <= {6'o52,5'h5,5'h0,16'h0};
 core.i_cache.cachedat.ram.r_data[14] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[15] <= {6'o72,5'hc,5'h0,16'h4000};
+core.i_cache.cachedat.ram.r_data[15] <= {6'o72,5'hc,5'h0,16'h0800};
 core.i_cache.cachedat.ram.r_data[16] <= {6'o62,5'hd,5'h0,5'h4,11'h001};
 core.i_cache.cachedat.ram.r_data[17] <= {6'o52,5'h5,5'h0,16'h0};
 core.i_cache.cachedat.ram.r_data[18] <= {6'o52,5'h5,5'h0,16'h0};
