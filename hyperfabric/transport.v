@@ -77,13 +77,6 @@ module trans_core(input CLK,
   assign out_block_7 = omux_7 ? fan_block_0 : fan_block_1;
 
   always @(posedge CLK)
-    if (!RST)
-      begin
-	fan_block_0 <= 0; fan_block_1 <= 0;
-	out_0 <= 0; out_1 <= 0; out_2 <= 0; out_3 <= 0;
-	out_4 <= 0; out_5 <= 0; out_6 <= 0; out_7 <= 0;
-      end
-    else
       begin
 	fan_block_0 <= in_block_0;
 	fan_block_1 <= in_block_1;
@@ -180,13 +173,6 @@ module trans_lsab(input CLK,
   assign fan_block_1 = lsab;
 
   always @(posedge CLK)
-    if (!RST)
-      begin
-	fan_block_0 <= 0;
-	out_0 <= 0; out_1 <= 0; out_2 <= 0; out_3 <= 0;
-	out_4 <= 0; out_5 <= 0; out_6 <= 0; out_7 <= 0;
-      end
-    else
       begin
 	fan_block_0 <= in_block_0;
 
