@@ -119,16 +119,10 @@ module Gremlin(input CLK,
     if (! RST)
       begin
 	WRITE_CPU_r <= 1; READ_CPU_r <= 1;
-	low_addr_bits_w <= 0; low_addr_bits_r <= 0;
-	d_w_en_cpu <= 0;
-	d_r_en_cpu <= 0; d_r_en_cpu_delay <= 0;
-	READ_CPU_ACK <= 0; WRITE_CPU_ACK <= 0;
-	OUT_CPU <= 0;
-
-	LEN_0 <= 0; DIR_0 <= 0; EN_STB_0_pre <= 0;
-	LEN_1 <= 0; DIR_1 <= 0; EN_STB_1_pre <= 0;
-	LEN_2 <= 0; DIR_2 <= 0; EN_STB_2_pre <= 0;
-	LEN_3 <= 0; DIR_3 <= 0; EN_STB_3_pre <= 0;
+	low_addr_bits_w <= 0;
+	d_w_en_cpu <= 0; d_r_en_cpu <= 0;
+	EN_STB_0_pre <= 0; EN_STB_1_pre <= 0;
+	EN_STB_2_pre <= 0; EN_STB_3_pre <= 0;
       end
     else
       begin
@@ -252,19 +246,8 @@ module Gremlin(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	accumulator <= 0; memory_operand <= 0; add_carry <= 0;
-	save_carry <= 0; ip <= 0; index_reg <= 0; index_capture <= 0;
 	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
-	irq_strobe <= 0; IRQ_DESC <= 0; waitkill <= 0;
-	write_output_reg <= 0; write_output_desc <= 0; acc_output <= 0;
-
-	reg_page_lo_0 <= 0; reg_page_lo_1 <= 0;
-	reg_start_0 <= 0; reg_start_1 <= 0;
-	reg_page_hi_0 <= 0; reg_page_hi_1 <= 0;
-	reg_opon_data_0 <= 0; reg_rdmem_op_0 <= 0;
-	reg_opon_data_1 <= 0; reg_rdmem_op_1 <= 0;
-	reg_count_req_0 <= 0; reg_count_req_1 <= 0;
-	reg_blck_sec_0 <= 0; reg_blck_sec_1 <= 0;
+	ip <= 0; irq_strobe <= 0; waitkill <= 0;
       end
     else
       begin
@@ -414,14 +397,12 @@ module Gremlin(input CLK,
     if (!RST)
       begin
 	small_carousel <= 8'hc1; // Out of bounds. // FIXME!!
-	big_carousel <= 4'h3; refresh_req <= 0; refresh_ack <= 0;
-	MCU_REFRESH_STROBE <= 0; wrote_3_ack <= 0; trans_active <= 0;
-	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0; MCU_PAGE_ADDR <= 0;
+	big_carousel <= 4'h3; wrote_3_ack <= 0;
 	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
-	BLCK_COUNT_REQ <= 0; BLCK_SECTION <= 0; BLCK_START <= 0;
-	active_trans_thistrans <= 0; issue_op_new <= 0; ready_trans <= 0;
 	EN_STB_0 <= 0; EN_STB_1 <= 0; EN_STB_2 <= 0; EN_STB_3 <= 0;
-	SWCH_ISEL <= 0; SWCH_OSEL <= 0; rdmem_op <= 0; opon_data <= 0;
+	refresh_req <= 0; refresh_ack <= 0; issue_op_new <= 0;
+	MCU_REFRESH_STROBE <= 0; trans_active <= 0; ready_trans <= 0;
+	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0;
       end
     else
       begin

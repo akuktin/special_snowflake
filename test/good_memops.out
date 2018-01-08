@@ -260,12 +260,12 @@ GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enab
 GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
 GlaDOS.d_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
 GlaDOS.i_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
-d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+d cmd 1 addr xxxx bank x we c data xxxxxxxx predata xxxxxxxx
 GlaDOS.d_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
 GlaDOS.i_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
-d cmd 1 addr 0000 bank 0 we c data 00000000 predata 00000000
+d cmd 1 addr xxxx bank x we c data xxxxxxxx predata xxxxxxxx
 GlaDOS.d_ddr2_mem.cmd_task: at time 400153500.0 ps INFO: Activate  bank 1 row 0000
-d cmd 3 addr 0000 bank 1 we c data fffffffe predata 00000000
+d cmd 3 addr 0000 bank 1 we c data fffffffe predata xxxxxxxx
 GlaDOS.d_ddr2_mem.cmd_task: at time 400177500.0 ps INFO: Write     bank 1 col 010, auto precharge 0
 d cmd 4 addr 0010 bank 1 we c data fffffffe predata fffffffe
 GlaDOS.d_ddr2_mem.data_task: at time 400192500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 000 data = ffff
