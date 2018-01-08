@@ -19,7 +19,7 @@ module snowball_cache(input CPU_CLK,
 		      output reg [31:0] mem_addr,
 		      output 		mem_we,
 		      output [3:0] 	mem_we_array,
-		      output 		mem_do_act,
+		      output reg	mem_do_act,
 		      output reg [31:0] mem_dataintomem,
 		      input 		mem_ack,
 		      input [31:0] 	mem_datafrommem,
@@ -44,8 +44,8 @@ module snowball_cache(input CPU_CLK,
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
   reg [31:0] 		    prev_paddr_block;
   reg 			    cache_cycle_we, tlb_cycle_we;
-  reg 			    mcu_we, tlb_we_reg, mem_do_act_pre,
-			    mem_do_act_reg, mem_ack_reg, mcu_active_delay,
+  reg 			    mcu_we, tlb_we_reg,
+			    mem_do_act_reg, mcu_active_delay,
 			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv,
 			    mandatory_lookup_sig, mandatory_lookup_pre_sig,
 			    mandatory_lookup_sig_recv, mandatory_lookup_exp,
@@ -160,17 +160,16 @@ module snowball_cache(input CPU_CLK,
 			     cache_prev_we) ||
 			    (cache_vld && cache_cycle_we);
   assign mandatory_lookup_act = mandatory_lookup_capture &&
-				((cache_prev_idx ^
-				  cache_cycle_addr[7:0]) == 8'h00);
+				(cache_prev_idx == cache_cycle_addr[7:0]);
 
   assign activate_cache = (cache_work && (! (cache_busy || mem_lookup))) ||
 			  cache_reinit;
   assign activate_tlb   = (WE_TLB && (! (cache_busy || mem_lookup))) ||
 			  tlb_reinit;
 
-  assign ghost_hit = ((prev_paddr_block[31:1] ^
-		       {vmem_rsp_tag,cache_cycle_addr[15:1]}) ==
-		      31'd0) ? ghost_hit_vld : 0;
+  assign ghost_hit = (prev_paddr_block[31:1] ==
+		      {vmem_rsp_tag,cache_cycle_addr[15:1]}) ?
+		     ghost_hit_vld : 0;
   assign cache_same_word_read = prev_paddr_block[0] ==
 				cache_cycle_addr[0];
 
@@ -184,17 +183,12 @@ module snowball_cache(input CPU_CLK,
     if (!RST)
       begin
 	vmem <= 0; MMU_FAULT <= 0; cache_vld <= 0; cache_tlb <= 0;
-	cache_cycle_addr <= 0; cache_cycle_we <= 0;
-	data_tomem_trans <= 0; tlb_cycle_we <= 0; cache_busy <= 0;
-	cache_datai <= 0; mcu_active_trans <= 0;
-	mcu_responded_reg <= 0; tlb_en_sticky <= 0; cache_en_sticky <= 0;
-	w_we_trans <= 0; w_tlb_trans <= 0; w_addr_trans <= 0;
-	w_data_trans <= 0; wctag_data_forread_trans <= 0;
+	mcu_responded <= 0; mcu_responded_reg <= 0;
+	tlb_en_sticky <= 0; cache_en_sticky <= 0;
+	ghost_hit_vld <= 0; cache_busy_real <= 0; cache_busy <= 0;
 	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
-	cache_prev_we <= 0; cache_prev_idx <= 0;
-	mandatory_lookup_capture <= 0; prev_paddr_block <= 0;
-	ghost_hit_vld <= 0; cache_busy_real <= 0;
-	cache_cycle_force_miss_n <= 1; mcu_responded <= 0;
+	cache_prev_we <= 0; mcu_active_trans <= 0;
+	cache_datai <= 0;
       end
     else
       begin
@@ -290,14 +284,14 @@ module snowball_cache(input CPU_CLK,
 	  end
 
 	// Ofcourse, if it gliches, then we have a problem.
-	mcu_responded <= (mcu_responded_trans ^ mcu_responded_reg) && !mcu_responded;
+	mcu_responded <= (mcu_responded_trans ^ mcu_responded_reg) &&
+			 !mcu_responded;
 	if (mcu_responded)
 	  mcu_responded_reg <= !mcu_responded_reg;
 	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
       end // else: !if(!RST)
 
-  assign mem_we = (mcu_we || tlb_we_reg) && (!mem_ack_reg);
-  assign mem_do_act = mem_do_act_pre;
+  assign mem_we = (mcu_we || tlb_we_reg) && (!mem_ack);
   assign mem_dataintocpu = datain_mux_dma ?
 			   dma_data_read : mem_datafrommem;
 
@@ -311,9 +305,6 @@ module snowball_cache(input CPU_CLK,
   assign tlb_we = mcu_active_delay && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
-  always @(mem_ack)
-    mem_ack_reg <= mem_ack;
-
   always @(read_counter)
     case (read_counter)
       3'd6: begin mcu_valid_data <= 1; capture_data <= 1; end
@@ -324,16 +315,11 @@ module snowball_cache(input CPU_CLK,
   always @(posedge MCU_CLK)
     if (!RST)
       begin
-	mem_dataintomem <= 0; mem_addr <= 0; mcu_we <= 0;
-	mcu_active <= 0; tlb_we_reg <= 0; mem_do_act_pre <= 0;
-	mem_do_act_reg <= 0; /*mem_ack_reg <= 0;*/ read_counter <= 0;
-	data_mcu_trans <= 0; w_addr <= 0; mcu_responded_trans <= 0;
-	mcu_active_delay <= 0; wctag_data_forread <= 0;
-	w_data_recv <= 0; w_addr_recv <= 0; w_we_recv <= 0;
-	w_tlb_recv <= 0; wctag_data_forread_recv <= 0;
+	read_counter <= 0; mcu_responded_trans <= 0;
+	mem_do_act <= 0; dma_wrte <= 0; dma_read <= 0;
+	mcu_active <= 0; mcu_active_reg <= 0; mcu_active_delay <= 0;
 	mandatory_lookup_sig <= 0; mandatory_lookup_pre_sig <= 0;
-	data_mcu_trans_other <= 0; dma_wrte <= 0; dma_read <= 0;
-	datain_mux_dma <= 0; mcu_active_reg <= 0;
+	mcu_we <= 0; tlb_we_reg <= 0;
       end
     else
       begin
@@ -358,7 +344,7 @@ module snowball_cache(input CPU_CLK,
 
 	if (mcu_active)
 	  begin
-	    mem_do_act_pre <= (w_addr_recv[31:30] == 2'b00);
+	    mem_do_act <= (w_addr_recv[31:30] == 2'b00);
 	    dma_wrte <= (w_addr_recv[31:30] == 2'b11) && ( w_we_recv);
 	    dma_read <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
 	    datain_mux_dma <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
@@ -371,19 +357,19 @@ module snowball_cache(input CPU_CLK,
 	  end
 	else
 	  begin
-	    if (mem_do_act_reg && mem_ack_reg)
-	      mem_do_act_pre <= 0;
-	    if (dma_wrte && dma_wrte_ack)
+	    if (mem_do_act_reg && mem_ack)
+	      mem_do_act <= 0;
+	    if (dma_wrte && dma_wrte_ack) // do I really need this?
+                                          // maybe just use the ack signal??
 	      dma_wrte <= 0;
-	    if (dma_read && dma_read_ack)
+	    if (dma_read && dma_read_ack) // DIRNT ?
 	      dma_read <= 0;
 	  end
 
 	mem_do_act_reg <= mem_do_act;
-//	mem_ack_reg <= mem_ack;
 
-	if (((mem_do_act_reg && mem_ack_reg) ||
-	     (dma_read && dma_read_ack)) &&
+	if (((mem_do_act_reg && mem_ack) || // DIRNT ?
+	     (dma_read && dma_read_ack)) && // DIRNT ?
 	    (! op_type_w))
 	  read_counter <= 3'd3;
 	else
@@ -404,8 +390,8 @@ module snowball_cache(input CPU_CLK,
 	      data_mcu_trans_other <= mem_dataintocpu;
 	  end
 
-	if ((((mem_do_act && mem_ack_reg) ||
-	      (dma_wrte && dma_wrte_ack)) && op_type_w) ||
+	if ((((mem_do_act && mem_ack) || // DIRNT ?
+	      (dma_wrte && dma_wrte_ack)) && op_type_w) || // DIRNT ?
 	    (capture_data))
 	  mcu_responded_trans <= !mcu_responded_trans;
       end
