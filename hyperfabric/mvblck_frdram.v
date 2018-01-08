@@ -90,10 +90,11 @@ module hyper_mvblck_frdram(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	LSAB_WRITE <= 0; we_counter <= 0; release_counter <= 0;
-	WORKING <= 0; am_working <= 0; len_left <= 6'h1; read_more <= 0;
-	MCU_COLL_ADDRESS <= 0; LSAB_SECTION <= 0; COUNT_SENT <= 0;
-	ABRUPT_STOP <= 0; DEVICE_ERROR <= 0; LSAB_WRITE_pre <= 0;
+	LSAB_WRITE <= 0; LSAB_WRITE_pre <= 0;
+	we_counter <= 0; release_counter <= 0;
+	release_trigger <= 1;
+	WORKING <= 0; am_working <= 0;
+	MCU_COLL_ADDRESS <= 0;
 	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
 	DEV_2_ERR_ACK <= 0; DEV_3_ERR_ACK <= 0;
       end
