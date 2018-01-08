@@ -248,8 +248,7 @@ module snowball_cache(input CPU_CLK,
 	    if (mcu_responded)
 	      cache_busy_real <= 0;
 
-	    if (cache_vld)
-	      ghost_hit_vld <= 0;
+	    ghost_hit_vld <= 0;
 	  end // else: !if(mem_lookup)
 
 	if (mem_lookup || fake_miss)
