@@ -246,7 +246,8 @@ module Gremlin(input CLK,
   always @(posedge CLK)
     if (!RST)
       begin
-	instr_f <= 16'h4e00; instr_o <= 16'h4e00; wrote_3_req <= 0;
+	instr_f[15:8] <= 8'h4e; instr_o[15:8] <= 8'h4e;
+	wrote_3_req <= 0;
 	ip <= 0; irq_strobe <= 0; waitkill <= 0;
       end
     else
