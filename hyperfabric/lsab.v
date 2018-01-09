@@ -277,11 +277,7 @@ module lsab_cr(input CLK,
        write_addr_2 <= 0; write_addr_3 <= 0;
        read_addr_0 <= 0; read_addr_1 <= 0;
        read_addr_2 <= 0; read_addr_3 <= 0;
-       re_prev <= 0; OUT <= 0;
 	STOP_0 <= 1; STOP_1 <= 1; STOP_2 <= 1; STOP_3 <= 1;
-	INT_OUT_0 <= 0; INT_OUT_1 <= 0; INT_OUT_2 <= 0; INT_OUT_3 <= 0;
-	ANCILL_OUT_0 <= 0; ANCILL_OUT_1 <= 0; ANCILL_OUT_2 <= 0;
-	ANCILL_OUT_3 <= 0;
 	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
 	intbuff_waddr_0 <= 1;
 	intbuff_raddr_1 <= 1; intbuff_raddr_trail_1 <= 0;
@@ -654,8 +650,6 @@ module lsab_cw(input CLK,
        write_addr_2 <= 0; write_addr_3 <= 0;
        read_addr_0 <= 0; read_addr_1 <= 0;
        read_addr_2 <= 0; read_addr_3 <= 0;
-       OUT_0 <= 0; OUT_1 <= 0; OUT_2 <= 0; OUT_3 <= 0;
-       re_prev <= 0; re_fifo_prev <= 0;
 	BFULL_0 <= 0; BFULL_1 <= 0; BFULL_2 <= 0; BFULL_3 <= 0;
       end
     else
