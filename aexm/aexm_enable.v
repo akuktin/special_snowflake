@@ -53,7 +53,7 @@ module aexm_enable(input CLK,
     if (!grst)
       begin
 	grst_delay <= 0; starter <= 0;
-	cpu_mode_memop <= 1;
+	cpu_mode_memop <= 0;
 	just_issued_dcache_command <= 0;
 	dcache_LOD_enable_reg <= 0; dcache_LOD_enable_dly <= 0; xLOD <= 0;
 	xSTRLOD <= 0;

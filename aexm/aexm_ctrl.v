@@ -4,7 +4,7 @@ module aexm_ctrl (/*AUTOARG*/
    aexm_dcache_precycle_we, aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
-   cpu_interrupt, gclk, grst, d_en, x_en
+   cpu_interrupt, gclk, d_en, x_en
    );
    // INTERNAL
    output [1:0]  rMXDST, xMXSRC, xMXTGT, xMXALT;
@@ -27,7 +27,7 @@ module aexm_ctrl (/*AUTOARG*/
   output  aexm_dcache_force_miss;
 
    // SYSTEM
-   input 	 gclk, grst, d_en, x_en;
+   input 	 gclk, d_en, x_en;
 
    // --- DECODE INSTRUCTIONS
    // TODO: Simplify
@@ -160,21 +160,21 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 
-   always @(posedge gclk)
-     if (!grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rMXALU <= 3'h0;
-	rMXDST <= 2'h0;
-	rRW <= 5'h0;
-        xRW_valid <= 0;
-	rRW_valid <= 0;
+  initial
+    begin
+      rMXALU <= 3'h0;
+      rMXDST <= 2'h0;
+      rRW <= 5'h0;
+      xRW_valid <= 0;
+      rRW_valid <= 0;
 
-       fSFT <= 0; fLOG <= 0; fMUL <= 0; fBSF <= 0; fDIV <= 0; fRTD <= 0;
-       fBCC <= 0; fBRU <= 0; fIMM <= 0; fMOV <= 0; fLOD <= 0; fSTR <= 0;
-       fLOD_r <= 0; fLDST <= 0; fPUT <= 0; fGET <= 0;
-	// End of automatics
-     end else if (d_en) begin
+      fSFT <= 0; fLOG <= 0; fMUL <= 0; fBSF <= 0; fDIV <= 0; fRTD <= 0;
+      fBCC <= 0; fBRU <= 0; fIMM <= 0; fMOV <= 0; fLOD <= 0; fSTR <= 0;
+      fLOD_r <= 0; fLDST <= 0; fPUT <= 0; fGET <= 0;
+    end
+
+   always @(posedge gclk)
+     if (d_en) begin
 	rMXDST <= xMXDST;
 	rMXALU <= xMXALU;
 	rRW <= xRW;

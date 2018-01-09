@@ -42,11 +42,18 @@ module aexm_xecu (/*AUTOARG*/
 
    // --- OPERAND SELECT
 
-   reg [31:0] 	   rOPA, rOPB;
+  reg [31:0] 	   rOPA, rOPB;
+  reg 		   wOPC;
+
+  initial
+    begin
+      rOPA <= 0;
+      rOPB <= 0;
+      wOPC <= 0;
+    end
+
    always @(posedge gclk)
-     if (!grst)
-       rOPA <= 0;
-     else if (d_en)
+     if (d_en)
      case (xMXSRC)
        2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
        2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
@@ -55,9 +62,7 @@ module aexm_xecu (/*AUTOARG*/
      endcase // case (xMXSRC)
 
    always @(posedge gclk)
-     if (!grst)
-       rOPB <= 0;
-     else if (d_en)
+     if (d_en)
      case (xMXTGT)
        2'o0: rOPB <= xREGB;
        2'o1: rOPB <= xRESULT;
@@ -65,11 +70,8 @@ module aexm_xecu (/*AUTOARG*/
        2'o3: rOPB <= xSIMM;
      endcase // case (xMXTGT)
 
-  reg 		   wOPC;
   always @(posedge gclk)
-    if (!grst)
-      wOPC <= 0;
-    else if (d_en)
+    if (d_en)
       wOPC <= fCCC ? xMSR_C : fSUB;
 
    // --- ADD/SUB SELECTOR ----
@@ -186,15 +188,15 @@ module aexm_xecu (/*AUTOARG*/
 
    reg [31:0] 	 rBSRL, rBSRA, rBSLL;
 
+  initial
+    begin
+      rBSLL <= 32'h0;
+      rBSRA <= 32'h0;
+      rBSRL <= 32'h0;
+    end
+
    always @(posedge gclk)
-     if (!grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rBSLL <= 32'h0;
-	rBSRA <= 32'h0;
-	rBSRL <= 32'h0;
-	// End of automatics
-     end else if (!x_en) begin // TODO: maybe remove the if
+     if (grst && (!x_en)) begin // TODO: maybe remove the if
 	rBSRL <= xBSRL;
 	rBSRA <= xBSRA;
 	rBSLL <= xBSLL;
@@ -290,26 +292,27 @@ module aexm_xecu (/*AUTOARG*/
 
    // --- SYNC ---
 
+  initial
+    begin
+      rDWBSEL <= 4'h0;
+      rMSR_BE <= 1'h0;
+      rMSR_BIP <= 1'h0;
+      rMSR_C <= 1'h0;
+      rMSR_IE <= 1'h0;
+      rRESULT <= 32'h0;
+    end
+
    always @(posedge gclk)
-     if (!grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
-	rDWBSEL <= 4'h0;
-	rMSR_BE <= 1'h0;
-	rMSR_BIP <= 1'h0;
-	rMSR_C <= 1'h0;
-	rMSR_IE <= 1'h0;
-	rRESULT <= 32'h0;
-	// End of automatics
-     end else begin
+     begin
        if (x_en) begin
-	rRESULT <= xRESULT;
-	rMSR_C <= xMSR_C;
-	rMSR_IE <= xMSR_IE;
-	rMSR_BE <= xMSR_BE;
-	rMSR_BIP <= xMSR_BIP;
+	 rRESULT <= xRESULT;
+	 rMSR_C <= xMSR_C;
+	 rMSR_IE <= xMSR_IE;
+	 rMSR_BE <= xMSR_BE;
+	 rMSR_BIP <= xMSR_BIP;
        end
-       rDWBSEL <= xDWBSEL;
+       if (grst)
+	 rDWBSEL <= xDWBSEL;
      end
 
 endmodule // aexm_xecu

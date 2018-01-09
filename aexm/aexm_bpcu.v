@@ -5,7 +5,7 @@ module aexm_bpcu (/*AUTOARG*/
    // Inputs
    xMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
    cpu_mode_memop, xIREG, cpu_interrupt,
-   gclk, grst, x_en, d_en
+   gclk, x_en, d_en
    );
    parameter IW = 24;
 
@@ -32,7 +32,7 @@ module aexm_bpcu (/*AUTOARG*/
   input 	   cpu_interrupt;
 
    // SYSTEM
-   input 	   gclk, grst, x_en, d_en;
+   input 	   gclk, x_en, d_en;
 
    wire [5:0] 	 wOPC;
    wire [4:0] 	 wRD, wRA, wRB;
@@ -44,10 +44,14 @@ module aexm_bpcu (/*AUTOARG*/
    // Controls the branch and delay flags
 
    reg [31:0] 	   wREGA;
-  always @(posedge gclk)
-    if (!grst)
+
+  initial
+    begin
       wREGA <= 0;
-    else if (d_en)
+    end
+
+  always @(posedge gclk)
+    if (d_en)
       case (xMXALT)
 	2'o2: wREGA <= c_io_rg;
 	2'o1: wREGA <= xRESULT;
@@ -61,8 +65,21 @@ module aexm_bpcu (/*AUTOARG*/
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
 		   wBCC, wBRU;
 
+  initial
+    begin
+      // MAKE SURE THIS IS IDENTICAL TO THE fSKIP block below!
+      chain_endpoint <= 1;
+      careof_equal_n <= 1;
+      careof_ltgt <= 0;
+      expect_equal <= 1;
+      expect_ltgt <= 0;
+      invert_answer <= 0;
+      rSKIP_n <= 1;
+    end
+
   always @(posedge gclk)
-    if ((!grst) || fSKIP) begin
+    if (fSKIP) begin
+      // MAKE SURE THIS IS IDENTICAL TO THE initial block above!
       chain_endpoint <= 1;
       careof_equal_n <= 1;
       careof_ltgt <= 0;
@@ -214,18 +231,18 @@ module aexm_bpcu (/*AUTOARG*/
 
    // --- SYNC PIPELINE ----------------------------------------------
 
-   always @(posedge gclk)
-     if (!grst) begin
-	/*AUTORESET*/
-	// Beginning of autoreset for uninitialized flops
+  initial
+    begin
 //	rATOM <= 2'h0;
 	rIPC <= 30'h0;
         pre_rIPC <= 30'h0;
 	rPC <= 30'h0;
 	rPCLNK <= 30'h0;
        xSKIP <= 0;
-	// End of automatics
-     end else if (x_en) begin
+    end
+
+   always @(posedge gclk)
+     if (x_en) begin
 	pre_rIPC <= xIPC;
         rIPC <= pre_rIPC;
 	rPC <= xPC;

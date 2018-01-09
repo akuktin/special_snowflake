@@ -156,7 +156,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xIREG			(xIREG[31:0]),
 	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
-	   .grst			(grst),
 	   .d_en			(cpu_enable),
 	   .x_en                        (cpu_enable));
 
@@ -180,7 +179,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xREGA			(xREGA[31:0]),
 	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
-	   .grst			(grst),
 	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));
 
