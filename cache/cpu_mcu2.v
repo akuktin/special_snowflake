@@ -179,9 +179,8 @@ module snowball_cache(input CPU_CLK,
 			mandatory_lookup_act)) ||
 		      cache_tlb;
 
-  always @(posedge CPU_CLK)
-    if (!RST)
-      begin
+  initial
+    begin
 	vmem <= 0; MMU_FAULT <= 0; cache_vld <= 0; cache_tlb <= 0;
 	mcu_responded <= 0; mcu_responded_reg <= 0;
 	tlb_en_sticky <= 0; cache_en_sticky <= 0;
@@ -189,8 +188,10 @@ module snowball_cache(input CPU_CLK,
 	mandatory_lookup_exp <= 0; mandatory_lookup_sig_recv <= 0;
 	cache_prev_we <= 0; mcu_active_trans <= 0;
 	cache_datai <= 0;
-      end
-    else
+    end
+
+  always @(posedge CPU_CLK)
+    if (RST)
       begin
 	vmem <= VMEM_ACT;
 	MMU_FAULT <= w_MMU_FAULT;
@@ -248,7 +249,8 @@ module snowball_cache(input CPU_CLK,
 	    if (mcu_responded)
 	      cache_busy_real <= 0;
 
-	    ghost_hit_vld <= 0;
+	    if (cache_vld)
+	      ghost_hit_vld <= 0;
 	  end // else: !if(mem_lookup)
 
 	if (mem_lookup || fake_miss)
@@ -288,7 +290,7 @@ module snowball_cache(input CPU_CLK,
 	if (mcu_responded)
 	  mcu_responded_reg <= !mcu_responded_reg;
 	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
-      end // else: !if(!RST)
+      end
 
   assign mem_we = (mcu_we || tlb_we_reg) && (!mem_ack);
   assign mem_dataintocpu = datain_mux_dma ?
@@ -311,16 +313,17 @@ module snowball_cache(input CPU_CLK,
       default: begin mcu_valid_data <= 0; capture_data <= 0; end
     endcase // case (read_counter)
 
-  always @(posedge MCU_CLK)
-    if (!RST)
-      begin
+  initial
+    begin
 	read_counter <= 0; mcu_responded_trans <= 0;
 	mem_do_act <= 0; dma_wrte <= 0; dma_read <= 0;
 	mcu_active <= 0; mcu_active_reg <= 0; mcu_active_delay <= 0;
 	mandatory_lookup_sig <= 0; mandatory_lookup_pre_sig <= 0;
 	mcu_we <= 0; tlb_we_reg <= 0;
-      end
-    else
+    end
+
+  always @(posedge MCU_CLK)
+    if (RST)
       begin
 	// Ofcourse, if it gliches, then we have a problem.
 	mcu_active <= (mcu_active_trans ^ mcu_active_reg) && !mcu_active;

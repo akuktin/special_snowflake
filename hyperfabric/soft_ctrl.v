@@ -115,16 +115,17 @@ module Gremlin(input CLK,
       2'h3: from_cpu_word <= IN_CPU[15:0];
     endcase // case (low_addr_bits)
 
-  always @(posedge CLK)
-    if (! RST)
-      begin
+  initial
+    begin
 	WRITE_CPU_r <= 1; READ_CPU_r <= 1;
 	low_addr_bits_w <= 0;
 	d_w_en_cpu <= 0; d_r_en_cpu <= 0;
 	EN_STB_0_pre <= 0; EN_STB_1_pre <= 0;
 	EN_STB_2_pre <= 0; EN_STB_3_pre <= 0;
-      end
-    else
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	WRITE_CPU_r <= WRITE_CPU;
 	if (WRITE_CPU && !WRITE_CPU_r)
@@ -243,14 +244,15 @@ module Gremlin(input CLK,
   reg [11:0] reg_count_req_0, reg_count_req_1;
   reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
 
-  always @(posedge CLK)
-    if (!RST)
-      begin
+  initial
+    begin
 	instr_f[15:8] <= 8'h4e; instr_o[15:8] <= 8'h4e;
 	wrote_3_req <= 0;
 	ip <= 0; irq_strobe <= 0; waitkill <= 0;
-      end
-    else
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	irq_strobe[1] <= irq_strobe[0];
 
@@ -386,7 +388,7 @@ module Gremlin(input CLK,
 		end
 	    end
 	end
-      end // else: !if(!RST)
+      end
 
   assign small_carousel_reset = small_carousel == 8'hbf;
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
@@ -394,9 +396,8 @@ module Gremlin(input CLK,
 
   assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
 
-  always @(posedge CLK)
-    if (!RST)
-      begin
+  initial
+    begin
 	small_carousel <= 8'hc1; // Out of bounds. // FIXME!!
 	big_carousel <= 4'h3; wrote_3_ack <= 0;
 	blck_working_prev <= 0; issue_op <= 0; trans_activate <= 0;
@@ -404,8 +405,10 @@ module Gremlin(input CLK,
 	refresh_req <= 0; refresh_ack <= 0; issue_op_new <= 0;
 	MCU_REFRESH_STROBE <= 0; trans_active <= 0; ready_trans <= 0;
 	RST_MVBLCK <= 0; MCU_REQUEST_ALIGN <= 0;
-      end
-    else
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	if (small_carousel_reset)
 	  begin

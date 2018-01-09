@@ -267,9 +267,8 @@ module lsab_cr(input CLK,
   assign intbuff_empty_3 = intbuff_raddr_3 == intbuff_waddr_3;
   assign intbuff_full_3 = intbuff_raddr_trail_3 == intbuff_waddr_3;
 
-  always @(posedge CLK)
-    if (!RST)
-      begin
+  initial
+    begin
        EMPTY_0 <= 1; EMPTY_1 <= 1; EMPTY_2 <= 1; EMPTY_3 <= 1;
        full_0 <= 0; full_1 <= 0; full_2 <= 0; full_3 <= 0;
        len_0 <= 0; len_1 <= 0; len_2 <= 0; len_3 <= 0;
@@ -286,8 +285,10 @@ module lsab_cr(input CLK,
 	intbuff_waddr_2 <= 1;
 	intbuff_raddr_3 <= 1; intbuff_raddr_trail_3 <= 0;
 	intbuff_waddr_3 <= 1;
-      end
-    else
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	STOP_0 <= become_empty_0 || intbuff_int_0; // three gates deep
        INT_OUT_0 <= intbuff_int_0;
@@ -640,9 +641,8 @@ module lsab_cw(input CLK,
                      .WCLKE(1'b1),
                      .WCLK(CLK));
 
-  always @(posedge CLK)
-    if (!RST)
-      begin
+  initial
+    begin
        empty_0 <= 1; empty_1 <= 1; empty_2 <= 1; empty_3 <= 1;
        full_0 <= 0; full_1 <= 0; full_2 <= 0; full_3 <= 0;
        len_0 <= 0; len_1 <= 0; len_2 <= 0; len_3 <= 0;
@@ -651,8 +651,10 @@ module lsab_cw(input CLK,
        read_addr_0 <= 0; read_addr_1 <= 0;
        read_addr_2 <= 0; read_addr_3 <= 0;
 	BFULL_0 <= 0; BFULL_1 <= 0; BFULL_2 <= 0; BFULL_3 <= 0;
-      end
-    else
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	BFULL_0 <= become_BFULL_0;
 	BFULL_1 <= become_BFULL_1;

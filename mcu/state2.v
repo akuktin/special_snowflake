@@ -176,9 +176,8 @@ module state2(input CLK,
 
   assign we_array = REQUEST_ACCESS_BULK ? WE_ARRAY_BULK : WE_ARRAY_RAND;
 
-  always @(posedge CLK)
-    if (!RST)
-      begin
+  initial
+    begin
 	COMMAND_REG <= `NOOP; SOME_PAGE_ACTIVE <= 0;
 	GRANT_ACCESS_RAND <= 0; GRANT_ACCESS_BULK <= 0;
 	GRANT_ALIGN_BULK <= 0; REFRESH_TIME <= 0;
@@ -187,9 +186,11 @@ module state2(input CLK,
 	actv_timeout <= 3'h7; counter <= 4'hf;
 	do_extra_pass <= 1; correct_page_algn <= 0;
 
-//	command_reg2 <= `NOOP; // maybe!
-      end
-    else
+	command_reg2 <= `NOOP;
+    end
+
+  always @(posedge CLK)
+    if (RST)
       begin
 	REQUEST_ACCESS_RAND <= port_REQUEST_ACCESS_RAND;
 	REQUEST_ACCESS_BULK <= port_REQUEST_ACCESS_BULK;
@@ -336,13 +337,18 @@ module outputs(input 		 CLK_n,
 		     .UDM(UDM),
 		     .LDM(LDM));
 
+  initial
+    begin
+      dqdm_z_prectrl <= 0; dqs_z_prectrl <= 0;
+      active <= 0; high_bits <= 0;
+
+      DATA_R <= 0;
+
+      dqs_z_ctrl <= 0;
+    end
+
   always @(posedge CLK_n)
-    if (!RST)
-      begin
-	dqdm_z_prectrl <= 0; dqs_z_prectrl <= 0;
-	active <= 0; high_bits <= 0;
-      end
-    else
+    if (RST)
       begin
 	DATA_W <= port_DATA_W;
 	data_gapholder <= DATA_W;
@@ -375,18 +381,14 @@ module outputs(input 		 CLK_n,
 	  dqs_z_prectrl <= 0;
 	else
 	  dqs_z_prectrl <= 1;
-      end // else: !if(!RST)
+      end
 
   always @(negedge CLK_n)
-    if (!RST)
-      DATA_R <= 0;
-    else
+    if (RST)
       DATA_R <= dq_data_r;
 
   always @(negedge CLK_dn)
-    if (!RST)
-      dqs_z_ctrl <= 0;
-    else
+    if (RST)
       dqs_z_ctrl <= dqs_z_prectrl;
 
 endmodule // outputs

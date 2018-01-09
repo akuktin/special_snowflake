@@ -1,4 +1,4 @@
-module special_snowflake_core(input RST,
+module special_snowflake_core(input RST_MASTER,
 			      input 	       RST_CPU_pre,
 			      input 	       CLK_n,
 			      input 	       CLK_dn,
@@ -153,7 +153,8 @@ module special_snowflake_core(input RST,
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
                              .CLK_dn(CLK_dn),
-                             .RST(RST),
+                             .RST_MASTER(RST_MASTER),
+			     .RST_USER(RST_USER),
 			     .MEM_CLK_P(mem_iCLK_P),
 			     .MEM_CLK_N(mem_iCLK_N),
                              .CKE(mem_iCKE),
@@ -186,7 +187,8 @@ module special_snowflake_core(input RST,
 
   ddr_memory_controler d_mcu(.CLK_n(CLK_n),
                              .CLK_dn(CLK_dn),
-                             .RST(RST),
+                             .RST_MASTER(RST_MASTER),
+			     .RST_USER(),
 			     .MEM_CLK_P(mem_dCLK_P),
 			     .MEM_CLK_N(mem_dCLK_N),
                              .CKE(mem_dCKE),
@@ -318,7 +320,6 @@ module special_snowflake_core(input RST,
 		 .aexm_dcache_cache_busy(d_cache_busy));
 
   trans_lsab hyperfabric_switch(.CLK(CLK_n),
-				.RST(RST),
 				.out_0(i_mcu_data_into),
 				.out_1(d_mcu_data_into),
 				.out_2(w_in_cw),
@@ -336,7 +337,7 @@ module special_snowflake_core(input RST,
 				.osel({8'hff,5'h0,w_osel}));
 
   lsab_cr lsab_in(.CLK(CLK_n),
-		  .RST(RST),
+		  .RST(RST_USER),
 		  .READ(w_read_cr),
 		  .WRITE0(write0_cr),
 		  .WRITE1(write1_cr),
@@ -394,7 +395,7 @@ module special_snowflake_core(input RST,
 						i_hf_req_access_fill}));
 
   lsab_cw lsab_out(.CLK(CLK_n),
-		   .RST(RST),
+		   .RST(RST_USER),
 		   .READ0(read0_cw),
 		   .READ1(read1_cw),
 		   .READ2(read2_cw),
@@ -442,7 +443,7 @@ module special_snowflake_core(input RST,
 					       i_hf_req_access_empty}));
 
   Gremlin hyper_softcore(.CLK(CLK_n),
-			 .RST(RST),
+			 .RST(RST_USER),
 			 // ---------------------
 			 .READ_CPU(d_dma_read),
 			 .WRITE_CPU(d_dma_wrte),
@@ -497,7 +498,7 @@ module special_snowflake_core(input RST,
   assign cache_inhibit = 1'b0;
 
   always @(posedge CLK_n)
-    if (!RST)
+    if (!RST_MASTER)
       begin
 	write_fifo_cr <= 2'h0;
 	read_fifo_cw <= 2'h2;
@@ -519,10 +520,10 @@ module special_snowflake_core(input RST,
 	d_mcu_req_access <= d_hf_req_access_fill || d_hf_req_access_empty;
 	i_mcu_we <= i_hf_req_access_fill;
 	d_mcu_we <= d_hf_req_access_fill;
-      end // else: !if(!RST)
+      end
 
   always @(posedge CPU_CLK)
-    if (!RST)
+    if (!RST_USER)
       begin
 	irq_strobe_slow <= 0;
 	irq_strobe_slow_prev <= 0;

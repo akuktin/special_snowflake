@@ -1,6 +1,7 @@
 module ddr_memory_controler(input CLK_n,
 			    input 	  CLK_dn,
-			    input 	  RST,
+			    input 	  RST_MASTER,
+			    output 	  RST_USER,
 			    /* ------------------------- */
 			    output 	  MEM_CLK_P,
 			    output 	  MEM_CLK_N,
@@ -36,7 +37,6 @@ module ddr_memory_controler(input CLK_n,
   wire [2:0] 					 command_user;
   wire [13:0] 					 address_user;
   wire [2:0] 					 bank_user;
-  wire 						 rst_user;
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;
 
@@ -45,12 +45,12 @@ module ddr_memory_controler(input CLK_n,
 			   bulk_req_datain : rand_req_datain;
 
   clock_driver clock(.CLK_n(CLK_n),
-		     .RST(RST),
+		     .RST(RST_MASTER),
 		     .CLK_P(MEM_CLK_P),
 		     .CLK_N(MEM_CLK_N));
 
   initializer initializer_m(.CLK_n(CLK_n),
-			    .RST(RST),
+			    .RST(RST_MASTER),
 			    .CKE(CKE),
 			    .COMMAND_PIN(COMMAND),
 			    .ADDRESS_PIN(ADDRESS),
@@ -58,10 +58,10 @@ module ddr_memory_controler(input CLK_n,
 			    .COMMAND_USER(command_user),
 			    .ADDRESS_USER(address_user),
 			    .BANK_USER(bank_user),
-			    .RST_USER(rst_user));
+			    .RST_USER(RST_USER));
 
   state2 interdictor_tracker(.CLK(CLK_n),
-			     .RST(rst_user),
+			     .RST(RST_USER),
 			     .REFRESH_STROBE(refresh_strobe),
 
 			     .ADDRESS_RAND(rand_req_address),
@@ -86,7 +86,7 @@ module ddr_memory_controler(input CLK_n,
 
   outputs data_driver(.CLK_n(CLK_n),
 		      .CLK_dn(CLK_dn),
-		      .RST(RST),
+		      .RST(RST_USER),
 		      .COMMAND_LATCHED(internal_com_lat),
 		      .WE_ARRAY(internal_we_array),
 		      .port_DATA_W(user_req_datain),

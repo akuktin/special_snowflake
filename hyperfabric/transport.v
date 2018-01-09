@@ -1,5 +1,4 @@
 module trans_core(input CLK,
-		  input 	    RST,
 		  output reg [31:0] out_0,
 		  output reg [31:0] out_1,
 		  output reg [31:0] out_2,
@@ -102,7 +101,6 @@ module trans_core(input CLK,
 endmodule // trans_core
 
 module trans_lsab(input CLK,
-		  input 	    RST,
 		  output reg [31:0] out_0,
 		  output reg [31:0] out_1,
 		  output reg [31:0] out_2,
