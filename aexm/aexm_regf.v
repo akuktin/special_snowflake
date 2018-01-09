@@ -65,7 +65,7 @@ module aexm_regf (/*AUTOARG*/
 
    reg [31:0] 	 xWDAT;
   wire 		 do_write;
-  assign do_write = ((grst | fRDWE) && w_en && (rMXDST != 2'o3));
+  assign do_write = ((fRDWE | !grst) && w_en && (rMXDST != 2'o3));
 
   always @(rMXDST or combined_input or rRESULT)
     if (rMXDST == 2'h0)

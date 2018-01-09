@@ -44,7 +44,7 @@ module aexm_xecu (/*AUTOARG*/
 
    reg [31:0] 	   rOPA, rOPB;
    always @(posedge gclk)
-     if (grst)
+     if (!grst)
        rOPA <= 0;
      else if (d_en)
      case (xMXSRC)
@@ -55,7 +55,7 @@ module aexm_xecu (/*AUTOARG*/
      endcase // case (xMXSRC)
 
    always @(posedge gclk)
-     if (grst)
+     if (!grst)
        rOPB <= 0;
      else if (d_en)
      case (xMXTGT)
@@ -67,7 +67,7 @@ module aexm_xecu (/*AUTOARG*/
 
   reg 		   wOPC;
   always @(posedge gclk)
-    if (grst)
+    if (!grst)
       wOPC <= 0;
     else if (d_en)
       wOPC <= fCCC ? xMSR_C : fSUB;
@@ -187,7 +187,7 @@ module aexm_xecu (/*AUTOARG*/
    reg [31:0] 	 rBSRL, rBSRA, rBSLL;
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	rBSLL <= 32'h0;
@@ -291,7 +291,7 @@ module aexm_xecu (/*AUTOARG*/
    // --- SYNC ---
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	rDWBSEL <= 4'h0;
@@ -301,7 +301,7 @@ module aexm_xecu (/*AUTOARG*/
 	rMSR_IE <= 1'h0;
 	rRESULT <= 32'h0;
 	// End of automatics
-     end else begin // if (grst)
+     end else begin
        if (x_en) begin
 	rRESULT <= xRESULT;
 	rMSR_C <= xMSR_C;

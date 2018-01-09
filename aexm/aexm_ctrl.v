@@ -161,7 +161,7 @@ module aexm_ctrl (/*AUTOARG*/
    // --- PIPELINE CONTROL DELAY ----------------------------
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	rMXALU <= 3'h0;
@@ -174,7 +174,7 @@ module aexm_ctrl (/*AUTOARG*/
        fBCC <= 0; fBRU <= 0; fIMM <= 0; fMOV <= 0; fLOD <= 0; fSTR <= 0;
        fLOD_r <= 0; fLDST <= 0; fPUT <= 0; fGET <= 0;
 	// End of automatics
-     end else if (d_en) begin // if (grst)
+     end else if (d_en) begin
 	rMXDST <= xMXDST;
 	rMXALU <= xMXALU;
 	rRW <= xRW;

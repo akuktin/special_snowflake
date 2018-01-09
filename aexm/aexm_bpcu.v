@@ -45,7 +45,7 @@ module aexm_bpcu (/*AUTOARG*/
 
    reg [31:0] 	   wREGA;
   always @(posedge gclk)
-    if (grst)
+    if (!grst)
       wREGA <= 0;
     else if (d_en)
       case (xMXALT)
@@ -62,17 +62,14 @@ module aexm_bpcu (/*AUTOARG*/
 		   wBCC, wBRU;
 
   always @(posedge gclk)
-    if (grst || fSKIP) begin
+    if ((!grst) || fSKIP) begin
       chain_endpoint <= 1;
       careof_equal_n <= 1;
       careof_ltgt <= 0;
       expect_equal <= 1;
       expect_ltgt <= 0;
       invert_answer <= 0;
-      if (grst)
-	rSKIP_n <= 1;
-      else
-	rSKIP_n <= 1;
+      rSKIP_n <= 1;
     end else if (d_en) begin
       if (dSKIP) begin
       rSKIP_n <= 0;
@@ -218,7 +215,7 @@ module aexm_bpcu (/*AUTOARG*/
    // --- SYNC PIPELINE ----------------------------------------------
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 //	rATOM <= 2'h0;

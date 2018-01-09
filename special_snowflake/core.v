@@ -299,7 +299,7 @@ module special_snowflake_core(input RST,
 			 .WE_TLB(dcache_we_tlb));
 
   aexm_edk32 cpu(.sys_clk_i(CPU_CLK),
-		 .sys_rst_i(!RST_CPU),
+		 .sys_rst_i(RST_CPU),
 		 .sys_int_i(irq_strobe_slow ^ irq_strobe_slow_prev),
 		 // Outputs
 		 .aexm_icache_precycle_addr(i_cache_pc_addr),

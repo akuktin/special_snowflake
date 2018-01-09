@@ -50,9 +50,9 @@ module aexm_enable(input CLK,
 			     (!just_issued_dcache_command);
 
   always @(posedge CLK)
-    if (grst)
+    if (!grst)
       begin
-	grst_delay <= 1; starter <= 0;
+	grst_delay <= 0; starter <= 0;
 	cpu_mode_memop <= 1;
 	just_issued_dcache_command <= 0;
 	dcache_LOD_enable_reg <= 0; dcache_LOD_enable_dly <= 0; xLOD <= 0;
@@ -61,8 +61,8 @@ module aexm_enable(input CLK,
     else
       begin
 	begin
-	  grst_delay <= 0;
-	  if ((! grst) && grst_delay)
+	  grst_delay <= 1;
+	  if (grst && !grst_delay)
 	    starter <= 1;
 	  else
 	    starter <= 0;

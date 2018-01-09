@@ -58,7 +58,7 @@ module aexm_ibuf (/*AUTOARG*/
    wire 	wSHOT = rDINT[0];
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
 	rDINT <= 2'h0;
@@ -104,7 +104,7 @@ module aexm_ibuf (/*AUTOARG*/
    // --- PIPELINE --------------------------------------------
 
    always @(posedge gclk)
-     if (grst) begin
+     if (!grst) begin
 	/*AUTORESET*/
 	// Beginning of autoreset for uninitialized flops
        issued_interrupt <= 0;
@@ -115,7 +115,7 @@ module aexm_ibuf (/*AUTOARG*/
 	rRD <= 5'h0;
 	rSIMM <= 32'h0;
 	// End of automatics
-     end else if (d_en) begin // if (grst)
+     end else if (d_en) begin
        issued_interrupt <= cpu_interrupt;
        cpu_interrupt <= do_interrupt;
 	{rOPC, rRD, rRA, rIMM} <= xNXTINST;
