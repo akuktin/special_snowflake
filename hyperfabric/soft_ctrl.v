@@ -125,7 +125,6 @@ module Gremlin(input CLK,
     end
 
   always @(posedge CLK)
-    if (RST)
       begin
 	WRITE_CPU_r <= WRITE_CPU;
 	if (WRITE_CPU && !WRITE_CPU_r)
@@ -408,15 +407,27 @@ module Gremlin(input CLK,
     end
 
   always @(posedge CLK)
-    if (RST)
-      begin
-	if (small_carousel_reset)
-	  begin
-	    small_carousel <= 0;
-	    big_carousel <= big_carousel +1;
-	  end
-	else
-	  small_carousel <= small_carousel +1;
+    begin
+      if (RST)
+	begin
+	  if (small_carousel_reset)
+	    begin
+	      small_carousel <= 0;
+	      big_carousel <= big_carousel +1;
+	    end
+	  else
+	    small_carousel <= small_carousel +1;
+
+          if (trg_gb_0 && time_rfrs)
+            refresh_req <= refresh_req +1;
+
+	  if (refresh_ctr_mismatch &&
+	      ! (trans_active || ready_trans))
+	    begin
+	      refresh_ack <= refresh_ack +1;
+	      MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
+	    end
+	end // if (RST)
 
 	trans_activate <= (wrote_3_req != wrote_3_ack);
 
@@ -485,17 +496,7 @@ module Gremlin(input CLK,
 		input_reg_1[1] <= {BLCK_IRQ,blck_abort,14'h0};
 	      end
 	  end
-
-        if (trg_gb_0 && time_rfrs)
-          refresh_req <= refresh_req +1;
-
-	if (refresh_ctr_mismatch &&
-	    ! (trans_active || ready_trans))
-	  begin
-	    refresh_ack <= refresh_ack +1;
-	    MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
-	  end
-      end
+    end
 
 ///////////////////////////////////////////////////////////////
 
