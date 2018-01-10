@@ -125,7 +125,7 @@ module initializer(input CLK_n,
     else
       begin
 	other_cycle <= !other_cycle;
-	step_init <= (intercommand_count == 4'hf);
+	step_init <= (intercommand_count == 4'hf) ? other_cycle : 0;
 	if (stage_count == 4'hf)
 	  core_init <= 0;
 
