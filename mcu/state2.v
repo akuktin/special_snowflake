@@ -296,7 +296,6 @@ endmodule // enter_state
 
 module outputs(input 		 CLK_n,
 	       input 		 CLK_dn,
-	       input 		 RST,
 	       input [3:0] 	 COMMAND_LATCHED,
 	       input [3:0] 	 WE_ARRAY,
 	       input [31:0] 	 port_DATA_W,
@@ -348,7 +347,6 @@ module outputs(input 		 CLK_n,
     end
 
   always @(posedge CLK_n)
-    if (RST)
       begin
 	DATA_W <= port_DATA_W;
 	data_gapholder <= DATA_W;
@@ -384,11 +382,9 @@ module outputs(input 		 CLK_n,
       end
 
   always @(negedge CLK_n)
-    if (RST)
       DATA_R <= dq_data_r;
 
   always @(negedge CLK_dn)
-    if (RST)
       dqs_z_ctrl <= dqs_z_prectrl;
 
 endmodule // outputs

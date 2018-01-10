@@ -86,7 +86,6 @@ module ddr_memory_controler(input CLK_n,
 
   outputs data_driver(.CLK_n(CLK_n),
 		      .CLK_dn(CLK_dn),
-		      .RST(rst_user),
 		      .COMMAND_LATCHED(internal_com_lat),
 		      .WE_ARRAY(internal_we_array),
 		      .port_DATA_W(user_req_datain),
