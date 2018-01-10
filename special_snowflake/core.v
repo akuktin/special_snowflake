@@ -86,11 +86,15 @@ module special_snowflake_core(input RST_MASTER,
   assign mem_iODT = 1'b1;
   assign mem_dODT = 1'b1;
   // --------------------------------------------------------
-  reg 					       rst_cpu_pre, rst_cpu,
-					       rst_i_cache, rst_d_cache;
-  reg 					       rst_i_mcu, rst_d_mcu,
-					       rst_lsab_in, rst_lsab_out,
-					       rst_soft_core;
+  reg 			rst_cpu_pre /* synthesis syn_preserve=1 */;
+  reg 			rst_cpu /* synthesis syn_preserve=1 */;
+  reg 			rst_i_cache /* synthesis syn_preserve=1 */;
+  reg			rst_d_cache /* synthesis syn_preserve=1 */;
+  reg 			rst_i_mcu /* synthesis syn_preserve=1 */;
+  reg			rst_d_mcu /* synthesis syn_preserve=1 */;
+  reg			rst_lsab_in /* synthesis syn_preserve=1 */;
+  reg			rst_lsab_out /* synthesis syn_preserve=1 */;
+  reg			rst_soft_core /* synthesis syn_preserve=1 */;
 
   wire        w_read_cr, w_write_cw;
   wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
