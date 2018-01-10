@@ -1,7 +1,6 @@
 module ddr_memory_controler(input CLK_n,
 			    input 	  CLK_dn,
 			    input 	  RST_MASTER,
-			    output 	  RST_USER,
 			    /* ------------------------- */
 			    output 	  MEM_CLK_P,
 			    output 	  MEM_CLK_N,
@@ -39,6 +38,7 @@ module ddr_memory_controler(input CLK_n,
   wire [2:0] 					 bank_user;
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;
+  wire 						 rst_user;
 
   assign CS = 1'b0; // Always on.
   assign user_req_datain = bulk_req_algn ?
@@ -58,10 +58,10 @@ module ddr_memory_controler(input CLK_n,
 			    .COMMAND_USER(command_user),
 			    .ADDRESS_USER(address_user),
 			    .BANK_USER(bank_user),
-			    .RST_USER(RST_USER));
+			    .RST_USER(rst_user));
 
   state2 interdictor_tracker(.CLK(CLK_n),
-			     .RST(RST_USER),
+			     .RST(rst_user),
 			     .REFRESH_STROBE(refresh_strobe),
 
 			     .ADDRESS_RAND(rand_req_address),
@@ -86,7 +86,7 @@ module ddr_memory_controler(input CLK_n,
 
   outputs data_driver(.CLK_n(CLK_n),
 		      .CLK_dn(CLK_dn),
-		      .RST(RST_USER),
+		      .RST(rst_user),
 		      .COMMAND_LATCHED(internal_com_lat),
 		      .WE_ARRAY(internal_we_array),
 		      .port_DATA_W(user_req_datain),

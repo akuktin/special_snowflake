@@ -1,5 +1,5 @@
 module special_snowflake_core(input RST_MASTER,
-			      input 	       RST_CPU_pre,
+			      input 	       RST_CPU_TRANS,
 			      input 	       CLK_n,
 			      input 	       CLK_dn,
 			      input 	       CPU_CLK,
@@ -86,7 +86,11 @@ module special_snowflake_core(input RST_MASTER,
   assign mem_iODT = 1'b1;
   assign mem_dODT = 1'b1;
   // --------------------------------------------------------
-  reg 					       RST_CPU;
+  reg 					       rst_cpu_pre, rst_cpu,
+					       rst_i_cache, rst_d_cache;
+  reg 					       rst_i_mcu, rst_d_mcu,
+					       rst_lsab_in, rst_lsab_out,
+					       rst_soft_core;
 
   wire        w_read_cr, w_write_cw;
   wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
@@ -153,8 +157,7 @@ module special_snowflake_core(input RST_MASTER,
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
                              .CLK_dn(CLK_dn),
-                             .RST_MASTER(RST_MASTER),
-			     .RST_USER(RST_USER),
+                             .RST_MASTER(rst_i_mcu),
 			     .MEM_CLK_P(mem_iCLK_P),
 			     .MEM_CLK_N(mem_iCLK_N),
                              .CKE(mem_iCKE),
@@ -187,8 +190,7 @@ module special_snowflake_core(input RST_MASTER,
 
   ddr_memory_controler d_mcu(.CLK_n(CLK_n),
                              .CLK_dn(CLK_dn),
-                             .RST_MASTER(RST_MASTER),
-			     .RST_USER(),
+                             .RST_MASTER(rst_d_mcu),
 			     .MEM_CLK_P(mem_dCLK_P),
 			     .MEM_CLK_N(mem_dCLK_N),
                              .CKE(mem_dCKE),
@@ -229,12 +231,9 @@ module special_snowflake_core(input RST_MASTER,
   wire 	       dcache_we_tlb, icache_we_tlb;
   wire 	       d_cache_force_miss;
 
-  wire 	       RST_CACHE;
-  assign RST_CACHE = RST_CPU;
-
   snowball_cache i_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
-			 .RST(RST_CACHE),
+			 .RST(rst_i_cache),
 			 .cache_precycle_addr(i_cache_pc_addr),
 			 .cache_datao(0), // CPU perspective
 			 .cache_datai(i_cache_datai), // CPU perspective
@@ -268,7 +267,7 @@ module special_snowflake_core(input RST_MASTER,
 
   snowball_cache d_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
-			 .RST(RST_CACHE),
+			 .RST(rst_d_cache),
 			 .cache_precycle_addr(d_cache_pc_addr),
 			 .cache_datao(d_cache_datao), // CPU perspective
 			 .cache_datai(d_cache_datai), // CPU perspective
@@ -301,7 +300,7 @@ module special_snowflake_core(input RST_MASTER,
 			 .WE_TLB(dcache_we_tlb));
 
   aexm_edk32 cpu(.sys_clk_i(CPU_CLK),
-		 .sys_rst_i(RST_CPU),
+		 .sys_rst_i(rst_cpu),
 		 .sys_int_i(irq_strobe_slow ^ irq_strobe_slow_prev),
 		 // Outputs
 		 .aexm_icache_precycle_addr(i_cache_pc_addr),
@@ -337,7 +336,7 @@ module special_snowflake_core(input RST_MASTER,
 				.osel({8'hff,5'h0,w_osel}));
 
   lsab_cr lsab_in(.CLK(CLK_n),
-		  .RST(RST_USER),
+		  .RST(rst_lsab_in),
 		  .READ(w_read_cr),
 		  .WRITE0(write0_cr),
 		  .WRITE1(write1_cr),
@@ -395,7 +394,7 @@ module special_snowflake_core(input RST_MASTER,
 						i_hf_req_access_fill}));
 
   lsab_cw lsab_out(.CLK(CLK_n),
-		   .RST(RST_USER),
+		   .RST(rst_lsab_out),
 		   .READ0(read0_cw),
 		   .READ1(read1_cw),
 		   .READ2(read2_cw),
@@ -443,7 +442,7 @@ module special_snowflake_core(input RST_MASTER,
 					       i_hf_req_access_empty}));
 
   Gremlin hyper_softcore(.CLK(CLK_n),
-			 .RST(RST_USER),
+			 .RST(rst_soft_core),
 			 // ---------------------
 			 .READ_CPU(d_dma_read),
 			 .WRITE_CPU(d_dma_wrte),
@@ -507,6 +506,10 @@ module special_snowflake_core(input RST_MASTER,
 
 	i_mcu_req_access <= 0; i_mcu_we <= 0;
 	d_mcu_req_access <= 0; d_mcu_we <= 0;
+
+	rst_i_mcu <= 0; rst_d_mcu <= 0;
+	rst_lsab_in <= 0; rst_lsab_out <= 0;
+	rst_soft_core <= 0;
       end
     else
       begin
@@ -520,22 +523,31 @@ module special_snowflake_core(input RST_MASTER,
 	d_mcu_req_access <= d_hf_req_access_fill || d_hf_req_access_empty;
 	i_mcu_we <= i_hf_req_access_fill;
 	d_mcu_we <= d_hf_req_access_fill;
+
+	rst_i_mcu <= 1; rst_d_mcu <= 1;
+	rst_lsab_in <= 1; rst_lsab_out <= 1;
+	rst_soft_core <= 1;
       end
+
+  initial
+    begin
+      irq_strobe_slow <= 0;
+      irq_strobe_slow_prev <= 0;
+
+      rst_cpu_pre <= 0; rst_cpu <= 0;
+      rst_i_cache <= 0; rst_d_cache <= 0;
+    end
 
   always @(posedge CPU_CLK)
-    if (!RST_USER)
-      begin
-	irq_strobe_slow <= 0;
-	irq_strobe_slow_prev <= 0;
+    begin
+      rst_cpu_pre <= RST_CPU_TRANS;
 
-	RST_CPU <= 0;
-      end
-    else
-      begin
-	irq_strobe_slow <= irq_strobe;
-	irq_strobe_slow_prev <= irq_strobe_slow;
+      rst_cpu <= rst_cpu_pre;
+      rst_i_cache <= rst_cpu_pre;
+      rst_d_cache <= rst_cpu_pre;
 
-	RST_CPU <= RST_CPU_pre;
-      end // else: !if(!RST)
+      irq_strobe_slow <= irq_strobe;
+      irq_strobe_slow_prev <= irq_strobe_slow;
+    end
 
 endmodule // special_snowflake_core

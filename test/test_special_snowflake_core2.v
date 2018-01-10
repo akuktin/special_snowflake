@@ -366,8 +366,8 @@ module GlaDOS;
 			    .INT0(w_int0_cr), .INT1(w_int1_cr),
 			    .INT2(w_int2_cr), .INT3(w_int3_cr));
 
-  special_snowflake_core core(.RST(RST),
-			      .RST_CPU_pre(RST_CPU_pre),
+  special_snowflake_core core(.RST_MASTER(RST),
+			      .RST_CPU_TRANS(RST_CPU_pre),
 			      .CLK_n(CLK_n),
 			      .CLK_dn(CLK_dn),
 			      .CPU_CLK(CPU_CLK),

@@ -144,7 +144,7 @@ module chip(input RST,
   assign RST_CPU_pre = rst_counter[19];
 
   special_snowflake_core core(.RST_MASTER(RST),
-			      .RST_CPU_pre(RST_CPU_pre),
+			      .RST_CPU_TRANS(RST_CPU_pre),
 			      .CLK_n(CLK_n),
 			      .CLK_dn(CLK_dn),
 			      .CPU_CLK(CPU_CLK),
