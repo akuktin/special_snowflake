@@ -20,7 +20,8 @@ module initializer(input CLK_n,
 		   input [2:0] 	 BANK_USER,
 		   /* ----------------------- */
 		   output reg 	 RST_USER);
-  reg 				 long_counter_o, other_cycle;
+  reg 				 long_counter_o, other_cycle,
+				 step_init, core_init;
   reg [7:0] 			 long_counter_h, long_counter_l;
   reg [3:0] 			 intercommand_count,
 				 stage_count;
@@ -30,9 +31,6 @@ module initializer(input CLK_n,
   reg [13:0] 			 ADDRESS_ini;
   reg [2:0] 			 BANK_ini;
 
-  wire 				 step_init;
-  wire 				 core_init;
-
   reg [2:0] 			 command_rom;
   reg [13:0] 			 address_rom;
   reg [2:0] 			 bank_rom;
@@ -40,9 +38,6 @@ module initializer(input CLK_n,
   assign COMMAND_PIN = RST_USER ? COMMAND_USER : COMMAND_ini;
   assign ADDRESS_PIN = RST_USER ? ADDRESS_USER : ADDRESS_ini;
   assign BANK_PIN    = RST_USER ? BANK_USER    : BANK_ini;
-
-  assign step_init = (intercommand_count == 4'hf) ? 1 : 0;
-  assign core_init = (stage_count == 4'hf) ? 0 : 1;
 
   always @(*)
     begin
@@ -124,10 +119,14 @@ module initializer(input CLK_n,
 	aftercount <= 0;
 	COMMAND_ini <= `NOOP;
 	other_cycle <= 0;
+	step_init <= 0;
+	core_init <= 0;
       end
     else
       begin
 	other_cycle <= !other_cycle;
+	step_init <= (intercommand_count == 4'hf) ? 1 : 0;
+	core_init <= (stage_count == 4'hf) ? 0 : 1;
 
 	if (!CKE)
 	  begin
