@@ -78,16 +78,16 @@ module test_fill_lsab(input CLK,
 	end
 
       // your test data here
-      for (v=(0+4); v<(5+4); v=v+1)
+      for (v=(0+14); v<(5+14); v=v+1)
 	begin
 	  test_we[{v[9:0],2'h1}] <= 1;
 	end
-      for (e=0; e<15; e=e+1)
+      for (e=10; e<25; e=e+1)
 	begin
 	  test_we[{e[9:0],2'h2}] <= 1;
 	end
-      test_int[{10'd6,2'h2}] <= 1;
-      test_int[{10'd8,2'h2}] <= 1;
+      test_int[{10'd16,2'h2}] <= 1;
+      test_int[{10'd18,2'h2}] <= 1;
     end // initial begin
 
   always @(posedge CLK)
@@ -1010,10 +1010,10 @@ module GlaDOS;
 //`include "test_forward.bin"
 //`include "test_branchbug.bin"
 
-`include "test_memops.bin"
+//`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-//`include "test_dmaops2.bin"
+`include "test_dmaops2.bin"
 //`include "test_dmaops3.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
