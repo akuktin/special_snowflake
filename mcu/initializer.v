@@ -120,13 +120,14 @@ module initializer(input CLK_n,
 	COMMAND_ini <= `NOOP;
 	other_cycle <= 0;
 	step_init <= 0;
-	core_init <= 0;
+	core_init <= 1;
       end
     else
       begin
 	other_cycle <= !other_cycle;
-	step_init <= (intercommand_count == 4'hf) ? 1 : 0;
-	core_init <= (stage_count == 4'hf) ? 0 : 1;
+	step_init <= (intercommand_count == 4'hf);
+	if (stage_count == 4'hf)
+	  core_init <= 0;
 
 	if (!CKE)
 	  begin
