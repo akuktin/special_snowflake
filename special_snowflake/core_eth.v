@@ -1,6 +1,5 @@
 /*
 module top_level(input REF_CLK,
-                 input 	       OUT_RST,
                  // -------------------
 		 output        iCLK_P,
 		 output        iCLK_N,
@@ -31,23 +30,37 @@ module top_level(input REF_CLK,
 	    // -------------------
 		 input 	       ETH_WIRE_RX,
 		 output        ETH_WIRE_TX);
-  wire FRST_RST, SYS_RST, SYS_CLK, SYS_CLK_DELAYED, CPU_CLK;
+  wire FRST_RST, SCND_RST, SYS_CLK, SYS_CLK_DELAYED, CPU_CLK;
+  reg PLL_RESET, SYS_RST;
 
-  ss_pll_0 pll_0(.REFERENCECLK(REF_CLK),
-                 .PLLOUTCOREA(),
-                 .PLLOUTCOREB(),
-                 .PLLOUTGLOBALA(SYS_CLK),
-                 .PLLOUTGLOBALB(),
-                 .RESET(OUT_RST),
-                 .LOCK(FRST_RST));
+  initial
+    begin
+      force PLL_RESET <= 0;
+      force SYS_RST <= 0;
+    end
 
-  ss_pll_1 pll_1(.REFERENCECLK(REF_CLK),
-                 .PLLOUTCOREA(),
-                 .PLLOUTCOREB(),
-                 .PLLOUTGLOBALA(SYS_CLK_DELAYED),
-                 .PLLOUTGLOBALB(CPU_CLK),
-                 .RESET(FRST_RST),
-                 .LOCK(SYS_RST));
+  always @(posedge REF_CLK)
+    begin
+      PLL_RESET <= 1;
+      if ((!FRST_RST) && (!SCND_RST))
+        SYS_RST <= 1;
+      else
+        SYS_RST <= 0; // may be a bad idea
+    end
+
+  ss_pll_0_01 pll_0(.REFERENCECLK(REF_CLK),
+                    .PLLOUTCOREA(SYS_CLK),
+                    .PLLOUTCOREB(SYS_CLK_DELAYED),
+                    .PLLOUTGLOBALA(),
+                    .PLLOUTGLOBALB(),
+                    .RESET(PLL_RESET),
+                    .LOCK(FRST_RST));
+
+  ss_pll_1_01 pll_1(.REFERENCECLK(SYS_CLK_DELAYED),
+                    .PLLOUTCORE(CPU_CLK),
+                    .PLLOUTGLOBAL(),
+                    .RESET(PLL_RESET),
+                    .LOCK(SCND_RST));
 
   chip the_chip(.RST(SYS_RST),
 		.CLK_n(SYS_CLK),

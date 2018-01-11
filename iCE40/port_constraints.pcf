@@ -12,7 +12,7 @@
 
 # ##############################################################################
 
-###IOSet List 94
+###IOSet List 93
 set_io iDQ[12] F3
 set_io iDQ[9] E3
 set_io iDQ[0] G2
@@ -68,7 +68,6 @@ set_io dDQ[11] M13
 set_io dUDM R14
 set_io iADDRESS[13] T2
 set_io iCOMMAND[1] M2
-set_io OUT_RST N12
 set_io dDQ[3] J14
 set_io dODT G16
 set_io iADDRESS[8] R2
