@@ -279,8 +279,8 @@ module Gremlin(input CLK,
 		// accumulator will be nonzero by the time the instruction
 		// hits execution
 
-		// cmp/and 0 {instr_o[7:0]};
-		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
+		// cmp/or 0xffff {instr_o[7:0]};
+		instr_o <= {1'b1,2'h3,1'b0,4'he,instr_o[7:0]};
 
 	  accumulator_nulled <= accumulator == 0;
 
