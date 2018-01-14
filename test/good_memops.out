@@ -1,91 +1,91 @@
-./../mcu/state2.v:709: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
-./../mcu/state2.v:710: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
-./../mcu/state2.v:709: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
-./../mcu/state2.v:710: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
-./../mcu/state2.v:427: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
-./../mcu/state2.v:428: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
-./../mcu/state2.v:440: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
-./../mcu/state2.v:441: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
-./../mcu/state2.v:453: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
-./../mcu/state2.v:454: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
-./../mcu/state2.v:466: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
-./../mcu/state2.v:467: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
-./../mcu/state2.v:479: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
-./../mcu/state2.v:480: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
-./../mcu/state2.v:492: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
-./../mcu/state2.v:493: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
-./../mcu/state2.v:505: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
-./../mcu/state2.v:506: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
-./../mcu/state2.v:518: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
-./../mcu/state2.v:519: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
-./../mcu/state2.v:531: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
-./../mcu/state2.v:532: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
-./../mcu/state2.v:544: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
-./../mcu/state2.v:545: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
-./../mcu/state2.v:557: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
-./../mcu/state2.v:558: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
-./../mcu/state2.v:570: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
-./../mcu/state2.v:571: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
-./../mcu/state2.v:583: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
-./../mcu/state2.v:584: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
-./../mcu/state2.v:596: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
-./../mcu/state2.v:597: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
-./../mcu/state2.v:609: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
-./../mcu/state2.v:610: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
-./../mcu/state2.v:622: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
-./../mcu/state2.v:623: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
-./../mcu/state2.v:635: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
-./../mcu/state2.v:636: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
-./../mcu/state2.v:648: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
-./../mcu/state2.v:649: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
-./../mcu/state2.v:668: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_POS.
-./../mcu/state2.v:669: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_POS.
-./../mcu/state2.v:681: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
-./../mcu/state2.v:682: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
-./../mcu/state2.v:709: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
-./../mcu/state2.v:710: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
-./../mcu/state2.v:709: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
-./../mcu/state2.v:710: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
-./../mcu/state2.v:427: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
-./../mcu/state2.v:428: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
-./../mcu/state2.v:440: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
-./../mcu/state2.v:441: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
-./../mcu/state2.v:453: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
-./../mcu/state2.v:454: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
-./../mcu/state2.v:466: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
-./../mcu/state2.v:467: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
-./../mcu/state2.v:479: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
-./../mcu/state2.v:480: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
-./../mcu/state2.v:492: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
-./../mcu/state2.v:493: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
-./../mcu/state2.v:505: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
-./../mcu/state2.v:506: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
-./../mcu/state2.v:518: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
-./../mcu/state2.v:519: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
-./../mcu/state2.v:531: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
-./../mcu/state2.v:532: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
-./../mcu/state2.v:544: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
-./../mcu/state2.v:545: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
-./../mcu/state2.v:557: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
-./../mcu/state2.v:558: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
-./../mcu/state2.v:570: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
-./../mcu/state2.v:571: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
-./../mcu/state2.v:583: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
-./../mcu/state2.v:584: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
-./../mcu/state2.v:596: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
-./../mcu/state2.v:597: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
-./../mcu/state2.v:609: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
-./../mcu/state2.v:610: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
-./../mcu/state2.v:622: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
-./../mcu/state2.v:623: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
-./../mcu/state2.v:635: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
-./../mcu/state2.v:636: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
-./../mcu/state2.v:648: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
-./../mcu/state2.v:649: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
-./../mcu/state2.v:668: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_POS.
-./../mcu/state2.v:669: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_POS.
-./../mcu/state2.v:681: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
-./../mcu/state2.v:682: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
+./../mcu/state2.v:713: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:714: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:713: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:714: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:431: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:432: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:444: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:445: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:457: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:458: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:470: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:471: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:483: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:484: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:496: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:497: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:509: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:510: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:522: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:523: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:535: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:536: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:548: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:549: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:561: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:562: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:574: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:575: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:587: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:588: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:600: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:601: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:613: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:614: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:626: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:627: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:639: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:640: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:652: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:653: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:672: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_POS.
+./../mcu/state2.v:673: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_POS.
+./../mcu/state2.v:685: warning: parameter PIN_TYPE not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
+./../mcu/state2.v:686: warning: parameter IO_STANDARD not found in GlaDOS.core.d_mcu.clock.CLK_NEG.
+./../mcu/state2.v:713: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:714: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_01.driver.
+./../mcu/state2.v:713: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:714: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQS_00.driver.
+./../mcu/state2.v:431: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:432: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_00.
+./../mcu/state2.v:444: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:445: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DM_01.
+./../mcu/state2.v:457: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:458: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_00.
+./../mcu/state2.v:470: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:471: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_01.
+./../mcu/state2.v:483: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:484: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_02.
+./../mcu/state2.v:496: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:497: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_03.
+./../mcu/state2.v:509: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:510: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_04.
+./../mcu/state2.v:522: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:523: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_05.
+./../mcu/state2.v:535: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:536: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_06.
+./../mcu/state2.v:548: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:549: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_07.
+./../mcu/state2.v:561: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:562: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_08.
+./../mcu/state2.v:574: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:575: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_09.
+./../mcu/state2.v:587: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:588: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_10.
+./../mcu/state2.v:600: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:601: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_11.
+./../mcu/state2.v:613: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:614: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_12.
+./../mcu/state2.v:626: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:627: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_13.
+./../mcu/state2.v:639: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:640: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_14.
+./../mcu/state2.v:652: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:653: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.data_driver.pins.DQ_15.
+./../mcu/state2.v:672: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_POS.
+./../mcu/state2.v:673: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_POS.
+./../mcu/state2.v:685: warning: parameter PIN_TYPE not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
+./../mcu/state2.v:686: warning: parameter IO_STANDARD not found in GlaDOS.core.i_mcu.clock.CLK_NEG.
 ./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1718: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1145: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
@@ -156,162 +156,162 @@
 ./ddr2.v:1695: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
 ./ddr2.v:1703: tgt-vvp warning: V0.9 may give incorrect results when casting an unsigned value greater than 63 bits to a real value.
-GlaDOS.d_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
-GlaDOS.i_ddr2_mem.cmd_task: at time 391891500.0 ps INFO: Precharge All
-GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
-GlaDOS.d_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
-GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2
-GlaDOS.i_ddr2_mem.cmd_task: at time 392071500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
-GlaDOS.d_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
-GlaDOS.i_ddr2_mem.cmd_task: at time 392251500.0 ps INFO: Load Mode 3
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 392431500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
-GlaDOS.d_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Length =  4
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Burst Order = Sequential
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 CAS Latency =           3
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Test Mode = Normal
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Write Recovery =           3
-GlaDOS.i_ddr2_mem.cmd_task: at time 392611500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
-GlaDOS.d_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
-GlaDOS.i_ddr2_mem.cmd_task: at time 392791500.0 ps INFO: Precharge All
-GlaDOS.d_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
-GlaDOS.i_ddr2_mem.cmd_task: at time 392971500.0 ps INFO: Refresh  
-GlaDOS.d_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
-GlaDOS.i_ddr2_mem.cmd_task: at time 393151500.0 ps INFO: Refresh  
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
-GlaDOS.d_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Length =  4
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Burst Order = Sequential
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 CAS Latency =           3
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Test Mode = Normal
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 DLL Reset = Normal
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Write Recovery =           3
-GlaDOS.i_ddr2_mem.cmd_task: at time 393331500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393511500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.d_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Additive Latency =           0
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Load Mode 1 Output Enable = Enabled
-GlaDOS.i_ddr2_mem.cmd_task: at time 393691500.0 ps INFO: Initialization Sequence is complete
-GlaDOS.d_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
-GlaDOS.i_ddr2_mem.cmd_task: at time 396703500.0 ps INFO: Refresh  
-d cmd 1 addr xxxx bank x we c data xxxxxxxx predata xxxxxxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
-GlaDOS.i_ddr2_mem.cmd_task: at time 399007500.0 ps INFO: Refresh  
-d cmd 1 addr xxxx bank x we c data xxxxxxxx predata xxxxxxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 400153500.0 ps INFO: Activate  bank 1 row 0000
-d cmd 3 addr 0000 bank 1 we c data fffffffe predata xxxxxxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 400177500.0 ps INFO: Write     bank 1 col 010, auto precharge 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 391909500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 391909500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 392101500.0 ps INFO: Load Mode 2
+GlaDOS.d_ddr2_mem.cmd_task: at time 392101500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.i_ddr2_mem.cmd_task: at time 392101500.0 ps INFO: Load Mode 2
+GlaDOS.i_ddr2_mem.cmd_task: at time 392101500.0 ps INFO: Load Mode 2 High Temperature Self Refresh rate = 1X (0C-85C)
+GlaDOS.d_ddr2_mem.cmd_task: at time 392293500.0 ps INFO: Load Mode 3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392293500.0 ps INFO: Load Mode 3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 392485500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 DLL Reset = Reset DLL
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 392677500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 392869500.0 ps INFO: Precharge All
+GlaDOS.i_ddr2_mem.cmd_task: at time 392869500.0 ps INFO: Precharge All
+GlaDOS.d_ddr2_mem.cmd_task: at time 393061500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 393061500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393253500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 393253500.0 ps INFO: Refresh  
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.d_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Burst Length =  4
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Burst Order = Sequential
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 CAS Latency =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Test Mode = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 DLL Reset = Normal
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Write Recovery =           3
+GlaDOS.i_ddr2_mem.cmd_task: at time 393445500.0 ps INFO: Load Mode 0 Power Down Mode = Fast Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 OCD Program = OCD Default
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393637500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.d_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 DLL Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Output Drive Strength = Full
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 ODT Rtt = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Additive Latency =           0
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 OCD Program = OCD Exit
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 DQS_N Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 RDQS Enable = Disabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Load Mode 1 Output Enable = Enabled
+GlaDOS.i_ddr2_mem.cmd_task: at time 393829500.0 ps INFO: Initialization Sequence is complete
+GlaDOS.d_ddr2_mem.cmd_task: at time 396727500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 396727500.0 ps INFO: Refresh  
+d cmd 1 addr xxxx bank x we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 399031500.0 ps INFO: Refresh  
+GlaDOS.i_ddr2_mem.cmd_task: at time 399031500.0 ps INFO: Refresh  
+d cmd 1 addr xxxx bank x we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400171500.0 ps INFO: Activate  bank 1 row 0000
+d cmd 3 addr 0000 bank 1 we c data fffffffe predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400195500.0 ps INFO: Write     bank 1 col 010, auto precharge 0
 d cmd 4 addr 0010 bank 1 we c data fffffffe predata fffffffe
-GlaDOS.d_ddr2_mem.data_task: at time 400192500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 000 data = ffff
-GlaDOS.d_ddr2_mem.data_task: at time 400195500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 001 data = fffe
-GlaDOS.d_ddr2_mem.data_task: at time 400198500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 002 data = xxxx
-GlaDOS.d_ddr2_mem.data_task: at time 400201500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 003 data = xxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 400231500.0 ps INFO: Precharge All
-d cmd 2 addr 0400 bank 1 we c data 00000001 predata fffffffe
-GlaDOS.d_ddr2_mem.cmd_task: at time 400261500.0 ps INFO: Activate  bank 0 row 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400210500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 000 data = ffff
+GlaDOS.d_ddr2_mem.data_task: at time 400213500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 001 data = fffe
+GlaDOS.d_ddr2_mem.data_task: at time 400216500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 002 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400219500.0 ps INFO: WRITE @ DQS= bank = 1 row = 0000 col = 003 data = xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 400249500.0 ps INFO: Precharge All
+d cmd 2 addr 0400 bank 1 we c data 00000001 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400279500.0 ps INFO: Activate  bank 0 row 0000
 d cmd 3 addr 0000 bank 0 we c data 00000001 predata 00000001
-GlaDOS.d_ddr2_mem.cmd_task: at time 400285500.0 ps INFO: Write     bank 0 col 090, auto precharge 0
+GlaDOS.d_ddr2_mem.cmd_task: at time 400303500.0 ps INFO: Write     bank 0 col 090, auto precharge 0
 d cmd 4 addr 0090 bank 0 we c data 00000001 predata 00000001
-GlaDOS.d_ddr2_mem.data_task: at time 400300500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 000 data = 0000
-GlaDOS.d_ddr2_mem.data_task: at time 400303500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 001 data = 0001
-GlaDOS.d_ddr2_mem.data_task: at time 400306500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 002 data = xxxx
-GlaDOS.d_ddr2_mem.data_task: at time 400309500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 003 data = xxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 400339500.0 ps INFO: Write     bank 0 col 092, auto precharge 0
-d cmd 4 addr 0092 bank 0 we c data 00000124 predata 00000001
-GlaDOS.d_ddr2_mem.data_task: at time 400354500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 002 data = 0000
-GlaDOS.d_ddr2_mem.data_task: at time 400357500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 003 data = 0124
-GlaDOS.d_ddr2_mem.data_task: at time 400360500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 000 data = 0000
-GlaDOS.d_ddr2_mem.data_task: at time 400363500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 001 data = 0001
-GlaDOS.d_ddr2_mem.cmd_task: at time 400393500.0 ps INFO: Precharge All
-d cmd 2 addr 0400 bank 0 we c data 86bc380d predata 00000124
-GlaDOS.d_ddr2_mem.cmd_task: at time 400423500.0 ps INFO: Activate  bank 1 row 0000
-d cmd 3 addr 0000 bank 1 we c data 86bc380d predata 86bc380d
-GlaDOS.d_ddr2_mem.cmd_task: at time 400447500.0 ps INFO: Read      bank 1 col 000, auto precharge 0
-d cmd 5 addr 0000 bank 1 we c data 86bc380d predata 86bc380d
-GlaDOS.d_ddr2_mem.data_task: at time 400462500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 000 data = xxxx
-GlaDOS.d_ddr2_mem.data_task: at time 400465500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 001 data = xxxx
-GlaDOS.d_ddr2_mem.data_task: at time 400468500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 002 data = xxxx
-GlaDOS.d_ddr2_mem.data_task: at time 400471500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 003 data = xxxx
-GlaDOS.d_ddr2_mem.cmd_task: at time 400549500.0 ps INFO: Precharge All
-d cmd 2 addr 0400 bank 1 we c data eaa62ad5 predata 86bc380d
-GlaDOS.d_ddr2_mem.cmd_task: at time 400579500.0 ps INFO: Activate  bank 0 row 0000
-d cmd 3 addr 0000 bank 0 we c data eaa62ad5 predata eaa62ad5
-GlaDOS.d_ddr2_mem.cmd_task: at time 400603500.0 ps INFO: Read      bank 0 col 092, auto precharge 0
-d cmd 5 addr 0092 bank 0 we c data eaa62ad5 predata eaa62ad5
-GlaDOS.d_ddr2_mem.data_task: at time 400618500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 002 data = 0000
-GlaDOS.d_ddr2_mem.data_task: at time 400621500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 003 data = 0124
-GlaDOS.d_ddr2_mem.data_task: at time 400624500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 000 data = 0000
-GlaDOS.d_ddr2_mem.data_task: at time 400627500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 001 data = 0001
-halting CTR 00000000000104e1
-acc 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400318500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 000 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400321500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 001 data = 0001
+GlaDOS.d_ddr2_mem.data_task: at time 400324500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 002 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400327500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 003 data = xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 400357500.0 ps INFO: Write     bank 0 col 092, auto precharge 0
+d cmd 4 addr 0092 bank 0 we c data 00000124 predata 00000000
+GlaDOS.d_ddr2_mem.data_task: at time 400372500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 002 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400375500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 003 data = 0124
+GlaDOS.d_ddr2_mem.data_task: at time 400378500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 000 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400381500.0 ps INFO: WRITE @ DQS= bank = 0 row = 0000 col = 001 data = 0001
+GlaDOS.d_ddr2_mem.cmd_task: at time 400411500.0 ps INFO: Precharge All
+d cmd 2 addr 0400 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400441500.0 ps INFO: Activate  bank 1 row 0000
+d cmd 3 addr 0000 bank 1 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400465500.0 ps INFO: Read      bank 1 col 000, auto precharge 0
+d cmd 5 addr 0000 bank 1 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.data_task: at time 400480500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 000 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400483500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 001 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400486500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 002 data = xxxx
+GlaDOS.d_ddr2_mem.data_task: at time 400489500.0 ps INFO: READ @ DQS= bank = 1 row = 0000 col = 003 data = xxxx
+GlaDOS.d_ddr2_mem.cmd_task: at time 400567500.0 ps INFO: Precharge All
+d cmd 2 addr 0400 bank 1 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400597500.0 ps INFO: Activate  bank 0 row 0000
+d cmd 3 addr 0000 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.cmd_task: at time 400621500.0 ps INFO: Read      bank 0 col 092, auto precharge 0
+d cmd 5 addr 0092 bank 0 we c data 00000000 predata 00000000
+GlaDOS.d_ddr2_mem.data_task: at time 400636500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 002 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400639500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 003 data = 0124
+GlaDOS.d_ddr2_mem.data_task: at time 400642500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 000 data = 0000
+GlaDOS.d_ddr2_mem.data_task: at time 400645500.0 ps INFO: READ @ DQS= bank = 0 row = 0000 col = 001 data = 0001
+halting CTR 00000000000104e4
+acc xxxx
 input_reg  xxxx xxxx       xxxx xxxx
-output_reg 0000 0000 0000  0000 0000 0000
+output_reg xxxx xxxx xxxx  xxxx xxxx xxxx
 0000000000: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000008: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx
 0000000010: xxxx xxxx xxxx xxxx  xxxx xxxx xxxx xxxx

@@ -1039,8 +1039,8 @@ module GlaDOS;
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
-`include "test_dmaops2.bin"
-//`include "test_dmaops3.bin"
+//`include "test_dmaops2.bin"
+`include "test_dmaops3.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end
