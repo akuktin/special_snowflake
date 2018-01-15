@@ -1,23 +1,29 @@
 module lolsab(input CLK,
-	      input 		RST,
-	      input 		READ,
-	      input 		WRITE,
-	      input [1:0] 	READ_FIFO,
-	      input [1:0] 	WRITE_FIFO,
-	      input [31:0] 	IN_0,
-	      input 		INT_IN_0,
-	      input 		CAREOF_INT_0,
-	      input [2:0] 	ANCILL_IN_0,
-	      output reg [31:0] OUT,
-	      output reg 	EMPTY_0,
-	      output reg 	STOP_0,
-	      output reg 	INT_OUT_0,
-	      output reg [2:0] 	ANCILL_OUT_0);
-  reg               full_0;
-  reg [5:0]         len_0;
-  reg [5:0]         write_addr_0;
-  reg [5:0]         read_addr_0;
-  reg               re_prev;
+	      input 	    RST,
+	      input 	    READ,
+	      input 	    WRITE,
+	      input [1:0]   READ_FIFO,
+	      input [1:0]   WRITE_FIFO,
+	      input [31:0]  IN_0,
+	      input 	    INT_IN_0,
+	      input 	    CAREOF_INT_0,
+	      input [2:0]   ANCILL_IN_0,
+	      output [31:0] OUT,
+	      output 	    EMPTY_0,
+	      output 	    STOP_0,
+	      output 	    INT_OUT_0,
+	      output [2:0]  ANCILL_OUT_0);
+  reg 				EMPTY_0 = 1'b1, STOP_0 = 1'b1,
+				INT_OUT_0 = 1'b0;
+  reg [2:0] 			ANCILL_OUT_0 = 3'h0;
+  reg [31:0] 			OUT = 32'd0;
+
+
+  reg               full_0 = 1'b0;
+  reg [5:0]         len_0 = 6'h0;
+  reg [5:0]         write_addr_0 = 6'h0;
+  reg [5:0]         read_addr_0 = 6'h0;
+  reg               re_prev = 1'b0;
 
   wire                      read_0;
   wire                      write_0;
@@ -28,7 +34,8 @@ module lolsab(input CLK,
   reg               become_full_0;
   reg [5:0]         become_len_0;
 
-  reg [1:0] 	    intbuff_raddr_0, intbuff_raddr_trail_0, intbuff_waddr_0;
+  reg [1:0] 	    intbuff_raddr_0 = 2'h1, intbuff_raddr_trail_0 = 2'h0,
+		    intbuff_waddr_0 = 2'h1;
   wire 		    intbuff_int_det_0, intbuff_int_0,
 		    intbuff_empty_0, intbuff_full_0;
   reg [5:0] 	    intbuff_0[3:0];
@@ -114,21 +121,7 @@ module lolsab(input CLK,
   assign intbuff_full_0 = intbuff_raddr_trail_0 == intbuff_waddr_0;
 
   always @(posedge CLK)
-    if (!RST)
-      begin
-       EMPTY_0 <= 1;
-       full_0 <= 0;
-       len_0 <= 0;
-       write_addr_0 <= 0;
-       read_addr_0 <= 0;
-       re_prev <= 0; OUT <= 0;
-	STOP_0 <= 1;
-	INT_OUT_0 <= 0;
-	ANCILL_OUT_0 <= 0;
-	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
-	intbuff_waddr_0 <= 1;
-      end
-    else
+    if (RST)
       begin
 	STOP_0 <= become_empty_0 || intbuff_int_0; // three gates deep
 	INT_OUT_0 <= intbuff_int_0;

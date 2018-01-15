@@ -239,7 +239,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rIPC			(rIPC[31:2]),
 	   .rPC				(rPC[31:2]),
 	   .gclk			(gclk),
-	   .grst			(grst),
 	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));
 

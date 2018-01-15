@@ -14,36 +14,46 @@ module state2(input CLK,
 	      input [25:0] 	ADDRESS_RAND,
 	      input 		port_WE_RAND,
 	      input 		port_REQUEST_ACCESS_RAND,
-	      output reg 	GRANT_ACCESS_RAND,
+	      output 		GRANT_ACCESS_RAND,
 	      input [3:0] 	WE_ARRAY_RAND,
 	      /* bulk_port */
 	      input [25:0] 	port_ADDRESS_BULK,
 	      input 		port_WE_BULK,
 	      input 		port_REQUEST_ACCESS_BULK,
-	      output reg 	GRANT_ACCESS_BULK,
+	      output 		GRANT_ACCESS_BULK,
 	      input 		port_REQUEST_ALIGN_BULK,
 	      output reg 	GRANT_ALIGN_BULK,
 	      input [3:0] 	port_WE_ARRAY_BULK,
 	      /* end ports */
 	      output reg [13:0] ADDRESS_REG,
 	      output reg [2:0] 	BANK_REG,
-	      output reg [2:0] 	COMMAND_REG,
+	      output [2:0] 	COMMAND_REG,
 	      output [3:0] 	INTERNAL_COMMAND_LATCHED,
 	      output reg [3:0] 	INTERNAL_WE_ARRAY);
-  reg 				     change_possible_n, state_is_readwrite,
-				     refresh_strobe_ack, state_is_write,
-				     SOME_PAGE_ACTIVE, second_stroke,
-				     REFRESH_TIME, REQUEST_ALIGN_BULK_dly,
+  reg [2:0] 			COMMAND_REG = `NOOP;
+  reg 				GRANT_ACCESS_RAND = 1'b0,
+				GRANT_ACCESS_BULK = 1'b0,
+				GRANT_ALIGN_BULK = 1'b0;
+
+  reg 				     change_possible_n = 1'b1,
+				     state_is_readwrite = 1'b0,
+				     refresh_strobe_ack = 1'b0,
+				     state_is_write,
+				     SOME_PAGE_ACTIVE = 1'b0,
+				     second_stroke = 1'b1,
+				     REFRESH_TIME = 1'b0,
+				     REQUEST_ALIGN_BULK_dly,
 				     REQUEST_ACCESS_RAND, WE_RAND,
 				     REQUEST_ACCESS_BULK, WE_BULK,
 				     REQUEST_ALIGN_BULK,
 				     correct_page_rand, correct_page_bulk,
-				     correct_page_algn,
+				     correct_page_algn = 1'b0,
 				     correct_page_any,
 //				     correct_page_rdy,
-				     do_extra_pass;
-  reg [2:0] 			     command_reg2, actv_timeout;
-  reg [3:0] 			     counter, WE_ARRAY_BULK;
+				     do_extra_pass = 1'b1;
+  reg [2:0] 			     command_reg2 = `NOOP,
+				     actv_timeout = 3'h7;
+  reg [3:0] 			     counter = 4'hf, WE_ARRAY_BULK;
   reg [16:0] 			     page_current;
   reg [25:0] 			     ADDRESS_BULK;
 
@@ -182,19 +192,6 @@ module state2(input CLK,
 
   assign we_array = REQUEST_ACCESS_BULK ? WE_ARRAY_BULK : WE_ARRAY_RAND;
 
-  initial
-    begin
-      COMMAND_REG = `NOOP; SOME_PAGE_ACTIVE = 0;
-      GRANT_ACCESS_RAND = 0; GRANT_ACCESS_BULK = 0;
-      GRANT_ALIGN_BULK = 0; REFRESH_TIME = 0;
-      change_possible_n = 1; state_is_readwrite = 0;
-      refresh_strobe_ack = 0; second_stroke = 1;
-      actv_timeout = 3'h7; counter = 4'hf;
-      do_extra_pass = 1; correct_page_algn = 0;
-
-      command_reg2 = `NOOP;
-    end
-
   always @(posedge CLK)
     if (RST)
       begin
@@ -301,23 +298,27 @@ module state2(input CLK,
 endmodule // enter_state
 
 module outputs(input 		 CLK_n,
-	       input 		 CLK_dn,
-	       input [3:0] 	 COMMAND_LATCHED,
-	       input [3:0] 	 WE_ARRAY,
-	       input [31:0] 	 port_DATA_W,
-	       inout [15:0] 	 DQ,
-	       inout 		 UDQS,
-	       inout 		 LDQS,
-	       output reg [31:0] DATA_R,
-	       output 		 UDM,
-	       output 		 LDM);
+	       input 	     CLK_dn,
+	       input [3:0]   COMMAND_LATCHED,
+	       input [3:0]   WE_ARRAY,
+	       input [31:0]  port_DATA_W,
+	       inout [15:0]  DQ,
+	       inout 	     UDQS,
+	       inout 	     LDQS,
+	       output [31:0] DATA_R,
+	       output 	     UDM,
+	       output 	     LDM);
+  reg [31:0] 		     DATA_R = 32'd0;
+
+
   reg [31:0] 			 data_gapholder, dq_predriver,
 				 DATA_W;
   reg [3:0] 			 we_gapholder;
-  reg [1:0] 			 dm_predriver, dqs_predriver, active,
-				 we_longholder;
-  reg 				 dqs_z_prectrl, dqs_z_ctrl, dqdm_z_prectrl,
-				 high_bits;
+  reg [1:0] 			 dm_predriver, dqs_predriver,
+				 active = 1'b0, we_longholder;
+  reg 				 dqs_z_prectrl = 1'b0, dqs_z_ctrl = 1'b0,
+				 dqdm_z_prectrl = 1'b0,
+				 high_bits = 1'b0;
 
   wire [31:0] 			 dq_data_r;
   wire 				 did_issue_write;
@@ -341,16 +342,6 @@ module outputs(input 		 CLK_n,
 		     .LDQS(LDQS),
 		     .UDM(UDM),
 		     .LDM(LDM));
-
-  initial
-    begin
-      dqdm_z_prectrl = 0; dqs_z_prectrl = 0;
-      active = 0; high_bits = 0;
-
-      DATA_R = 0;
-
-      dqs_z_ctrl = 0;
-    end
 
   always @(posedge CLK_n)
       begin

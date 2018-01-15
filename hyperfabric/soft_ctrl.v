@@ -13,8 +13,8 @@ module Gremlin(input CLK,
 	       output 		 IRQ,
 		    // ---------------------
 
-	       output reg [1:0]  RST_MVBLCK,
-	       output reg 	 MCU_REFRESH_STROBE,
+	       output [1:0] 	 RST_MVBLCK,
+	       output 		 MCU_REFRESH_STROBE,
 	       output reg [2:0]  SWCH_ISEL,
 	       output reg [2:0]  SWCH_OSEL,
 	       output 		 CAREOF_INT,
@@ -32,28 +32,33 @@ module Gremlin(input CLK,
 	       input [24:0] 	 BLCK_ANCILL,
 	         /* begin MCU */
 	       output reg [22:0] MCU_PAGE_ADDR,
-	       output reg [1:0]  MCU_REQUEST_ALIGN, // aka DRAM_SEL
+	       output [1:0] 	 MCU_REQUEST_ALIGN, // aka DRAM_SEL
 	       input [1:0] 	 MCU_GRANT_ALIGN,
 		    // ---------------------
 
 	       output reg [23:0] LEN_0,
 	       output reg 	 DIR_0,
-	       output reg 	 EN_STB_0,
+	       output 		 EN_STB_0,
 	       output reg [23:0] LEN_1,
 	       output reg 	 DIR_1,
-	       output reg 	 EN_STB_1,
+	       output 		 EN_STB_1,
 	       output reg [23:0] LEN_2,
 	       output reg 	 DIR_2,
-	       output reg 	 EN_STB_2,
+	       output 		 EN_STB_2,
 	       output reg [23:0] LEN_3,
 	       output reg 	 DIR_3,
-	       output reg 	 EN_STB_3);
+	       output 		 EN_STB_3);
   assign CAREOF_INT = 1'b1;
+  reg [1:0] 			 RST_MVBLCK = 2'h0,
+				 MCU_REQUEST_ALIGN = 2'h0;
+  reg 				 MCU_REFRESH_STROBE = 1'b0;
+  reg 				 EN_STB_0 = 1'b0, EN_STB_1 = 1'b0,
+				 EN_STB_2 = 1'b0, EN_STB_3 = 1'b0;
 
-  reg        d_r_en_cpu, d_r_en_cpu_delay,
-	     d_w_en_cpu,
-	     READ_CPU_r, WRITE_CPU_r, low_addr_bits_r;
-  reg [1:0]  low_addr_bits_w;
+  reg        d_r_en_cpu = 1'b0, d_r_en_cpu_delay,
+	     d_w_en_cpu = 1'b0,
+	     READ_CPU_r = 1'b1, WRITE_CPU_r = 1'b1, low_addr_bits_r;
+  reg [1:0]  low_addr_bits_w = 2'd0;
   reg [15:0] from_cpu_word;
 
   wire [15:0] d_w_data, d_r_data;
@@ -61,25 +66,28 @@ module Gremlin(input CLK,
   wire 	      d_w_en, d_r_en;
 
   reg [15:0] accumulator, memory_operand,
-	     instr_f, instr_o, acc_output;
-  reg [7:0]  ip, index, index_reg, index_capture;
-  reg [1:0]  wrote_3_req, irq_strobe;
-  reg 	     add_carry, save_carry, waitkill, accumulator_nulled;
+	     instr_f = 16'h4e00, instr_o = 16'h4e00, acc_output;
+  reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
+  reg [1:0]  wrote_3_req = 2'h0, irq_strobe = 2'h0;
+  reg 	     add_carry, save_carry, waitkill = 1'b0, accumulator_nulled;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
   wire 	     d_w_en_sys, d_r_en_sys, cur_carry;
 
-  reg [3:0]  big_carousel;
-  reg [7:0]  small_carousel;
-  reg [1:0]  issue_op, wrote_3_ack;
+  reg [3:0]  big_carousel = 4'h3;
+  reg [7:0]  small_carousel = 8'hc1; // Out of bounds. // FIXME!!
+  reg [1:0]  issue_op = 2'h0, wrote_3_ack = 2'h0;
   reg [2:0]  write_output_desc;
-  reg 	     trans_active, blck_working_prev, active_trans_thistrans,
-	     trans_activate, write_output_reg, issue_op_new, ready_trans,
-	     rdmem_op, opon_data, trg_gb_0, trg_gb_1, time_mb, time_rfrs,
-	     small_carousel_reset, refresh_req;
+  reg 	     trans_active = 1'b0, blck_working_prev = 1'b0,
+	     active_trans_thistrans, trans_activate = 1'b0,
+	     write_output_reg, issue_op_new = 1'b0, ready_trans = 1'b0,
+	     rdmem_op, opon_data, trg_gb_0 = 1'b0, trg_gb_1 = 1'b0,
+	     time_mb = 1'b0, time_rfrs = 1'b0,
+	     small_carousel_reset = 1'b0, refresh_req = 1'b0;
 
-  reg 	     EN_STB_0_pre, EN_STB_1_pre, EN_STB_2_pre, EN_STB_3_pre;
+  reg 	     EN_STB_0_pre = 1'b0, EN_STB_1_pre = 1'b0,
+	     EN_STB_2_pre = 1'b0, EN_STB_3_pre = 1'b0;
 
   wire 	     refresh_ctr_mismatch, active_trans, blck_abort;
 
@@ -113,15 +121,6 @@ module Gremlin(input CLK,
       2'h2: from_cpu_word <= IN_CPU[31:16];
       2'h3: from_cpu_word <= IN_CPU[15:0];
     endcase // case (low_addr_bits)
-
-  initial
-    begin
-      WRITE_CPU_r = 1; READ_CPU_r = 1;
-      low_addr_bits_w = 0;
-      d_w_en_cpu = 0; d_r_en_cpu = 0;
-      EN_STB_0_pre = 0; EN_STB_1_pre = 0;
-      EN_STB_2_pre = 0; EN_STB_3_pre = 0;
-    end
 
   always @(posedge CLK)
       begin
@@ -241,13 +240,6 @@ module Gremlin(input CLK,
 	     reg_opon_data_1, reg_rdmem_op_1;
   reg [11:0] reg_count_req_0, reg_count_req_1;
   reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
-
-  initial
-    begin
-      instr_f[15:8] = 8'h4e; instr_o[15:8] = 8'h4e;
-      wrote_3_req = 0;
-      ip = 0; irq_strobe = 0; waitkill = 0;
-    end
 
   always @(posedge CLK)
     if (RST)
@@ -392,18 +384,6 @@ module Gremlin(input CLK,
   assign active_trans = (trg_gb_0 || trg_gb_1);
 
   assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
-
-  initial
-    begin
-      small_carousel = 8'hc1; // Out of bounds. // FIXME!!
-      big_carousel = 4'h3; wrote_3_ack = 0;
-      blck_working_prev = 0; issue_op = 0; trans_activate = 0;
-      EN_STB_0 = 0; EN_STB_1 = 0; EN_STB_2 = 0; EN_STB_3 = 0;
-      refresh_req = 0; issue_op_new = 0;
-      MCU_REFRESH_STROBE = 0; trans_active = 0; ready_trans = 0;
-      RST_MVBLCK = 0; MCU_REQUEST_ALIGN = 0; small_carousel_reset = 0;
-      trg_gb_0 = 0; trg_gb_1 = 0; time_mb = 0; time_rfrs = 0;
-    end
 
   always @(posedge CLK)
     begin

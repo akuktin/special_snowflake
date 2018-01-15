@@ -1,6 +1,6 @@
 module aexm_bpcu (/*AUTOARG*/
    // Outputs
-   aexm_icache_precycle_addr, rIPC, rPC, rPCLNK,
+   aexm_icache_precycle_addr, rIPC, rPC,
    dSKIP, xSKIP,
    // Inputs
    xMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
@@ -13,7 +13,7 @@ module aexm_bpcu (/*AUTOARG*/
   output [31:0] aexm_icache_precycle_addr;
 
    // INTERNAL
-   output [31:2]   rIPC, rPC, rPCLNK;
+   output [31:2]   rIPC, rPC;
   output 	   dSKIP;
   output 	   xSKIP;
    //output [1:0]    rATOM;
@@ -43,12 +43,7 @@ module aexm_bpcu (/*AUTOARG*/
    // --- BRANCH CONTROL --------------------------------------------
    // Controls the branch and delay flags
 
-   reg [31:0] 	   wREGA;
-
-  initial
-    begin
-      wREGA <= 0;
-    end
+   reg [31:0] 	   wREGA = 32'd0;
 
   always @(posedge gclk)
     if (d_en)
@@ -59,27 +54,18 @@ module aexm_bpcu (/*AUTOARG*/
       endcase // case (xMXALT)
 
 
-  reg 		   careof_equal_n, careof_ltgt, expect_equal, expect_ltgt,
-		   xBRA, invert_answer, chain_endpoint, rSKIP_n, xSKIP,
-		   fSKIP, dSKIP;
+  reg 		   chain_endpoint = 1'b1, careof_equal_n = 1'b1,
+		   careof_ltgt = 1'b0, expect_equal = 1'b1,
+		   expect_ltgt = 1'b0, invert_answer = 1'b0,
+		   rSKIP_n = 1'b1,
+
+		   xSKIP = 1'b0, xBRA, fSKIP, dSKIP;
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
 		   wBCC, wBRU;
 
-  initial
-    begin
-      // MAKE SURE THIS IS IDENTICAL TO THE fSKIP block below!
-      chain_endpoint <= 1;
-      careof_equal_n <= 1;
-      careof_ltgt <= 0;
-      expect_equal <= 1;
-      expect_ltgt <= 0;
-      invert_answer <= 0;
-      rSKIP_n <= 1;
-    end
-
   always @(posedge gclk)
     if (fSKIP) begin
-      // MAKE SURE THIS IS IDENTICAL TO THE initial block above!
+      // MAKE SURE THIS IS IDENTICAL TO THE REGISTER INITIAL VALUES!
       chain_endpoint <= 1;
       careof_equal_n <= 1;
       careof_ltgt <= 0;
@@ -198,9 +184,8 @@ module aexm_bpcu (/*AUTOARG*/
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes
 
-   reg [31:2] 	   pre_rIPC, rIPC, xIPC;
-   reg [31:2] 	   rPC, xPC;
-   reg [31:2] 	   rPCLNK, xPCLNK;
+   reg [31:2] 	   pre_rIPC = 30'h0, rIPC = 30'h0, xIPC;
+   reg [31:2] 	   rPC = 30'h0, xPC;
   wire [31:2] 	   pc_inc;
 
    assign          aexm_icache_precycle_addr = xIPC;
@@ -208,7 +193,6 @@ module aexm_bpcu (/*AUTOARG*/
 
    always @(xBRA or rIPC or rPC or xRESULT or pre_rIPC or pc_inc)
      begin
-       xPCLNK <= rPC;
        xPC <= rIPC;
 
        xIPC <= (xBRA) ? xRESULT[31:2] : (pre_rIPC + pc_inc);
@@ -223,7 +207,7 @@ module aexm_bpcu (/*AUTOARG*/
 //   wire 	wBRU = ((rOPC == 6'o46) | (rOPC == 6'o56)) & !fSKIP;
 
    wire 	fATOM = ~(wIMM | wRTD | wBCC | wBRU);
-   reg [1:0] 	rATOM, xATOM;
+   reg [1:0] 	rATOM = 2'h0, xATOM;
 
    always @(fATOM or rATOM)
      xATOM <= {rATOM[0], (rATOM[0] ^ fATOM)};
@@ -231,22 +215,11 @@ module aexm_bpcu (/*AUTOARG*/
 
    // --- SYNC PIPELINE ----------------------------------------------
 
-  initial
-    begin
-//	rATOM <= 2'h0;
-	rIPC <= 30'h0;
-        pre_rIPC <= 30'h0;
-	rPC <= 30'h0;
-	rPCLNK <= 30'h0;
-       xSKIP <= 0;
-    end
-
    always @(posedge gclk)
      if (x_en) begin
 	pre_rIPC <= xIPC;
         rIPC <= pre_rIPC;
 	rPC <= xPC;
-	rPCLNK <= xPCLNK;
 //	rATOM <= xATOM;
        xSKIP <= dSKIP;
      end

@@ -19,15 +19,15 @@ module lsab_cr(input CLK,
 	      input 		CAREOF_INT_1,
 	      input 		CAREOF_INT_2,
 	      input 		CAREOF_INT_3,
-	      input [24:0]	ANCILL_IN_0,
-	      input [24:0]	ANCILL_IN_1,
-	      input [24:0]	ANCILL_IN_2,
-	      input [24:0]	ANCILL_IN_3,
+	      input [24:0] 	ANCILL_IN_0,
+	      input [24:0] 	ANCILL_IN_1,
+	      input [24:0] 	ANCILL_IN_2,
+	      input [24:0] 	ANCILL_IN_3,
               output reg [31:0] OUT,
-	      output reg 	EMPTY_0,
-	      output reg 	EMPTY_1,
-	      output reg 	EMPTY_2,
-	      output reg 	EMPTY_3,
+	      output 		EMPTY_0,
+	      output 		EMPTY_1,
+	      output 		EMPTY_2,
+	      output 		EMPTY_3,
 	      output reg 	STOP_0,
 	      output reg 	STOP_1,
 	      output reg 	STOP_2,
@@ -36,16 +36,24 @@ module lsab_cr(input CLK,
 	      output reg 	INT_OUT_1,
 	      output reg 	INT_OUT_2,
 	      output reg 	INT_OUT_3,
-	      output reg [24:0]	ANCILL_OUT_0,
-	      output reg [24:0]	ANCILL_OUT_1,
-	      output reg [24:0]	ANCILL_OUT_2,
-	      output reg [24:0]	ANCILL_OUT_3);
-  reg               full_0, full_1, full_2, full_3;
-  reg [5:0]         len_0, len_1, len_2, len_3;
-  reg [5:0]         write_addr_0, write_addr_1,
-                    write_addr_2, write_addr_3;
-  reg [5:0]         read_addr_0, read_addr_1,
-                    read_addr_2, read_addr_3;
+	      output reg [24:0] ANCILL_OUT_0,
+	      output reg [24:0] ANCILL_OUT_1,
+	      output reg [24:0] ANCILL_OUT_2,
+	      output reg [24:0] ANCILL_OUT_3);
+  reg 				EMPTY_0 = 1'b1, EMPTY_1 = 1'b1,
+				EMPTY_2 = 1'b1, EMPTY_3 = 1'b1,
+				STOP_0 = 1'b1, STOP_1 = 1'b1,
+				STOP_2 = 1'b1, STOP_3 = 1'b1;
+
+
+  reg               full_0 = 1'b0, full_1 = 1'b0,
+		    full_2 = 1'b0, full_3 = 1'b0;
+  reg [5:0]         len_0 = 6'h0, len_1 = 6'h0,
+		    len_2 = 6'h0, len_3 = 6'h0;
+  reg [5:0]         write_addr_0 = 6'h0, write_addr_1 = 6'h0,
+                    write_addr_2 = 6'h0, write_addr_3 = 6'h0;
+  reg [5:0]         read_addr_0 = 6'h0, read_addr_1 = 6'h0,
+                    read_addr_2 = 6'h0, read_addr_3 = 6'h0;
   reg               re_prev;
 
   wire                      read_0, read_1, read_2, read_3;
@@ -60,10 +68,14 @@ module lsab_cr(input CLK,
   reg [5:0]         become_len_0, become_len_1,
                     become_len_2, become_len_3;
 
-  reg [1:0] 	    intbuff_raddr_0, intbuff_raddr_trail_0, intbuff_waddr_0,
-		    intbuff_raddr_1, intbuff_raddr_trail_1, intbuff_waddr_1,
-		    intbuff_raddr_2, intbuff_raddr_trail_2, intbuff_waddr_2,
-		    intbuff_raddr_3, intbuff_raddr_trail_3, intbuff_waddr_3;
+  reg [1:0] 	    intbuff_raddr_0 = 2'h1, intbuff_raddr_trail_0 = 2'h0,
+		    intbuff_waddr_0 = 2'h1,
+		    intbuff_raddr_1 = 2'h1, intbuff_raddr_trail_1 = 2'h0,
+		    intbuff_waddr_1 = 2'h1,
+		    intbuff_raddr_2 = 2'h1, intbuff_raddr_trail_2 = 2'h0,
+		    intbuff_waddr_2 = 2'h1,
+		    intbuff_raddr_3 = 2'h1, intbuff_raddr_trail_3 = 2'h0,
+		    intbuff_waddr_3 = 2'h1;
   wire 		    intbuff_int_det_0, intbuff_int_0,
 		    intbuff_empty_0, intbuff_full_0,
 		    intbuff_int_det_1, intbuff_int_1,
@@ -267,26 +279,6 @@ module lsab_cr(input CLK,
   assign intbuff_empty_3 = intbuff_raddr_3 == intbuff_waddr_3;
   assign intbuff_full_3 = intbuff_raddr_trail_3 == intbuff_waddr_3;
 
-  initial
-    begin
-       EMPTY_0 <= 1; EMPTY_1 <= 1; EMPTY_2 <= 1; EMPTY_3 <= 1;
-       full_0 <= 0; full_1 <= 0; full_2 <= 0; full_3 <= 0;
-       len_0 <= 0; len_1 <= 0; len_2 <= 0; len_3 <= 0;
-       write_addr_0 <= 0; write_addr_1 <= 0;
-       write_addr_2 <= 0; write_addr_3 <= 0;
-       read_addr_0 <= 0; read_addr_1 <= 0;
-       read_addr_2 <= 0; read_addr_3 <= 0;
-	STOP_0 <= 1; STOP_1 <= 1; STOP_2 <= 1; STOP_3 <= 1;
-	intbuff_raddr_0 <= 1; intbuff_raddr_trail_0 <= 0;
-	intbuff_waddr_0 <= 1;
-	intbuff_raddr_1 <= 1; intbuff_raddr_trail_1 <= 0;
-	intbuff_waddr_1 <= 1;
-	intbuff_raddr_2 <= 1; intbuff_raddr_trail_2 <= 0;
-	intbuff_waddr_2 <= 1;
-	intbuff_raddr_3 <= 1; intbuff_raddr_trail_3 <= 0;
-	intbuff_waddr_3 <= 1;
-    end
-
   always @(posedge CLK)
     if (RST)
       begin
@@ -388,30 +380,37 @@ module lsab_cr(input CLK,
 endmodule // lsab_cr
 
 module lsab_cw(input CLK,
-              input 		RST,
-              input 		READ0,
-              input 		READ1,
-              input 		READ2,
-              input 		READ3,
-              input 		WRITE,
-              input [1:0] 	READ_FIFO,
-              input [1:0] 	WRITE_FIFO,
-              input [31:0] 	IN,
-              output reg [31:0] OUT_0,
-              output reg [31:0] OUT_1,
-              output reg [31:0] OUT_2,
-              output reg [31:0] OUT_3,
-	      output reg 	BFULL_0,
-	      output reg 	BFULL_1,
-	      output reg 	BFULL_2,
-	      output reg 	BFULL_3);
-  reg               empty_0, empty_1, empty_2, empty_3;
-  reg               full_0, full_1, full_2, full_3;
-  reg [5:0]         len_0, len_1, len_2, len_3;
-  reg [5:0]         write_addr_0, write_addr_1,
-                    write_addr_2, write_addr_3;
-  reg [5:0]         read_addr_0, read_addr_1,
-                    read_addr_2, read_addr_3;
+              input 	    RST,
+              input 	    READ0,
+              input 	    READ1,
+              input 	    READ2,
+              input 	    READ3,
+              input 	    WRITE,
+              input [1:0]   READ_FIFO,
+              input [1:0]   WRITE_FIFO,
+              input [31:0]  IN,
+              output [31:0] OUT_0,
+              output [31:0] OUT_1,
+              output [31:0] OUT_2,
+              output [31:0] OUT_3,
+	      output 	    BFULL_0,
+	      output 	    BFULL_1,
+	      output 	    BFULL_2,
+	      output 	    BFULL_3);
+  reg [31:0] 		    OUT_0 = 32'd0, OUT_1 = 32'd0,
+			    OUT_2 = 32'd0, OUT_3 = 32'd0;
+  reg 			    BFULL_0 = 1'b0, BFULL_1 = 1'b0,
+			    BFULL_2 = 1'b0, BFULL_3 = 1'b0;
+
+  reg               empty_0 = 1'b1, empty_1 = 1'b1,
+		    empty_2 = 1'b1, empty_3 = 1'b1;
+  reg               full_0 = 1'b0, full_1 = 1'b0,
+		    full_2 = 1'b0, full_3 = 1'b0;
+  reg [5:0]         len_0 = 6'd0, len_1 = 6'd0, len_2 = 6'd0, len_3 = 6'd0;
+  reg [5:0]         write_addr_0 = 6'd0, write_addr_1 = 6'd0,
+                    write_addr_2 = 6'd0, write_addr_3 = 6'd0;
+  reg [5:0]         read_addr_0 = 6'd0, read_addr_1 = 6'd0,
+                    read_addr_2 = 6'd0, read_addr_3 = 6'd0;
   reg               re_prev;
   reg [1:0]         re_fifo_prev;
 
@@ -640,18 +639,6 @@ module lsab_cw(input CLK,
                      .WE(we),
                      .WCLKE(1'b1),
                      .WCLK(CLK));
-
-  initial
-    begin
-       empty_0 <= 1; empty_1 <= 1; empty_2 <= 1; empty_3 <= 1;
-       full_0 <= 0; full_1 <= 0; full_2 <= 0; full_3 <= 0;
-       len_0 <= 0; len_1 <= 0; len_2 <= 0; len_3 <= 0;
-       write_addr_0 <= 0; write_addr_1 <= 0;
-       write_addr_2 <= 0; write_addr_3 <= 0;
-       read_addr_0 <= 0; read_addr_1 <= 0;
-       read_addr_2 <= 0; read_addr_3 <= 0;
-	BFULL_0 <= 0; BFULL_1 <= 0; BFULL_2 <= 0; BFULL_3 <= 0;
-    end
 
   always @(posedge CLK)
     if (RST)

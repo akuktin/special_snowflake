@@ -41,8 +41,10 @@ module aexm_ctrl (/*AUTOARG*/
 
    assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG; // FIXME: Endian
 
-  reg fSFT, fLOG, fMUL, fBSF, fDIV, fRTD, fBCC, fBRU, fIMM, fMOV, fLOD,
-      fSTR, fLOD_r, fLDST, fPUT, fGET;
+  reg fSFT = 1'b0, fLOG = 1'b0, fMUL = 1'b0, fBSF = 1'b0, fDIV = 1'b0,
+      fRTD = 1'b0, fBCC = 1'b0, fBRU = 1'b0, fIMM = 1'b0, fMOV = 1'b0,
+      fLOD = 1'b0, fSTR = 1'b0, fLOD_r = 1'b0, fLDST = 1'b0, fPUT = 1'b0,
+      fGET = 1'b0;
 
    wire 	 wSFT = (wOPC == 6'o44);
    wire 	 wLOG = ({wOPC[5:4],wOPC[2]} == 3'o4);
@@ -73,8 +75,8 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- BRANCH SLOT REGISTERS ---------------------------
 
-   reg [1:0] 	 rMXDST, xMXDST;
-   reg [4:0] 	 rRW, xRW;
+   reg [1:0] 	 rMXDST = 2'h0, xMXDST;
+   reg [4:0] 	 rRW = 5'h0, xRW;
 
    reg [1:0] 	 xMXSRC;
    reg [1:0] 	 xMXTGT;
@@ -83,12 +85,12 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- OPERAND SELECTOR ---------------------------------
 
-  reg 		 xRW_valid, rRW_valid;
+  reg 		 xRW_valid = 1'b0, rRW_valid = 1'b0;
   wire 		 dRW_valid;
 
   assign dRW_valid = (!(wBRU || wBCC || wBRA)) && !fSTALL;
 
-  reg 		 rRDWE;
+  reg 		 rRDWE = 1'b0;
    wire 	 wRDWE = |xRW;
    wire		 late_forward_A = (rRW == wRA) && rRW_valid;
    wire		 late_forward_B = (rRW == wRB) && rRW_valid;
@@ -118,7 +120,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- ALU CONTROL ---------------------------------------
 
-   reg [2:0]     rMXALU, xMXALU;
+   reg [2:0]     rMXALU = 3'h0, xMXALU;
 
    always @(/*AUTOSENSE*/wBRA or wBSF or wDIV or wLOG or wMOV
 	    or wMUL or wSFT)
@@ -134,7 +136,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- DELAY SLOT REGISTERS ------------------------------
 
-  reg  rMXDST_use_combined;
+  reg  rMXDST_use_combined = 1'b0;
   wire MEMOP_MXDST;
 
    always @(fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
@@ -161,16 +163,6 @@ module aexm_ctrl (/*AUTOARG*/
   assign aexm_dcache_force_miss  = fLOD_r && (rALT[0]);
 
    // --- PIPELINE CONTROL DELAY ----------------------------
-
-  initial
-    begin
-      rMXALU = 3'h0; rMXDST = 2'h0; rRW = 5'h0; rRDWE = 0;
-      xRW_valid = 0; rRW_valid = 0; rMXDST_use_combined = 0;
-
-      fSFT = 0; fLOG = 0; fMUL = 0; fBSF = 0; fDIV = 0; fRTD = 0;
-      fBCC = 0; fBRU = 0; fIMM = 0; fMOV = 0; fLOD = 0; fSTR = 0;
-      fLOD_r = 0; fLDST = 0; fPUT = 0; fGET = 0;
-    end
 
    always @(posedge gclk)
      if (d_en) begin

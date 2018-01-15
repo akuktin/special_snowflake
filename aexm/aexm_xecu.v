@@ -4,7 +4,7 @@ module aexm_xecu (/*AUTOARG*/
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
    xREGA, xREGB, xMXSRC, xMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
-   xSIMM, rIMM, rOPC, xOPC, rRD, c_io_rg, rIPC, rPC, gclk, grst, d_en, x_en
+   xSIMM, rIMM, rOPC, xOPC, rRD, c_io_rg, rIPC, rPC, gclk, d_en, x_en
    );
    parameter DW=32;
 
@@ -33,24 +33,17 @@ module aexm_xecu (/*AUTOARG*/
    input [31:2]    rIPC, rPC;
 
    // SYSTEM
-   input 	   gclk, grst, d_en, x_en;
+   input 	   gclk, d_en, x_en;
 
-   reg 		   rMSR_C, xMSR_C;
-   reg 		   rMSR_IE, xMSR_IE;
-   reg 		   rMSR_BE, xMSR_BE;
-   reg 		   rMSR_BIP, xMSR_BIP;
+   reg 		   rMSR_BE = 1'b0, xMSR_BE;
+   reg 		   rMSR_BIP = 1'b0, xMSR_BIP;
+   reg 		   rMSR_C = 1'b0, xMSR_C;
+   reg 		   rMSR_IE = 1'b0, xMSR_IE;
 
    // --- OPERAND SELECT
 
-  reg [31:0] 	   rOPA, rOPB;
-  reg 		   wOPC;
-
-  initial
-    begin
-      rOPA <= 0;
-      rOPB <= 0;
-      wOPC <= 0;
-    end
+  reg [31:0] 	   rOPA = 32'hcecabeef, rOPB = 32'hb00000b5;
+  reg 		   wOPC = 1'b0;
 
    always @(posedge gclk)
      if (d_en)
@@ -188,15 +181,8 @@ module aexm_xecu (/*AUTOARG*/
 
    reg [31:0] 	 rBSRL, rBSRA, rBSLL;
 
-  initial
-    begin
-      rBSLL <= 32'h0;
-      rBSRA <= 32'h0;
-      rBSRL <= 32'h0;
-    end
-
    always @(posedge gclk)
-     if (grst && (!x_en)) begin // TODO: maybe remove the if
+     if (!x_en) begin // TODO: maybe remove the if
 	rBSRL <= xBSRL;
 	rBSRA <= xBSRA;
 	rBSLL <= xBSLL;
@@ -255,7 +241,7 @@ module aexm_xecu (/*AUTOARG*/
 
    // --- RESULT SELECTOR -------------------------------------------
    // Selects results from functional units.
-   reg [31:0] 	   rRESULT, xRESULT;
+   reg [31:0] 	   rRESULT = 32'd0, xRESULT;
 
    // RESULT
    always @(rMXALU or rRES_ADD or rRES_BSF or rRES_LOG or
@@ -272,7 +258,7 @@ module aexm_xecu (/*AUTOARG*/
 
    // --- DATA WISHBONE -----
 
-   reg [3:0] 	    rDWBSEL, xDWBSEL;
+   reg [3:0] 	    rDWBSEL = 4'h0, xDWBSEL;
 //   assign           aexm_dcache_precycle_addr = xRESULT[DW-1:2];
   assign aexm_dcache_precycle_addr = {rRES_ADD[31:29],2'h0,
 				      rRES_ADD[28:2]};
@@ -292,16 +278,6 @@ module aexm_xecu (/*AUTOARG*/
 
    // --- SYNC ---
 
-  initial
-    begin
-      rDWBSEL <= 4'h0;
-      rMSR_BE <= 1'h0;
-      rMSR_BIP <= 1'h0;
-      rMSR_C <= 1'h0;
-      rMSR_IE <= 1'h0;
-      rRESULT <= 32'h0;
-    end
-
    always @(posedge gclk)
      begin
        if (x_en) begin
@@ -311,8 +287,7 @@ module aexm_xecu (/*AUTOARG*/
 	 rMSR_BE <= xMSR_BE;
 	 rMSR_BIP <= xMSR_BIP;
        end
-       if (grst)
-	 rDWBSEL <= xDWBSEL;
+       rDWBSEL <= xDWBSEL;
      end
 
 endmodule // aexm_xecu

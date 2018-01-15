@@ -78,22 +78,18 @@ module top_level(input REF_CLK,
 endmodule // top_level
 
 module clockblock(input REF_CLK,
-		  output reg SYS_RST,
-		  output     SYS_CLK,
-		  output     SYS_CLK_DELAYED,
-		  output     CPU_CLK);
-  reg [7:0] 		     long_counter_h, long_counter_l;
-  reg 			     long_counter_o, pll_rst,
-			     frst_rst_r, scnd_rst_r;
+		  output SYS_RST,
+		  output SYS_CLK,
+		  output SYS_CLK_DELAYED,
+		  output CPU_CLK);
+  reg 			     SYS_RST = 1'b0;
+
+
+  reg [7:0] 		     long_counter_h = 8'h0, long_counter_l = 8'h0;
+  reg 			     long_counter_o = 1'h0, pll_rst = 1'b0,
+			     frst_rst_r = 1'b0, scnd_rst_r = 1'b0;
 
   wire 			     frst_rst, scnd_rst;
-  initial
-    begin
-      pll_rst = 0; SYS_RST = 0;
-      long_counter_h = 0; long_counter_l = 0;
-      long_counter_o = 0;
-      frst_rst_r = 0; scnd_rst_r = 0;
-    end
 
   always @(posedge REF_CLK)
     begin
@@ -171,7 +167,7 @@ module chip(input RST,
 	    // -------------------
 	    input 	  ETH_WIRE_RX,
 	    output 	  ETH_WIRE_TX);
-  reg [19:0] 		  rst_counter;
+  reg [19:0] 		  rst_counter = 20'h0;
 
   wire [1:0] 		  w_write_fifo_cr, w_read_fifo_cw;
   wire 			  RST_CPU_pre;
@@ -297,8 +293,8 @@ module chip(input RST,
   always @(posedge CPU_CLK)
     if (!RST)
       rst_counter <= 0;
-//    else
-//    if (!RST_CPU_pre)
-//	rst_counter <= rst_counter +1;
+    else
+      if (!RST_CPU_pre)
+	rst_counter <= rst_counter +1;
 
 endmodule // chip

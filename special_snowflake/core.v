@@ -86,18 +86,18 @@ module special_snowflake_core(input RST_MASTER,
   assign mem_iODT = 1'b1;
   assign mem_dODT = 1'b1;
   // --------------------------------------------------------
-  reg 			rst_cpu_pre /* synthesis syn_preserve=1 */;
-  reg 			rst_cpu /* synthesis syn_preserve=1 */;
-  reg 			rst_i_cache /* synthesis syn_preserve=1 */;
-  reg			rst_d_cache /* synthesis syn_preserve=1 */;
-  reg 			rst_i_mcu /* synthesis syn_preserve=1 */;
-  reg			rst_d_mcu /* synthesis syn_preserve=1 */;
-  reg			rst_lsab_in /* synthesis syn_preserve=1 */;
-  reg			rst_lsab_out /* synthesis syn_preserve=1 */;
-  reg			rst_soft_core /* synthesis syn_preserve=1 */;
+  reg 		rst_cpu_pre = 1'b0 /* synthesis syn_preserve=1 */;
+  reg 		rst_cpu = 1'b0 /* synthesis syn_preserve=1 */;
+  reg 		rst_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg 		rst_i_mcu = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_d_mcu = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_lsab_in = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_lsab_out = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_soft_core = 1'b0 /* synthesis syn_preserve=1 */;
 
   wire        w_read_cr, w_write_cw;
-  wire [1:0]  w_read_fifo_cr, w_write_fifo_cw;
+  wire [1:0]  w_read_fifo_cr = 2'h0, w_write_fifo_cw = 2'h2;
 
   wire [24:0]  w_anc1_0, w_anc1_1, w_anc1_2, w_anc1_3;
   wire [24:0]  w_ancill_cr;
@@ -127,7 +127,8 @@ module special_snowflake_core(input RST_MASTER,
 	      d_mcu_algn_req, d_mcu_algn_ack;
 
   wire 	      mvblck_RST_fill, mvblck_RST_empty;
-  reg 	      i_mcu_req_access, d_mcu_req_access, i_mcu_we, d_mcu_we;
+  reg 	      i_mcu_req_access = 1'b0, d_mcu_req_access = 1'b0,
+	      i_mcu_we = 1'b0, d_mcu_we = 1'b0;
 
   assign mcu_coll_addr = hf_coll_addr_fill | hf_coll_addr_empty;
 
@@ -157,7 +158,8 @@ module special_snowflake_core(input RST_MASTER,
   wire 	       d_dma_read, d_dma_wrte, d_dma_read_ack, d_dma_wrte_ack;
   wire [31:0]  d_dma_out;
 
-  reg 	       irq_strobe, irq_strobe_slow, irq_strobe_slow_prev;
+  reg 	       irq_strobe = 1'b0, irq_strobe_slow = 1'b0,
+	       irq_strobe_slow_prev = 1'b0;
 
   ddr_memory_controler i_mcu(.CLK_n(CLK_n),
                              .CLK_dn(CLK_dn),
@@ -501,21 +503,7 @@ module special_snowflake_core(input RST_MASTER,
   assign cache_inhibit = 1'b0;
 
   always @(posedge CLK_n)
-    if (!RST_MASTER)
-      begin
-	write_fifo_cr <= 2'h0;
-	read_fifo_cw <= 2'h2;
-
-	irq_strobe <= 0;
-
-	i_mcu_req_access <= 0; i_mcu_we <= 0;
-	d_mcu_req_access <= 0; d_mcu_we <= 0;
-
-	rst_i_mcu <= 0; rst_d_mcu <= 0;
-	rst_lsab_in <= 0; rst_lsab_out <= 0;
-	rst_soft_core <= 0;
-      end
-    else
+    if (RST_MASTER)
       begin
 	write_fifo_cr <= write_fifo_cr +1;
 	read_fifo_cw <= read_fifo_cw +1;
@@ -532,15 +520,6 @@ module special_snowflake_core(input RST_MASTER,
 	rst_lsab_in <= 1; rst_lsab_out <= 1;
 	rst_soft_core <= 1;
       end
-
-  initial
-    begin
-      irq_strobe_slow <= 0;
-      irq_strobe_slow_prev <= 0;
-
-      rst_cpu_pre <= 0; rst_cpu <= 0;
-      rst_i_cache <= 0; rst_d_cache <= 0;
-    end
 
   always @(posedge CPU_CLK)
     begin

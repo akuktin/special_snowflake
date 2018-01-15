@@ -15,7 +15,7 @@ module hyper_mvblck_todram(input CLK,
 			   input [24:0]      LSAB_2_ANCILL,
 			   input [24:0]      LSAB_3_ANCILL,
 			   // -----------------------
-			   output reg 	     LSAB_READ,
+			   output 	     LSAB_READ,
 			   output reg [1:0]  LSAB_SECTION,
 			   //------------------------
 			   /* begin DRAM */
@@ -25,16 +25,22 @@ module hyper_mvblck_todram(input CLK,
 			   input [1:0] 	     DRAM_SEL,
 			   input 	     ISSUE,
 			   output reg [5:0]  COUNT_SENT,
-			   output reg 	     WORKING,
+			   output 	     WORKING,
 			   output reg 	     IRQ_OUT,
 			   output reg 	     ABRUPT_STOP,
 			   output reg [24:0] ANCILL_OUT,
 			   // -----------------------
-			   output reg [8:0]  MCU_COLL_ADDRESS,
+			   output [8:0]      MCU_COLL_ADDRESS,
 			   output reg [3:0]  MCU_WE_ARRAY,
-			   output reg [1:0]  MCU_REQUEST_ACCESS);
+			   output [1:0]      MCU_REQUEST_ACCESS);
+  reg 					     WORKING = 1'b0,
+					     LSAB_READ = 1'b0;
+  reg [1:0] 				     MCU_REQUEST_ACCESS = 2'd0;
+  reg [8:0] 				     MCU_COLL_ADDRESS = 9'd0;
+
   reg 					     stop_prev_n, stop_n,
-					     am_working, working_pre,
+					     am_working = 1'b0,
+					     working_pre = 1'b0,
 					     irq;
   reg [24:0] 				     ancill;
   reg [5:0] 				     len_left;

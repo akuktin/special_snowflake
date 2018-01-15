@@ -27,22 +27,22 @@ module aexm_ibuf (/*AUTOARG*/
   wire [5:0] xOPC;
   assign xOPC = xIREG[31:26];
 
-   reg [15:0] 	 rIMM;
-   reg [4:0] 	 rRA, rRD;
-   reg [5:0] 	 rOPC;
+   reg [15:0] 	 rIMM = 16'd0;
+   reg [4:0] 	 rRA = 5'h0, rRD = 5'h0;
+   reg [5:0] 	 rOPC = 6'h0;
 
    // FIXME: Endian
    wire [31:0] 	 wIDAT = aexm_icache_datai;
    assign 	 {rRB, rALT} = rIMM;
 
-   reg [31:0] 	rSIMM, xSIMM;
+   reg [31:0] 	rSIMM = 32'd0, xSIMM;
 
    wire [31:0] 	wXCEOP = 32'hBA2D0008; // Vector 0x08
    wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0060}; // register to be
                                                        // changed to 5'h00
    wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
    wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
-  reg 		issued_interrupt, cpu_interrupt;
+  reg 		issued_interrupt = 1'b0, cpu_interrupt = 1'b0;
 
    wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
   wire [31:0] 	xIREG;
@@ -53,15 +53,9 @@ module aexm_ibuf (/*AUTOARG*/
    // Debounce and latch onto the positive level. This is independent
    // of the pipeline so that stalls do not affect it.
 
-   reg 		rFINT;
-   reg [1:0] 	rDINT;
+   reg 		rFINT = 1'b0;
+   reg [1:0] 	rDINT = 2'h0;
    wire 	wSHOT = rDINT[0];
-
-  initial
-    begin
-      rDINT <= 2'h0;
-      rFINT <= 1'h0;
-    end
 
    always @(posedge gclk)
      if (grst) begin
@@ -102,17 +96,6 @@ module aexm_ibuf (/*AUTOARG*/
   assign regf_rRB = xIREG[15:11];
 
    // --- PIPELINE --------------------------------------------
-
-  initial
-    begin
-       issued_interrupt <= 0;
-       cpu_interrupt <= 0;
-	rIMM <= 16'h0;
-	rOPC <= 6'h0;
-	rRA <= 5'h0;
-	rRD <= 5'h0;
-	rSIMM <= 32'h0;
-    end
 
    always @(posedge gclk)
      if (d_en) begin

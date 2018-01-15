@@ -10,7 +10,7 @@
 module initializer(input CLK_n,
 		   input 	 RST,
 		   /* ----------------------- */
-		   output reg 	 CKE,
+		   output  	 CKE,
 		   output [2:0]  COMMAND_PIN,
 		   output [13:0] ADDRESS_PIN,
 		   output [2:0]  BANK_PIN,
@@ -20,12 +20,16 @@ module initializer(input CLK_n,
 		   input [2:0] 	 BANK_USER,
 		   /* ----------------------- */
 		   output reg 	 RST_USER);
-  reg 				 other_cycle, step_init, core_init;
-  reg [3:0] 			 intercommand_count,
-				 stage_count;
-  reg [7:0] 			 aftercount;
+  reg 				 CKE = 1'b0,
+				 RST_USER = 1'b0;
 
-  reg [2:0] 			 COMMAND_ini;
+  reg 				 other_cycle = 1'b0, step_init = 1'b0,
+				 core_init = 1'b1;
+  reg [3:0] 			 intercommand_count = 4'h0,
+				 stage_count = 4'b0;
+  reg [7:0] 			 aftercount = 8'b0;
+
+  reg [2:0] 			 COMMAND_ini = `NOOP;
   reg [13:0] 			 ADDRESS_ini;
   reg [2:0] 			 BANK_ini;
 
@@ -105,19 +109,7 @@ module initializer(input CLK_n,
     end
 
   always @(posedge CLK_n)
-    if (!RST)
-      begin
-	CKE <= 0;
-	RST_USER <= 0;
-	intercommand_count <= 0;
-	stage_count <= 0;
-	aftercount <= 0;
-	COMMAND_ini <= `NOOP;
-	other_cycle <= 0;
-	step_init <= 0;
-	core_init <= 1;
-      end
-    else
+    if (RST)
       begin
 	CKE <= 1;
 	other_cycle <= !other_cycle;
@@ -152,7 +144,7 @@ module initializer(input CLK_n,
 		      RST_USER <= 1;
 		  end
 	      end // else: !if(core_init)
-	  end // else: !if(!CKE)
-      end // else: !if(!RST)
+	  end
+      end // if (RST)
 
 endmodule // initializer

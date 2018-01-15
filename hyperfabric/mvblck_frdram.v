@@ -6,17 +6,17 @@ module hyper_mvblck_frdram(input CLK,
 			   input 	    DEV_1_ERR,
 			   input 	    DEV_2_ERR,
 			   input 	    DEV_3_ERR,
-			   output reg 	    DEV_0_ERR_ACK,
-			   output reg 	    DEV_1_ERR_ACK,
-			   output reg 	    DEV_2_ERR_ACK,
-			   output reg 	    DEV_3_ERR_ACK,
+			   output 	    DEV_0_ERR_ACK,
+			   output 	    DEV_1_ERR_ACK,
+			   output 	    DEV_2_ERR_ACK,
+			   output 	    DEV_3_ERR_ACK,
 			   /* begin LSAB */
 			   input 	    LSAB_0_FULL,
 			   input 	    LSAB_1_FULL,
 			   input 	    LSAB_2_FULL,
 			   input 	    LSAB_3_FULL,
 			   // -----------------------
-			   output reg 	    LSAB_WRITE,
+			   output 	    LSAB_WRITE,
 			   output reg [1:0] LSAB_SECTION,
 			   // -----------------------
 			   /* begin DRAM */
@@ -26,17 +26,28 @@ module hyper_mvblck_frdram(input CLK,
 			   input [1:0] 	    DRAM_SEL,
 			   input 	    ISSUE,
 			   output reg [5:0] COUNT_SENT,
-			   output reg 	    WORKING,
+			   output 	    WORKING,
 			   output reg 	    ABRUPT_STOP,
 			   output reg 	    DEVICE_ERROR,
 			   // -----------------------
-			   output reg [8:0] MCU_COLL_ADDRESS,
+			   output [8:0]     MCU_COLL_ADDRESS,
 			   output [1:0]     MCU_REQUEST_ACCESS);
-  reg 					     am_working, abrupt_stop_n,
+  reg [8:0] 				    MCU_COLL_ADDRESS = 9'd0;
+  reg 					    LSAB_WRITE = 1'b0,
+					    WORKING = 1'b0,
+					    DEV_0_ERR_ACK = 1'b0,
+					    DEV_1_ERR_ACK = 1'b0,
+					    DEV_2_ERR_ACK = 1'b0,
+					    DEV_3_ERR_ACK = 1'b0;
+
+  reg 					     am_working = 1'b0,
+					     abrupt_stop_n,
 					     wr_device_error, read_more,
-					     release_trigger, we_trigger,
-					     LSAB_WRITE_pre;
-  reg [2:0] 				     we_counter, release_counter;
+					     release_trigger = 1'b1,
+					     we_trigger = 1'b0,
+					     LSAB_WRITE_pre = 1'b0;
+  reg [2:0] 				     we_counter = 3'd0,
+					     release_counter = 3'd0;
   reg [5:0] 				     len_left;
 
   wire 					     uneven_len;
@@ -92,7 +103,7 @@ module hyper_mvblck_frdram(input CLK,
       begin
 	LSAB_WRITE <= 0; LSAB_WRITE_pre <= 0;
 	we_counter <= 0; release_counter <= 0;
-	release_trigger <= 1;
+	release_trigger <= 1; we_trigger <= 0;
 	WORKING <= 0; am_working <= 0;
 	MCU_COLL_ADDRESS <= 0;
 	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;

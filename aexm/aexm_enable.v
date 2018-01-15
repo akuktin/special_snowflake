@@ -1,19 +1,22 @@
 module aexm_enable(input CLK,
-		   input      grst,
-		   input      icache_busy,
-		   input      dcache_busy,
-		   input      dSTRLOD,
-		   input      dLOD,
-		   input      dSKIP,
-		   input      fSTALL,
-		   output reg cpu_mode_memop, // 0: stall, 1: normal
-		   output     cpu_enable,
-		   output     icache_enable,
-		   output     dcache_enable);
-  reg 			      starter, grst_delay;
-  reg 			      just_issued_dcache_command;
-  reg 			      dcache_LOD_enable_reg, dcache_LOD_enable_dly,
-			      xLOD, xSTRLOD;
+		   input  grst,
+		   input  icache_busy,
+		   input  dcache_busy,
+		   input  dSTRLOD,
+		   input  dLOD,
+		   input  dSKIP,
+		   input  fSTALL,
+		   output cpu_mode_memop, // 0: stall, 1: normal
+		   output cpu_enable,
+		   output icache_enable,
+		   output dcache_enable);
+  reg 			  cpu_mode_memop = 1'b0;
+
+  reg 			      starter = 1'b0, grst_delay = 1'b0;
+  reg 			      just_issued_dcache_command = 1'b0;
+  reg 			      dcache_LOD_enable_reg = 1'b0,
+			      dcache_LOD_enable_dly = 1'b0,
+			      xLOD = 1'b0, xSTRLOD = 1'b0;
   wire 			      enter_memop_criterion,
 			      exit_memop_criterion,
 			      dcache_LOD_enable;

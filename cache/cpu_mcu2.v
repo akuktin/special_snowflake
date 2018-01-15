@@ -1,53 +1,64 @@
 module snowball_cache(input CPU_CLK,
-		      input 		MCU_CLK,
-		      input 		RST,
-		      input [31:0] 	cache_precycle_addr,
-		      input [31:0] 	cache_datao, // CPU perspective
-		      output reg [31:0] cache_datai, // CPU perspective
-		      input 		cache_precycle_we,
-		      output reg 	cache_busy,
-		      input 		cache_precycle_enable,
-		      input 		cache_precycle_force_miss,
+		      input 	    MCU_CLK,
+		      input 	    RST,
+		      input [31:0]  cache_precycle_addr,
+		      input [31:0]  cache_datao, // CPU perspective
+		      output [31:0] cache_datai, // CPU perspective
+		      input 	    cache_precycle_we,
+		      output 	    cache_busy,
+		      input 	    cache_precycle_enable,
+		      input 	    cache_precycle_force_miss,
 //--------------------------------------------------
 //--------------------------------------------------
-		      input 		dma_mcu_access,
-		      output reg [31:0] mem_addr,
-		      output 		mem_we,
-		      output [3:0] 	mem_we_array,
-		      output reg	mem_do_act,
-		      output reg [31:0] mem_dataintomem,
-		      input 		mem_ack,
-		      input [31:0] 	mem_datafrommem,
+		      input 	    dma_mcu_access,
+		      output [31:0] mem_addr,
+		      output 	    mem_we,
+		      output [3:0]  mem_we_array,
+		      output 	    mem_do_act,
+		      output [31:0] mem_dataintomem,
+		      input 	    mem_ack,
+		      input [31:0]  mem_datafrommem,
 //--------------------------------------------------
-		      output reg 	dma_wrte,
-		      output reg 	dma_read,
-		      input 		dma_wrte_ack,
-		      input 		dma_read_ack,
-		      input [31:0] 	dma_data_read,
+		      output 	    dma_wrte,
+		      output 	    dma_read,
+		      input 	    dma_wrte_ack,
+		      input 	    dma_read_ack,
+		      input [31:0]  dma_data_read,
 //--------------------------------------------------
-		      input 		VMEM_ACT,
-		      input 		cache_inhibit,
-		      input 		fake_miss,
+		      input 	    VMEM_ACT,
+		      input 	    cache_inhibit,
+		      input 	    fake_miss,
 //--------------------------------------------------
-		      output reg 	MMU_FAULT,
-		      input 		WE_TLB);
-  reg 			    vmem;
-  reg 			    mcu_responded_trans, mcu_active_trans;
-  reg 			    cache_vld, cache_tlb, tlb_en_sticky,
-			    cache_en_sticky, cache_busy_real;
-  reg 			    mcu_responded, mcu_responded_reg;
+		      output 	    MMU_FAULT,
+		      input 	    WE_TLB);
+  reg 					MMU_FAULT = 1'b0, cache_busy = 1'b0,
+					mem_do_act = 1'b0,
+					dma_wrte = 1'b0, dma_read = 1'b0;
+  reg [31:0] 				cache_datai = 32'd0,
+					mem_addr = 32'd0,
+					mem_dataintomem = 32'd0;
+
+  reg 			    vmem = 1'b0;
+  reg 			    mcu_responded_trans = 1'b0,
+			    mcu_active_trans = 1'b0;
+  reg 			    cache_vld = 1'b0, cache_tlb = 1'b0,
+			    tlb_en_sticky = 1'b0,
+			    cache_en_sticky = 1'b0, cache_busy_real = 1'b0;
+  reg 			    mcu_responded = 1'b0, mcu_responded_reg = 1'b0;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
   reg [31:0] 		    prev_paddr_block;
   reg 			    cache_cycle_we, tlb_cycle_we;
-  reg 			    mcu_we, tlb_we_reg,
-			    mem_do_act_reg, mcu_active_delay,
+  reg 			    mcu_we = 1'b0, tlb_we_reg = 1'b0,
+			    mem_do_act_reg, mcu_active_delay = 1'b0,
 			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv,
-			    mandatory_lookup_sig, mandatory_lookup_pre_sig,
-			    mandatory_lookup_sig_recv, mandatory_lookup_exp,
+			    mandatory_lookup_sig = 1'b0,
+			    mandatory_lookup_pre_sig = 1'b0,
+			    mandatory_lookup_sig_recv = 1'b0,
+			    mandatory_lookup_exp = 1'b0,
 			    mandatory_lookup_capture, datain_mux_dma,
-			    cache_prev_we, mcu_active,
-			    mcu_active_reg, cache_cycle_force_miss_n;
-  reg [2:0] 		    read_counter;
+			    cache_prev_we = 1'b0, mcu_active = 1'b0,
+			    mcu_active_reg = 1'b0, cache_cycle_force_miss_n;
+  reg [2:0] 		    read_counter = 3'h0;
   reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
 			    w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv;
@@ -167,17 +178,6 @@ module snowball_cache(input CPU_CLK,
 			mandatory_lookup_act)) ||
 		      cache_tlb;
 
-  initial
-    begin
-      vmem = 0; MMU_FAULT = 0; cache_vld = 0; cache_tlb = 0;
-      mcu_responded = 0; mcu_responded_reg = 0;
-      tlb_en_sticky = 0; cache_en_sticky = 0;
-      cache_busy_real = 0; cache_busy = 0;
-      mandatory_lookup_exp = 0; mandatory_lookup_sig_recv = 0;
-      cache_prev_we = 0; mcu_active_trans = 0;
-      cache_datai = 0;
-    end
-
   always @(posedge CPU_CLK)
     if (RST)
       begin
@@ -290,15 +290,6 @@ module snowball_cache(input CPU_CLK,
       3'd7: begin mcu_valid_data <= 1; capture_data <= 0; end
       default: begin mcu_valid_data <= 0; capture_data <= 0; end
     endcase // case (read_counter)
-
-  initial
-    begin
-      read_counter = 0; mcu_responded_trans = 0;
-      mem_do_act = 0; dma_wrte = 0; dma_read = 0;
-      mcu_active = 0; mcu_active_reg = 0; mcu_active_delay = 0;
-      mandatory_lookup_sig = 0; mandatory_lookup_pre_sig = 0;
-      mcu_we = 0; tlb_we_reg = 0; mem_dataintomem = 0;
-    end
 
   always @(posedge MCU_CLK)
     if (RST)
