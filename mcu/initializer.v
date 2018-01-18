@@ -10,7 +10,7 @@
 module initializer(input CLK_n,
 		   input 	 RST,
 		   /* ----------------------- */
-		   output  	 CKE,
+		   output 	 CKE,
 		   output [2:0]  COMMAND_PIN,
 		   output [13:0] ADDRESS_PIN,
 		   output [2:0]  BANK_PIN,
@@ -19,7 +19,7 @@ module initializer(input CLK_n,
 		   input [13:0]  ADDRESS_USER,
 		   input [2:0] 	 BANK_USER,
 		   /* ----------------------- */
-		   output reg 	 RST_USER);
+		   output 	 RST_USER);
   reg 				 CKE = 1'b0,
 				 RST_USER = 1'b0;
 

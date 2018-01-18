@@ -22,7 +22,7 @@ module state2(input CLK,
 	      input 		port_REQUEST_ACCESS_BULK,
 	      output 		GRANT_ACCESS_BULK,
 	      input 		port_REQUEST_ALIGN_BULK,
-	      output reg 	GRANT_ALIGN_BULK,
+	      output 		GRANT_ALIGN_BULK,
 	      input [3:0] 	port_WE_ARRAY_BULK,
 	      /* end ports */
 	      output reg [13:0] ADDRESS_REG,
