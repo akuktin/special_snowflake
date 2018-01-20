@@ -739,7 +739,7 @@ module GlaDOS;
 		   core.hyperfabric_switch.osel,
 		   core.hyperfabric_switch.out_1);
 
-        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 1)
+        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 0)
           begin
             $display("ic %x icop %x icvr %x RAR %x Wr %x",
                      core.d_mcu.interdictor_tracker.issue_com,
@@ -1051,7 +1051,8 @@ module GlaDOS;
 //`include "test_dmaops2.bin"
 //`include "test_dmaops3.bin"
 
-`include "test_tt_00.bin"
+//`include "test_tt_00.bin"
+`include "test_tt_01.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
