@@ -485,9 +485,9 @@ module GlaDOS;
 	       core.i_mcu_algn_req, core.i_mcu_algn_ack);
       $display("state %x,%x,%x reftime %x",
 	       core.i_mcu.interdictor_tracker.SOME_PAGE_ACTIVE,
-	       core.i_mcu.interdictor_tracker.REFRESH_TIME,
+	       core.i_mcu.interdictor_tracker.refresh_time,
 	       core.i_mcu.interdictor_tracker.actv_timeout[2],
-	       core.i_mcu.interdictor_tracker.REFRESH_TIME);
+	       core.i_mcu.interdictor_tracker.refresh_time);
       #20000 $display("timeout"); $finish;
     end
 
@@ -710,7 +710,7 @@ module GlaDOS;
 		      core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
 		      core.d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK},
 		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
-		     core.d_mcu.interdictor_tracker.REFRESH_TIME,
+		     core.d_mcu.interdictor_tracker.refresh_time,
 		     {core.d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK_dly,
 		      core.d_mcu.interdictor_tracker.GRANT_ALIGN_BULK});
  */
@@ -739,7 +739,7 @@ module GlaDOS;
 		   core.hyperfabric_switch.osel,
 		   core.hyperfabric_switch.out_1);
 
-        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 0)
+        if (core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE && 1)
           begin
             $display("ic %x icop %x icvr %x RAR %x Wr %x",
                      core.d_mcu.interdictor_tracker.issue_com,
@@ -753,6 +753,15 @@ module GlaDOS;
                      core.d_mcu.interdictor_tracker.correct_page_algn,
                      core.d_mcu.interdictor_tracker.correct_page_any,
                      core.d_mcu.interdictor_tracker.correct_page_rdy);
+	    $display("wPd %x cntr %x tnc %x tdc %x cp %x SPA %x siw %x RT %x",
+		     core.d_mcu.interdictor_tracker.want_PRCH_delayable,
+		     core.d_mcu.interdictor_tracker.counter,
+		     core.d_mcu.interdictor_tracker.timeout_norm_comp_n,
+		     core.d_mcu.interdictor_tracker.timeout_dlay_comp_n,
+		     core.d_mcu.interdictor_tracker.change_possible_w_n,
+		     core.d_mcu.interdictor_tracker.SOME_PAGE_ACTIVE,
+		     core.d_mcu.interdictor_tracker.state_is_write,
+		     core.d_mcu.interdictor_tracker.refresh_time);
             $display("-----------------------------------------------------");
           end
 
@@ -1040,9 +1049,11 @@ module GlaDOS;
 //`include "test_dmaops0.bin"
 //`include "test_dmaops1.bin"
 //`include "test_dmaops2.bin"
-`include "test_dmaops3.bin"
+//`include "test_dmaops3.bin"
+
+`include "test_tt_00.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
-    end
+    end // initial begin
 
 endmodule // GlaDOS

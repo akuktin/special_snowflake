@@ -41,7 +41,8 @@ module state2(input CLK,
 				     state_is_write,
 				     SOME_PAGE_ACTIVE = 1'b0,
 				     second_stroke = 1'b1,
-				     REFRESH_TIME = 1'b0,
+				     refresh_time = 1'b0,
+				     refresh_time_dly = 1'b0,
 				     REQUEST_ALIGN_BULK_dly,
 				     REQUEST_ACCESS_RAND, WE_RAND,
 				     REQUEST_ACCESS_BULK, WE_BULK,
@@ -89,7 +90,7 @@ module state2(input CLK,
 
   assign correct_page_rand_w = ({port_REQUEST_ACCESS_RAND,
 				 port_REQUEST_ALIGN_BULK,
-				 REFRESH_TIME,
+				 refresh_time,
 				 SOME_PAGE_ACTIVE,
 				 row_request_live_rand,
 				 bank_request_live_rand}
@@ -100,7 +101,7 @@ module state2(input CLK,
   assign bank_request_live_bulk = ADDRESS_BULK[11:9];
 
   assign correct_page_bulk_w = ({port_REQUEST_ACCESS_BULK,
-				 REFRESH_TIME,
+				 refresh_time,
 				 SOME_PAGE_ACTIVE,
 				 row_request_live_bulk,
 				 bank_request_live_bulk}
@@ -108,7 +109,7 @@ module state2(input CLK,
 				    page_current});
 
   assign correct_page_algn_w = ({port_REQUEST_ALIGN_BULK,
-				 REFRESH_TIME,
+				 refresh_time,
 				 SOME_PAGE_ACTIVE,
 				 row_request_live_bulk,
 				 bank_request_live_bulk}
@@ -136,13 +137,13 @@ module state2(input CLK,
 				   (!(REQUEST_ACCESS_BULK ||
 				      REQUEST_ALIGN_BULK))) ||
 				  REQUEST_ACCESS_BULK ||
-				  REFRESH_TIME ||
+				  refresh_time_dly ||
 				  // FIXME: still not really good enough
 				  (REQUEST_ALIGN_BULK_dly &&
 				   (!GRANT_ALIGN_BULK)));
 
-  always @(SOME_PAGE_ACTIVE or REFRESH_TIME or actv_timeout[2])
-    case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
+  always @(SOME_PAGE_ACTIVE or refresh_time_dly or actv_timeout[2])
+    case ({SOME_PAGE_ACTIVE,refresh_time_dly,actv_timeout[2]})
       /*
        Short form:
       3'b1x1: command_non_wr <= `PRCH;
@@ -156,7 +157,7 @@ module state2(input CLK,
       3'b000: command_non_wr <= `ACTV;
       3'b001: command_non_wr <= `ACTV;
       default: command_non_wr <= `NOOP;
-    endcase // case ({SOME_PAGE_ACTIVE,REFRESH_TIME,actv_timeout[2]})
+    endcase // case ({SOME_PAGE_ACTIVE,refresh_time_dly,actv_timeout[2]})
 
   assign want_PRCH_delayable = SOME_PAGE_ACTIVE && state_is_write;
 
@@ -181,7 +182,7 @@ module state2(input CLK,
 		     address_in[11:9];
 
   assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
-  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'he));
+  assign timeout_dlay_comp_n = !((counter == 4'hf));// || (counter == 4'he));
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
    * the synthetizer. */
@@ -211,7 +212,8 @@ module state2(input CLK,
 
 	REQUEST_ALIGN_BULK_dly <= REQUEST_ALIGN_BULK;
 
-	REFRESH_TIME <= refresh_strobe_ack ^ REFRESH_STROBE;
+	refresh_time <= refresh_strobe_ack ^ REFRESH_STROBE;
+	refresh_time_dly <= refresh_time;
 	if ((!second_stroke) && (command_reg2 == `ACTV))
 	  actv_timeout <= 3'h0;
 	else
