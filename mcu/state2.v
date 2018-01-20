@@ -182,7 +182,7 @@ module state2(input CLK,
 		     address_in[11:9];
 
   assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
-  assign timeout_dlay_comp_n = !((counter == 4'hf));// || (counter == 4'he));
+  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'h0));
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
    * the synthetizer. */
