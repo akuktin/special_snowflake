@@ -1098,7 +1098,12 @@ module GlaDOS;
 
 //`include "test_tt_00.bin"
 //`include "test_tt_01.bin"
-`include "test_tt_02.bin"
+
+//`include "test_tt_03.bin"
+//`include "test_tt_04.bin"
+
+//`include "test_tt_06.bin"
+`include "test_tt_07.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin

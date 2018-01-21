@@ -53,7 +53,7 @@ core.i_cache.cachedat.ram.r_data[13] <= {6'o10,5'h4,5'h4,16'h1};
 core.i_cache.cachedat.ram.r_data[14] <= {6'o76,5'h4,5'h0,16'h000c};
 //core.i_cache.cachedat.ram.r_data[14] <= {6'o72,5'h4,5'h0,16'h000c};
 
-core.i_cache.cachedat.ram.r_data[15] <= {6'o76,5'h4,5'h0,16'h0010};
+core.i_cache.cachedat.ram.r_data[15] <= {6'o72,5'h4,5'h0,16'h0010};
 
 core.i_cache.cachedat.ram.r_data[16] <= {6'o10,5'h18,5'h0,16'h0100};
 core.i_cache.cachedat.ram.r_data[17] <= {6'o57,5'h11,5'h18,16'h0000};
@@ -69,9 +69,9 @@ core.hyper_softcore.prog_mem.ram.r_data[0] <= 16'h4e00;
 core.hyper_softcore.data_mem.ram.r_data[0] <= 16'h0018; //// DATA !
 core.hyper_softcore.data_mem.ram.r_data[64] <= 16'h0009; // magic value!
 //core.hyper_softcore.data_mem.ram.r_data[64] <= 16'h000a;
-core.hyper_softcore.data_mem.ram.r_data[128] <= 16'h0001;
+core.hyper_softcore.data_mem.ram.r_data[128] <= 16'h0101;
 core.hyper_softcore.data_mem.ram.r_data[129] <= 16'h0000;
-core.hyper_softcore.data_mem.ram.r_data[130] <= 16'h800d;
+core.hyper_softcore.data_mem.ram.r_data[130] <= 16'hc00d;
 //// DATA !
 core.hyper_softcore.prog_mem.ram.r_data[4] <= 16'h4a00;
 core.hyper_softcore.prog_mem.ram.r_data[5] <= 16'h4605;
@@ -105,6 +105,7 @@ core.hyper_softcore.prog_mem.ram.r_data[27] <= 16'hce18;
 
 
 core.d_cache.cachetag.ram.r_data[3] <= 16'hffff;
+core.d_cache.cachetag.ram.r_data[4] <= 16'hffff;
 
 core.hyper_softcore.big_carousel <= 4'h4;
 //core.hyper_softcore.small_carousel <= 8'h5b; // all is fine
@@ -113,5 +114,7 @@ core.hyper_softcore.big_carousel <= 4'h4;
 //core.hyper_softcore.small_carousel <= 8'h5e; // (other cycle)
 
 // start 8'h5a stop 8'h5f
+force core.hyper_softcore.time_mb = 0;
+`define CHANGER 8'h5f
 
-core.hyper_softcore.small_carousel <= 8'h5f;
+core.hyper_softcore.small_carousel <= `CHANGER;
