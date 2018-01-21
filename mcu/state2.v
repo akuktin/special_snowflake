@@ -184,7 +184,8 @@ module state2(input CLK,
 
   assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd) ||
 				 (counter == 4'hf) || (counter == 4'h0));
-  assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'h0));
+  assign timeout_dlay_comp_n = !((counter == 4'he) || (counter == 4'hf) ||
+				 (counter == 4'h0));
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
    * the synthetizer. */
@@ -265,6 +266,7 @@ module state2(input CLK,
 	    case (command_reg2)
 	      `ARSR: counter <= 4'h3;
 	      `ACTV: counter <= 4'hc;
+	      `WRTE: counter <= 4'ha;
 	      `NOOP: counter <= 4'he;
 	      default: counter <= 4'hb;
 	    endcase // case (command_reg2)
