@@ -83,7 +83,7 @@ module state2(input CLK,
 
   reg [2:0] 			     command_non_wr;
 
-  assign INTERNAL_DATA_MUX = REQUEST_ACCESS_BULK;
+  assign INTERNAL_DATA_MUX = REQUEST_ALIGN_BULK;
   assign INTERNAL_COMMAND_LATCHED = {second_stroke,command_reg2};
 
   assign row_request_live_rand = ADDRESS_RAND[25:12];
