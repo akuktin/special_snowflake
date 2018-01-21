@@ -546,33 +546,52 @@ module GlaDOS;
       begin
         if (core.hyper_softcore.instr_o[11:8] == 4'h8)
           $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
-/*
+
 	if (core.hyper_softcore.trans_activate &&
-	    (! core.hyper_softcore.trans_active) &&
+	    (! (core.hyper_softcore.trans_active ||
+		core.hyper_softcore.ready_trans)) &&
 	    (core.hyper_softcore.trg_gb_0 ||
 	     core.hyper_softcore.trg_gb_1 ||
 	     (core.hyper_softcore.time_mb &&
-	      core.hyper_softcore.small_carousel != 0)))
+	      !core.hyper_softcore.trg_gb_0)))
 	  begin
-	    $display("transactions starts! CTR %x  gb0 %x gb1 %x mb/sc %x/%x",
-		     ctr, core.hyper_softcore.trg_gb_0,
-		     core.hyper_softcore.trg_gb_1,
-		     core.hyper_softcore.time_mb,
-		     core.hyper_softcore.small_carousel);
-	    $display("active_trans %x rst_mvblck reg %x",
-		     core.hyper_softcore.active_trans,
-		     core.hyper_softcore.output_reg[{
-			    core.hyper_softcore.active_trans,2'h2}]);
-	  end // if (core.hyper_softcore.trans_activate &&...
- */
+	    $display("=====--------> %t STARTING TRANSACTION trg %x at %x",
+		     $time, {core.hyper_softcore.trg_gb_0,
+			     core.hyper_softcore.trg_gb_1,
+			     core.hyper_softcore.time_mb,
+			     !core.hyper_softcore.trg_gb_0},
+		     core.hyper_softcore.active_trans);
+	  end
 /*
 	if (((core.hyper_softcore.MCU_REQUEST_ALIGN[0] &&
 	      core.hyper_softcore.MCU_GRANT_ALIGN[0]) ||
 	     (core.hyper_softcore.MCU_REQUEST_ALIGN[1] &&
 	      core.hyper_softcore.MCU_GRANT_ALIGN[1])) &&
 	    core.hyper_softcore.trans_active)
-	  $display("transactions goes into execution! CTR %x", ctr);
+	  begin
+	    $display("=====--------> trans executes! CTR %x time %t",
+		     ctr, $time);
+	  end
  */
+/*
+          begin
+	    $display("d_mcu addr_r %x pWE_r %x pRAR %x GAR %x WAR %x\n      addr_b %x pWE_b %x pRAB %x GAB %x pRLB %x GLB %x pWEB %x",
+		     core.d_mcu.interdictor_tracker.ADDRESS_RAND,
+		     core.d_mcu.interdictor_tracker.port_WE_RAND,
+		     core.d_mcu.interdictor_tracker.port_REQUEST_ACCESS_RAND,
+		     core.d_mcu.interdictor_tracker.GRANT_ACCESS_RAND,
+		     core.d_mcu.interdictor_tracker.WE_ARRAY_RAND,
+
+		     core.d_mcu.interdictor_tracker.port_ADDRESS_BULK,
+		     core.d_mcu.interdictor_tracker.port_WE_BULK,
+		     core.d_mcu.interdictor_tracker.port_REQUEST_ACCESS_BULK,
+		     core.d_mcu.interdictor_tracker.GRANT_ACCESS_BULK,
+		     core.d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		     core.d_mcu.interdictor_tracker.GRANT_ALIGN_BULK,
+		     core.d_mcu.interdictor_tracker.port_WE_ARRAY_BULK);
+	  end
+ */
+
 	if (core.hyper_softcore.blck_working_prev &&
 	    !core.hyper_softcore.BLCK_WORKING)
 	  begin
@@ -596,6 +615,18 @@ module GlaDOS;
 	  $display("lsab_cw data_out %x",
 		   TEST_output_lsab_cw_1_data);
 
+/*
+	if (core.hyper_softcore.write_output_reg)
+	  begin
+	    $display("sc %x bc %x trgs %x",
+		     core.hyper_softcore.small_carousel,
+		     core.hyper_softcore.big_carousel,
+		     {core.hyper_softcore.trg_gb_0,
+		      core.hyper_softcore.trg_gb_1,
+		      core.hyper_softcore.time_mb,
+		      core.hyper_softcore.time_rfrs});
+	  end
+ */
 /*
         if (core.hyper_softcore.d_w_en_cpu)
 	  $display("we %x wec %x wes %x iO %x addrc %x datac %x",
@@ -625,15 +656,16 @@ module GlaDOS;
 		       {core.fill.track_addr[11:1],1'b0},
 		       core.fill.DRAM_SEL);
 	  end
+ */
 	if (core.empty.RST)
 	  begin
 	    if (core.empty.ISSUE && ! core.empty.am_working)
 	      begin
-		$display("activating hyper_mvblck_frdram (EMPTY) module SECTION %x",
-			 core.empty.SECTION);
+		$display("activating hyper_mvblck_frdram (EMPTY) SEC %x %t",
+			 core.empty.SECTION, $time);
 	      end
 	  end
-
+/*
 	if (core.lsab_out.we)
 	  begin
 	    $display("lsab_out we %x waddr %x wdata %x",
@@ -716,6 +748,18 @@ module GlaDOS;
  */
 	  end // if (core.fill.RST && core.fill.am_working)
 
+	if (core.d_mcu.interdictor_tracker.issue_com && 0)
+	  if (core.d_mcu.interdictor_tracker.command == 3'b100) // `WRTE
+	    $display("wm %x wa %x RAB %x RAR %x WB %x WR %x WAB %x WAR %x",
+		     core.d_mcu.interdictor_tracker.write_match,
+		     core.d_mcu.interdictor_tracker.we_array,
+		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_BULK,
+		     core.d_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
+		     core.d_mcu.interdictor_tracker.WE_BULK,
+		     core.d_mcu.interdictor_tracker.WE_RAND,
+		     core.d_mcu.interdictor_tracker.WE_ARRAY_BULK,
+		     core.d_mcu.interdictor_tracker.WE_ARRAY_RAND);
+
 //	if (core.fill.RST && core.fill.am_working &&
 //	    core.d_mcu.interdictor_tracker.issue_com)
 	if (!core.d_mcu.interdictor_tracker.second_stroke)
@@ -755,7 +799,8 @@ module GlaDOS;
                      core.d_mcu.interdictor_tracker.correct_page_rdy);
 	    $display("wPd %x cntr %x tnc %x tdc %x cp %x SPA %x siw %x RT %x",
 		     core.d_mcu.interdictor_tracker.want_PRCH_delayable,
-		     core.d_mcu.interdictor_tracker.counter,
+		     {core.d_mcu.interdictor_tracker.do_extra_pass,
+		      core.d_mcu.interdictor_tracker.counter},
 		     core.d_mcu.interdictor_tracker.timeout_norm_comp_n,
 		     core.d_mcu.interdictor_tracker.timeout_dlay_comp_n,
 		     core.d_mcu.interdictor_tracker.change_possible_w_n,
@@ -1052,7 +1097,8 @@ module GlaDOS;
 //`include "test_dmaops3.bin"
 
 //`include "test_tt_00.bin"
-`include "test_tt_01.bin"
+//`include "test_tt_01.bin"
+`include "test_tt_02.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
