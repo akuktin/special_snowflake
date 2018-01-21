@@ -28,6 +28,7 @@ module state2(input CLK,
 	      output reg [13:0] ADDRESS_REG,
 	      output reg [2:0] 	BANK_REG,
 	      output [2:0] 	COMMAND_REG,
+	      output 		INTERNAL_DATA_MUX,
 	      output [3:0] 	INTERNAL_COMMAND_LATCHED,
 	      output reg [3:0] 	INTERNAL_WE_ARRAY);
   reg [2:0] 			COMMAND_REG = `NOOP;
@@ -53,7 +54,7 @@ module state2(input CLK,
 				     do_extra_pass = 1'b1;
   reg [2:0] 			     command_reg2 = `NOOP,
 				     actv_timeout = 3'h7;
-  reg [3:0] 			     counter = 4'hf, WE_ARRAY_BULK;
+  reg [3:0] 			     counter = 4'h1, WE_ARRAY_BULK;
   reg [16:0] 			     page_current;
   reg [25:0] 			     ADDRESS_BULK;
 
@@ -82,6 +83,7 @@ module state2(input CLK,
 
   reg [2:0] 			     command_non_wr;
 
+  assign INTERNAL_DATA_MUX = REQUEST_ACCESS_BULK;
   assign INTERNAL_COMMAND_LATCHED = {second_stroke,command_reg2};
 
   assign row_request_live_rand = ADDRESS_RAND[25:12];
@@ -180,7 +182,8 @@ module state2(input CLK,
 		     BANK_REG :
 		     address_in[11:9];
 
-  assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd));
+  assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd) ||
+				 (counter == 4'hf) || (counter == 4'h0));
   assign timeout_dlay_comp_n = !((counter == 4'hf) || (counter == 4'h0));
 
   /* Fully synthetizable in three gates, may need to be rewritten to help
@@ -292,7 +295,8 @@ module state2(input CLK,
 	    GRANT_ACCESS_BULK <= 0;
 	  end
 
-	GRANT_ALIGN_BULK <= correct_page_algn;
+	if (!change_possible_w_n)
+	  GRANT_ALIGN_BULK <= correct_page_algn;
       end
 
 endmodule // enter_state
