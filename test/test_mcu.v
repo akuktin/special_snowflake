@@ -149,15 +149,21 @@ module GlaDOS;
       if (exec)
 	begin
 	  d_user_req_address <= d_user_req_address +1;
-	  if (counter_exec < 64)
-	    d_user_req <= 1'b1;
-	  else
-	    d_user_req <= 0;
-	  if ((counter_exec > 40) &&
-	      (counter_exec < 57))
-	    d_user_req_we <= 1;
-	  else
-	    d_user_req_we <= 0;
+	  case (counter_exec)
+	    32'd0: begin
+	      d_user_req <= 1;
+	      d_user_req_we <= 0;
+	    end
+	    32'd40: begin
+	      d_user_req_we <= 1;
+	    end
+	    32'd57: begin
+	      d_user_req_we <= 0;
+	    end
+	    32'd64: begin
+	      d_user_req <= 0;
+	    end
+	  endcase // case (counter_exec)
 	  d_user_we_array <= 4'hf;
 	end
       else
