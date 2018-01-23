@@ -120,9 +120,9 @@ module GlaDOS;
                              .bulk_req_datain(d_mcu_data_into),
                              .user_req_dataout(d_user_req_dataout));
 
-  initial
-    forever
-      #2304000 if (SYS_RST) refresh_strobe <= !refresh_strobe;
+//  initial
+//    forever
+//      #2304000 if (SYS_RST) refresh_strobe <= !refresh_strobe;
 
   initial
     begin
@@ -130,9 +130,8 @@ module GlaDOS;
       #14875 RST <= 1;
       #400000000;
       exec <= 1'b1;
-      #3000000;
-      #3000000;
-      #3000000;
+      #300000000;
+      $display("irregular finish");
       $finish;
     end // initial begin
 
@@ -149,19 +148,30 @@ module GlaDOS;
       if (exec)
 	begin
 	  d_user_req_address <= d_user_req_address +1;
+	  // TODO: wiggle all of these some cycles left-right.
 	  case (counter_exec)
 	    32'd0: begin
 	      d_user_req <= 1;
 	      d_user_req_we <= 0;
 	    end
-	    32'd40: begin
+	    32'd20: begin
+	      refresh_strobe <= !refresh_strobe;
+	    end
+	    32'd80: begin
 	      d_user_req_we <= 1;
 	    end
-	    32'd57: begin
+	    32'd100: begin
+	      refresh_strobe <= !refresh_strobe;
+	    end
+	    32'd167: begin
 	      d_user_req_we <= 0;
 	    end
-	    32'd64: begin
+	    32'd184: begin
 	      d_user_req <= 0;
+	    end
+	    32'd200: begin
+	      $display("regular finish");
+	      $finish;
 	    end
 	  endcase // case (counter_exec)
 	  d_user_we_array <= 4'hf;
