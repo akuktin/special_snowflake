@@ -39,10 +39,12 @@ module ddr_memory_controler(input CLK_n,
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;
   wire 						 internal_data_mux,
+						 internal_data_mux_invert,
 						 rst_user;
 
   assign CS = 1'b0; // Always on.
-  assign user_req_datain = internal_data_mux ?
+  assign user_req_datain = (internal_data_mux_invert ?
+			    !internal_data_mux : internal_data_mux) ?
 			   bulk_req_datain : rand_req_datain;
 
   clock_driver clock(.CLK_n(CLK_n),
@@ -83,6 +85,7 @@ module ddr_memory_controler(input CLK_n,
 			     .BANK_REG(bank_user),
 			     .COMMAND_REG(command_user),
 			     .INTERNAL_DATA_MUX(internal_data_mux),
+			     .INTERNAL_DATA_MUX_INVERT(internal_data_mux_invert),
 			     .INTERNAL_COMMAND_LATCHED(internal_com_lat),
 			     .INTERNAL_WE_ARRAY(internal_we_array));
 

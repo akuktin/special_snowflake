@@ -29,12 +29,15 @@ module state2(input CLK,
 	      output reg [2:0] 	BANK_REG,
 	      output [2:0] 	COMMAND_REG,
 	      output 		INTERNAL_DATA_MUX,
+	      output 		INTERNAL_DATA_MUX_INVERT,
 	      output [3:0] 	INTERNAL_COMMAND_LATCHED,
 	      output reg [3:0] 	INTERNAL_WE_ARRAY);
   reg [2:0] 			COMMAND_REG = `NOOP;
   reg 				GRANT_ACCESS_RAND = 1'b0,
 				GRANT_ACCESS_BULK = 1'b0,
-				GRANT_ALIGN_BULK = 1'b0;
+				GRANT_ALIGN_BULK = 1'b0,
+				INTERNAL_DATA_MUX = 1'b0,
+				INTERNAL_DATA_MUX_INVERT = 1'b0;
 
   reg 				     change_possible_n = 1'b1,
 				     state_is_readwrite = 1'b0,
@@ -83,7 +86,6 @@ module state2(input CLK,
 
   reg [2:0] 			     command_non_wr;
 
-  assign INTERNAL_DATA_MUX = REQUEST_ALIGN_BULK;
   assign INTERNAL_COMMAND_LATCHED = {second_stroke,command_reg2};
 
   assign row_request_live_rand = ADDRESS_RAND[25:12];
@@ -299,6 +301,13 @@ module state2(input CLK,
 
 	if (!change_possible_w_n)
 	  GRANT_ALIGN_BULK <= correct_page_algn;
+
+	INTERNAL_DATA_MUX <= port_REQUEST_ALIGN_BULK;
+	if (issue_com)
+	  INTERNAL_DATA_MUX_INVERT <= (port_REQUEST_ALIGN_BULK ^
+				       REQUEST_ALIGN_BULK);
+	else
+	  INTERNAL_DATA_MUX_INVERT <= 0;
       end
 
 endmodule // enter_state
