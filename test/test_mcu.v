@@ -52,8 +52,8 @@ module GlaDOS;
   reg [31:0]  d_user_req_datain;
   wire 	      d_user_req_ack;
 
-  reg [22:0]  mcu_page_addr;
-  reg [8:0]   mcu_coll_addr;
+  reg [22:0]  mcu_page_addr = 23'd0;
+  reg [8:0]   mcu_coll_addr = 9'd0;
   reg	      d_mcu_we = 1'b0, d_mcu_req_access = 1'b0,
 	      d_mcu_algn_req = 1'b0;
   reg [3:0]   hf_we_array_fill;
@@ -120,6 +120,18 @@ module GlaDOS;
                              .bulk_req_datain(d_mcu_data_into),
                              .user_req_dataout(d_user_req_dataout));
 
+/*
+  always @(CLK_dn)
+    begin
+      if (((dUDM == 1'b0) || (dUDM == 1'b1)) ||
+	  d_mcu.data_driver.dqs_z_ctrl)
+	begin
+	  $display("direct observation: dqs %x dm %x data %x",
+		   {dUDQS,dLDQS}, {dUDM,dLDM}, dDQ);
+	end
+    end
+ */
+
 //  initial
 //    forever
 //      #2304000 if (SYS_RST) refresh_strobe <= !refresh_strobe;
@@ -148,6 +160,7 @@ module GlaDOS;
       if (exec)
 	begin
 	  d_user_req_address <= d_user_req_address +1;
+	  {mcu_page_addr,mcu_coll_addr} <= {mcu_page_addr,mcu_coll_addr} +1;
 	  // TODO: wiggle all of these some cycles left-right.
 	  case (counter_exec)
 	    32'd0: begin
@@ -167,9 +180,140 @@ module GlaDOS;
 	      d_user_req_we <= 0;
 	    end
 	    32'd184: begin
-	      d_user_req <= 0;
+	      $display("assert ALIGN %t -------------------------------",
+		       $time);
+	      d_mcu_algn_req <= 1;
 	    end
-	    32'd200: begin
+	    32'd192: begin
+	      d_mcu_req_access <= 1;
+	    end
+	    32'd210: begin
+	      d_mcu_we <= 1;
+	      d_user_req_we <= 1; // exception!
+	    end
+-	    32'd230: begin
+//	    32'd231: begin
+	      d_mcu_req_access <= 0;
+	      $display("deassert ALIGN %t -------------------------------",
+		       $time);
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	      d_mcu_algn_req <= 0;
+	    end // case: 32'd230
+	    32'd231: begin
+//	    32'd238: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd232: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd233: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd234: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd235: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd236: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd237: begin
+	      $display("====<<<>>> ic %x ss %x pRLB %x RLB %x IDM %x",
+		       d_mcu.interdictor_tracker.issue_com,
+		       d_mcu.interdictor_tracker.second_stroke,
+		       d_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.REQUEST_ALIGN_BULK,
+		       d_mcu.interdictor_tracker.INTERNAL_DATA_MUX);
+	    end
+	    32'd240: begin
+	      d_user_req_we <= 1;
+	    end
+	    32'd257: begin
+	      $display("assert ALIGN %t -------------------------------",
+		       $time);
+	      d_mcu_algn_req <= 1;
+	      d_mcu_we <= 1;
+	      d_mcu_req_access <= 1;
+	    end
+	    32'd272: begin
+	      $display("deassert ALIGN %t -------------------------------",
+		       $time);
+	      d_mcu_algn_req <= 0;
+	      d_mcu_req_access <= 0;
+	    end
+	    32'd300: begin
+	      mcu_page_addr <= 23'h200;
+	      d_mcu_algn_req <= 1;
+	      d_mcu_req_access <= 1;
+	    end
+	    32'd320: begin
+	      d_mcu_algn_req <= 0;
+	      d_mcu_req_access <= 0;
+	    end
+	    32'd350: begin
+	      d_user_req_we <= 0;
+	    end
+	    32'd360: begin
+	      $display("assert ALIGN %t -------------------------------",
+		       $time);
+	      d_mcu_algn_req <= 1;
+	      d_mcu_req_access <= 1;
+	    end
+	    32'd366: begin
+	      d_user_req_we <= 1;
+	    end
+	    32'd380: begin
+	      d_mcu_algn_req <= 0;
+	      d_mcu_req_access <= 0;
+	    end
+	    32'd400: begin
+	      d_mcu_algn_req <= 1;
+	      d_mcu_req_access <= 1;
+	    end
+	    32'd406: begin
+	      d_user_req_we <= 0;
+	    end
+	    32'd430: begin
+	      d_mcu_algn_req <= 0;
+	      d_mcu_req_access <= 0;
+	    end
+	    32'd460: begin
 	      $display("regular finish");
 	      $finish;
 	    end
@@ -180,6 +324,7 @@ module GlaDOS;
 	begin
 	  d_user_req_address <= 0;
 	  d_user_we_array <= 4'hf;
+	  hf_we_array_fill <= 4'hf;
 	end
     end // always @ (posedge CLK_n)
 
