@@ -791,11 +791,9 @@ module GlaDOS;
                      core.d_mcu.interdictor_tracker.issue_enable_override,
                      core.d_mcu.interdictor_tracker.REQUEST_ACCESS_RAND,
                      core.d_mcu.interdictor_tracker.WE_RAND);
-            $display("cpra %x cpbu %x cpal %x cpan %x cprd %x",
+            $display("cpra %x cpal %x cprd %x",
                      core.d_mcu.interdictor_tracker.correct_page_rand,
-                     core.d_mcu.interdictor_tracker.correct_page_bulk,
                      core.d_mcu.interdictor_tracker.correct_page_algn,
-                     core.d_mcu.interdictor_tracker.correct_page_any,
                      core.d_mcu.interdictor_tracker.correct_page_rdy);
 	    $display("wPd %x cntr %x tnc %x tdc %x cp %x SPA %x siw %x RT %x",
 		     core.d_mcu.interdictor_tracker.want_PRCH_delayable,
