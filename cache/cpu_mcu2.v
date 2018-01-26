@@ -318,9 +318,12 @@ module snowball_cache(input CPU_CLK,
 	    mem_do_act <= (w_addr_recv[31:30] == 2'b00);
 	    dma_wrte <= (w_addr_recv[31:30] == 2'b11) && ( w_we_recv);
 	    dma_read <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
-	    datain_mux_dma <= (w_addr_recv[31:30] == 2'b11) && (!w_we_recv);
+	    // The below is HEAVILY hacked to enable generating wdata_data
+	    // in a single gate.
+	    // May be a bad idea to optimize THIS aggresivelly.
+	    datain_mux_dma <= (w_addr_recv[31:30] == 2'b11) || w_we_recv;
 
-	    if (w_we_recv)
+	    if (w_we_recv | w_tlb_recv)
 	      mem_dataintomem <= w_data_recv;
 	    mem_addr <= w_addr_recv;
 	    mcu_we <= w_we_recv;

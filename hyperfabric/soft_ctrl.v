@@ -7,7 +7,7 @@ module Gremlin(input CLK,
 	       output reg 	 WRITE_CPU_ACK,
 	       input [2:0] 	 ADDR_CPU,
 	       input [63:0] 	 IN_CPU,
-	       output reg [31:0] OUT_CPU,
+	       output [31:0] 	 OUT_CPU,
 		    // ---------------------
 	       output reg [1:0]  IRQ_DESC,
 	       output 		 IRQ,
@@ -49,6 +49,7 @@ module Gremlin(input CLK,
 	       output reg 	 DIR_3,
 	       output 		 EN_STB_3);
   assign CAREOF_INT = 1'b1;
+  reg [31:0] 			 OUT_CPU = 32'h0;
   reg [1:0] 			 RST_MVBLCK = 2'h0,
 				 MCU_REQUEST_ALIGN = 2'h0;
   reg 				 MCU_REFRESH_STROBE = 1'b0;
@@ -198,6 +199,8 @@ module Gremlin(input CLK,
 	    else
 	      OUT_CPU[15:0] <= d_r_data;
 	  end
+	else
+	  OUT_CPU <= 0;
       end
 
   iceram16 prog_mem(.RDATA(instr), // 16 out
