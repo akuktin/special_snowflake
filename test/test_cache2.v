@@ -1,9 +1,15 @@
-`timescale 1ns/1ps
+`timescale 1ps/1ps
 
-`define x16
-`define sq5E
+`include "test_inc.v"
 
-`define delay 32'h0000_0001
+`include "../mcu/state2.v"
+`include "../mcu/initializer.v"
+`include "../mcu/integration3.v"
+
+`include "../cache/cpu_mcu2.v"
+
+`define delay     32'h0000_0001
+`define longdelay 32'h0000_0003
 
 module testsuite(input CLK, // CPU_CLK
 		 input 		   RST,
@@ -88,7 +94,7 @@ module testsuite(input CLK, // CPU_CLK
       test_addr[i]      <= 32'h0020_0020;test_datao[i]    <= 32'h5454_6904;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
-      test_timeout[i]   <= 32'd10;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd11;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x08
       test_addr[i]      <= 32'h0020_0020;test_datao[i]    <= 32'h5a5a_6905;
@@ -130,14 +136,14 @@ module testsuite(input CLK, // CPU_CLK
       test_addr[i]      <= 32'h0050_0060;test_datao[i]    <= 32'h5454_690a;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
-      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd28;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x0e
       test_addr[i]      <= 32'h0000_0050;test_datao[i]    <= 32'h5a5a_540b;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
-			                  (`delay + 32'h0000_0018);
+			                  (`delay + 32'h0000_002c);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
-      test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd40;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, cache hit, cache hit*/ // 0x0f
@@ -235,21 +241,21 @@ module testsuite(input CLK, // CPU_CLK
       test_we[i]        <= 1'b0;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0018);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540b;
-      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd24;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read, ghosting, peer address*/ // 0x1d
       test_addr[i]      <= 32'h0020_0030;test_datao[i]    <= 32'h5a5a_5454;
       test_we[i]        <= 1'b0;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5454_6906;
-      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd35;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x1e
       test_addr[i]      <= 32'h0020_0031;test_datao[i]    <= 32'h5a5a_540e;
       test_we[i]        <= 1'b0;         test_waittime[i] <=
-			                  (`delay + 32'h0000_0018);
+			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b1;         test_datai[i]    <= 32'h5a5a_540f;
-      test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd42;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* b2b read/write, cache hit, same idx*/ // 0x1f
@@ -354,21 +360,21 @@ module testsuite(input CLK, // CPU_CLK
       test_addr[i]      <= 32'h0282_3030;test_datao[i]    <= 32'h0001_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <= `delay;
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h0000_0000;
-      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd33;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2e
       test_addr[i]      <= 32'h0100_0404;test_datao[i]    <= 32'h0200_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
-			                  (`delay + 32'h0000_0018);
+			                  (`delay + 32'h0000_0028);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
-      test_timeout[i]   <= 32'd30;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd44;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1; // 0x2f
       test_addr[i]      <= 32'h0000_ff04;test_datao[i]    <= 32'hfdff_5a5a;
       test_we[i]        <= 1'b1;         test_waittime[i] <=
 			                  (`delay + 32'h0000_0400);
       test_caredatai[i] <= 1'b0;         test_datai[i]    <= 32'h5454_6901;
-      test_timeout[i]   <= 32'd20;       test_tlb[i]      <= 1'b0;
+      test_timeout[i]   <= 32'd28;       test_tlb[i]      <= 1'b0;
       test_fakemissb[i] <= 32'd0;        test_fakemisse[i] <= 32'd0;
       i = i +1;
       /* pmem b2b read, cache hit, cache miss */ // 0x30
@@ -508,7 +514,8 @@ module testsuite(input CLK, // CPU_CLK
 					    counter + 2;
 	    test_num <= test_num +1;
 
-	    $display("--- issue test %x @counter %d", test_num, counter);
+	    $display("--- issue test %x @counter %d @time %t",
+		     test_num, counter, $time);
 	  end
 	else
 	  begin
@@ -525,14 +532,14 @@ module testsuite(input CLK, // CPU_CLK
 		if (test_caredatai[test_seen] &&
 		    !(cache_datai === test_datai[test_seen]))
 		  begin
-		    $display("XXX bad outcome for test %x @counter %d: %x",
+		    $display("XXX bad outcome %x @counter %d @time %t: %x",
 			     test_seen, counter,
-			     cache_datai);
+			     $time, cache_datai);
 		  end
 		if (counter > test_timeout_comp[test_seen])
 		  begin
-		    $display("XXX timeout on test %x @counter %d",
-			     test_seen, counter);
+		    $display("XXX timeout %x @counter %d @time %t",
+			     test_seen, counter, $time);
 		  end
 	      end
 	  end
@@ -540,107 +547,14 @@ module testsuite(input CLK, // CPU_CLK
 
 endmodule // testsuite
 
-module ram_dp_true_m(input [31:0] DataInA,
-                     input [31:0]      DataInB,
-                     input [7:0]       AddressA,
-                     input [7:0]       AddressB,
-		     input 	       REnA,
-		     input 	       REnB,
-                     input 	       ClockA,
-                     input 	       ClockB,
-                     input 	       ClockEnA,
-                     input 	       ClockEnB,
-                     input 	       WrA,
-                     input 	       WrB,
-                     output reg [31:0] QA,
-                     output reg [31:0] QB);
-  reg [31:0]            r_data[255:0];
-
-  always @(posedge ClockA & ClockEnA)
-    begin
-      if (WrA)
-        r_data[AddressA] <= DataInA;
-      if (REnA)
-	QA <= r_data[AddressA];
-    end
-
-  always @(posedge ClockB & ClockEnB)
-    begin
-      if (WrB)
-        r_data[AddressB] <= DataInB;
-      if (REnB)
-	QB <= r_data[AddressB];
-    end
-
-endmodule
-
-module iceram32(output [31:0] RDATA,
-		input [7:0]   RADDR,
-		input 	      RE,
-		input 	      RCLKE,
-		input 	      RCLK,
-		output [31:0] WDATA,
-		input [31:0]  MASK,
-		input [7:0]   WADDR,
-		input 	      WE,
-		input 	      WCLKE,
-		input 	      WCLK);
-  ram_dp_true_m ram(.DataInA(),
-		    .DataInB(WDATA),
-		    .AddressA(RADDR),
-		    .AddressB(WADDR),
-		    .REnA(RE),
-		    .REnB(1'b0),
-		    .ClockA(RCLK),
-		    .ClockB(WCLK),
-		    .ClockEnA(RCLKE),
-		    .ClockEnB(WCLKE),
-		    .WrA(1'b0),
-		    .WrB(WE),
-		    .QA(RDATA),
-		    .QB());
-endmodule // iceram32
-
-module iceram16(output [15:0] RDATA,
-		input [7:0]   RADDR,
-		input 	      RE,
-		input 	      RCLKE,
-		input 	      RCLK,
-		output [15:0] WDATA,
-		input [15:0]  MASK,
-		input [7:0]   WADDR,
-		input 	      WE,
-		input 	      WCLKE,
-		input 	      WCLK);
-  wire [15:0] 		      ignore;
-  ram_dp_true_m ram(.DataInA(),
-		    .DataInB({16'd0,WDATA}),
-		    .AddressA(RADDR),
-		    .AddressB(WADDR),
-		    .REnA(RE),
-		    .REnB(1'b0),
-		    .ClockA(RCLK),
-		    .ClockB(WCLK),
-		    .ClockEnA(RCLKE),
-		    .ClockEnB(WCLKE),
-		    .WrA(1'b0),
-		    .WrB(WE),
-		    .QA({ignore,RDATA}),
-		    .QB());
-endmodule // iceram16
-
-`include "ddr.v"
-`include "commands.v"
-`include "state.v"
-`include "initializer.v"
-`include "integration.v"
-
-`include "cpu_mcu2.v"
-
 module GlaDOS;
-  reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST, CPU_CLK;
-  reg [31:0] counter, minicounter, readcount, readcount2, readcount_r;
+  reg CLK_p, CLK_n, CLK_dp, CLK_dn, RST = 0, CPU_CLK;
+  reg [31:0] counter = 0, minicounter = 0,
+	     readcount, readcount2, readcount_r;
   reg display_intrfc, display_internals;
+
+  reg SYS_RST = 0, long_counter_o;
+  reg [7:0] long_counter_h, long_counter_l;
 
   reg [31:0] data_read, transtest;
 
@@ -650,11 +564,14 @@ module GlaDOS;
   reg         inhibit_ack;
   wire 	      user_req_ack;
   wire [31:0] user_req_dataout;
+  wire [3:0]  user_req_we_array;
 
-  wire 	      CKE, DQS, DM, CS;
+  reg 	      refresh_strobe = 1'b0;
+
+  wire        CLK_P, CLK_N, CKE, UDQS, LDQS, UDM, LDM, CS, ODT;
   wire [2:0]  COMMAND;
-  wire [12:0] ADDRESS;
-  wire [1:0]  BANK;
+  wire [13:0] ADDRESS;
+  wire [2:0]  BANK;
   wire [15:0] DQ;
 
   reg [31:0]  cache_addr;
@@ -672,58 +589,81 @@ module GlaDOS;
 
   assign cache_en_decoded = cache_en ^ cache_en_follow;
 
-  ddr ddr_mem(.Clk(CLK_p),
-	      .Clk_n(CLK_n),
-	      .Cke(CKE),
-	      .Cs_n(CS),
-	      .Ras_n(COMMAND[2]),
-	      .Cas_n(COMMAND[1]),
-	      .We_n(COMMAND[0]),
-	      .Ba(BANK),
-	      .Addr(ADDRESS),
-	      .Dm({DM,DM}),
-	      .Dq(DQ),
-	      .Dqs({DQS,DQS}));
+  ddr2 ddr2_mem(.ck(CLK_P),
+		.ck_n(CLK_N),
+		.cke(CKE),
+		.cs_n(CS),
+		.ras_n(COMMAND[2]),
+		.cas_n(COMMAND[1]),
+		.we_n(COMMAND[0]),
+		.dm_rdqs({UDM,LDM}),
+		.ba(BANK),
+		.addr(ADDRESS[12:0]), // simulation limitation
+		.dq(DQ),
+		.dqs({UDQS,LDQS}),
+		.dqs_n(),
+		.rdqs_n(),
+		.odt(1'b1));
 
   ddr_memory_controler ddr_mc(.CLK_n(CLK_n),
-			      .CLK_p(CLK_p),
-			      .CLK_dp(CLK_dp),
 			      .CLK_dn(CLK_dn),
-			      .RST(RST),
+			      .RST_MASTER(SYS_RST),
+			      .MEM_CLK_P(CLK_P),
+			      .MEM_CLK_N(CLK_N),
 			      .CKE(CKE),
 			      .COMMAND(COMMAND),
 			      .ADDRESS(ADDRESS),
 			      .BANK(BANK),
 			      .DQ(DQ),
-			      .DQS(DQS),
-			      .DM(DM),
+			      .UDQS(UDQS),
+			      .LDQS(LDQS),
+			      .UDM(UDM),
+			      .LDM(LDM),
 			      .CS(CS),
-			      .user_req_address(user_req_address),
-			      .user_req_we(user_req_we),
-			      .user_req(user_req),
-			      .user_req_datain(user_req_datain),
-			      .user_req_ack(user_req_ack),
+			      .refresh_strobe(refresh_strobe),
+			      .rand_req_address(user_req_address[25:0]),
+			      .rand_req_we(user_req_we),
+			      .rand_req_we_array(user_req_we_array),
+			      .rand_req(user_req),
+			      .rand_req_ack(user_req_ack),
+			      .rand_req_datain(user_req_datain),
+			      .bulk_req_address(0),
+			      .bulk_req_we(0),
+			      .bulk_req_we_array(0),
+			      .bulk_req(0),
+			      .bulk_req_ack(),
+			      .bulk_req_algn(0),
+			      .bulk_req_algn_ack(),
+			      .bulk_req_datain(0),
 			      .user_req_dataout(user_req_dataout));
 
   snowball_cache
     cache_under_test(.CPU_CLK(CPU_CLK),
 		     .MCU_CLK(CLK_n),
-		     .RST(RST),
+		     .RST(SYS_RST),
 		     .cache_precycle_addr(test_cache_addr),
 		     .cache_datao(test_cache_datao), // CPU perspective
 		     .cache_datai(cache_datai), // CPU perspective
 		     .cache_precycle_we(test_cache_we),
 		     .cache_busy(cache_busy),
 		     .cache_precycle_enable(test_cache_en),
+		     .cache_precycle_force_miss(1'b0),
 //--------------------------------------------------
 //--------------------------------------------------
 		     .dma_mcu_access(1'b1),
 		     .mem_addr(user_req_address),
 		     .mem_we(user_req_we),
+		     .mem_we_array(user_req_we_array),
 		     .mem_do_act(user_req),
 		     .mem_dataintomem(user_req_datain),
 		     .mem_ack(user_req_ack),
 		     .mem_datafrommem(user_req_dataout),
+//--------------------------------------------------
+		     .dma_wrte(),
+		     .dma_read(),
+		     .dma_wrte_ack(0),
+		     .dma_read_ack(0),
+		     .dma_data_read(0),
 //--------------------------------------------------
 		     .VMEM_ACT(cache_vmem),
 		     .cache_inhibit(cache_inhibit),
@@ -735,30 +675,53 @@ module GlaDOS;
   initial
     forever
       begin
-	#1.5 CLK_n <= 0; CLK_p <= 1;
-	#1.5 CLK_dp <= 1; CLK_dn <= 0;
-	#1.5 CLK_n <= 1; CLK_p <= 0;
-	#1.5 CLK_dp <= 0; CLK_dn <= 1;
+	#1500 CLK_n <= 0; CLK_p <= 1;
+	#1500 CLK_dp <= 1; CLK_dn <= 0;
+	#1500 CLK_n <= 1; CLK_p <= 0;
+	#1500 CLK_dp <= 0; CLK_dn <= 1;
       end
   initial
     forever
       begin
-	#1.5;
-	#4.5 CPU_CLK <= 1;
-	#3   CPU_CLK <= 0;
+	#1500;
+	#4500 CPU_CLK <= 1;
+	#3000 CPU_CLK <= 0;
       end
+
+  always @(posedge CLK_n)
+    begin
+      if (!RST)
+	begin
+	  long_counter_h <= 0;
+	  long_counter_l <= 0;
+	  long_counter_o <= 0;
+	end
+      else
+	begin
+	  {long_counter_o,long_counter_l} <= long_counter_l +1;
+	  if (long_counter_o)
+	    long_counter_h <= long_counter_h +1;
+	  if (long_counter_h == 8'hff)
+	    SYS_RST <= 1;
+	end
+    end
+
+  initial
+    forever
+      #2304000 if (SYS_RST) refresh_strobe <= !refresh_strobe;
+
 
   reg [11:0] u;
   initial
     begin
       display_internals <= 0;
       RST <= 0;
-      #14.875 RST <= 1;
-      #400000;
-      #50000;
-      #50000;
+      #14875 RST <= 1;
+      #400000000;
+      #50000000;
+      #50000000;
 
-      #20;
+      #20000;
 /*
       for (u=0;u<256;u=u+1)
         begin
@@ -771,6 +734,7 @@ module GlaDOS;
                    u, cache_under_test.cachetag.ram.r_data[u]);
         end
 */
+      $display("counter %d", test_unit.counter);
       $finish;
     end
 
@@ -841,7 +805,7 @@ module GlaDOS;
       end // else: !if(!_RST)
 
   always @(posedge CLK_n)
-    if (!RST)
+    if (!SYS_RST)
       begin
         minicounter <= 0;
       end
