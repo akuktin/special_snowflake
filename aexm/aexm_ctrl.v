@@ -1,6 +1,6 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
-   rMXDST, rMXDST_use_combined, MEMOP_MXDST, xMXSRC, xMXTGT, xMXALT,
+   rMXDST, rMXDST_use_combined, MEMOP_MXDST, dMXSRC, dMXTGT, dMXALT,
    rMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
    aexm_dcache_force_miss, fSTALL,
    // Inputs
@@ -8,7 +8,7 @@ module aexm_ctrl (/*AUTOARG*/
    cpu_interrupt, gclk, d_en, x_en
    );
    // INTERNAL
-   output [1:0]  rMXDST, xMXSRC, xMXTGT, xMXALT;
+   output [1:0]  rMXDST, dMXSRC, dMXTGT, dMXALT;
    output [2:0]  rMXALU;
    output [4:0]  rRW;
   output 	 rRDWE;
@@ -72,9 +72,9 @@ module aexm_ctrl (/*AUTOARG*/
    reg [1:0] 	 rMXDST = 2'h0, xMXDST;
    reg [4:0] 	 rRW = 5'h0, xRW;
 
-   reg [1:0] 	 xMXSRC;
-   reg [1:0] 	 xMXTGT;
-   reg [1:0] 	 xMXALT;
+   reg [1:0] 	 dMXSRC;
+   reg [1:0] 	 dMXTGT;
+   reg [1:0] 	 dMXALT;
 
 
    // --- OPERAND SELECTOR ---------------------------------
@@ -96,17 +96,17 @@ module aexm_ctrl (/*AUTOARG*/
    always @(wAFWD_M or wAFWD_R or dBCC or wBFWD_M or wBFWD_R or
 	    dBRU or dOPC or late_forward_A or late_forward_B)
      begin
-	xMXSRC <= (dBRU | dBCC) ? 2'o3 : // PC
+	dMXSRC <= (dBRU | dBCC) ? 2'o3 : // PC
 		  (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
 		  (late_forward_A) ? 2'o2 :
 		  2'o0; // REG
-	xMXTGT <= (dOPC[3]) ? 2'o3 : // IMM
+	dMXTGT <= (dOPC[3]) ? 2'o3 : // IMM
 		  (wBFWD_M) ? 2'o2 : // RAM
 		  (wBFWD_R) ? 2'o1 : // FWD
 		  (late_forward_B) ? 2'o2 :
 		  2'o0; // REG
-	xMXALT <= (wAFWD_M) ? 2'o2 : // RAM
+	dMXALT <= (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
 		  (late_forward_A) ? 2'o2 :
 		  2'o0; // REG
