@@ -39,19 +39,16 @@ module aexm_ctrl (/*AUTOARG*/
    wire [4:0] 	 wRD, wRA, wRB;
    wire [10:0] 	 wALT;
 
-   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG; // FIXME: Endian
+   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG;
 
-  reg fSFT = 1'b0, fLOG = 1'b0, fMUL = 1'b0, fBSF = 1'b0, fDIV = 1'b0,
+  reg fSFT = 1'b0, fLOG = 1'b0, fBSF = 1'b0,
       fRTD = 1'b0, fBCC = 1'b0, fBRU = 1'b0, fIMM = 1'b0, fMOV = 1'b0,
-      fLOD = 1'b0, fSTR = 1'b0, fLOD_r = 1'b0, fLDST = 1'b0, fPUT = 1'b0,
-      fGET = 1'b0;
+      fLOD = 1'b0, fSTR = 1'b0, fLOD_r = 1'b0, fLDST = 1'b0;
 
    wire 	 wSFT = (wOPC == 6'o44);
    wire 	 wLOG = ({wOPC[5:4],wOPC[2]} == 3'o4);
 
-   wire 	 wMUL = (wOPC == 6'o20) | (wOPC == 6'o30);
    wire 	 wBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
-   wire 	 wDIV = (wOPC == 6'o22);
 
    wire 	 wRTD = (wOPC == 6'o55);
    wire 	 wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) &&
@@ -67,9 +64,6 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
   wire 		 wLOD_r = (wOPC == 6'o62);
    wire 	 wLDST = (&wOPC[5:4]);
-
-   wire          wPUT = (wOPC == 6'o33) & wRB[4];
-   wire 	 wGET = (wOPC == 6'o33) & !wRB[4];
 
   assign         fSTALL = wBSF;
 
@@ -122,15 +116,12 @@ module aexm_ctrl (/*AUTOARG*/
 
    reg [2:0]     rMXALU = 3'h0, xMXALU;
 
-   always @(/*AUTOSENSE*/wBRA or wBSF or wDIV or wLOG or wMOV
-	    or wMUL or wSFT)
+   always @(wBRA or wBSF or wLOG or wMOV or wSFT)
      begin
 	xMXALU <= (wBRA | wMOV) ? 3'o3 :
 		  (wSFT) ? 3'o2 :
 		  (wLOG) ? 3'o1 :
-		  (wMUL) ? 3'o4 :
 		  (wBSF) ? 3'o5 :
-		  (wDIV) ? 3'o6 :
 		  3'o0;
      end
 
@@ -139,20 +130,20 @@ module aexm_ctrl (/*AUTOARG*/
   reg  rMXDST_use_combined = 1'b0;
   wire MEMOP_MXDST;
 
-   always @(fBCC or fBRU or fGET or fLOD or fRTD or xSKIP
+   always @(fBCC or fBRU or fLOD or fRTD or xSKIP
 	    or fSTR or rRD)
      if (xSKIP) begin
 	xMXDST <= 2'h0;
 	xRW <= 5'h0;
      end else begin
 	xMXDST <= (fSTR | fRTD | fBCC) ? 2'o3 :
-		  (fLOD | fGET) ? 2'o2 :
+		  (fLOD) ? 2'o2 :
 		  (fBRU) ? 2'o1 :
 		  2'o0;
 	xRW <= rRD;
      end
 
-  assign MEMOP_MXDST = (fLOD | fGET) && !xSKIP;
+  assign MEMOP_MXDST = fLOD && !xSKIP;
 
    // --- DATA MEMORY INTERFACE ----------------------------------
 
@@ -171,10 +162,10 @@ module aexm_ctrl (/*AUTOARG*/
        xRW_valid <= dRW_valid;
        rRW_valid <= xRW_valid && !xSKIP;
 
-       fSFT <= wSFT; fLOG <= wLOG; fMUL <= wMUL; fBSF <= wBSF;
-       fDIV <= wDIV; fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;
+       fSFT <= wSFT; fLOG <= wLOG; fBSF <= wBSF;
+       fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;
        fIMM <= wIMM; fMOV <= wMOV; fLOD <= wLOD; fSTR <= wSTR;
-       fLOD_r <= wLOD_r; fLDST <= wLDST; fPUT <= wPUT; fGET <= wGET;
+       fLOD_r <= wLOD_r; fLDST <= wLDST;
 
        rMXDST_use_combined <= (xMXDST != 2'h0);
      end
