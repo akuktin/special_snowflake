@@ -4,7 +4,7 @@ module aexm_ibuf (/*AUTOARG*/
    regf_rRA, regf_rRB, regf_rRD, cpu_interrupt,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
-   grst, d_en, oena
+   d_en, oena
    );
    // INTERNAL
    output [15:0] rIMM;
@@ -22,7 +22,7 @@ module aexm_ibuf (/*AUTOARG*/
 
    // SYSTEM
    input 	 sys_int_i;
-   input 	 gclk, grst, d_en, oena;
+   input 	 gclk, d_en, oena;
 
   wire [5:0] xOPC;
   assign xOPC = xIREG[31:26];
@@ -58,7 +58,7 @@ module aexm_ibuf (/*AUTOARG*/
    wire 	wSHOT = rDINT[0];
 
    always @(posedge gclk)
-     if (grst) begin
+     begin
 	if (rMSR_IE)
 	  rDINT <= {rDINT[0], sys_int_i};
 
