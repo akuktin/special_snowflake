@@ -105,7 +105,7 @@ module hyper_mvblck_frdram(input CLK,
 	we_counter <= 0; release_counter <= 0;
 	release_trigger <= 1; we_trigger <= 0;
 	WORKING <= 0; am_working <= 0;
-	MCU_COLL_ADDRESS <= 0;
+	MCU_COLL_ADDRESS <= 0; COUNT_SENT <= 0;
 	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
 	DEV_2_ERR_ACK <= 0; DEV_3_ERR_ACK <= 0;
       end

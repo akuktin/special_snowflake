@@ -89,7 +89,7 @@ module hyper_mvblck_todram(input CLK,
     if (!RST)
       begin
 	am_working <= 0; working_pre <= 0; WORKING <= 0; LSAB_READ <= 0;
-	MCU_REQUEST_ACCESS <= 0; MCU_COLL_ADDRESS <= 0;
+	MCU_REQUEST_ACCESS <= 0; MCU_COLL_ADDRESS <= 0; COUNT_SENT <= 0;
       end
     else
       begin
