@@ -49,7 +49,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
    wire			rMSR_IE;		// From xecu of aexm_xecu.v
    wire [1:0]		dMXALT;			// From ctrl of aexm_ctrl.v
-   wire [2:0]		rMXALU;			// From ctrl of aexm_ctrl.v
+   wire [2:0]		xMXALU;			// From ctrl of aexm_ctrl.v
    wire [1:0]		rMXDST;			// From ctrl of aexm_ctrl.v
    wire 		rMXDST_use_combined;	// From ctrl of aexm_ctrl.v
    wire [1:0]		dMXSRC;			// From ctrl of aexm_ctrl.v
@@ -140,7 +140,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .dMXSRC			(dMXSRC[1:0]),
 	   .dMXTGT			(dMXTGT[1:0]),
 	   .dMXALT			(dMXALT[1:0]),
-	   .rMXALU			(rMXALU[2:0]),
+	   .xMXALU			(xMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
 	   .rRDWE		        (rRDWE),
 	   .dSTRLOD                     (dSTRLOD),
@@ -226,7 +226,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .dMXTGT			(dMXTGT[1:0]),
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
-	   .rMXALU			(rMXALU[2:0]),
+	   .xMXALU			(xMXALU[2:0]),
 	   .xSKIP                       (xSKIP),
 	   .rALT			(rALT[10:0]),
 	   .xSIMM			(xSIMM[31:0]),

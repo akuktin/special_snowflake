@@ -3,7 +3,7 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr,
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   xREGA, xREGB, dMXSRC, dMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
+   xREGA, xREGB, dMXSRC, dMXTGT, rRA, rRB, xMXALU, xSKIP, rALT,
    xSIMM, rIMM, rOPC, xOPC, rRD, c_io_rg, rIPC, rPC, gclk, d_en, x_en
    );
    parameter DW=32;
@@ -21,7 +21,7 @@ module aexm_xecu (/*AUTOARG*/
    input [31:0]    xREGA, xREGB;
    input [1:0] 	   dMXSRC, dMXTGT;
    input [4:0] 	   rRA, rRB;
-   input [2:0] 	   rMXALU;
+   input [2:0] 	   xMXALU;
    input [10:0]    rALT;
   input 	   xSKIP;
 
@@ -203,12 +203,12 @@ module aexm_xecu (/*AUTOARG*/
    wire 	   fMTS = (rOPC == 6'o45) & rIMM[14] & !xSKIP;
    wire 	   fADDC = ({rOPC[5:4], rOPC[2]} == 3'o0);
 
-   always @(/*AUTOSENSE*/fADDC or fMTS or xSKIP or rMSR_C or rMXALU
+   always @(/*AUTOSENSE*/fADDC or fMTS or xSKIP or rMSR_C or xMXALU
 	    or rOPA or rRES_ADDC or rRES_SFTC)
      if (xSKIP) begin
 	xMSR_C <= rMSR_C;
      end else
-       case (rMXALU)
+       case (xMXALU)
 	 3'o0: xMSR_C <= (fADDC) ? rRES_ADDC : rMSR_C;
 	 3'o1: xMSR_C <= rMSR_C; // LOGIC
 	 3'o2: xMSR_C <= rRES_SFTC; // SHIFT
@@ -216,7 +216,7 @@ module aexm_xecu (/*AUTOARG*/
 	 3'o4: xMSR_C <= rMSR_C;
 	 3'o5: xMSR_C <= rMSR_C;
 	 default: xMSR_C <= 1'hX;
-       endcase // case (rMXALU)
+       endcase // case (xMXALU)
 
    // IE/BIP/BE
    wire 	    fRTID = (rOPC == 6'o55) & rRD[0] & !xSKIP;
@@ -244,9 +244,9 @@ module aexm_xecu (/*AUTOARG*/
    reg [31:0] 	   rRESULT = 32'd0, xRESULT;
 
    // RESULT
-   always @(rMXALU or rRES_ADD or rRES_BSF or rRES_LOG or
+   always @(xMXALU or rRES_ADD or rRES_BSF or rRES_LOG or
 	    rRES_MOV or rRES_SFT)
-       case (rMXALU)
+       case (xMXALU)
 	 3'o0: xRESULT <= rRES_ADD;
 	 3'o1: xRESULT <= rRES_LOG;
 	 3'o2: xRESULT <= rRES_SFT;
@@ -254,7 +254,7 @@ module aexm_xecu (/*AUTOARG*/
 	 3'o4: xRESULT <= 32'hX;
 	 3'o5: xRESULT <= (BSF) ? rRES_BSF : 32'hX;
 	 default: xRESULT <= 32'hX;
-       endcase // case (rMXALU)
+       endcase // case (xMXALU)
 
    // --- DATA WISHBONE -----
 

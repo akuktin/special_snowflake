@@ -1,7 +1,7 @@
 module aexm_ctrl (/*AUTOARG*/
    // Outputs
    rMXDST, rMXDST_use_combined, MEMOP_MXDST, dMXSRC, dMXTGT, dMXALT,
-   rMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
+   xMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
    aexm_dcache_force_miss, fSTALL,
    // Inputs
    xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
@@ -9,7 +9,7 @@ module aexm_ctrl (/*AUTOARG*/
    );
    // INTERNAL
    output [1:0]  rMXDST, dMXSRC, dMXTGT, dMXALT;
-   output [2:0]  rMXALU;
+   output [2:0]  xMXALU;
    output [4:0]  rRW;
   output 	 rRDWE;
   output 	 rMXDST_use_combined;
@@ -114,11 +114,11 @@ module aexm_ctrl (/*AUTOARG*/
 
    // --- ALU CONTROL ---------------------------------------
 
-   reg [2:0]     rMXALU = 3'h0, xMXALU;
+   reg [2:0]     xMXALU = 3'h0, dMXALU;
 
    always @(dBRA or dBSF or dLOG or dMOV or dSFT)
      begin
-	xMXALU <= (dBRA | dMOV) ? 3'o3 :
+	dMXALU <= (dBRA | dMOV) ? 3'o3 :
 		  (dSFT) ? 3'o2 :
 		  (dLOG) ? 3'o1 :
 		  (dBSF) ? 3'o5 :
@@ -156,7 +156,7 @@ module aexm_ctrl (/*AUTOARG*/
 
    always @(posedge gclk)
      if (d_en) begin
-       rMXDST <= xMXDST; rMXALU <= xMXALU;
+       rMXDST <= xMXDST; xMXALU <= dMXALU;
        rRW <= xRW; rRDWE <= wRDWE;
        xRW_valid <= dRW_valid;
        rRW_valid <= xRW_valid && !xSKIP;
