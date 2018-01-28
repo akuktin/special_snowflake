@@ -46,7 +46,8 @@ module aexm_ctrl (
    wire 	 dSFT = (dOPC == 6'o44);
    wire 	 dLOG = ({dOPC[5:4],dOPC[2]} == 3'o4);
 
-   wire 	 dBSF = (dOPC == 6'o21) | (dOPC == 6'o31);
+   wire 	 dBSF = (dOPC == 6'o21) | (dOPC == 6'o31) &&
+		        !cpu_interrupt;
 
    wire 	 dRTD = (dOPC == 6'o55);
    wire 	 dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57)) &&
@@ -58,8 +59,10 @@ module aexm_ctrl (
    wire 	 dIMM = (dOPC == 6'o54);
    wire 	 dMOV = (dOPC == 6'o45);
 
-   wire 	 dLOD = ({dOPC[5:4],dOPC[2]} == 3'o6);
-   wire 	 dSTR = ({dOPC[5:4],dOPC[2]} == 3'o7);
+   wire 	 dLOD = ({dOPC[5:4],dOPC[2]} == 3'o6) &&
+		        !cpu_interrupt;
+   wire 	 dSTR = ({dOPC[5:4],dOPC[2]} == 3'o7) &&
+		        !cpu_interrupt;
   wire 		 dLOD_r = (dOPC == 6'o62);
 
   assign         fSTALL = dBSF;

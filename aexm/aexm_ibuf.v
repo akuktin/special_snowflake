@@ -56,7 +56,7 @@ module aexm_ibuf (/*AUTOARG*/
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
-  reg 	xIMM_sig = 1'b0;;
+  reg 	xIMM_sig = 1'b0;
    wire 	dIMM = (dOPC == 6'o54);
    wire 	dRTD = (dOPC == 6'o55);
    wire 	dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56));

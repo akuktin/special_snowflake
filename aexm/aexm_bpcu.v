@@ -105,7 +105,7 @@ module aexm_bpcu (
 			((dRD[2:0] == 3'h1) ||
 			 // implement gt as an inverted le
 			 (dRD[2:0] == 3'h4)));
-      rSKIP_n <= (dBRU && dRA[4]) || (dBCC && dRD[4]);
+      rSKIP_n <= ((dBRU && dRA[4]) || (dBCC && dRD[4])) && !cpu_interrupt;
 
       end // else: !if(dSKIP)
     end // if (d_en)
