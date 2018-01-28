@@ -1,18 +1,18 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
-   rIMM, rRA, rRD, rRB, rALT, rOPC, xOPC, xSIMM, xIREG,
-   regf_rRA, regf_rRB, regf_rRD, cpu_interrupt,
+   xIMM, xRA, xRD, xRB, xALT, xOPC, dOPC, dIMMVAL, dINST,
+   dRA, dRB, dRD, cpu_interrupt,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    d_en, oena
    );
    // INTERNAL
-   output [15:0] rIMM;
-   output [4:0]  rRA, rRD, rRB, regf_rRA, regf_rRB, regf_rRD;
-   output [10:0] rALT;
-   output [5:0]  rOPC, xOPC;
-   output [31:0] xSIMM;
-   output [31:0] xIREG;
+   output [15:0] xIMM;
+   output [4:0]  xRA, xRD, xRB, dRA, dRB, dRD;
+   output [10:0] xALT;
+   output [5:0]  xOPC, dOPC;
+   output [31:0] dIMMVAL;
+   output [31:0] dINST;
   output 	 cpu_interrupt;
 
    input 	 rMSR_IE;
@@ -24,30 +24,19 @@ module aexm_ibuf (/*AUTOARG*/
    input 	 sys_int_i;
    input 	 gclk, d_en, oena;
 
-  wire [5:0] xOPC;
-  assign xOPC = xIREG[31:26];
+   reg [15:0] 	 xIMM = 16'd0;
+   reg [4:0] 	 xRA = 5'h0, xRD = 5'h0;
+   reg [5:0] 	 xOPC = 6'h0;
 
-   reg [15:0] 	 rIMM = 16'd0;
-   reg [4:0] 	 rRA = 5'h0, rRD = 5'h0;
-   reg [5:0] 	 rOPC = 6'h0;
+   assign 	 {xRB, xALT} = xIMM;
 
-   // FIXME: Endian
-   wire [31:0] 	 wIDAT = aexm_icache_datai;
-   assign 	 {rRB, rALT} = rIMM;
-
-   reg [31:0] 	rSIMM = 32'd0, xSIMM;
-
-   wire [31:0] 	wXCEOP = 32'hBA2D0008; // Vector 0x08
    wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0060}; // register to be
                                                        // changed to 5'h00
-   wire [31:0] 	wBRKOP = 32'hBA0C0018; // Vector 0x18
-   wire [31:0] 	wBRAOP = 32'h88000000; // NOP for branches
   reg 		issued_interrupt = 1'b0, cpu_interrupt = 1'b0;
 
-   wire [31:0] 	wIREG = {rOPC, rRD, rRA, rRB, rALT};
-  wire [31:0] 	xIREG;
-  reg [31:0] 	xNXTINST;
-  assign xIREG = wIDAT;
+  wire [31:0] 	dINST;
+  wire [31:0] 	dNXTINST;
+  assign dINST = aexm_icache_datai;
 
    // --- INTERRUPT LATCH --------------------------------------
    // Debounce and latch onto the positive level. This is independent
@@ -67,33 +56,33 @@ module aexm_ibuf (/*AUTOARG*/
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
-   wire 	fIMM = (rOPC == 6'o54);
-   wire 	wIMM = (xOPC == 6'o54);
-   wire 	wRTD = (xOPC == 6'o55);
-   wire 	wBRU = ((xOPC == 6'o46) | (xOPC == 6'o56));
-   wire 	wBCC = ((xOPC == 6'o47) | (xOPC == 6'o57));
+  reg 	xIMM_sig = 1'b0;;
+   wire 	dIMM = (dOPC == 6'o54);
+   wire 	dRTD = (dOPC == 6'o55);
+   wire 	dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56));
+   wire 	dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57));
 
    // --- DELAY SLOT -------------------------------------------
 
+  wire [31:0] dIMMVAL;
+
   assign do_interrupt = (rFINT && !issued_interrupt && !cpu_interrupt) &&
-			!(wIMM || wRTD || wBRU || wBCC);
+			!(dIMM || dRTD || dBRU || dBCC);
 
-   always @(cpu_interrupt or wIDAT or wINTOP) begin
-     xNXTINST <= cpu_interrupt ? wINTOP : wIDAT;
-   end
+  assign dNXTINST = cpu_interrupt ? wINTOP : dINST;
 
-   always @(/*AUTOSENSE*/fIMM or rIMM or wIDAT or xIREG) begin
-      xSIMM <= (fIMM) ?
-	       {rIMM, wIDAT[15:0]} :
-	       { {(16){xIREG[15]}}, xIREG[15:0]};
-   end
+  assign dIMMVAL = (xIMM_sig) ?
+		   {xIMM, dINST[15:0]} :
+		   { {(16){dINST[15]}}, dINST[15:0]};
 
    // --- REGISTER FILE ---------------------------------------
 
-  wire [4:0] regf_rRD, regf_rRA, regf_rRB;
-  assign regf_rRD = xIREG[25:21];
-  assign regf_rRA = xIREG[20:16];
-  assign regf_rRB = xIREG[15:11];
+  wire [5:0] dOPC;
+  wire [4:0] dRD, dRA, dRB;
+  assign dOPC = dINST[31:26];
+  assign dRD  = dINST[25:21];
+  assign dRA  = dINST[20:16];
+  assign dRB  = dINST[15:11];
 
    // --- PIPELINE --------------------------------------------
 
@@ -101,8 +90,8 @@ module aexm_ibuf (/*AUTOARG*/
      if (d_en) begin
        issued_interrupt <= cpu_interrupt;
        cpu_interrupt <= do_interrupt;
-	{rOPC, rRD, rRA, rIMM} <= xNXTINST;
-	rSIMM <= xSIMM;
+	{xOPC, xRD, xRA, xIMM} <= dNXTINST;
+       xIMM_sig <= dIMM;
      end
 
 endmodule // aexm_ibuf

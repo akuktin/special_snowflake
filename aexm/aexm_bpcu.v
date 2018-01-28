@@ -1,10 +1,10 @@
-module aexm_bpcu (/*AUTOARG*/
+module aexm_bpcu (
    // Outputs
    aexm_icache_precycle_addr, rIPC, rPC,
    dSKIP, xSKIP,
    // Inputs
-   dMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
-   cpu_mode_memop, xIREG, cpu_interrupt,
+   dMXALT, xRESULT, c_io_rg, xREGA,
+   cpu_mode_memop, dINST, cpu_interrupt,
    gclk, x_en, d_en
    );
    parameter IW = 24;
@@ -20,12 +20,10 @@ module aexm_bpcu (/*AUTOARG*/
    //output [1:0]    xATOM;
 
    input [1:0] 	   dMXALT;
-   input [5:0] 	   rOPC;
-   input [4:0] 	   rRD, rRA;
    input [31:0]    xRESULT; // ALU
    input [31:0]    c_io_rg;
    input [31:0]    xREGA;
-  input [31:0] 	   xIREG;
+  input [31:0] 	   dINST;
    //input [1:0] 	   rXCE;
 
   input 	   cpu_mode_memop;
@@ -34,11 +32,11 @@ module aexm_bpcu (/*AUTOARG*/
    // SYSTEM
    input 	   gclk, x_en, d_en;
 
-   wire [5:0] 	 wOPC;
-   wire [4:0] 	 wRD, wRA, wRB;
-   wire [10:0] 	 wALT;
+   wire [5:0] 	 dOPC;
+   wire [4:0] 	 dRD, dRA, dRB;
+   wire [10:0] 	 dALT;
 
-   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG;
+   assign 	 {dOPC, dRD, dRA, dRB, dALT} = dINST;
 
    // --- BRANCH CONTROL --------------------------------------------
    // Controls the branch and delay flags
@@ -61,7 +59,7 @@ module aexm_bpcu (/*AUTOARG*/
 
 		   xSKIP = 1'b0, xBRA, fSKIP, dSKIP;
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
-		   wBCC, wBRU;
+		   dBCC, dBRU;
 
   always @(posedge gclk)
     if (fSKIP) begin
@@ -77,37 +75,37 @@ module aexm_bpcu (/*AUTOARG*/
       if (dSKIP) begin
       rSKIP_n <= 0;
       end else begin // if (!dSKIP)
-      chain_endpoint <= !(wBRU ||
-			  (wBCC &&
-			   ((wRD[2:0] == 3'h0) ||
-			    (wRD[2:0] == 3'h1) ||
-			    (wRD[2:0] == 3'h3) ||
+      chain_endpoint <= !(dBRU ||
+			  (dBCC &&
+			   ((dRD[2:0] == 3'h0) ||
+			    (dRD[2:0] == 3'h1) ||
+			    (dRD[2:0] == 3'h3) ||
 			    // implement gt as an inverted le
-			    (wRD[2:0] == 3'h4) ||
-			    (wRD[2:0] == 3'h5))));
-      careof_equal_n <= !(wBCC &&
-			  ((wRD[2:0] == 3'h0) ||
-			   (wRD[2:0] == 3'h1) ||
-			   (wRD[2:0] == 3'h3) ||
+			    (dRD[2:0] == 3'h4) ||
+			    (dRD[2:0] == 3'h5))));
+      careof_equal_n <= !(dBCC &&
+			  ((dRD[2:0] == 3'h0) ||
+			   (dRD[2:0] == 3'h1) ||
+			   (dRD[2:0] == 3'h3) ||
 			   // implement gt as an inverted le
-			   (wRD[2:0] == 3'h4) ||
-			   (wRD[2:0] == 3'h5)));
-      careof_ltgt <= wBCC &&
-		     ((wRD[2:0] == 3'h2) ||
-		      (wRD[2:0] == 3'h3) ||
-		      (wRD[2:0] == 3'h4) ||
-		      (wRD[2:0] == 3'h5));
-      expect_equal <= !wBRU;
-      expect_ltgt <= ((wRD[2:0] == 3'h2) ||
-		      (wRD[2:0] == 3'h3) ||
+			   (dRD[2:0] == 3'h4) ||
+			   (dRD[2:0] == 3'h5)));
+      careof_ltgt <= dBCC &&
+		     ((dRD[2:0] == 3'h2) ||
+		      (dRD[2:0] == 3'h3) ||
+		      (dRD[2:0] == 3'h4) ||
+		      (dRD[2:0] == 3'h5));
+      expect_equal <= !dBRU;
+      expect_ltgt <= ((dRD[2:0] == 3'h2) ||
+		      (dRD[2:0] == 3'h3) ||
 		      // implement gt as an inverted le
-		      (wRD[2:0] == 3'h4)) ? 1 : 0;
-      invert_answer <= wBRU ||
-		       (wBCC &&
-			((wRD[2:0] == 3'h1) ||
+		      (dRD[2:0] == 3'h4)) ? 1 : 0;
+      invert_answer <= dBRU ||
+		       (dBCC &&
+			((dRD[2:0] == 3'h1) ||
 			 // implement gt as an inverted le
-			 (wRD[2:0] == 3'h4)));
-      rSKIP_n <= (wBRU && wRA[4]) || (wBCC && wRD[4]);
+			 (dRD[2:0] == 3'h4)));
+      rSKIP_n <= (dBRU && dRA[4]) || (dBCC && dRD[4]);
 
       end // else: !if(dSKIP)
     end // if (d_en)
@@ -178,8 +176,8 @@ module aexm_bpcu (/*AUTOARG*/
       end
     endcase // case ({expect_reg_equal,reg_equal_null_n,invert_answer})
 
-  assign wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) && !cpu_interrupt;
-  assign wBRU = ((wOPC == 6'o46) | (wOPC == 6'o56)) || cpu_interrupt;
+  assign dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57)) && !cpu_interrupt;
+  assign dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56)) || cpu_interrupt;
 
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes
@@ -201,12 +199,12 @@ module aexm_bpcu (/*AUTOARG*/
    // --- ATOMIC CONTROL ---------------------------------------------
    // This is used to indicate 'safe' instruction borders.
 
-   wire 	wIMM = (rOPC == 6'o54) & !fSKIP;
-   wire 	wRTD = (rOPC == 6'o55) & !fSKIP;
-//   wire 	wBCC = xXCC & ((rOPC == 6'o47) | (rOPC == 6'o57)) & !fSKIP;
-//   wire 	wBRU = ((rOPC == 6'o46) | (rOPC == 6'o56)) & !fSKIP;
+   wire 	wIMM = (xOPC == 6'o54) & !fSKIP;
+   wire 	wRTD = (xOPC == 6'o55) & !fSKIP;
+//   wire 	dBCC = xXCC & ((xOPC == 6'o47) | (xOPC == 6'o57)) & !fSKIP;
+//   wire 	dBRU = ((xOPC == 6'o46) | (xOPC == 6'o56)) & !fSKIP;
 
-   wire 	fATOM = ~(wIMM | wRTD | wBCC | wBRU);
+   wire 	fATOM = ~(wIMM | wRTD | dBCC | dBRU);
    reg [1:0] 	rATOM = 2'h0, xATOM;
 
    always @(fATOM or rATOM)

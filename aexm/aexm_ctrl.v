@@ -1,10 +1,10 @@
-module aexm_ctrl (/*AUTOARG*/
+module aexm_ctrl (
    // Outputs
    rMXDST, rMXDST_use_combined, MEMOP_MXDST, dMXSRC, dMXTGT, dMXALT,
    xMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
    aexm_dcache_force_miss, fSTALL,
    // Inputs
-   xSKIP, rIMM, rALT, rOPC, rRD, rRA, rRB, xIREG,
+   xSKIP, xALT, xRD, dINST,
    cpu_interrupt, gclk, d_en, x_en
    );
    // INTERNAL
@@ -17,11 +17,9 @@ module aexm_ctrl (/*AUTOARG*/
   output 	 MEMOP_MXDST;
 
   input 	 xSKIP;
-   input [15:0]  rIMM;
-   input [10:0]  rALT;
-   input [5:0] 	 rOPC;
-   input [4:0] 	 rRD, rRA, rRB;
-   input [31:0]  xIREG;
+   input [10:0]  xALT;
+   input [4:0] 	 xRD;
+   input [31:0]  dINST;
   input 	 cpu_interrupt;
 
    // MCU
@@ -39,11 +37,11 @@ module aexm_ctrl (/*AUTOARG*/
    wire [4:0] 	 dRD, dRA, dRB;
    wire [10:0] 	 dALT;
 
-   assign 	 {dOPC, dRD, dRA, dRB, dALT} = xIREG;
+   assign 	 {dOPC, dRD, dRA, dRB, dALT} = dINST;
 
   reg xSFT = 1'b0, xLOG = 1'b0, xBSF = 1'b0,
       xRTD = 1'b0, xBCC = 1'b0, xBRU = 1'b0, xIMM = 1'b0, xMOV = 1'b0,
-      xLOD = 1'b0, xSTR = 1'b0, xLOD_r = 1'b0, xLDST = 1'b0;
+      xLOD = 1'b0, xSTR = 1'b0, xLOD_r = 1'b0;
 
    wire 	 dSFT = (dOPC == 6'o44);
    wire 	 dLOG = ({dOPC[5:4],dOPC[2]} == 3'o4);
@@ -63,7 +61,6 @@ module aexm_ctrl (/*AUTOARG*/
    wire 	 dLOD = ({dOPC[5:4],dOPC[2]} == 3'o6);
    wire 	 dSTR = ({dOPC[5:4],dOPC[2]} == 3'o7);
   wire 		 dLOD_r = (dOPC == 6'o62);
-   wire 	 dLDST = (&dOPC[5:4]);
 
   assign         fSTALL = dBSF;
 
@@ -131,7 +128,7 @@ module aexm_ctrl (/*AUTOARG*/
   wire MEMOP_MXDST;
 
    always @(xBCC or xBRU or xLOD or xRTD or xSKIP
-	    or xSTR or rRD)
+	    or xSTR or xRD)
      if (xSKIP) begin
 	xMXDST <= 2'h0;
 	xRW <= 5'h0;
@@ -140,7 +137,7 @@ module aexm_ctrl (/*AUTOARG*/
 		  (xLOD) ? 2'o2 :
 		  (xBRU) ? 2'o1 :
 		  2'o0;
-	xRW <= rRD;
+	xRW <= xRD;
      end
 
   assign MEMOP_MXDST = xLOD && !xSKIP;
@@ -150,7 +147,7 @@ module aexm_ctrl (/*AUTOARG*/
   assign dSTRLOD = dLOD || dSTR;
 
   assign aexm_dcache_precycle_we = xSTR;
-  assign aexm_dcache_force_miss  = xLOD_r && (rALT[0]);
+  assign aexm_dcache_force_miss  = xLOD_r && (xALT[0]);
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 
@@ -164,7 +161,7 @@ module aexm_ctrl (/*AUTOARG*/
        xSFT <= dSFT; xLOG <= dLOG; xBSF <= dBSF;
        xRTD <= dRTD; xBCC <= dBCC; xBRU <= dBRU;
        xIMM <= dIMM; xMOV <= dMOV; xLOD <= dLOD; xSTR <= dSTR;
-       xLOD_r <= dLOD_r; xLDST <= dLDST;
+       xLOD_r <= dLOD_r;
 
        rMXDST_use_combined <= (xMXDST != 2'h0);
      end

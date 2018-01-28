@@ -2,21 +2,21 @@ module aexm_regf (
    // Outputs
    xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
-   rOPC, rRW, rRDWE, rRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
+   xOPC, rRW, rRDWE, xRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
    rRESULT, rDWBSEL, aexm_dcache_datai, gclk, x_en, d_en,
-   regf_rRA, regf_rRB, regf_rRD
+   dRA, dRB, dRD
    );
    // INTERNAL
    output [31:0] xREGA, xREGB;
    output [31:0] c_io_rg;
-   input [5:0] 	 rOPC;
-   input [4:0] 	 rRW, rRD;
+   input [5:0] 	 xOPC;
+   input [4:0] 	 rRW, xRD;
    input [1:0] 	 rMXDST;
    input  	 MEMOP_MXDST;
    input [31:2]  rPC;
    input [31:0]  rRESULT;
    input [3:0] 	 rDWBSEL;
-   input [4:0] 	 regf_rRA, regf_rRB, regf_rRD;
+   input [4:0] 	 dRA, dRB, dRD;
   input 	 rMXDST_use_combined;
   input 	 rRDWE;
 
@@ -74,7 +74,7 @@ module aexm_regf (
       xWDAT <= combined_input;
 
   iceram32 RAM_A(.RDATA(xREGA),
-		 .RADDR({3'h0,regf_rRA}),
+		 .RADDR({3'h0,dRA}),
 		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
@@ -86,7 +86,7 @@ module aexm_regf (
 		 .WCLK(!gclk));
 
   iceram32 RAM_B(.RDATA(xREGB),
-		 .RADDR({3'h0,regf_rRB}),
+		 .RADDR({3'h0,dRB}),
 		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
@@ -98,7 +98,7 @@ module aexm_regf (
 		 .WCLK(!gclk));
 
   iceram32 RAM_D(.RDATA(xREGD),
-		 .RADDR({3'h0,regf_rRD}),
+		 .RADDR({3'h0,dRD}),
 		 .RE(d_en),
 		 .RCLKE(1'b1),
 		 .RCLK(!gclk),
@@ -121,8 +121,8 @@ module aexm_regf (
        rREGD <= xREGD;
      end
 
-  assign c_io_rg = ((rRW == regf_rRA) ||
-		    (rRW == regf_rRB)) ?
+  assign c_io_rg = ((rRW == dRA) ||
+		    (rRW == dRB)) ?
 		   rRESULT : rDWBDI;
 
    // --- STORE SIZER ---------------------------------------------
@@ -132,16 +132,16 @@ module aexm_regf (
    reg [31:0] 	 xDWBDO;
 
    wire [31:0] 	 xDST;
-   wire 	 fDFWD_M = (rRW == rRD) & (rMXDST == 2'o2) & rRDWE;
-   wire 	 fDFWD_R = (rRW == rRD) & (rMXDST == 2'o0) & rRDWE;
+   wire 	 fDFWD_M = (rRW == xRD) & (rMXDST == 2'o2) & rRDWE;
+   wire 	 fDFWD_R = (rRW == xRD) & (rMXDST == 2'o0) & rRDWE;
 
    assign 	 aexm_dcache_datao = xDWBDO;
    assign 	 xDST = (fDFWD_M) ? rDWBDI :
 			(fDFWD_R) ? rRESULT :
 			rREGD;
 
-   always @(rOPC or xDST)
-     case (rOPC[1:0])
+   always @(xOPC or xDST)
+     case (xOPC[1:0])
        // 8'bit
        2'h0: xDWBDO <= {(4){xDST[7:0]}};
        // 16'bit
@@ -149,7 +149,7 @@ module aexm_regf (
        // 32'bit
        2'h2: xDWBDO <= xDST;
        default: xDWBDO <= 32'hX;
-     endcase // case (rOPC[1:0])
+     endcase // case (xOPC[1:0])
 
    // --- SIMULATION ONLY ------------------------------------------
    // Randomise memory to simulate real-world memory

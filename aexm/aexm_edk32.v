@@ -41,12 +41,12 @@ module aexm_edk32 (/*AUTOARG*/
    // End of automatics
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [10:0]		rALT;			// From ibuf of aexm_ibuf.v
+   wire [10:0]		xALT;			// From ibuf of aexm_ibuf.v
    wire			dSKIP;
    wire			xSKIP;
    wire [31:0]		c_io_rg;		// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
-   wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
+   wire [15:0]		xIMM;			// From ibuf of aexm_ibuf.v
    wire			rMSR_IE;		// From xecu of aexm_xecu.v
    wire [1:0]		dMXALT;			// From ctrl of aexm_ctrl.v
    wire [2:0]		xMXALU;			// From ctrl of aexm_ctrl.v
@@ -54,26 +54,26 @@ module aexm_edk32 (/*AUTOARG*/
    wire 		rMXDST_use_combined;	// From ctrl of aexm_ctrl.v
    wire [1:0]		dMXSRC;			// From ctrl of aexm_ctrl.v
    wire [1:0]		dMXTGT;			// From ctrl of aexm_ctrl.v
-   wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
    wire [5:0]		xOPC;			// From ibuf of aexm_ibuf.v
+   wire [5:0]		dOPC;			// From ibuf of aexm_ibuf.v
    wire [31:2]		rIPC;			// From bpcu of aexm_bpcu.v
    wire [31:2]		rPC;			// From bpcu of aexm_bpcu.v
    wire 		MEMOP_MXDST;		// From ctrl of aexm_ctrl.v
-   wire [4:0]		rRA;			// From ibuf of aexm_ibuf.v
-   wire [4:0]		rRB;			// From ibuf of aexm_ibuf.v
-   wire [4:0]		regf_rRA;		// From ibuf of aexm_ibuf.v
-   wire [4:0]		regf_rRB;		// From ibuf of aexm_ibuf.v
-   wire [4:0]		regf_rRD;		// From ibuf of aexm_ibuf.v
-   wire [4:0]		rRD;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		xRA;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		xRB;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		xRD;			// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRA;		// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRB;		// From ibuf of aexm_ibuf.v
+   wire [4:0]		dRD;		// From ibuf of aexm_ibuf.v
    wire [31:0]		xREGA;			// From regf of aexm_regf.v
    wire [31:0]		xREGB;			// From regf of aexm_regf.v
    wire [31:0]		xRESULT;		// From xecu of aexm_xecu.v
    wire [31:0]		rRESULT;		// From xecu of aexm_xecu.v
    wire [4:0]		rRW;			// From ctrl of aexm_ctrl.v
    wire 		rRDWE;			// From ctrl of aexm_ctrl.v
-   wire [31:0]		xSIMM;			// From ibuf of aexm_ibuf.v
+   wire [31:0]		dIMMVAL;			// From ibuf of aexm_ibuf.v
    wire			fSTALL;			// From ibuf of aexm_ibuf.v
-   wire [31:0]		xIREG;			// From ibuf of aexm_ibuf.v
+   wire [31:0]		dINST;			// From ibuf of aexm_ibuf.v
   wire 			dSTRLOD;
   wire 			dLOD;
   wire 			cpu_enable;
@@ -110,18 +110,18 @@ module aexm_edk32 (/*AUTOARG*/
    aexm_ibuf
      ibuf (/*AUTOINST*/
 	   // Outputs
-	   .rIMM			(rIMM[15:0]),
-	   .rRA				(rRA[4:0]),
-	   .rRD				(rRD[4:0]),
-	   .rRB				(rRB[4:0]),
-	   .rALT			(rALT[10:0]),
-	   .rOPC			(rOPC[5:0]),
+	   .xIMM			(xIMM[15:0]),
+	   .xRA				(xRA[4:0]),
+	   .xRD				(xRD[4:0]),
+	   .xRB				(xRB[4:0]),
+	   .xALT			(xALT[10:0]),
 	   .xOPC			(xOPC[5:0]),
-	   .xSIMM			(xSIMM[31:0]),
-	   .xIREG			(xIREG[31:0]),
-	   .regf_rRA                    (regf_rRA),
-	   .regf_rRB                    (regf_rRB),
-	   .regf_rRD                    (regf_rRD),
+	   .dOPC			(dOPC[5:0]),
+	   .dIMMVAL			(dIMMVAL[31:0]),
+	   .dINST			(dINST[31:0]),
+	   .dRA                    (dRA),
+	   .dRB                    (dRB),
+	   .dRD                    (dRD),
 	   .cpu_interrupt               (cpu_interrupt),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
@@ -150,13 +150,9 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_dcache_force_miss      (aexm_dcache_force_miss),
 	   // Inputs
 	   .xSKIP			(xSKIP),
-	   .rIMM			(rIMM[15:0]),
-	   .rALT			(rALT[10:0]),
-	   .rOPC			(rOPC[5:0]),
-	   .rRD				(rRD[4:0]),
-	   .rRA				(rRA[4:0]),
-	   .rRB				(rRB[4:0]),
-	   .xIREG			(xIREG[31:0]),
+	   .xALT			(xALT[10:0]),
+	   .xRD				(xRD[4:0]),
+	   .dINST			(dINST[31:0]),
 	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
 	   .d_en			(cpu_enable),
@@ -173,10 +169,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   // Inputs
 	   .cpu_mode_memop              (cpu_mode_memop),
 	   .dMXALT			(dMXALT[1:0]),
-	   .rOPC			(rOPC[5:0]), // currently ignored
-	   .rRD				(rRD[4:0]),
-	   .rRA				(rRA[4:0]),
-	   .xIREG			(xIREG[31:0]),
+	   .dINST			(dINST[31:0]),
 	   .xRESULT			(xRESULT[31:0]),
 	   .c_io_rg			(c_io_rg[31:0]),
 	   .xREGA			(xREGA[31:0]),
@@ -193,13 +186,13 @@ module aexm_edk32 (/*AUTOARG*/
 	   .c_io_rg			(c_io_rg[31:0]),
 	   .aexm_dcache_datao           (aexm_dcache_datao),
 	   // Inputs
-	   .rOPC			(rOPC[5:0]),
-	   .regf_rRA                    (regf_rRA),
-	   .regf_rRB                    (regf_rRB),
-	   .regf_rRD                    (regf_rRD),
+	   .xOPC			(xOPC[5:0]),
+	   .dRA				(dRA),
+	   .dRB				(dRB),
+	   .dRD				(dRD),
 	   .rRW				(rRW[4:0]),
 	   .rRDWE		        (rRDWE),
-	   .rRD				(rRD[4:0]),
+	   .xRD				(xRD[4:0]),
 	   .rMXDST			(rMXDST[1:0]),
 	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
@@ -224,16 +217,15 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xREGB			(xREGB[31:0]),
 	   .dMXSRC			(dMXSRC[1:0]),
 	   .dMXTGT			(dMXTGT[1:0]),
-	   .rRA				(rRA[4:0]),
-	   .rRB				(rRB[4:0]),
+	   .xRA				(xRA[4:0]),
 	   .xMXALU			(xMXALU[2:0]),
 	   .xSKIP                       (xSKIP),
-	   .rALT			(rALT[10:0]),
-	   .xSIMM			(xSIMM[31:0]),
-	   .rIMM			(rIMM[15:0]),
-	   .rOPC			(rOPC[5:0]),
+	   .xALT			(xALT[10:0]),
+	   .dIMMVAL			(dIMMVAL[31:0]),
+	   .xIMM			(xIMM[15:0]),
 	   .xOPC			(xOPC[5:0]),
-	   .rRD				(rRD[4:0]),
+	   .dOPC			(dOPC[5:0]),
+	   .xRD				(xRD[4:0]),
 	   .c_io_rg			(c_io_rg[31:0]),
 	   .rIPC			(rIPC[31:2]),
 	   .rPC				(rPC[31:2]),
