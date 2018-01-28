@@ -35,37 +35,37 @@ module aexm_ctrl (/*AUTOARG*/
    // --- DECODE INSTRUCTIONS
    // TODO: Simplify
 
-   wire [5:0] 	 wOPC;
-   wire [4:0] 	 wRD, wRA, wRB;
-   wire [10:0] 	 wALT;
+   wire [5:0] 	 dOPC;
+   wire [4:0] 	 dRD, dRA, dRB;
+   wire [10:0] 	 dALT;
 
-   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG;
+   assign 	 {dOPC, dRD, dRA, dRB, dALT} = xIREG;
 
-  reg fSFT = 1'b0, fLOG = 1'b0, fBSF = 1'b0,
-      fRTD = 1'b0, fBCC = 1'b0, fBRU = 1'b0, fIMM = 1'b0, fMOV = 1'b0,
-      fLOD = 1'b0, fSTR = 1'b0, fLOD_r = 1'b0, fLDST = 1'b0;
+  reg xSFT = 1'b0, xLOG = 1'b0, xBSF = 1'b0,
+      xRTD = 1'b0, xBCC = 1'b0, xBRU = 1'b0, xIMM = 1'b0, xMOV = 1'b0,
+      xLOD = 1'b0, xSTR = 1'b0, xLOD_r = 1'b0, xLDST = 1'b0;
 
-   wire 	 wSFT = (wOPC == 6'o44);
-   wire 	 wLOG = ({wOPC[5:4],wOPC[2]} == 3'o4);
+   wire 	 dSFT = (dOPC == 6'o44);
+   wire 	 dLOG = ({dOPC[5:4],dOPC[2]} == 3'o4);
 
-   wire 	 wBSF = (wOPC == 6'o21) | (wOPC == 6'o31);
+   wire 	 dBSF = (dOPC == 6'o21) | (dOPC == 6'o31);
 
-   wire 	 wRTD = (wOPC == 6'o55);
-   wire 	 wBCC = ((wOPC == 6'o47) | (wOPC == 6'o57)) &&
+   wire 	 dRTD = (dOPC == 6'o55);
+   wire 	 dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57)) &&
 		        !cpu_interrupt;
-   wire 	 wBRU = ((wOPC == 6'o46) | (wOPC == 6'o56)) ||
+   wire 	 dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56)) ||
 		        cpu_interrupt;
-   wire 	 wBRA = (wBRU & wRA[3]) || cpu_interrupt;
+   wire 	 dBRA = (dBRU & dRA[3]) || cpu_interrupt;
 
-   wire 	 wIMM = (wOPC == 6'o54);
-   wire 	 wMOV = (wOPC == 6'o45);
+   wire 	 dIMM = (dOPC == 6'o54);
+   wire 	 dMOV = (dOPC == 6'o45);
 
-   wire 	 wLOD = ({wOPC[5:4],wOPC[2]} == 3'o6);
-   wire 	 wSTR = ({wOPC[5:4],wOPC[2]} == 3'o7);
-  wire 		 wLOD_r = (wOPC == 6'o62);
-   wire 	 wLDST = (&wOPC[5:4]);
+   wire 	 dLOD = ({dOPC[5:4],dOPC[2]} == 3'o6);
+   wire 	 dSTR = ({dOPC[5:4],dOPC[2]} == 3'o7);
+  wire 		 dLOD_r = (dOPC == 6'o62);
+   wire 	 dLDST = (&dOPC[5:4]);
 
-  assign         fSTALL = wBSF;
+  assign         fSTALL = dBSF;
 
    // --- BRANCH SLOT REGISTERS ---------------------------
 
@@ -82,26 +82,26 @@ module aexm_ctrl (/*AUTOARG*/
   reg 		 xRW_valid = 1'b0, rRW_valid = 1'b0;
   wire 		 dRW_valid;
 
-  assign dRW_valid = (!(wBRU || wBCC || wBRA)) && !fSTALL;
+  assign dRW_valid = (!(dBRU || dBCC || dBRA)) && !fSTALL;
 
   reg 		 rRDWE = 1'b0;
    wire 	 wRDWE = |xRW;
-   wire		 late_forward_A = (rRW == wRA) && rRW_valid;
-   wire		 late_forward_B = (rRW == wRB) && rRW_valid;
-   wire 	 wAFWD_M = (xRW == wRA) & (xMXDST == 2'o2) & wRDWE;
-   wire 	 wBFWD_M = (xRW == wRB) & (xMXDST == 2'o2) & wRDWE;
-   wire 	 wAFWD_R = (xRW == wRA) & (xMXDST == 2'o0) & wRDWE;
-   wire 	 wBFWD_R = (xRW == wRB) & (xMXDST == 2'o0) & wRDWE;
+   wire		 late_forward_A = (rRW == dRA) && rRW_valid;
+   wire		 late_forward_B = (rRW == dRB) && rRW_valid;
+   wire 	 wAFWD_M = (xRW == dRA) & (xMXDST == 2'o2) & wRDWE;
+   wire 	 wBFWD_M = (xRW == dRB) & (xMXDST == 2'o2) & wRDWE;
+   wire 	 wAFWD_R = (xRW == dRA) & (xMXDST == 2'o0) & wRDWE;
+   wire 	 wBFWD_R = (xRW == dRB) & (xMXDST == 2'o0) & wRDWE;
 
-   always @(wAFWD_M or wAFWD_R or wBCC or wBFWD_M or wBFWD_R or
-	    wBRU or wOPC or late_forward_A or late_forward_B)
+   always @(wAFWD_M or wAFWD_R or dBCC or wBFWD_M or wBFWD_R or
+	    dBRU or dOPC or late_forward_A or late_forward_B)
      begin
-	xMXSRC <= (wBRU | wBCC) ? 2'o3 : // PC
+	xMXSRC <= (dBRU | dBCC) ? 2'o3 : // PC
 		  (wAFWD_M) ? 2'o2 : // RAM
 		  (wAFWD_R) ? 2'o1 : // FWD
 		  (late_forward_A) ? 2'o2 :
 		  2'o0; // REG
-	xMXTGT <= (wOPC[3]) ? 2'o3 : // IMM
+	xMXTGT <= (dOPC[3]) ? 2'o3 : // IMM
 		  (wBFWD_M) ? 2'o2 : // RAM
 		  (wBFWD_R) ? 2'o1 : // FWD
 		  (late_forward_B) ? 2'o2 :
@@ -116,12 +116,12 @@ module aexm_ctrl (/*AUTOARG*/
 
    reg [2:0]     rMXALU = 3'h0, xMXALU;
 
-   always @(wBRA or wBSF or wLOG or wMOV or wSFT)
+   always @(dBRA or dBSF or dLOG or dMOV or dSFT)
      begin
-	xMXALU <= (wBRA | wMOV) ? 3'o3 :
-		  (wSFT) ? 3'o2 :
-		  (wLOG) ? 3'o1 :
-		  (wBSF) ? 3'o5 :
+	xMXALU <= (dBRA | dMOV) ? 3'o3 :
+		  (dSFT) ? 3'o2 :
+		  (dLOG) ? 3'o1 :
+		  (dBSF) ? 3'o5 :
 		  3'o0;
      end
 
@@ -130,28 +130,27 @@ module aexm_ctrl (/*AUTOARG*/
   reg  rMXDST_use_combined = 1'b0;
   wire MEMOP_MXDST;
 
-   always @(fBCC or fBRU or fLOD or fRTD or xSKIP
-	    or fSTR or rRD)
+   always @(xBCC or xBRU or xLOD or xRTD or xSKIP
+	    or xSTR or rRD)
      if (xSKIP) begin
 	xMXDST <= 2'h0;
 	xRW <= 5'h0;
      end else begin
-	xMXDST <= (fSTR | fRTD | fBCC) ? 2'o3 :
-		  (fLOD) ? 2'o2 :
-		  (fBRU) ? 2'o1 :
+	xMXDST <= (xSTR | xRTD | xBCC) ? 2'o3 :
+		  (xLOD) ? 2'o2 :
+		  (xBRU) ? 2'o1 :
 		  2'o0;
 	xRW <= rRD;
      end
 
-  assign MEMOP_MXDST = fLOD && !xSKIP;
+  assign MEMOP_MXDST = xLOD && !xSKIP;
 
    // --- DATA MEMORY INTERFACE ----------------------------------
 
-  assign dSTRLOD = wLOD || wSTR;
-  assign dLOD = wLOD;
+  assign dSTRLOD = dLOD || dSTR;
 
-  assign aexm_dcache_precycle_we = fSTR;
-  assign aexm_dcache_force_miss  = fLOD_r && (rALT[0]);
+  assign aexm_dcache_precycle_we = xSTR;
+  assign aexm_dcache_force_miss  = xLOD_r && (rALT[0]);
 
    // --- PIPELINE CONTROL DELAY ----------------------------
 
@@ -162,10 +161,10 @@ module aexm_ctrl (/*AUTOARG*/
        xRW_valid <= dRW_valid;
        rRW_valid <= xRW_valid && !xSKIP;
 
-       fSFT <= wSFT; fLOG <= wLOG; fBSF <= wBSF;
-       fRTD <= wRTD; fBCC <= wBCC; fBRU <= wBRU;
-       fIMM <= wIMM; fMOV <= wMOV; fLOD <= wLOD; fSTR <= wSTR;
-       fLOD_r <= wLOD_r; fLDST <= wLDST;
+       xSFT <= dSFT; xLOG <= dLOG; xBSF <= dBSF;
+       xRTD <= dRTD; xBCC <= dBCC; xBRU <= dBRU;
+       xIMM <= dIMM; xMOV <= dMOV; xLOD <= dLOD; xSTR <= dSTR;
+       xLOD_r <= dLOD_r; xLDST <= dLDST;
 
        rMXDST_use_combined <= (xMXDST != 2'h0);
      end
