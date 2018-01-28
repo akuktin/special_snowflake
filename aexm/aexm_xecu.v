@@ -48,10 +48,10 @@ module aexm_xecu (
    always @(posedge gclk)
      if (d_en)
      case (dMXSRC)
-       2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
-       2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
-       2'o2: rOPA <= fSUB ? ~c_io_rg : c_io_rg;
-       2'o3: rOPA <= fSUB ? ~({rIPC, 2'o0}) : {rIPC, 2'o0};
+       2'o0: rOPA <= dSUB ? ~xREGA : xREGA;
+       2'o1: rOPA <= dSUB ? ~xRESULT : xRESULT;
+       2'o2: rOPA <= dSUB ? ~c_io_rg : c_io_rg;
+       2'o3: rOPA <= dSUB ? ~({rIPC, 2'o0}) : {rIPC, 2'o0};
      endcase // case (dMXSRC)
 
    always @(posedge gclk)
@@ -65,7 +65,7 @@ module aexm_xecu (
 
   always @(posedge gclk)
     if (d_en)
-      carry <= fCCC ? xMSR_C : fSUB;
+      carry <= dCCC ? xMSR_C : dSUB;
 
    // --- ADD/SUB SELECTOR ----
 
@@ -75,8 +75,8 @@ module aexm_xecu (
    wire [31:0] 		wADD;
    wire 		wADC;
 
-  wire 			fCCC = !dOPC[5] & dOPC[1] & !dOPC[4];
-  wire 			fSUB = !dOPC[5] & dOPC[0] & !dOPC[4];
+  wire 			dCCC = !dOPC[5] & dOPC[1] & !dOPC[4];
+  wire 			dSUB = !dOPC[5] & dOPC[0] & !dOPC[4];
 // fCMP and wCMP are decommisioned until further notice
 //   wire 		fCMP = !xOPC[3] & xIMM[1]; // unsigned only
 //   wire 		wCMP = (fCMP) ? !wADC : wADD[31]; // cmpu adjust
@@ -117,7 +117,7 @@ module aexm_xecu (
    // --- MOVE SELECTOR ---------------------------------------
 
    wire [31:0] 	    wMSR = {rMSR_C, 3'o0,
-			    20'h0ED32,
+			    20'h05a5a,
 			    4'h0, rMSR_BIP, rMSR_C, rMSR_IE, rMSR_BE};
    wire 	    fMFSR = (xOPC == 6'o45) & !xIMM[14] & xIMM[0];
    wire 	    fMFPC = (xOPC == 6'o45) & !xIMM[14] & !xIMM[0];
