@@ -48,12 +48,12 @@ module aexm_edk32 (/*AUTOARG*/
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		rIMM;			// From ibuf of aexm_ibuf.v
    wire			rMSR_IE;		// From xecu of aexm_xecu.v
-   wire [1:0]		xMXALT;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		dMXALT;			// From ctrl of aexm_ctrl.v
    wire [2:0]		rMXALU;			// From ctrl of aexm_ctrl.v
    wire [1:0]		rMXDST;			// From ctrl of aexm_ctrl.v
    wire 		rMXDST_use_combined;	// From ctrl of aexm_ctrl.v
-   wire [1:0]		xMXSRC;			// From ctrl of aexm_ctrl.v
-   wire [1:0]		xMXTGT;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		dMXSRC;			// From ctrl of aexm_ctrl.v
+   wire [1:0]		dMXTGT;			// From ctrl of aexm_ctrl.v
    wire [5:0]		rOPC;			// From ibuf of aexm_ibuf.v
    wire [5:0]		xOPC;			// From ibuf of aexm_ibuf.v
    wire [31:2]		rIPC;			// From bpcu of aexm_bpcu.v
@@ -137,9 +137,9 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rMXDST			(rMXDST[1:0]),
 	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
-	   .xMXSRC			(xMXSRC[1:0]),
-	   .xMXTGT			(xMXTGT[1:0]),
-	   .xMXALT			(xMXALT[1:0]),
+	   .dMXSRC			(dMXSRC[1:0]),
+	   .dMXTGT			(dMXTGT[1:0]),
+	   .dMXALT			(dMXALT[1:0]),
 	   .rMXALU			(rMXALU[2:0]),
 	   .rRW				(rRW[4:0]),
 	   .rRDWE		        (rRDWE),
@@ -172,7 +172,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xSKIP			(xSKIP),
 	   // Inputs
 	   .cpu_mode_memop              (cpu_mode_memop),
-	   .xMXALT			(xMXALT[1:0]),
+	   .dMXALT			(dMXALT[1:0]),
 	   .rOPC			(rOPC[5:0]), // currently ignored
 	   .rRD				(rRD[4:0]),
 	   .rRA				(rRA[4:0]),
@@ -222,8 +222,8 @@ module aexm_edk32 (/*AUTOARG*/
 	   // Inputs
 	   .xREGA			(xREGA[31:0]),
 	   .xREGB			(xREGB[31:0]),
-	   .xMXSRC			(xMXSRC[1:0]),
-	   .xMXTGT			(xMXTGT[1:0]),
+	   .dMXSRC			(dMXSRC[1:0]),
+	   .dMXTGT			(dMXTGT[1:0]),
 	   .rRA				(rRA[4:0]),
 	   .rRB				(rRB[4:0]),
 	   .rMXALU			(rMXALU[2:0]),

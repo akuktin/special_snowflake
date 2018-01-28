@@ -3,7 +3,7 @@ module aexm_bpcu (/*AUTOARG*/
    aexm_icache_precycle_addr, rIPC, rPC,
    dSKIP, xSKIP,
    // Inputs
-   xMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
+   dMXALT, rOPC, rRD, rRA, xRESULT, c_io_rg, xREGA,
    cpu_mode_memop, xIREG, cpu_interrupt,
    gclk, x_en, d_en
    );
@@ -19,7 +19,7 @@ module aexm_bpcu (/*AUTOARG*/
    //output [1:0]    rATOM;
    //output [1:0]    xATOM;
 
-   input [1:0] 	   xMXALT;
+   input [1:0] 	   dMXALT;
    input [5:0] 	   rOPC;
    input [4:0] 	   rRD, rRA;
    input [31:0]    xRESULT; // ALU
@@ -38,7 +38,7 @@ module aexm_bpcu (/*AUTOARG*/
    wire [4:0] 	 wRD, wRA, wRB;
    wire [10:0] 	 wALT;
 
-   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG; // FIXME: Endian
+   assign 	 {wOPC, wRD, wRA, wRB, wALT} = xIREG;
 
    // --- BRANCH CONTROL --------------------------------------------
    // Controls the branch and delay flags
@@ -47,11 +47,11 @@ module aexm_bpcu (/*AUTOARG*/
 
   always @(posedge gclk)
     if (d_en)
-      case (xMXALT)
+      case (dMXALT)
 	2'o2: wREGA <= c_io_rg;
 	2'o1: wREGA <= xRESULT;
 	default: wREGA <= xREGA;
-      endcase // case (xMXALT)
+      endcase // case (dMXALT)
 
 
   reg 		   chain_endpoint = 1'b1, careof_equal_n = 1'b1,

@@ -3,7 +3,7 @@ module aexm_xecu (/*AUTOARG*/
    aexm_dcache_precycle_addr,
    xRESULT, rRESULT, rDWBSEL, rMSR_IE,
    // Inputs
-   xREGA, xREGB, xMXSRC, xMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
+   xREGA, xREGB, dMXSRC, dMXTGT, rRA, rRB, rMXALU, xSKIP, rALT,
    xSIMM, rIMM, rOPC, xOPC, rRD, c_io_rg, rIPC, rPC, gclk, d_en, x_en
    );
    parameter DW=32;
@@ -19,7 +19,7 @@ module aexm_xecu (/*AUTOARG*/
    output [3:0]    rDWBSEL;
    output 	   rMSR_IE;
    input [31:0]    xREGA, xREGB;
-   input [1:0] 	   xMXSRC, xMXTGT;
+   input [1:0] 	   dMXSRC, dMXTGT;
    input [4:0] 	   rRA, rRB;
    input [2:0] 	   rMXALU;
    input [10:0]    rALT;
@@ -47,21 +47,21 @@ module aexm_xecu (/*AUTOARG*/
 
    always @(posedge gclk)
      if (d_en)
-     case (xMXSRC)
+     case (dMXSRC)
        2'o0: rOPA <= fSUB ? ~xREGA : xREGA;
        2'o1: rOPA <= fSUB ? ~xRESULT : xRESULT;
        2'o2: rOPA <= fSUB ? ~c_io_rg : c_io_rg;
        2'o3: rOPA <= fSUB ? ~({rIPC, 2'o0}) : {rIPC, 2'o0};
-     endcase // case (xMXSRC)
+     endcase // case (dMXSRC)
 
    always @(posedge gclk)
      if (d_en)
-     case (xMXTGT)
+     case (dMXTGT)
        2'o0: rOPB <= xREGB;
        2'o1: rOPB <= xRESULT;
        2'o2: rOPB <= c_io_rg;
        2'o3: rOPB <= xSIMM;
-     endcase // case (xMXTGT)
+     endcase // case (dMXTGT)
 
   always @(posedge gclk)
     if (d_en)
