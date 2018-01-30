@@ -78,7 +78,6 @@ module aexm_edk32 (/*AUTOARG*/
   wire 			dLOD;
   wire 			cpu_enable;
   wire 			cpu_mode_memop;
-  wire 			cpu_interrupt;
    // End of automatics
 
    input 		sys_clk_i;
@@ -122,7 +121,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .dRA                    (dRA),
 	   .dRB                    (dRB),
 	   .dRD                    (dRD),
-	   .cpu_interrupt               (cpu_interrupt),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
 	   .aexm_icache_datai           (aexm_icache_datai),
@@ -153,7 +151,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xALT			(xALT[10:0]),
 	   .xRD				(xRD[4:0]),
 	   .dINST			(dINST[31:0]),
-	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
 	   .d_en			(cpu_enable),
 	   .x_en                        (cpu_enable));
@@ -173,7 +170,6 @@ module aexm_edk32 (/*AUTOARG*/
 	   .xRESULT			(xRESULT[31:0]),
 	   .c_io_rg			(c_io_rg[31:0]),
 	   .xREGA			(xREGA[31:0]),
-	   .cpu_interrupt               (cpu_interrupt),
 	   .gclk			(gclk),
 	   .d_en			(cpu_enable),
 	   .x_en			(cpu_enable));

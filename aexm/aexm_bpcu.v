@@ -4,8 +4,7 @@ module aexm_bpcu (
    dSKIP, xSKIP,
    // Inputs
    dMXALT, xRESULT, c_io_rg, xREGA,
-   cpu_mode_memop, dINST, cpu_interrupt,
-   gclk, x_en, d_en
+   cpu_mode_memop, dINST, gclk, x_en, d_en
    );
    parameter IW = 24;
 
@@ -27,7 +26,6 @@ module aexm_bpcu (
    //input [1:0] 	   rXCE;
 
   input 	   cpu_mode_memop;
-  input 	   cpu_interrupt;
 
    // SYSTEM
    input 	   gclk, x_en, d_en;
@@ -105,7 +103,7 @@ module aexm_bpcu (
 			((dRD[2:0] == 3'h1) ||
 			 // implement gt as an inverted le
 			 (dRD[2:0] == 3'h4)));
-      rSKIP_n <= ((dBRU && dRA[4]) || (dBCC && dRD[4])) && !cpu_interrupt;
+      rSKIP_n <= ((dBRU && dRA[4]) || (dBCC && dRD[4]));
 
       end // else: !if(dSKIP)
     end // if (d_en)
@@ -176,8 +174,8 @@ module aexm_bpcu (
       end
     endcase // case ({expect_reg_equal,reg_equal_null_n,invert_answer})
 
-  assign dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57)) && !cpu_interrupt;
-  assign dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56)) || cpu_interrupt;
+  assign dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57));
+  assign dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56));
 
    // --- PC PIPELINE ------------------------------------------------
    // PC and related changes

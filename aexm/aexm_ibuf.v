@@ -1,7 +1,7 @@
 module aexm_ibuf (/*AUTOARG*/
    // Outputs
    xIMM, xRA, xRD, xRB, xALT, xOPC, dOPC, dIMMVAL, dINST,
-   dRA, dRB, dRD, cpu_interrupt,
+   dRA, dRB, dRD,
    // Inputs
    rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
    d_en, oena
@@ -13,7 +13,6 @@ module aexm_ibuf (/*AUTOARG*/
    output [5:0]  xOPC, dOPC;
    output [31:0] dIMMVAL;
    output [31:0] dINST;
-  output 	 cpu_interrupt;
 
    input 	 rMSR_IE;
 
@@ -35,8 +34,6 @@ module aexm_ibuf (/*AUTOARG*/
   reg 		issued_interrupt = 1'b0, cpu_interrupt = 1'b0;
 
   wire [31:0] 	dINST;
-  wire [31:0] 	dNXTINST;
-  assign dINST = aexm_icache_datai;
 
    // --- INTERRUPT LATCH --------------------------------------
    // Debounce and latch onto the positive level. This is independent
@@ -69,7 +66,7 @@ module aexm_ibuf (/*AUTOARG*/
   assign do_interrupt = (rFINT && !issued_interrupt && !cpu_interrupt) &&
 			!(dIMM || dRTD || dBRU || dBCC);
 
-  assign dNXTINST = cpu_interrupt ? wINTOP : dINST;
+  assign dINST = cpu_interrupt ? wINTOP : aexm_icache_datai;
 
   assign dIMMVAL = (xIMM_sig) ?
 		   {xIMM, dINST[15:0]} :
@@ -90,7 +87,7 @@ module aexm_ibuf (/*AUTOARG*/
      if (d_en) begin
        issued_interrupt <= cpu_interrupt;
        cpu_interrupt <= do_interrupt;
-	{xOPC, xRD, xRA, xIMM} <= dNXTINST;
+	{xOPC, xRD, xRA, xIMM} <= dINST;
        xIMM_sig <= dIMM;
      end
 
