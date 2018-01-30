@@ -126,7 +126,7 @@ module aexm_xecu (
 	    or wMSR)
      rRES_MOV <= (fMFSR) ? wMSR :
 		 (fMFPC) ? rPC :
-		 (xRA[3]) ? rOPB :
+		 (xRA[3]) ? rOPB : // !?! WTF!
 		 rOPA;
 
    // --- BARREL SHIFTER --------------------------------------

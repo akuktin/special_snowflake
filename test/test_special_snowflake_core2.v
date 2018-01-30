@@ -228,7 +228,7 @@ module GlaDOS;
       begin
         #1500;
         #4500 CPU_CLK <= 1;
-        #3000   CPU_CLK <= 0;
+        #3000 CPU_CLK <= 0;
       end
 
   reg         TEST_output_lsab_cw_1, TEST_output_lsab_cw_1_dly,
@@ -822,6 +822,10 @@ module GlaDOS;
 	  $display("INTERRUPT! DESC %x",
 		   core.hyper_softcore.IRQ_DESC);
 	end
+      if (core.cpu.ibuf.cpu_interrupt)
+	$display("interrupt d stage");
+      if (core.cpu.ibuf.issued_interrupt)
+	$display("interrupt x stage");
 
 /*
       if (core.d_cache.cache_vld && (! core.d_cache.cache_cycle_we))
@@ -952,6 +956,11 @@ module GlaDOS;
 */
       if (RST_CPU_pre && 0)
 	begin
+/*
+	 if (core.cpu.xecu.fMTS)
+	   $display("MTS: xMSR_IE %x xMSR_C %x",
+		    core.cpu.xecu.xMSR_IE, core.cpu.xecu.xMSR_C);
+ */
 //      $display("c_vld %x req_tag %x ^ rsp %x idx %x en %x/%x",
 //	       core.i_cache.cachehit_vld, core.i_cache.req_tag,
 //	       core.i_cache.vmem_rsp_tag, core.i_cache.tlb_idx_w,
@@ -959,8 +968,8 @@ module GlaDOS;
 //	       {core.i_cache_busy_n,(core.RST & (~core.RST_CPU)),1'b1});
 /*
 	  $display("i_pc_addr %x i_c_addr %x i_di %x i_e %x",
-		   core.i_cache_pc_addr, core.i_cache_c_addr,
-                    core.i_cache_datai, core.i_cache_enable);
+		   core.i_cache_pc_addr, core.i_cache.cache_cycle_addr,
+                   core.i_cache_datai, core.i_cache_enable);
  */
 /*
 	  $display("i_pc_addr %x i_di %x i_e/i_b %x/%x cpu_en %x fSTALL %x rOP %o",
@@ -968,6 +977,13 @@ module GlaDOS;
 		   core.i_cache_enable, core.i_cache_busy,
 		   core.cpu.cpu_enable, core.cpu.fSTALL,
 		   {core.cpu.ibuf.rOPC});
+ */
+/*
+	  $display("xMXALU %x xRESULT %x\nrRADD %x rRLOG %x rRSFT %x rRMOV %x rRBSF %x",
+		   core.cpu.xecu.xMXALU, core.cpu.xecu.xRESULT,
+		   core.cpu.xecu.rRES_ADD, core.cpu.xecu.rRES_LOG,
+		   core.cpu.xecu.rRES_SFT, core.cpu.xecu.rRES_MOV,
+		   core.cpu.xecu.rRES_BSF);
  */
 /*
 	  $display("pre_rIPC %x pc_inc %x xIPC %x cpu_mode_memop %x",
@@ -1101,9 +1117,11 @@ module GlaDOS;
 //`include "test_tt_04.bin"
 
 //`include "test_tt_06.bin"
-`include "test_tt_07.bin"
+//`include "test_tt_07.bin"
 
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
+
+`include "test_interrupt_cpu.bin"
 
 endmodule // GlaDOS
