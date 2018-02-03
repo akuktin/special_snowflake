@@ -142,15 +142,15 @@ module aexm_bpcu (
     case ({expect_reg_equal,reg_equal_null_n,invert_answer})
       3'b000: begin
 	xBRA <= 1;
-	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
       3'b001: begin
 	xBRA <= 1; // BRU       // EXCEPTION!!!
-	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
       3'b010: begin
 	xBRA <= 1;
-	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
       3'b011: begin
 	xBRA <= 0; // inverted
@@ -158,7 +158,7 @@ module aexm_bpcu (
       end
       3'b100: begin
 	xBRA <= 1;
-	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
       3'b101: begin
 	xBRA <= 0; // inverted
@@ -170,7 +170,7 @@ module aexm_bpcu (
       end
       3'b111: begin
 	xBRA <= 1; // inverted
-	dSKIP <= !rSKIP_n; fSKIP <= !rSKIP_n;
+	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
     endcase // case ({expect_reg_equal,reg_equal_null_n,invert_answer})
 
