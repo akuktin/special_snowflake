@@ -1122,6 +1122,7 @@ module GlaDOS;
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
 
-`include "test_interrupt_cpu.bin"
+//`include "test_interrupt_cpu.bin"
+`include "test_branch_dslot.bin"
 
 endmodule // GlaDOS
