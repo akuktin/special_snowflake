@@ -44,6 +44,7 @@ module aexm_edk32 (/*AUTOARG*/
    wire [10:0]		xALT;			// From ibuf of aexm_ibuf.v
    wire			dSKIP;
    wire			xSKIP;
+   wire			rBRA;
    wire [31:0]		c_io_rg;		// From regf of aexm_regf.v
    wire [3:0]		rDWBSEL;		// From xecu of aexm_xecu.v
    wire [15:0]		xIMM;			// From ibuf of aexm_ibuf.v
@@ -123,11 +124,12 @@ module aexm_edk32 (/*AUTOARG*/
 	   .dRD                    (dRD),
 	   // Inputs
 	   .rMSR_IE			(rMSR_IE),
+	   .rBRA			(rBRA),
 	   .aexm_icache_datai           (aexm_icache_datai),
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
 	   .d_en			(cpu_enable),
-	   .oena			(1'b0));
+	   .x_en                        (cpu_enable));
 
    aexm_ctrl
      ctrl (/*AUTOINST*/
@@ -163,6 +165,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .rPC				(rPC[31:2]),
 	   .dSKIP			(dSKIP),
 	   .xSKIP			(xSKIP),
+	   .rBRA			(rBRA),
 	   // Inputs
 	   .cpu_mode_memop              (cpu_mode_memop),
 	   .dMXALT			(dMXALT[1:0]),

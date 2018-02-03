@@ -3,8 +3,7 @@ module aexm_ibuf (/*AUTOARG*/
    xIMM, xRA, xRD, xRB, xALT, xOPC, dOPC, dIMMVAL, dINST,
    dRA, dRB, dRD,
    // Inputs
-   rMSR_IE, aexm_icache_datai, sys_int_i, gclk,
-   d_en, oena
+   rMSR_IE, rBRA, aexm_icache_datai, sys_int_i, gclk, d_en. x_en
    );
    // INTERNAL
    output [15:0] xIMM;
@@ -15,13 +14,14 @@ module aexm_ibuf (/*AUTOARG*/
    output [31:0] dINST;
 
    input 	 rMSR_IE;
+  input 	 rBRA;
 
    // INST WISHBONE
    input [31:0]  aexm_icache_datai;
 
    // SYSTEM
    input 	 sys_int_i;
-   input 	 gclk, d_en, oena;
+   input 	 gclk, d_en, x_en;
 
    reg [15:0] 	 xIMM = 16'd0;
    reg [4:0] 	 xRA = 5'h0, xRD = 5'h0;
@@ -53,24 +53,44 @@ module aexm_ibuf (/*AUTOARG*/
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
-  reg 	xIMM_sig = 1'b0;
-   wire 	dIMM = (dOPC == 6'o54);
-   wire 	dRTD = (dOPC == 6'o55);
-   wire 	dBRU = ((dOPC == 6'o46) | (dOPC == 6'o56));
-   wire 	dBCC = ((dOPC == 6'o47) | (dOPC == 6'o57));
+  reg 		xIMM_sig = 1'b0, xIMM_sig_d = 1'b0;
+  wire 		dIMM = (dOPC == 6'o54);
+  wire 		dRTD = (dOPC == 6'o55);
+  wire 		dBRU = ((dOPC == 6'o46) || (dOPC == 6'o56));
+  wire 		dBCC = ((dOPC == 6'o47) || (dOPC == 6'o57));
 
-   // --- DELAY SLOT -------------------------------------------
+  wire [31:0] 	dIMMVAL;
 
-  wire [31:0] dIMMVAL;
+  wire 		interrupt_possible_braimm;
+  wire 		d_is_branch;
+  reg 		x_is_branch = 1'b0; // should actually be xBRA, but this
+                                    // way is cheaper
+  wire 		do_interrupt;
 
   assign do_interrupt = (rFINT && !issued_interrupt && !cpu_interrupt) &&
-			!(dIMM || dRTD || dBRU || dBCC);
+			interrupt_possible_braimm;
 
   assign dINST = cpu_interrupt ? wINTOP : aexm_icache_datai;
 
   assign dIMMVAL = (xIMM_sig) ?
 		   {xIMM, dINST[15:0]} :
 		   { {(16){dINST[15]}}, dINST[15:0]};
+
+  // Protection from infinite non-branching branches: does not exist, or
+  // isn't implemented. Instead, if we were to hit a bad actor which
+  // tried to brick the CPU, we lay in wait and simply wait for him to
+  // hit a branching branch instruction. It's going to happen eventually -
+  // the kernel is trusted and the userland program will eventually
+  // either branch or hit a page fault. They can't run forever.
+
+  // The only thing missing is a register counting the number of non-taken
+  // branches we laid in wait this way, for detecting this sort of thing.
+
+  assign d_is_branch = (dRTD || dBRU || dBCC);
+  assign interrupt_possible_braimm = !(xIMM_sig && !xIMM_sig_d) &&
+				     (rBRA ?
+				      1 :
+				      !(d_is_branch || x_is_branch ));
 
    // --- REGISTER FILE ---------------------------------------
 
@@ -84,11 +104,19 @@ module aexm_ibuf (/*AUTOARG*/
    // --- PIPELINE --------------------------------------------
 
    always @(posedge gclk)
+     begin
      if (d_en) begin
-       issued_interrupt <= cpu_interrupt;
        cpu_interrupt <= do_interrupt;
-	{xOPC, xRD, xRA, xIMM} <= dINST;
+       issued_interrupt <= cpu_interrupt;
+
+       {xOPC, xRD, xRA, xIMM} <= dINST;
+
        xIMM_sig <= dIMM;
+       x_is_branch <= d_is_branch;
+     end
+     if (x_en) begin
+       xIMM_sig_d <= xIMM_sig;
+     end
      end
 
 endmodule // aexm_ibuf

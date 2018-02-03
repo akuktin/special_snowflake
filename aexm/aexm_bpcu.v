@@ -1,7 +1,7 @@
 module aexm_bpcu (
    // Outputs
    aexm_icache_precycle_addr, rIPC, rPC,
-   dSKIP, xSKIP,
+   dSKIP, xSKIP, rBRA,
    // Inputs
    dMXALT, xRESULT, c_io_rg, xREGA,
    cpu_mode_memop, dINST, gclk, x_en, d_en
@@ -15,6 +15,7 @@ module aexm_bpcu (
    output [31:2]   rIPC, rPC;
   output 	   dSKIP;
   output 	   xSKIP;
+  output 	   rBRA;
    //output [1:0]    rATOM;
    //output [1:0]    xATOM;
 
@@ -53,9 +54,8 @@ module aexm_bpcu (
   reg 		   chain_endpoint = 1'b1, careof_equal_n = 1'b1,
 		   careof_ltgt = 1'b0, expect_equal = 1'b1,
 		   expect_ltgt = 1'b0, invert_answer = 1'b0,
-		   rSKIP_n = 1'b1,
-
-		   xSKIP = 1'b0, xBRA, fSKIP, dSKIP;
+		   rSKIP_n = 1'b1, fSKIP, dSKIP, xSKIP = 1'b0,
+		   xBRA, rBRA = 1'b0;
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
 		   dBCC, dBRU;
 
@@ -218,6 +218,7 @@ module aexm_bpcu (
 	rPC <= xPC;
 //	rATOM <= xATOM;
        xSKIP <= dSKIP;
+       rBRA <= xBRA;
      end
 
 endmodule // aexm_bpcu
