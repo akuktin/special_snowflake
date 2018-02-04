@@ -3,7 +3,7 @@ module aexm_ibuf (/*AUTOARG*/
    xIMM, xRA, xRD, xRB, xALT, xOPC, dOPC, dIMMVAL, dINST,
    dRA, dRB, dRD,
    // Inputs
-   rMSR_IE, rBRA, aexm_icache_datai, sys_int_i, gclk, d_en. x_en
+   rMSR_IE, rBRA, aexm_icache_datai, sys_int_i, gclk, d_en, x_en
    );
    // INTERNAL
    output [15:0] xIMM;

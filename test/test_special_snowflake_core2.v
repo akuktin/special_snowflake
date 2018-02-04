@@ -1123,6 +1123,7 @@ module GlaDOS;
     end // initial begin
 
 //`include "test_interrupt_cpu.bin"
-`include "test_branch_dslot.bin"
+//`include "test_branch_dslot.bin"
+`include "test_interrupt_branchloop.bin"
 
 endmodule // GlaDOS
