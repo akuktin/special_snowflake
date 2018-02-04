@@ -1124,6 +1124,8 @@ module GlaDOS;
 
 //`include "test_interrupt_cpu.bin"
 //`include "test_branch_dslot.bin"
-`include "test_interrupt_branchloop.bin"
+//`include "test_interrupt_branchloop.bin"
+//`include "test_branch_stream.bin"
+`include "test_branch_stallperm.bin"
 
 endmodule // GlaDOS
