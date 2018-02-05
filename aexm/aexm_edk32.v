@@ -1,4 +1,4 @@
-module aexm_edk32 (/*AUTOARG*/
+module aexm_edk32 (
    // Outputs
    aexm_icache_precycle_addr,
    aexm_dcache_precycle_addr,
@@ -36,11 +36,8 @@ module aexm_edk32 (/*AUTOARG*/
   input 	aexm_icache_cache_busy;
   input 	aexm_dcache_cache_busy;
 
-   /*AUTOINPUT*/
    input		sys_int_i;		// To ibuf of aexm_ibuf.v
-   // End of automatics
-   /*AUTOWIRE*/
-   // Beginning of automatic wires (for undeclared instantiated-module outputs)
+
    wire [10:0]		xALT;			// From ibuf of aexm_ibuf.v
    wire			dSKIP;
    wire			xSKIP;
@@ -79,7 +76,6 @@ module aexm_edk32 (/*AUTOARG*/
   wire 			dLOD;
   wire 			cpu_enable;
   wire 			cpu_mode_memop;
-   // End of automatics
 
    input 		sys_clk_i;
    input 		sys_rst_i;
@@ -108,8 +104,7 @@ module aexm_edk32 (/*AUTOARG*/
 		     .dcache_enable(aexm_dcache_precycle_enable));
 
    aexm_ibuf
-     ibuf (/*AUTOINST*/
-	   // Outputs
+     ibuf (// Outputs
 	   .xIMM			(xIMM[15:0]),
 	   .xRA				(xRA[4:0]),
 	   .xRD				(xRD[4:0]),
@@ -131,8 +126,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .d_en			(cpu_enable));
 
    aexm_ctrl
-     ctrl (/*AUTOINST*/
-	   // Outputs
+     ctrl (// Outputs
 	   .rMXDST			(rMXDST[1:0]),
 	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
@@ -157,8 +151,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .x_en                        (cpu_enable));
 
    aexm_bpcu #(IW)
-     bpcu (/*AUTOINST*/
-	   // Outputs
+     bpcu (// Outputs
 	   .aexm_icache_precycle_addr   (aexm_icache_precycle_addr),
 	   .rIPC			(rIPC[31:2]),
 	   .rPC				(rPC[31:2]),
@@ -177,8 +170,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .x_en			(cpu_enable));
 
    aexm_regf
-     regf (/*AUTOINST*/
-	   // Outputs
+     regf (// Outputs
 	   .xREGA			(xREGA[31:0]),
 	   .xREGB			(xREGB[31:0]),
 	   .c_io_rg			(c_io_rg[31:0]),
@@ -203,8 +195,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .x_en			(cpu_enable));
 
    aexm_xecu #(DW, BSF)
-     xecu (/*AUTOINST*/
-	   // Outputs
+     xecu (// Outputs
 	   .aexm_dcache_precycle_addr   (aexm_dcache_precycle_addr),
 	   .xRESULT			(xRESULT[31:0]),
 	   .rRESULT			(rRESULT[31:0]),
