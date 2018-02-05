@@ -128,8 +128,7 @@ module aexm_edk32 (/*AUTOARG*/
 	   .aexm_icache_datai           (aexm_icache_datai),
 	   .sys_int_i			(sys_int_i),
 	   .gclk			(gclk),
-	   .d_en			(cpu_enable),
-	   .x_en                        (cpu_enable));
+	   .d_en			(cpu_enable));
 
    aexm_ctrl
      ctrl (/*AUTOINST*/

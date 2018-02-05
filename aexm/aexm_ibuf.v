@@ -3,7 +3,7 @@ module aexm_ibuf (/*AUTOARG*/
    xIMM, xRA, xRD, xRB, xALT, xOPC, dOPC, dIMMVAL, dINST,
    dRA, dRB, dRD,
    // Inputs
-   rMSR_IE, rBRA, aexm_icache_datai, sys_int_i, gclk, d_en, x_en
+   rMSR_IE, rBRA, aexm_icache_datai, sys_int_i, gclk, d_en
    );
    // INTERNAL
    output [15:0] xIMM;
@@ -21,7 +21,7 @@ module aexm_ibuf (/*AUTOARG*/
 
    // SYSTEM
    input 	 sys_int_i;
-   input 	 gclk, d_en, x_en;
+   input 	 gclk, d_en;
 
    reg [15:0] 	 xIMM = 16'd0;
    reg [4:0] 	 xRA = 5'h0, xRD = 5'h0;
@@ -53,7 +53,7 @@ module aexm_ibuf (/*AUTOARG*/
 		 (rFINT | wSHOT) & rMSR_IE;
      end
 
-  reg 		xIMM_sig = 1'b0, xIMM_sig_d = 1'b0;
+  reg 		xIMM_sig = 1'b0;
   wire 		dIMM = (dOPC == 6'o54);
   wire 		dRTD = (dOPC == 6'o55);
   wire 		dBRU = ((dOPC == 6'o46) || (dOPC == 6'o56));
@@ -87,10 +87,10 @@ module aexm_ibuf (/*AUTOARG*/
   // branches we laid in wait this way, for detecting this sort of thing.
 
   assign d_is_branch = (dRTD || dBRU || dBCC);
-  assign interrupt_possible_braimm = !(xIMM_sig && !xIMM_sig_d) &&
-				     (rBRA ?
+  assign interrupt_possible_braimm = (rBRA ?
 				      1 :
-				      !(d_is_branch || x_is_branch ));
+				      ((!(d_is_branch || x_is_branch)) &&
+				       (!(dIMM && !xIMM_sig))));
 
    // --- REGISTER FILE ---------------------------------------
 
@@ -104,7 +104,6 @@ module aexm_ibuf (/*AUTOARG*/
    // --- PIPELINE --------------------------------------------
 
    always @(posedge gclk)
-     begin
      if (d_en) begin
        cpu_interrupt <= do_interrupt;
        issued_interrupt <= cpu_interrupt;
@@ -113,10 +112,6 @@ module aexm_ibuf (/*AUTOARG*/
 
        xIMM_sig <= dIMM;
        x_is_branch <= d_is_branch;
-     end
-     if (x_en) begin
-       xIMM_sig_d <= xIMM_sig;
-     end
      end
 
 endmodule // aexm_ibuf
