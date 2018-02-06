@@ -54,10 +54,10 @@ module aexm_ibuf (/*AUTOARG*/
      end
 
   reg 		xIMM_sig = 1'b0;
-  wire 		dIMM = (dOPC == 6'o54);
-  wire 		dRTD = (dOPC == 6'o55);
-  wire 		dBRU = ((dOPC == 6'o46) || (dOPC == 6'o56));
-  wire 		dBCC = ((dOPC == 6'o47) || (dOPC == 6'o57));
+  wire 		dIMM = (dOPC_real == 6'o54);
+  wire 		dRTD = (dOPC_real == 6'o55);
+  wire 		dBRU = ((dOPC_real == 6'o46) || (dOPC_real == 6'o56));
+  wire 		dBCC = ((dOPC_real == 6'o47) || (dOPC_real == 6'o57));
 
   wire [31:0] 	dIMMVAL;
 
@@ -94,9 +94,10 @@ module aexm_ibuf (/*AUTOARG*/
 
    // --- REGISTER FILE ---------------------------------------
 
-  wire [5:0] dOPC;
+  wire [5:0] dOPC, dOPC_real;
   wire [4:0] dRD, dRA, dRB;
   assign dOPC = dINST[31:26];
+  assign dOPC_real = aexm_icache_datai[31:26];
   assign dRD  = dINST[25:21];
   assign dRA  = dINST[20:16];
   assign dRB  = dINST[15:11];
@@ -110,7 +111,7 @@ module aexm_ibuf (/*AUTOARG*/
 
        {xOPC, xRD, xRA, xIMM} <= dINST;
 
-       xIMM_sig <= dIMM;
+       xIMM_sig <= dIMM && !do_interrupt;
        x_is_branch <= d_is_branch;
      end
 
