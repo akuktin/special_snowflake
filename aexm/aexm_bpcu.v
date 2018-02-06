@@ -52,8 +52,8 @@ module aexm_bpcu (
 
 
   reg 		   chain_endpoint = 1'b1, careof_equal_n = 1'b1,
-		   careof_ltgt = 1'b0, expect_equal = 1'b1,
-		   expect_ltgt = 1'b0, invert_answer = 1'b0,
+		   careof_ltgt = 1'b0, expect_equal = 1'b0,
+		   expect_ltgt = 1'b0, invert_answer = 1'b1,
 		   rSKIP_n = 1'b1, fSKIP, dSKIP, xSKIP = 1'b0,
 		   xBRA, rBRA = 1'b0;
   wire 		   reg_equal_null_n, ltgt_true, expect_reg_equal,
@@ -65,9 +65,9 @@ module aexm_bpcu (
       chain_endpoint <= 1;
       careof_equal_n <= 1;
       careof_ltgt <= 0;
-      expect_equal <= 1;
+      expect_equal <= 0;
       expect_ltgt <= 0;
-      invert_answer <= 0;
+      invert_answer <= 1;
       rSKIP_n <= 1;
     end else if (d_en) begin
       if (dSKIP) begin
@@ -98,11 +98,10 @@ module aexm_bpcu (
 		      (dRD[2:0] == 3'h3) ||
 		      // implement gt as an inverted le
 		      (dRD[2:0] == 3'h4)) ? 1 : 0;
-      invert_answer <= dBRU ||
-		       (dBCC &&
-			((dRD[2:0] == 3'h1) ||
-			 // implement gt as an inverted le
-			 (dRD[2:0] == 3'h4)));
+      invert_answer <= dBCC &&
+		       ((dRD[2:0] == 3'h1) ||
+			// implement gt as an inverted le
+			(dRD[2:0] == 3'h4));
       rSKIP_n <= ((dBRU && dRA[4]) || (dBCC && dRD[4]));
 
       end // else: !if(dSKIP)
@@ -141,12 +140,12 @@ module aexm_bpcu (
 	   rSKIP_n)
     case ({expect_reg_equal,reg_equal_null_n,invert_answer})
       3'b000: begin
-	xBRA <= 1;
+	xBRA <= 1; // BRU hits here, as well as a true ge, when e
 	dSKIP <= !rSKIP_n; fSKIP <= 1;
       end
       3'b001: begin
-	xBRA <= 1; // BRU       // EXCEPTION!!!
-	dSKIP <= !rSKIP_n; fSKIP <= 1;
+	xBRA <= 0; // special fSKIP/dSKIP/initial spot
+	dSKIP <= rSKIP_n; fSKIP <= 0;
       end
       3'b010: begin
 	xBRA <= 1;
@@ -166,7 +165,7 @@ module aexm_bpcu (
       end
       3'b110: begin
 	xBRA <= 0; // no-branch hits here
-	dSKIP <= rSKIP_n; fSKIP <= 0; // EXCEPTION!!! EXCEPTION!!!
+	dSKIP <= 0; fSKIP <= 0;
       end
       3'b111: begin
 	xBRA <= 1; // inverted
