@@ -1122,10 +1122,11 @@ module GlaDOS;
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
 
+`include "test_r0_forward.bin"
 //`include "test_interrupt_cpu.bin"
 //`include "test_branch_dslot.bin"
 //`include "test_interrupt_branchloop.bin"
-`include "test_interrupt_branchimmediate_0.bin"
+//`include "test_interrupt_branchimmediate_0.bin"
 //`include "test_interrupt_branchimmediate_1.bin"
 //`include "test_branch_stream.bin"
 //`include "test_branch_stallperm.bin"
