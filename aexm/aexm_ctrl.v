@@ -152,7 +152,7 @@ module aexm_ctrl (
        rMXDST <= xMXDST; xMXALU <= dMXALU;
        rRW <= xRW; rRDWE <= wRDWE;
        xRW_valid <= dRW_valid;
-       rRW_valid <= xRW_valid && rRDWE && !xSKIP;
+       rRW_valid <= xRW_valid && (rMXDST == 2'o2) && rRDWE && !xSKIP;
 
        xSFT <= dSFT; xLOG <= dLOG; xBSF <= dBSF;
        xRTD <= dRTD; xBCC <= dBCC; xBRU <= dBRU;
