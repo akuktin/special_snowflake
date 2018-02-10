@@ -78,13 +78,13 @@ module aexm_ctrl (
   assign dRW_valid = (!(dBRU || dBCC || dBRA)) && !fSTALL;
 
   reg 		 rRDWE = 1'b0;
-   wire 	 wRDWE = |xRW;
+   wire 	 xRDWE = |xRW; // this can be a redister, using dRW instead
    wire		 late_forward_A = (rRW == dRA) && rRW_valid;
    wire		 late_forward_B = (rRW == dRB) && rRW_valid;
-   wire 	 wAFWD_M = (xRW == dRA) & (xMXDST == 2'o2) & wRDWE;
-   wire 	 wBFWD_M = (xRW == dRB) & (xMXDST == 2'o2) & wRDWE;
-   wire 	 wAFWD_R = (xRW == dRA) & (xMXDST == 2'o0) & wRDWE;
-   wire 	 wBFWD_R = (xRW == dRB) & (xMXDST == 2'o0) & wRDWE;
+   wire 	 wAFWD_M = (xRW == dRA) & (xMXDST == 2'o2) & xRDWE;
+   wire 	 wBFWD_M = (xRW == dRB) & (xMXDST == 2'o2) & xRDWE;
+   wire 	 wAFWD_R = (xRW == dRA) & (xMXDST == 2'o0) & xRDWE;
+   wire 	 wBFWD_R = (xRW == dRB) & (xMXDST == 2'o0) & xRDWE;
 
    always @(wAFWD_M or wAFWD_R or dBCC or wBFWD_M or wBFWD_R or
 	    dBRU or dOPC or late_forward_A or late_forward_B)
@@ -150,9 +150,9 @@ module aexm_ctrl (
    always @(posedge gclk)
      if (d_en) begin
        rMXDST <= xMXDST; xMXALU <= dMXALU;
-       rRW <= xRW; rRDWE <= wRDWE;
+       rRW <= xRW; rRDWE <= xRDWE;
        xRW_valid <= dRW_valid;
-       rRW_valid <= xRW_valid && (rMXDST == 2'o2) && rRDWE && !xSKIP;
+       rRW_valid <= xRW_valid && xRDWE && !xSKIP;
 
        xSFT <= dSFT; xLOG <= dLOG; xBSF <= dBSF;
        xRTD <= dRTD; xBCC <= dBCC; xBRU <= dBRU;

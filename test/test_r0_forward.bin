@@ -30,33 +30,57 @@ core.i_cache.cachedat.ram.r_data[2] <= {6'o05,5'h0,5'h0,5'h0,11'd0};
 core.i_cache.cachedat.ram.r_data[3] <= {6'o10,5'h0,5'h0,16'h9707};
 core.i_cache.cachedat.ram.r_data[4] <= {6'o10,5'h1,5'h0,16'h77ef};
 
-core.i_cache.cachedat.ram.r_data[5] <= {6'o10,5'h0,5'h1,16'hc0f1};
-core.i_cache.cachedat.ram.r_data[6] <= {6'o11,5'hf,5'hf,16'h0001};
-core.i_cache.cachedat.ram.r_data[7] <= {6'o10,5'h2,5'h0,16'h0010};
+  core.i_cache.cachedat.ram.r_data[5] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[6] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[7] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[8] <= {6'o11,5'hf,5'hf,16'h0010};
 
-core.i_cache.cachedat.ram.r_data[8] <= {6'o10,5'h0,5'h0,16'hc012};
-core.i_cache.cachedat.ram.r_data[9] <= {6'o11,5'hf,5'hf,16'h0010};
-core.i_cache.cachedat.ram.r_data[10] <= {6'o11,5'hf,5'hf,16'h0013};
-core.i_cache.cachedat.ram.r_data[11] <= {6'o10,5'h3,5'h0,16'h0f10};
+core.i_cache.cachedat.ram.r_data[9] <= {6'o10,5'h0,5'h1,16'hc0f1};
+core.i_cache.cachedat.ram.r_data[10] <= {6'o11,5'hf,5'hf,16'h0001};
+core.i_cache.cachedat.ram.r_data[11] <= {6'o10,5'h2,5'h0,16'h0010};
 
-core.i_cache.cachedat.ram.r_data[12] <= {6'o10,5'h0,5'h0,16'hc014};
-core.i_cache.cachedat.ram.r_data[13] <= {6'o11,5'hf,5'hf,16'h0010};
-core.i_cache.cachedat.ram.r_data[14] <= {6'o11,5'hf,5'hf,16'h0015};
-core.i_cache.cachedat.ram.r_data[15] <= {6'o11,5'hf,5'hf,16'h0010};
-core.i_cache.cachedat.ram.r_data[16] <= {6'o10,5'h4,5'h0,16'h0716};
+  core.i_cache.cachedat.ram.r_data[12] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[13] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[14] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[15] <= {6'o11,5'hf,5'hf,16'h0010};
 
-core.i_cache.cachedat.ram.r_data[17] <= {6'o10,5'h0,5'h1,16'hf010};
-core.i_cache.cachedat.ram.r_data[18] <= {6'o11,5'hf,5'hf,16'h0fe0};
-core.i_cache.cachedat.ram.r_data[19] <= {6'o11,5'hf,5'hf,16'h0010};
-core.i_cache.cachedat.ram.r_data[20] <= {6'o11,5'hf,5'hf,16'h0017};
-core.i_cache.cachedat.ram.r_data[21] <= {6'o11,5'hf,5'hf,16'h0010};
-core.i_cache.cachedat.ram.r_data[22] <= {6'o10,5'h5,5'h0,16'h001c};
+core.i_cache.cachedat.ram.r_data[16] <= {6'o10,5'h0,5'h0,16'hc012};
+core.i_cache.cachedat.ram.r_data[17] <= {6'o11,5'hf,5'hf,16'h0010};
+core.i_cache.cachedat.ram.r_data[18] <= {6'o11,5'hf,5'hf,16'h0013};
+core.i_cache.cachedat.ram.r_data[19] <= {6'o10,5'h3,5'h0,16'h0f10};
 
+  core.i_cache.cachedat.ram.r_data[20] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[21] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[22] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[23] <= {6'o11,5'hf,5'hf,16'h0010};
 
-core.i_cache.cachedat.ram.r_data[23] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
-core.i_cache.cachedat.ram.r_data[24] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
-core.i_cache.cachedat.ram.r_data[25] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
-core.i_cache.cachedat.ram.r_data[26] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
+core.i_cache.cachedat.ram.r_data[24] <= {6'o10,5'h0,5'h0,16'hc014};
+core.i_cache.cachedat.ram.r_data[25] <= {6'o11,5'hf,5'hf,16'h0010};
+core.i_cache.cachedat.ram.r_data[26] <= {6'o11,5'hf,5'hf,16'h0015};
+core.i_cache.cachedat.ram.r_data[27] <= {6'o11,5'hf,5'hf,16'h0010};
+core.i_cache.cachedat.ram.r_data[28] <= {6'o10,5'h4,5'h0,16'h0716};
+
+  core.i_cache.cachedat.ram.r_data[29] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[30] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[31] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[32] <= {6'o11,5'hf,5'hf,16'h0010};
+
+core.i_cache.cachedat.ram.r_data[33] <= {6'o10,5'h0,5'h1,16'hf010};
+core.i_cache.cachedat.ram.r_data[34] <= {6'o11,5'hf,5'hf,16'h0fe0};
+core.i_cache.cachedat.ram.r_data[35] <= {6'o11,5'hf,5'hf,16'h0010};
+core.i_cache.cachedat.ram.r_data[36] <= {6'o11,5'hf,5'hf,16'h0017};
+core.i_cache.cachedat.ram.r_data[37] <= {6'o11,5'hf,5'hf,16'h0010};
+core.i_cache.cachedat.ram.r_data[38] <= {6'o10,5'h5,5'h0,16'h001c};
+
+  core.i_cache.cachedat.ram.r_data[39] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[40] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[41] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[42] <= {6'o11,5'hf,5'hf,16'h0010};
+
+core.i_cache.cachedat.ram.r_data[43] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+core.i_cache.cachedat.ram.r_data[44] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+core.i_cache.cachedat.ram.r_data[45] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
+core.i_cache.cachedat.ram.r_data[46] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 
 core.i_cache.cachedat.ram.r_data[96] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
 core.i_cache.cachedat.ram.r_data[97] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
@@ -70,7 +94,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
       core.cpu.regf.RAM_B.ram.r_data[i] <= 32'hxxxx_xxxx;
       core.cpu.regf.RAM_D.ram.r_data[i] <= 32'hxxxx_xxxx;
     end
-  core.cpu.regf.RAM_A.ram.r_data[1] <= 32'hffff_ffff;
+//  core.cpu.regf.RAM_A.ram.r_data[1] <= 32'hffff_ffff;
 
 end
 
