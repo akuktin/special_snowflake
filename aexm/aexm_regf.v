@@ -64,15 +64,11 @@ module aexm_regf (
   wire [31:0] 	 xREGA, xREGB, xREGD;
   reg [31:0] 	 rREGD;
 
-   reg [31:0] 	 xWDAT;
+  wire [31:0] 	 xWDAT;
   wire 		 do_write;
   assign do_write = (rRDWE && w_en && (rMXDST != 2'o3));
 
-  always @(rMXDST_use_combined or combined_input or rRESULT)
-    if (!rMXDST_use_combined)
-      xWDAT <= rRESULT;
-    else
-      xWDAT <= combined_input;
+  assign xWDAT = rMXDST_use_combined ? combined_input : rRESULT;
 
   iceram32 RAM_A(.RDATA(xREGA),
 		 .RADDR({3'h0,dRA}),
