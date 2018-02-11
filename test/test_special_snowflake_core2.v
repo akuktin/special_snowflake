@@ -1127,7 +1127,7 @@ module GlaDOS;
     end // initial begin
 
 //`include "test_r0_forward.bin"
-`include "test_forward_branch.bin"
+//`include "test_forward_branch.bin"
 //`include "test_interrupt_cpu.bin"
 //`include "test_interrupt_stall.bin"
 //`include "test_interrupt_stall_spectest00.bin"
@@ -1141,6 +1141,8 @@ module GlaDOS;
 //`include "test_interrupt_branchload.bin"
 //`include "test_branch_stream.bin"
 //`include "test_branch_stallperm.bin"
+//`include "test_lforward_load_wRA.bin"
+`include "test_lforward_store_wRA.bin"
 //`include "test_store_input.bin"
 
 endmodule // GlaDOS
