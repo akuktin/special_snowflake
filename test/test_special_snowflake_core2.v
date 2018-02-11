@@ -1147,7 +1147,4 @@ module GlaDOS;
 //`include "test_lforward_store_data.bin"
 `include "test_lforward_loadstore_data.bin"
 
-
-//`include "test_store_input.bin"
-
 endmodule // GlaDOS
