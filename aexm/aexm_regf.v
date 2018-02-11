@@ -111,6 +111,7 @@ module aexm_regf (
 		 .WCLKE(1'b1),
 		 .WCLK(!gclk));
 
+//  reg 		 MEMOP_MXDST_prev;
    always @(posedge gclk)
      begin
        rDWBDI <= xDWBDI;
@@ -124,10 +125,14 @@ module aexm_regf (
 	 rREGD <= rRESULT;
        else
 	 rREGD <= xREGD;
+
+//       MEMOP_MXDST_prev <= MEMOP_MXDST;
      end
 
-  assign c_io_rg = ((rRW == dRA) ||
-		    (rRW == dRB)) ?
+//  assign c_io_rg = (MEMOP_MXDST_prev || MEMOP_MXDST) ? rDWBDI : rRESULT;
+  assign c_io_rg = (((rRW == dRA) ||
+		     (rRW == dRB)) &&
+		    (rMXDST != 2'h2)) ?
 		   rRESULT : rDWBDI;
 
    // --- STORE SIZER ---------------------------------------------
