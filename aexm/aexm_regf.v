@@ -56,9 +56,8 @@ module aexm_regf (
    end
 
    // --- GENERAL PURPOSE REGISTERS (R0-R31) -----------------------
-   // LUT RAM implementation is smaller and faster. R0 gets written
-   // during reset with 0x00 and doesn't change after.
 
+  wire [31:0] c_io_rg, c_io_rg_d;
   reg [31:0]     combined_input;
   reg 		 w_en;
 
@@ -122,7 +121,7 @@ module aexm_regf (
 	 combined_input <= {rPC,2'h0};
 
        if (late_forward_D)
-	 rREGD <= rRESULT;
+	 rREGD <= c_io_rg_d;
        else
 	 rREGD <= xREGD;
 
@@ -130,6 +129,8 @@ module aexm_regf (
      end
 
 //  assign c_io_rg = (MEMOP_MXDST_prev || MEMOP_MXDST) ? rDWBDI : rRESULT;
+  assign c_io_rg_d = ((rRW == dRD) && (rMXDST != 2'h2)) ?
+		     rRESULT : rDWBDI;
   assign c_io_rg = (((rRW == dRA) ||
 		     (rRW == dRB)) &&
 		    (rMXDST != 2'h2)) ?
