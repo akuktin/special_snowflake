@@ -231,6 +231,8 @@ module GlaDOS;
         #3000 CPU_CLK <= 0;
       end
 
+  reg record = 1'b0;
+
   reg         TEST_output_lsab_cw_1, TEST_output_lsab_cw_1_dly,
 	      TEST_output_lsab_cw_1_dly2;
   reg [31:0]  TEST_output_lsab_cw_1_count;
@@ -1127,12 +1129,14 @@ module GlaDOS;
 //`include "test_r0_forward.bin"
 //`include "test_interrupt_cpu.bin"
 //`include "test_interrupt_stall.bin"
+//`include "test_interrupt_stall_spectest00.bin"
 //`include "test_branch_dslot.bin"
 //`include "test_interrupt_branchloop.bin"
+`include "test_interrupt_branchloop_free.bin"
 //`include "test_interrupt_branchimmediate_0.bin"
 //`include "test_interrupt_branchimmediate_1.bin"
 //`include "test_interrupt_branchwrite.bin"
-`include "test_interrupt_branchload.bin"
+//`include "test_interrupt_branchload.bin"
 //`include "test_branch_stream.bin"
 //`include "test_branch_stallperm.bin"
 //`include "test_store_input.bin"
