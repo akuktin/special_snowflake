@@ -1127,13 +1127,14 @@ module GlaDOS;
     end // initial begin
 
 //`include "test_r0_forward.bin"
+`include "test_forward_branch.bin"
 //`include "test_interrupt_cpu.bin"
 //`include "test_interrupt_stall.bin"
 //`include "test_interrupt_stall_spectest00.bin"
 //`include "test_branch_dslot.bin"
 //`include "test_interrupt_branchloop.bin"
 //`include "test_interrupt_branchloop_free.bin"
-`include "test_interrupt_branchloop_2free.bin"
+//`include "test_interrupt_branchloop_2free.bin"
 //`include "test_interrupt_branchimmediate_0.bin"
 //`include "test_interrupt_branchimmediate_1.bin"
 //`include "test_interrupt_branchwrite.bin"
