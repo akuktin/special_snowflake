@@ -72,6 +72,7 @@ module aexm_edk32 (
    wire [31:0]		dIMMVAL;			// From ibuf of aexm_ibuf.v
    wire			fSTALL;			// From ibuf of aexm_ibuf.v
    wire [31:0]		dINST;			// From ibuf of aexm_ibuf.v
+  wire 			late_forward_D;
   wire 			dSTRLOD;
   wire 			dLOD;
   wire 			cpu_enable;
@@ -139,6 +140,7 @@ module aexm_edk32 (
 	   .dSTRLOD                     (dSTRLOD),
 	   .dLOD                        (dLOD),
 	   .fSTALL			(fSTALL),
+	   .late_forward_D		(late_forward_D),
 	   .aexm_dcache_precycle_we     (aexm_dcache_precycle_we),
 	   .aexm_dcache_force_miss      (aexm_dcache_force_miss),
 	   // Inputs
@@ -186,6 +188,7 @@ module aexm_edk32 (
 	   .rMXDST			(rMXDST[1:0]),
 	   .rMXDST_use_combined		(rMXDST_use_combined),
 	   .MEMOP_MXDST			(MEMOP_MXDST),
+	   .late_forward_D		(late_forward_D),
 	   .rPC				(rPC[31:2]),
 	   .rRESULT			(rRESULT[31:0]),
 	   .rDWBSEL			(rDWBSEL[3:0]),

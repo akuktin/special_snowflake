@@ -3,7 +3,8 @@ module aexm_regf (
    xREGA, xREGB, c_io_rg, aexm_dcache_datao,
    // Inputs
    xOPC, rRW, rRDWE, xRD, rMXDST, rMXDST_use_combined, MEMOP_MXDST, rPC,
-   rRESULT, rDWBSEL, aexm_dcache_datai, gclk, x_en, d_en,
+   rRESULT, rDWBSEL, aexm_dcache_datai, late_forward_D,
+   gclk, x_en, d_en,
    dRA, dRB, dRD
    );
    // INTERNAL
@@ -19,6 +20,7 @@ module aexm_regf (
    input [4:0] 	 dRA, dRB, dRD;
   input 	 rMXDST_use_combined;
   input 	 rRDWE;
+  input 	 late_forward_D;
 
    // MCU interface
    output [31:0] aexm_dcache_datao;
@@ -118,7 +120,10 @@ module aexm_regf (
        else
 	 combined_input <= {rPC,2'h0};
 
-       rREGD <= xREGD;
+       if (late_forward_D)
+	 rREGD <= rRESULT;
+       else
+	 rREGD <= xREGD;
      end
 
   assign c_io_rg = ((rRW == dRA) ||

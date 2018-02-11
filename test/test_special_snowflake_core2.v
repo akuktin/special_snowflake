@@ -1142,7 +1142,8 @@ module GlaDOS;
 //`include "test_branch_stream.bin"
 //`include "test_branch_stallperm.bin"
 //`include "test_lforward_load_wRA.bin"
-`include "test_lforward_store_wRA.bin"
+//`include "test_lforward_store_wRA.bin"
+`include "test_lforward_store_data.bin"
 //`include "test_store_input.bin"
 
 endmodule // GlaDOS

@@ -2,7 +2,7 @@ module aexm_ctrl (
    // Outputs
    rMXDST, rMXDST_use_combined, MEMOP_MXDST, dMXSRC, dMXTGT, dMXALT,
    xMXALU, rRW, rRDWE, dSTRLOD, dLOD, aexm_dcache_precycle_we,
-   aexm_dcache_force_miss, fSTALL,
+   aexm_dcache_force_miss, fSTALL, late_forward_D,
    // Inputs
    xSKIP, xALT, xRD, dINST, gclk, d_en, x_en
    );
@@ -14,6 +14,7 @@ module aexm_ctrl (
   output 	 rMXDST_use_combined;
   output 	 fSTALL;
   output 	 MEMOP_MXDST;
+  output 	 late_forward_D;
 
   input 	 xSKIP;
    input [10:0]  xALT;
@@ -81,6 +82,7 @@ module aexm_ctrl (
    wire 	 xRDWE = |xRW; // this can be a redister, using dRW instead
    wire		 late_forward_A = (rRW == dRA) && rRW_valid;
    wire		 late_forward_B = (rRW == dRB) && rRW_valid;
+   wire		 late_forward_D = (rRW == dRD) && rRW_valid;
    wire 	 wAFWD_M = (xRW == dRA) & (xMXDST == 2'o2) & xRDWE;
    wire 	 wBFWD_M = (xRW == dRB) & (xMXDST == 2'o2) & xRDWE;
    wire 	 wAFWD_R = (xRW == dRA) & (xMXDST == 2'o0) & xRDWE;
