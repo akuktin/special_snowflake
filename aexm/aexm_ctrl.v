@@ -76,7 +76,7 @@ module aexm_ctrl (
   reg 		 xRW_valid = 1'b0, rRW_valid = 1'b0;
   wire 		 dRW_valid;
 
-  assign dRW_valid = (!(dBRU || dBCC || dBRA)) && !fSTALL;
+  assign dRW_valid = (!(dBRU || dBCC || dBRA || dSTR)) && !fSTALL;
 
   reg 		 rRDWE = 1'b0;
    wire 	 xRDWE = |xRW; // this can be a redister, using dRW instead
