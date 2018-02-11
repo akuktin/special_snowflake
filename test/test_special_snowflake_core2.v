@@ -492,7 +492,7 @@ module GlaDOS;
     end
 
   reg i_mcu_req_access_prev, refresh_strobe_prev;
-  reg [63:0] ctr;
+  reg [63:0] ctr, cpu_ctr;
   initial
     begin
       cache_vmem <= 0; cache_inhibit <= 0;
@@ -813,9 +813,11 @@ module GlaDOS;
   always @(posedge CPU_CLK)
     if (!RST)
       begin
+	cpu_ctr <= 0;
       end
     else
-    begin
+      begin
+      cpu_ctr <= cpu_ctr +RST_CPU;
       RST_CPU <= RST_CPU_pre;
       if (core.cpu.sys_int_i)
 	begin
@@ -874,7 +876,7 @@ module GlaDOS;
       if ((core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0) ||
           (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0))
 	begin
-	  $display("halting CTR %x", ctr);
+	  $display("halting CTR %x CPUCTR %x", ctr, cpu_ctr);
           $display("acc %x",
             core.hyper_softcore.accumulator);
           $display("input_reg  %x %x       %x %x",
@@ -1122,12 +1124,15 @@ module GlaDOS;
 //`include "test_special_snowflake_core_prog2.bin"
     end // initial begin
 
-`include "test_r0_forward.bin"
+//`include "test_r0_forward.bin"
 //`include "test_interrupt_cpu.bin"
+//`include "test_interrupt_stall.bin"
 //`include "test_branch_dslot.bin"
 //`include "test_interrupt_branchloop.bin"
 //`include "test_interrupt_branchimmediate_0.bin"
 //`include "test_interrupt_branchimmediate_1.bin"
+//`include "test_interrupt_branchwrite.bin"
+`include "test_interrupt_branchload.bin"
 //`include "test_branch_stream.bin"
 //`include "test_branch_stallperm.bin"
 //`include "test_store_input.bin"
