@@ -1137,6 +1137,8 @@ module GlaDOS;
 //`include "test_interrupt_branchloop_2free.bin"
 //`include "test_interrupt_branchimmediate_0.bin"
 //`include "test_interrupt_branchimmediate_1.bin"
+//`include "test_interrupt_branchtriple.bin"
+`include "test_interrupt_branchtwofree.bin"
 //`include "test_interrupt_branchwrite.bin"
 //`include "test_interrupt_branchload.bin"
 //`include "test_branch_stream.bin"
@@ -1145,6 +1147,6 @@ module GlaDOS;
 //`include "test_lforward_store_wRA.bin"
 //`include "test_lforward_load_data.bin"
 //`include "test_lforward_store_data.bin"
-`include "test_lforward_loadstore_data.bin"
+//`include "test_lforward_loadstore_data.bin"
 
 endmodule // GlaDOS
