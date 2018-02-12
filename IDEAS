@@ -6,3 +6,5 @@
          bcci 0x10, r1, $wherever;  // r1 == 0 ?
          stri   r2, r0, $mutex_address;
          nop;
+
+       Okay, so this particular mutex fails as a mutex, but you get the idea.
