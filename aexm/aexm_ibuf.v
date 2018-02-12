@@ -29,7 +29,7 @@ module aexm_ibuf (/*AUTOARG*/
 
    assign 	 {xRB, xALT} = xIMM;
 
-   wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0060}; // register to be
+   wire [31:0] 	wINTOP = {6'o56,5'h1e,5'h0c,16'h0180}; // register to be
                                                        // changed to 5'h00
   reg 		issued_interrupt = 1'b0, cpu_interrupt = 1'b0;
 
