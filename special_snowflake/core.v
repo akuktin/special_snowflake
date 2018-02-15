@@ -251,7 +251,6 @@ module special_snowflake_core(input RST_MASTER,
 			 .cache_precycle_force_miss(1'b0),
 //--------------------------------------------------
 //--------------------------------------------------
-			 .dma_mcu_access(1'b1),
 			 .mem_addr(i_user_req_address),
 			 .mem_we(i_user_req_we),
 			 .mem_we_array(i_user_we_array),
@@ -285,7 +284,6 @@ module special_snowflake_core(input RST_MASTER,
 			 .cache_precycle_force_miss(d_cache_force_miss),
 //--------------------------------------------------
 //--------------------------------------------------
-			 .dma_mcu_access(1'b1),
 			 .mem_addr(d_user_req_address),
 			 .mem_we(d_user_req_we),
 			 .mem_we_array(d_user_we_array),

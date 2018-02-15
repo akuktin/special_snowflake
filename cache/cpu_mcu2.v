@@ -10,7 +10,6 @@ module snowball_cache(input CPU_CLK,
 		      input 	    cache_precycle_force_miss,
 //--------------------------------------------------
 //--------------------------------------------------
-		      input 	    dma_mcu_access,
 		      output [31:0] mem_addr,
 		      output 	    mem_we,
 		      output [3:0]  mem_we_array,
