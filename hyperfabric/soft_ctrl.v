@@ -199,8 +199,6 @@ module Gremlin(input CLK,
 	    else
 	      OUT_CPU[15:0] <= d_r_data;
 	  end
-	else
-	  OUT_CPU <= 0;
       end
 
   iceram16 prog_mem(.RDATA(instr), // 16 out
