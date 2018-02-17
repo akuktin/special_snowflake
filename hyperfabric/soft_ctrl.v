@@ -259,7 +259,7 @@ module Gremlin(input CLK,
 	  if (instr_o[11:8] != 4'hc)
 	    index_reg <= index;
 
-	  waitkill <= instr_o[11:8] == 4'h8; // FIXME!!! test for bugs!
+	  waitkill <= (instr_o[11:8] == 4'h8) || (instr_f[11:8] == 4'h8);
 	  if (waitkill)
 	    instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
 	  else
