@@ -1105,7 +1105,7 @@ module GlaDOS;
 //`include "test_CPU_proof_of_life.bin"
 //`include "test_branches_allofthem.bin"
 //`include "test_shifter_prog.bin"
-`include "test_forward.bin"
+//`include "test_forward.bin"
 //`include "test_branchbug.bin"
 
 //`include "test_memops.bin"
@@ -1150,5 +1150,7 @@ module GlaDOS;
 //`include "test_lforward_loadstore_data.bin"
 //`include "test_lforward_rD_store.bin"
 //`include "test_lforward_prerD_store.bin"
+
+`include "test_dma_cpucomm.bin"
 
 endmodule // GlaDOS
