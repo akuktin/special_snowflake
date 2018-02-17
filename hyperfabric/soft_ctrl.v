@@ -307,9 +307,8 @@ module Gremlin(input CLK,
 	    4'h4: accumulator <= input_reg_0[instr_o[13]];
 	    4'h5: accumulator <= input_reg_1[instr_o[13]];
 //	    4'h6 // store
-//	    4'h6: accumulator <= memory_operand; // swap? can free up 4'h7
-	    4'h7: begin // store w/ clear
-	      accumulator <= 0;
+	    4'h7: begin // swap (store and read)
+	      accumulator <= memory_operand;
 	    end
 
 	    4'h8: begin // wait
