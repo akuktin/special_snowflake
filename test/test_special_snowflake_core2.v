@@ -1151,6 +1151,7 @@ module GlaDOS;
 //`include "test_lforward_rD_store.bin"
 //`include "test_lforward_prerD_store.bin"
 
-`include "test_dma_cpucomm.bin"
+//`include "test_dma_cpucomm.bin"
+`include "test_gremlin_delay.bin"
 
 endmodule // GlaDOS
