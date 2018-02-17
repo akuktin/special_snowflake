@@ -7,7 +7,7 @@ module Gremlin(input CLK,
 	       output reg 	 WRITE_CPU_ACK,
 	       input [2:0] 	 ADDR_CPU,
 	       input [63:0] 	 IN_CPU,
-	       output [31:0] 	 OUT_CPU,
+	       output reg [31:0] OUT_CPU,
 		    // ---------------------
 	       output reg [1:0]  IRQ_DESC,
 	       output 		 IRQ,
@@ -49,7 +49,6 @@ module Gremlin(input CLK,
 	       output reg 	 DIR_3,
 	       output 		 EN_STB_3);
   assign CAREOF_INT = 1'b1;
-  reg [31:0] 			 OUT_CPU = 32'h0;
   reg [1:0] 			 RST_MVBLCK = 2'h0,
 				 MCU_REQUEST_ALIGN = 2'h0;
   reg 				 MCU_REFRESH_STROBE = 1'b0;
@@ -308,6 +307,7 @@ module Gremlin(input CLK,
 	    4'h4: accumulator <= input_reg_0[instr_o[13]];
 	    4'h5: accumulator <= input_reg_1[instr_o[13]];
 //	    4'h6 // store
+//	    4'h6: accumulator <= memory_operand; // swap? can free up 4'h7
 	    4'h7: begin // store w/ clear
 	      accumulator <= 0;
 	    end
