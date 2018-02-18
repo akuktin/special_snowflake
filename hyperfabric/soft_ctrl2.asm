@@ -15,95 +15,94 @@ grab_meta_gb_0:
   add 0+$gb_0_begin_addr_low;
 
 # not part of main execution
-  lod $distance_gb_0__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_0__exec_gb_1;  # 5
+  wait :exec_gb_1; # 6 # wait 15 cycles
 # not part of main execution
 
 check_irq_in_gb_0:
-  and $gb_0_careof_int_abt;
+  and $gb_0_careof_int_abt; # 15
   cmp/nop :signal_irq_gb_0;  # OH THE PAIN!!!
   or  $gb_0_irq_des_and_certain_01;
-  cmp/nop :exec_gb_1; # 20
+  cmp/nop :exec_gb_1;
   null;
-  nop;
+  nop; # 20
 
 continue_grab_meta_gb_0:
-  stc $gb_0_begin_addr_low; # store w/ clear
+  stc $gb_0_begin_addr_low; # 5 # swap w/ 0x0000
   add s+$gb_0_begin_addr_high;
   sto $gb_0_begin_addr_high;
   i_1_gb;
   xor 0xffff;
-  add 1+$gb_0_len_left;
+  add 1+$gb_0_len_left; # 10
   sto $gb_0_len_left;
 
   cmp/i_2_gb :check_irq_in_gb_0;
   or  $gb_0_irq_desc_and_certain_01;
-  sto $gb_0_store_irq_abort; # 15
-
-  null;
-  wait (:+1 instruction);
-  or $gb_0_irq_desc_and_certain_01;
+  nop; # 14
 
 signal_irq_gb_0:
-  irq;
+  irq; # nulls
   sto $gb_0_active;
+
+  wait (:+1 instruction); # 17 # wait 4 cycles
 
 # jump into execution of gb_1
 
 ## longest to enter gb_1: 21 instructions
 
 exec_gb_1:
-  add 0+$gb_1_active;
-  cmp/null :continue_gb_1__0;  # ?
+  add 0+$gb_1_active; # 21
+  cmp/null :continue_gb_1__0;
   add 0+$gb_1_begin_addr_high;
   o_1_gb;
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 25
+  wait :check_if_exec_mb; # 26 # wait 20 cycles
 # not part of main execution
 
 continue_gb_1__0:
-  lod $gb_1_begin_addr_low;
+  lod $gb_1_begin_addr_low; # 25
   o_2_gb;
   and $page_addr_submask;
-  xor 0xffff; # 30
+  xor 0xffff;
   add 1+$page_size;
-  sto $space_left_in_page;
+  sto $space_left_in_page; # 30
 
   sub $gb_1_len_left;
-  and 0;
-  add s+0;
+  or  0xffff;
+  add s+0; # meant to detect a negative number, meaning more len than space
 
   cmp/ones :space_left_in_page_not_enough;
-  cmp/null :continue_gb_1__1;
+  cmp/null :continue_gb_1__1; # 35
   sub $block_size;
   add 0+$gb_1_len_left;
 continue_gb_1__1:
-  sto $len_for_transfer__less_block_size; # 40
-  and $0x8000; # still magically right
+  stf $len_for_transfer__less_block_size; # swap w/ 0xffff
+  add s+0;
 
-  cmp/ones :len_for_transfer_shorter_than_block_size;
+  cmp/ones :len_for_transfer_shorter_than_block_size; # 40
   cmp/null :exec_transfer_gb_1;
-  add 0+$block_size;
   nop;
+  add 0+$block_size;
 
-## 45 to reach this point
+## 43 to reach this point
 
 exec_transfer_gb_1:
   or $other_bits_gb_1;
-  o_3_gb; # nulls
+  o_3_gb; # 45 # nulls
 
-## 47 instructions
+## 45 instructions
 
 #####################
 
 check_if_exec_mb:
-  add 0+$mb_flipflop_ctrl;
-  cmp/null :prepare_mb_trans;
+  add 0+$mb_flipflop_ctrl; # 46
+  cmp/null :prepare_mb_trans; # test if we execute or prepare mb trans
 
 #####################
 
+  # index is prealoaded with $mb_active
   add 0+(INDEX+D($mb_active -> $mb_begin_addr_low));
   cmp/nop :continue_grab_meta_mb;
 
@@ -112,7 +111,7 @@ check_if_exec_mb:
 
 # not part of main execution
   lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  wait :exec_mb_other;
 # not part of main execution
 
 check_irq_in_mb:
