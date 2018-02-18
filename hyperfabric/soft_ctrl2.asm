@@ -157,7 +157,7 @@ exec_mb_other:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 75
-  wait :grab_meta_gb_1 # 76
+  wait :grab_meta_gb_1 # 76 # wait 20 cycles
 # not part of main execution
 
 continue_mb__0:
@@ -194,89 +194,88 @@ exec_transfer_mb:
 ## 95 instructions
 
 grab_meta_gb_1:
-  lod $gb_1_active;
+  lod $gb_1_active; # 96
   cmp/nop :continue_grab_meta_gb_1;
 
   i_1_gb;
   add 0+$gb_1_begin_addr_low;
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 100
+  wait :exec_gb_0; # 101 # wait 15 cycles
 # not part of main execution
 
 check_irq_in_gb_1:
-  and $gb_1_careof_int_abt;
+  and $gb_1_careof_int_abt; # 110
   cmp/nop :signal_irq_gb_1; # OH THE PAIN!!!! (not really :) )
   or  $gb_1_irq_desc_and_certain_01;
   cmp/nop :exec_gb_0;
   null;
-  nop;
+  nop; # 115
 
 continue_grab_meta_gb_1:
-  stc $gb_1_begin_addr_low;
+  stc $gb_1_begin_addr_low; # 100
   add s+$gb_1_begin_addr_high;
   sto $gb_1_begin_addr_high;
   i_1_gb;
   xor 0xffff;
-  add 1+$gb_1_len_left;
-  sto $gb_1_len_left; # 110
+  add 1+$gb_1_len_left; # 105
+  sto $gb_1_len_left;
 
   cmp/i_2_gb :check_irq_in_gb_1;
   or  $gb_1_irq_desc_and_certain_01;
-  sto $gb_1_store_irq_abort;
-
-  null;
-  wait (:+1 instruction);
-  or $gb_1_irq_desc_and_certain_01;
+  nop; # 109
 
 signal_irq_gb_1:
   irq;
   sto $gb_1_active;
 
+  wait (:+1 instruction); # 112 # wait 4 cycles
+
 exec_gb_0:
-  add 0+$gb_0_active; # 120
+  add 0+$gb_0_active; # 116
   cmp/null :continue_gb_0__0;
   add 0+$gb_0_begin_addr_high;
-  o_1_gb;
+  o_1_gb; # 119
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 120
+  wait :prepare_general; # 121 # wait 20 cycles
 # not part of main execution
 
 continue_gb_0__0:
-  lod $gb_0_begin_addr_low;
+  lod $gb_0_begin_addr_low; # 120
   o_2_gb;
   and $page_addr_submask;
-  xor 0xffff; # 128
+  xor 0xffff;
   and 1+$page_size;
-  sto $space_left_in_page; # 130
+  sto $space_left_in_page; # 125
 
   sub $gb_0_len_left;
-  and 0;
-  add s+0;
+  or  0xffff;
+  add s+0; # 128
 
   cmp/ones :space_left_in_page_not_enough;
-  cmp/null :continue_gb_0__1;
+  cmp/null :continue_gb_0__1; # 130
   sub $block_size;
   add 0+$gb_0_len_left;
 continue_gb_0__1:
   sto $len_for_transfer__less_block_size;
-  and $0x8000; # still magically right
+  add s+0;
 
-  cmp/ones :len_for_transfer_shorter_than_block_size; # 140
+  cmp/ones :len_for_transfer_shorter_than_block_size; # 135
   cmp/null :exec_transfer_gb_0;
-  add 0+$block_size;
   nop;
+  add 0+$block_size;
 
 exec_transfer_gb_0:
   or $other_bits_gb_0;
-  o_3_gb; # nulls
+  o_3_gb; # 140 # nulls
 
-## 145 instructions
+## 140 instructions
 
-  add 0+$0x8000;
+prepare_general:
+  add 0+$0x8000; # 141
   add 0+$mb_flipflop_ctrl;
   stc $mb_flipflop_ctrl;
 
