@@ -261,7 +261,7 @@ module Gremlin(input CLK,
 
 	  waitkill <= (instr_o[11:8] == 4'h8) || (instr_f[11:8] == 4'h8);
 	  if (waitkill)
-	    instr_f <= {1'b0,2'h3,1'b0,4'hd,8'h0}; // and 0xffff;
+	    instr_f <= {1'b0,2'h2,1'b0,4'hd,8'h0}; // and 0x0000;
 	  else
 	    instr_f <= instr;
 	  if (instr_o[11:8] != 4'h8)
@@ -271,8 +271,8 @@ module Gremlin(input CLK,
 		// accumulator will be nonzero by the time the instruction
 		// hits execution
 
-		// cmp/or 0xffff {instr_o[7:0]};
-		instr_o <= {1'b1,2'h3,1'b0,4'he,instr_o[7:0]};
+		// cmp/and 0x0000 {instr_o[7:0]};
+		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
 
 	  accumulator_nulled <= accumulator == 0;
 
