@@ -99,70 +99,69 @@ exec_transfer_gb_1:
 check_if_exec_mb:
   add 0+$mb_flipflop_ctrl; # 46
   cmp/null :prepare_mb_trans; # test if we execute or prepare mb trans
+  nop;  # <-- this one slows by one cycle compared w/ before proving
 
 #####################
 
   # index is prealoaded with $mb_active
-  add 0+(INDEX+D($mb_active -> $mb_begin_addr_low));
-  cmp/nop :continue_grab_meta_mb;
+  add 0+(INDEX+D($mb_active -> $mb_begin_addr_low)); # 49
+  cmp/nop :continue_grab_meta_mb; # 50
 
-  i_1_mb; # 50
+  i_1_mb;
   add 0+INDEX;
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :exec_mb_other;
+  lod $distance_gb_01__mb; # 53
+  wait :exec_mb_other; # 54 # wait 15 cycles
 # not part of main execution
 
 check_irq_in_mb:
-  and (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
+  and (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01)); # 63
   cmp/nop :signal_irq_mb; # much, much less pain now, all of a sudden :)
-  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_active));
+  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_careof_int_abt)); # 65
   cmp/nop :exec_mb_other;
   null;
   nop;
 
 continue_grab_meta_mb:
-  stc (INDEX+D($mb_begin_addr_low -> $mb_begin_addr_high));
+  stc (INDEX+D($mb_begin_addr_low -> $mb_begin_addr_high)); # 53
   add s+INDEX;
-  sto (INDEX+D($mb_begin_addr_high -> $mb_len_left));
+  sto (INDEX+D($mb_begin_addr_high -> $mb_len_left)); # 55
   i_1_mb;
   xor 0xffff;
   add 1+INDEX;
   sto (INDEX+D($mb_len_left -> $mb_irq_desc_and_certain_01));
 
-  cmp/i_2_mb :check_irq_in_mb;
-  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_store_irq_abort)); # 60
-  sto (INDEX+D($mb_store_irq_abort -> $mb_careof_int_abt));
-
-  null (INDEX+D($mb_careof_int_abt -> $mb_irq_desc_and_certain_01));
-  wait (:+1 instruction);
-  or   (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_active));
+  cmp/i_2_mb :check_irq_in_mb; # 60
+  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_careof_int_abt));
+  nop;
 
 signal_irq_mb:
-  irq;
+  irq (INDEX+D($mb_careof_int_abt -> $mb_active));
   sto INDEX;
 
-## 67 to this point
+  wait (:+1 instruction); # 65 # wait 4 cycles
+
+## 68 to this point
 
 exec_mb_other:
   # at this point, the accumulator is guarrantied to be nulled.
   # swichover the index
-  add 0+$next_index;
-  inl;
+  add 0+$next_index; # 69
+  inl; # 70
 
-  add 0+(INDEX+D($mb_active -> $mb_begin_addr_high)); # 70
+  add 0+(INDEX+D($mb_active -> $mb_begin_addr_high)); # 71
   cmp/null :continue_mb__0;
   add 0+(INDEX+D($mb_begin_addr_high -> $mb_begin_addr_low));
-  o_1_mb;
+  o_1_mb; # 74
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 75
+  wait :grab_meta_gb_1 # 76
 # not part of main execution
 
 continue_mb__0:
-  lod (INDEX+D($mb_begin_addr_low -> $mb_len_left));
+  lod (INDEX+D($mb_begin_addr_low -> $mb_len_left)); # 75
   o_2_mb;
   and $page_addr_submask;
   xor 0xffff;
@@ -170,32 +169,29 @@ continue_mb__0:
   sto $space_left_in_page; # 80
 
   sub INDEX;
-  and 0;
-  add s+0;  # ? are you sure about this?
+  or  0xffff
+  add s+0; # meant to detect a negative number, meaning more len than space
 
   cmp/ones :space_left_in_page_not_enough;
-  cmp/null :continue_mb__1;
+  cmp/null :continue_mb__1; # 85
   sub $block_size;
   add 0+INDEX;
 continue_mb__1:
-  sto $len_for_transfer__less_block_size;
-  and $0x8000; # still magically right
+  stf $len_for_transfer__less_block_size;
+  add s+0;
 
   cmp/ones :len_for_transfer_shorter_than_block_size; # 90
   cmp/null :exec_transfer_mb;
+  nop (INDEX+D($mb_len_left -> $mb_other_bits));
   add 0+$block_size;
-  nop;
 
-##
+## 93 to reach this point
 
 exec_transfer_mb:
-  nop (INDEX+D($mb_len_left -> $mb_other_bits));
-  or  (INDEX+D($mb_other_bits -> $mb_active));
-  o_3_mb;  # nulls
+  or  (INDEX+D($mb_other_bits -> $mb_active)); # which mb_active?
+  o_3_mb; # 95 # nulls
 
-## 96 instructions + 2 for the mb trans prepare branch
-
-## 98 instructions
+## 95 instructions
 
 grab_meta_gb_1:
   lod $gb_1_active;
@@ -356,10 +352,7 @@ jump_over_prepare_gb_1:
 
 
 prepare_mb:
-  ones;
-  cmp/nop :grab_ip;
-grab_ip:
-  null;  # origin of counting # 1
+  null; # 50 in the main thread # origin of counting # 1
   add 1+$cur_mb_trans_ptr;
   and $cur_mb_trans_ptr_mask;
   sto $cur_mb_trans_ptr;
