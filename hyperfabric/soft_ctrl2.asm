@@ -8,7 +8,7 @@ care_of_irq:
 ##############################################
 
 grab_meta_gb_0:
-  lod $gb_0_active;
+  lod $gb_0_active; # 1
   cmp/nop :continue_grab_meta_gb_0;
 
   i_1_gb;
@@ -240,7 +240,7 @@ exec_gb_0:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 120
-  wait :prepare_general; # 121 # wait 20 cycles
+  wait :prepare_mb_flipflop; # 121 # wait 20 cycles
 # not part of main execution
 
 continue_gb_0__0:
@@ -274,128 +274,145 @@ exec_transfer_gb_0:
 
 ## 140 instructions
 
-prepare_general:
+prepare_mb_flipflop:
   add 0+$0x8000; # 141
   add 0+$mb_flipflop_ctrl;
   stc $mb_flipflop_ctrl;
 
+prepare_gb_0:
   add 0+$gb_0_active;
-  cmp/null :jump_over_prepare_gb_0; # 150
+  xor $0x8000; # 145
+  cmp/null :jump_over_prepare_gb_0;
 
   add 0+$signal_bits_gb_0;
-  and $0x8000;
+  and $0x8000; # 148
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 149
+  wait :prepare_gb_1; # 150 # wait 15 cycles
 # not part of main execution
 
 jump_over_prepare_gb_0:
-  stc $gb_0_active;
+  stc $gb_0_active; # 149
 
-  add 0+$len_left_gb_0;
+  add 0+$len_left_gb_0; # 150
   add 0+$0x0003;
-  and $0xfffc;
+  and $0x7ffc;
   stc $len_left_gb_0;
 
   add 0+$signal_bits_gb_0;
-  and $section_mask;
-  or  $certain_01; # 160
-  stc $section_and_certain_01_gb_0;
+  and $section_mask; # 155
+  or  $certain_01;
+  stc $section_and_certain_01_gb_0; # AKA $gb_0_irq_desc_and_cerain_01
 
   add 0+$signal_bits_gb_0;
   and $location_of_careofint_bit;
-  cmp/ones :care_of_irq;
+  cmp/ones :care_of_irq; # 160
   cmp/nop (:+2 instructions);
   null;
   add $0x4000;  # mask for only ABORT
-  stc $careof_interrupt_abort_gb_0;
+  stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
 
 
-  add 0+$gb_1_active;
-  cmp/null :jump_over_prepare_gb_1; # 170
+prepare_gb_1:
+  add 0+$gb_1_active; # 165
+  xor $0x8000;
+  cmp/null :jump_over_prepare_gb_1;
 
   add 0+$signal_bits_gb_1;
-  and $0x8000;
+  and $0x8000; # 169
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 170
+  wait :check_if_exec_mb; # 171 # wait 15 cycles
 # not part of main execution
 
 jump_over_prepare_gb_1:
-  stc $gb_1_active;
+  stc $gb_1_active; # 170
 
   add 0+$len_left_gb_1;
   add 0+$0x0003;
-  and $0xfffc;
+  and $0x7ffc;
   stc $len_left_gb_1;
 
-  add 0+$signal_bits_gb_1;
+  add 0+$signal_bits_gb_1; # 175
   and $section_mask;
-  or  $certain_01; # 180
-  stc $section_and_certain_01_gb_1;
+  or  $certain_01;
+  stc $section_and_certain_01_gb_1; # AKA $gb_1_irq_desc_and_cerain_01
 
   add 0+$signal_bits_gb_1;
-  and $location_of_careofint_bit;
+  and $location_of_careofint_bit; # 180
   cmp/ones :care_of_irq;
   cmp/nop (:+2 instructions);
   null;
   add $0x4000;  # mask for only ABORT
-  stc $careof_interrupt_abort_gb_1;
+  stc $careof_interrupt_abort_gb_1; # 185 # AKA $gb_1_careof_int_abt
 
-## 188 instructions up to this point
+## 183 instructions up to this point
 
-  lod $balancing_wait_cycles;
-  wait :grab_meta_gb_0;
+  lod $balancing_wait_cycles; # 186
+  wait :grab_meta_gb_0; # 187 # wait 5 cycles ? !!! # BUG
 
 
+# needs to complete its job in 46 cycles max
 prepare_mb:
-  null; # 50 in the main thread # origin of counting # 1
+  null; # 50 in the main thread # origin of counting # /1
   add 1+$cur_mb_trans_ptr;
   and $cur_mb_trans_ptr_mask;
   sto $cur_mb_trans_ptr;
   inl;
-  add 0+INDEX;
+  add 0+INDEX; # 55
   inl;  # loaded with $mb_active
 
   add 0+(INDEX+D($mb_active -> $signal_bits));
+  xor $0x8000;
   cmp/null :jump_over_prepare_mb;
-  add 0+(INDEX+D($len_left -> $mb_active)); # 10
-  and $0x8000;
+  add 0+(INDEX+D($len_left -> $mb_active)); # 60/10
+  and $0x8000; # 61
 
 # not part of main execution
-  lod $distance_gb_01__mb;
-  wait :check_if_exec_mb;
+  lod $distance_gb_01__mb; # 62
+  # index is preloaded with $mb_active
+  wait :waitout_untill_gb; # 63 # wait 19 cycles
 # not part of main execution
 
 jump_over_prepare_mb:
-  stc (INDEX+D($mb_active -> $len_left));
+  stc (INDEX+D($mb_active -> $len_left)); # 62
 
   add 0+INDEX;
   add 0+$0x0003;
-  and $0xfffc;
+  and $0x7ffc; # 65
   stc (INDEX+D($len_left -> $signal_bits));
 
   add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
   and $section_mask;
   or  $certain_01;
-  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits)); # 20
+  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits)); # 70/20
 
   add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
   cmp/nop (:+2 instructions);
-  null;
+  null; # 75
   add $0x4000;
   stc INDEX;
 
-  add 0+$cur_mb_trans_ptr;
-  sto $next_index;
-  sub 1; # 30
+  # first, save the old transaction pointer
+  add 0+$next_index;
+  stc $cur_index;
+
+  # then, step the transaction pointer
+  add 0+$cur_mb_trans_ptr; # 80/30
   inl;
+  add 0+INDEX;
+  stc $next_index;
+
+  # finally, preload the index
+  add 0+$cur_index;
+  inl; # 85
 
 # 31 instructions since origin
 
-  lod $delay_for_prepare_mb;
-  wait :grab_meta_gb_1;
+waitout_untill_gb:
+  lod $delay_for_prepare_mb; # 86
+  wait :grab_meta_gb_1; # 87 # wait 9 cycles
