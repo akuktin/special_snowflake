@@ -351,7 +351,11 @@ jump_over_prepare_gb_1:
 ## 183 instructions up to this point
 
   lod $balancing_wait_cycles; # 186
-  wait :grab_meta_gb_0; # 187 # wait 5 cycles ? !!! # BUG
+  wait :grab_meta_gb_0; # 187 # wait 6 cycles
+
+# NOTICE!
+# The first cycle of the following small carousel is cycle no. 0xc1 because
+# the cycles in this code are counted using a scale starting with 1 (not 0)
 
 
 # needs to complete its job in 46 cycles max
@@ -372,8 +376,7 @@ prepare_mb:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 62
-  # index is preloaded with $mb_active
-  wait :waitout_untill_gb; # 63 # wait 19 cycles
+  wait :mb_step_indices; # 63 # wait 15 cycles
 # not part of main execution
 
 jump_over_prepare_mb:
@@ -397,8 +400,9 @@ jump_over_prepare_mb:
   add $0x4000;
   stc INDEX;
 
+mb_step_indices:
   # first, save the old transaction pointer
-  add 0+$next_index;
+  add 0+$next_index; # 78
   stc $cur_index;
 
   # then, step the transaction pointer
