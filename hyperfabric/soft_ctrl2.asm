@@ -401,22 +401,15 @@ jump_over_prepare_mb:
   stc INDEX;
 
 mb_step_indices:
-  # first, save the old transaction pointer
-  add 0+$next_index; # 78
-  stc $cur_index;
-
-  # then, step the transaction pointer
-  add 0+$cur_mb_trans_ptr; # 80/30
+  # step the transaction pointer
+  add 0+$cur_mb_trans_ptr; # 78
   inl;
-  add 0+INDEX;
-  stc $next_index;
-
-  # finally, preload the index
-  add 0+$cur_index;
-  inl; # 85
+  add 0+INDEX; # 80/30
+  swp $next_index; # a proper swap
+  inl; # 82
 
 # 31 instructions since origin
 
 waitout_untill_gb:
-  lod $delay_for_prepare_mb; # 86
-  wait :grab_meta_gb_1; # 87 # wait 9 cycles
+  lod $delay_for_prepare_mb; # 83
+  wait :grab_meta_gb_1; # 84 # wait 12 cycles
