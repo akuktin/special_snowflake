@@ -1110,7 +1110,6 @@ module GlaDOS;
 
 //`include "test_memops.bin"
 //`include "test_dmaops0.bin"
-//`include "test_dmaops1.bin"
 //`include "test_dmaops2.bin"
 //`include "test_dmaops3.bin"
 
@@ -1152,6 +1151,8 @@ module GlaDOS;
 //`include "test_lforward_prerD_store.bin"
 
 //`include "test_dma_cpucomm.bin"
-`include "test_gremlin_delay.bin"
+`include "test_gremlin_general.bin"
+//`include "test_gremlin_delay.bin"
+//`include "test_gremlin_waitacc.bin"
 
 endmodule // GlaDOS

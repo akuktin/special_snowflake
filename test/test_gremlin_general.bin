@@ -1,3 +1,5 @@
+initial begin
+
 // add : 00
 // addi: 10
 // rsub: 01
@@ -20,38 +22,36 @@
 // swi : 76 // store word from rD into rA + IMM
 
 // init R0
-core.i_cache.cachedat.ram.r_data[0] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
-core.i_cache.cachedat.ram.r_data[1] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
-core.i_cache.cachedat.ram.r_data[2] <= {6'o01,5'h0,5'h0,5'h0,11'd0};
+core.i_cache.cachedat.ram.r_data[0] <= {6'o05,5'h0,5'h0,5'h0,11'd0};
+core.i_cache.cachedat.ram.r_data[1] <= {6'o05,5'h0,5'h0,5'h0,11'd0};
+core.i_cache.cachedat.ram.r_data[2] <= {6'o05,5'h0,5'h0,5'h0,11'd0};
 
 
+core.i_cache.cachedat.ram.r_data[3] <= {6'o54,5'h0,5'h0,16'h9707};
+core.i_cache.cachedat.ram.r_data[4] <= {6'o10,5'h1,5'h0,16'h0008};
+core.i_cache.cachedat.ram.r_data[5] <= {6'o10,5'h2,5'h0,16'hf7ef};
 
-core.i_cache.cachedat.ram.r_data[3] <= {6'o52,5'h1,5'h0,16'hffff};
-core.i_cache.cachedat.ram.r_data[4] <= {6'o00,5'h2,5'h1,5'h1,11'd0};
-core.i_cache.cachedat.ram.r_data[5] <= {6'o52,5'h3,5'h2,16'hffff};
-core.i_cache.cachedat.ram.r_data[6] <= {6'o52,5'h4,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[7] <= {6'o52,5'h5,5'h0,16'h0};
+//core.i_cache.cachedat.ram.r_data[6] <= {6'o76,5'h2,5'h0,16'h0404};
+  core.i_cache.cachedat.ram.r_data[6] <= {6'o11,5'hf,5'hf,16'h0010};
 
+// standing jump
+core.i_cache.cachedat.ram.r_data[7] <= {6'o56,5'h1e,5'h0,16'h0};
 
-core.i_cache.cachedat.ram.r_data[8] <= {6'o76,5'h2,5'h0,16'h8024};
-core.i_cache.cachedat.ram.r_data[9] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[10] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[11] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[12] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[13] <= {6'o52,5'h5,5'h0,16'h0};
-//core.i_cache.cachedat.ram.r_data[14] <= {6'o10,5'he,5'h0,16'h8008};
-//core.i_cache.cachedat.ram.r_data[15] <= {6'o62,5'hd,5'h0,5'he,11'd1};
-core.i_cache.cachedat.ram.r_data[14] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[15] <= {6'o72,5'hd,5'h0,16'h8009};
-core.i_cache.cachedat.ram.r_data[16] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[17] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[18] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[19] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[20] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[21] <= {6'o52,5'h5,5'h0,16'h0};
-core.i_cache.cachedat.ram.r_data[22] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd0};
-core.i_cache.cachedat.ram.r_data[23] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd0};
-core.i_cache.cachedat.ram.r_data[24] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd0};
+  core.i_cache.cachedat.ram.r_data[8] <= {6'o11,5'hf,5'hf,16'h0017};
+  core.i_cache.cachedat.ram.r_data[9] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[10] <= {6'o11,5'hf,5'hf,16'h0fe0};
+  core.i_cache.cachedat.ram.r_data[11] <= {6'o11,5'hf,5'hf,16'h0010};
+  core.i_cache.cachedat.ram.r_data[12] <= {6'o11,5'hf,5'hf,16'h0017};
+
+core.i_cache.cachedat.ram.r_data[13] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+core.i_cache.cachedat.ram.r_data[14] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
+core.i_cache.cachedat.ram.r_data[15] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
+
+core.i_cache.cachedat.ram.r_data[96] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd9};
+core.i_cache.cachedat.ram.r_data[97] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd10};
+core.i_cache.cachedat.ram.r_data[98] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
+core.i_cache.cachedat.ram.r_data[99] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
+core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 
 
 core.hyper_softcore.prog_mem.ram.r_data[0] <= 16'h4e00;
@@ -153,3 +153,65 @@ core.hyper_softcore.prog_mem.ram.r_data[75] <= 16'h4633; // 0x33 => 0
 
 core.hyper_softcore.prog_mem.ram.r_data[254] <= 16'h6a00;
 core.hyper_softcore.prog_mem.ram.r_data[255] <= 16'h46ff;
+
+
+  for (i=1; i<31; i=i+1)
+    begin
+      core.cpu.regf.RAM_A.ram.r_data[i] <= 32'hxxxx_xxxx;
+      core.cpu.regf.RAM_B.ram.r_data[i] <= 32'hxxxx_xxxx;
+      core.cpu.regf.RAM_D.ram.r_data[i] <= 32'hxxxx_xxxx;
+    end
+//  core.cpu.regf.RAM_A.ram.r_data[22] <= 32'hffff_ffff;
+
+end // initial begin
+
+always @(posedge CLK_n)
+  begin
+    if (core.hyper_softcore.d_w_en_cpu && 0)
+      $display("w_sys %x w_cpu %x",
+	       core.hyper_softcore.d_w_en_sys,
+	       core.hyper_softcore.d_w_en_cpu);
+    if (core.hyper_softcore.RST && 0)
+      $display("opc_o %x", core.hyper_softcore.instr_o);
+  end
+
+always @(posedge CPU_CLK)
+  begin
+//    if (record)
+    if (core.cpu.grst && 0)
+      begin
+	$display("rPC %x xRD %x dRD %x xREGD %x xDST %x r8d %x",
+		 core.cpu.bpcu.rPC, core.cpu.regf.xRD,
+		 core.cpu.regf.dRD, core.cpu.regf.xREGD,
+		 core.cpu.regf.xDST, core.cpu.regf.RAM_D.ram.r_data[8]);
+        $display("i_pc_addr %x rPC %x dOPC %x xOPC %x xBRA %x di/ci/ii %x SKIP %x",
+		 core.i_cache_pc_addr, core.cpu.bpcu.rPC,
+		 core.cpu.ibuf.dOPC, core.cpu.ibuf.xOPC,
+		 core.cpu.bpcu.xBRA,
+		 {core.cpu.ibuf.do_interrupt,core.cpu.ibuf.cpu_interrupt,
+		  core.cpu.ibuf.issued_interrupt},
+		 {core.cpu.bpcu.fSKIP,core.cpu.bpcu.dSKIP,
+		  core.cpu.bpcu.xSKIP});
+
+	$display("-------------------------------------------------");
+      end
+  end
+
+/*
+`define CHANGER 64'h0b
+always @(negedge CPU_CLK)
+  begin
+    if (cpu_ctr == (`CHANGER -1))
+      record <= 1;
+    if (cpu_ctr == (`CHANGER))
+      begin
+        $display("core.i_cache_pc_addr %x", core.i_cache_pc_addr);
+	$display("fire interrupt!");
+        force core.cpu.sys_int_i = 1'b1;
+      end
+    if (cpu_ctr == (`CHANGER +1))
+      begin
+        release core.cpu.sys_int_i;
+      end
+  end
+ */
