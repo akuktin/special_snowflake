@@ -159,6 +159,13 @@ core.hyper_softcore.prog_mem.ram.r_data[81] <= 16'h4100;
 core.hyper_softcore.prog_mem.ram.r_data[82] <= 16'h072e; // 0x2e => 3
 core.hyper_softcore.prog_mem.ram.r_data[83] <= 16'h462f; // 0x2f => 1
 
+core.hyper_softcore.prog_mem.ram.r_data[84] <= 16'h4635; // 0x35/overwritten
+core.hyper_softcore.prog_mem.ram.r_data[85] <= 16'h6a00;
+core.hyper_softcore.prog_mem.ram.r_data[86] <= 16'h4100;
+core.hyper_softcore.prog_mem.ram.r_data[87] <= 16'h0735; // 0x35 => 0
+core.hyper_softcore.prog_mem.ram.r_data[88] <= 16'h4200;
+core.hyper_softcore.prog_mem.ram.r_data[89] <= 16'h4636; // 0x36 => 2
+
 
 core.hyper_softcore.prog_mem.ram.r_data[254] <= 16'h6a00;
 core.hyper_softcore.prog_mem.ram.r_data[255] <= 16'h46ff;
