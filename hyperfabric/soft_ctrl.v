@@ -69,7 +69,7 @@ module Gremlin(input CLK,
 	     instr_f = 16'h4e00, instr_o = 16'h4e00, acc_output;
   reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req = 2'h0, irq_strobe = 2'h0;
-  reg 	     add_carry, save_carry, waitkill = 1'b0, accumulator_nulled;
+  reg 	     add_carry, save_carry, waitkill = 1'b0;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
@@ -267,14 +267,12 @@ module Gremlin(input CLK,
 	  if (instr_o[11:8] != 4'h8)
 	    instr_o <= instr_f;
 	  else
-	    if (accumulator_nulled) // FIXME!!! test for bugs!
+	    if (accumulator == 0)
 		// accumulator will be nonzero by the time the instruction
 		// hits execution
 
 		// cmp/and 0x0000 {instr_o[7:0]};
 		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
-
-	  accumulator_nulled <= accumulator == 0;
 
 	  write_output_reg <= (instr_o[11:8] == 4'hb);
 	  write_output_desc <= instr_o[2:0];
