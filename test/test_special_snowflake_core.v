@@ -1019,9 +1019,9 @@ module GlaDOS;
       cpu.regf.mDRAM[10] <= 32'h0000_0002;
 
 
-`include "test_special_snowflake_core_prog.bin"
-//`include "test_branches_allofthem.bin"
-// `include "test_shifter_prog.bin"
+`include "test_special_snowflake_core_prog.v"
+//`include "test_branches_allofthem.b"
+// `include "test_shifter_prog.v"
     end
 
 endmodule // GlaDOS

@@ -342,7 +342,7 @@ module GlaDOS;
           d_cache.tlbtag.ram.r_data[i] <= 0;
         end // for (i=0;i<256;i=i+1)
 
-`include "test_cpu_prog.bin"
+`include "test_cpu_prog.v"
     end
 
 endmodule // GlaDOS

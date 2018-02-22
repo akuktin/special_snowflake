@@ -400,8 +400,8 @@ module GLaDOS;
       mut.core.cpu.regf.RAM_B.ram.r_data[12] <= 32'hc000_0020;
       mut.core.cpu.regf.RAM_D.ram.r_data[12] <= 32'hc000_0020;
 
-//`include "test_ss_core_eth_send_prog.bin"
-`include "test_ss_core_eth_recv_prog.bin"
+//`include "test_ss_core_eth_send_prog.v"
+`include "test_ss_core_eth_recv_prog.v"
     end
 /*
   always @(posedge send_CLK)
