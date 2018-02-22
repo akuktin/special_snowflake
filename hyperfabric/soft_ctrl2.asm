@@ -22,7 +22,7 @@ grab_meta_gb_0:
 check_irq_in_gb_0:
   and $gb_0_careof_int_abt; # 15
   cmp/nop :signal_irq_gb_0;  # OH THE PAIN!!!
-  or  $gb_0_irq_des_and_certain_01;
+  or  $gb_0_irq_desc_and_certain_01;
   cmp/nop :exec_gb_1;
   null;
   nop; # 20
