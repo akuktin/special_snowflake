@@ -53,7 +53,8 @@ core.i_cache.cachedat.ram.r_data[98] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 core.i_cache.cachedat.ram.r_data[99] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 
-`define hyper_imem core.hyper_softcore.data_mem.ram.r_data
+`define hyper_imem core.hyper_softcore.prog_mem.ram.r_data
+`define hyper_dmem core.hyper_softcore.data_mem.ram.r_data
 
 `define S_space_left_in_page_not_enough            8'd0
 `define S_len_for_transfer_shorter_than_block_size 8'd1
@@ -72,12 +73,13 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_signal_irq_mb           8'd80
 `define S_exec_mb_other           8'd83
 `define S_continue_mb__0          8'd91
-`define S_continue_mb__1          8'h104
+`define S_continue_mb__1          8'd104
 `define S_exec_transfer_mb        8'd110
-`define S_grab_meta_gb1           8'd112
+`define S_grab_meta_gb_1          8'd112
 `define S_check_irq_in_gb_1       8'd118
 `define S_continue_grab_meta_gb_1 8'd124
-`define S_signal_irq_gb1          8'd134
+`define S_signal_irq_gb_1         8'd134
+`define S_exec_gb_0               8'd137
 `define S_continue_gb_0__0        8'd143
 `define S_continue_gb_0__1        8'd156
 `define S_exec_transfer_gb_0      8'd162
@@ -89,7 +91,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_jump_over_prepare_gb_1  8'd197
 `define S_write_careof_int_gb_1   8'd212
 `define S_balancing_wait          8'd213
-`define S_prepare_mb              8'd215
+`define S_prepare_mb_trans        8'd215
 `define S_jump_over_prepare_mb    8'd229
 `define S_write_careof_int_mb     8'd244
 `define S_mb_step_indices         8'd245
@@ -192,7 +194,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[6] <= {8'h00,`gb_0_begin_addr_low};
 
 ///C  lod $distance_gb_0__exec_gb_1;  # 5
-`hyper_imem[7] <= {8'h0a,`const_5};
+`hyper_imem[7] <= {8'h0a,`const_15};
 ///C  wait :exec_gb_1; # 6 # wait 15 cycles
 `hyper_imem[8] <= {8'h48,`S_exec_gb_1};
 
@@ -508,12 +510,12 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[136] <= {8'h48,`S_exec_gb_0};
 ///Cexec_gb_0:
 ///C  add 0+$gb_0_active; # 116
-// Sexec_gb_0
+// S_exec_gb_0
 `hyper_imem[137] <= {8'h00,`gb_0_active};
 ///C  cmp/null :continue_gb_0__0;
 `hyper_imem[138] <= {8'hcd,`S_continue_gb_0__0};
 ///C  add 0+$gb_0_begin_addr_high;
-`hyper_imem[139] <= {8'h00,`gb_0_bing_addr_high};
+`hyper_imem[139] <= {8'h00,`gb_0_begin_addr_high};
 ///C  o_1_gb; # 119
 `hyper_imem[140] <= 16'h4b01;
 ///C  lod $distance_gb_01__mb; # 120
@@ -579,7 +581,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///Cprepare_gb_0:
 ///C  add 0+$gb_0_active;
 // S_prepare_gb_0
-`hyper_imem[167] <= {8'h,`gb_0_active};
+`hyper_imem[167] <= {8'h00,`gb_0_active};
 ///C  xor $0x8000; # 145
 `hyper_imem[168] <= {8'h0f,`const_0x8000};
 ///C  cmp/null :jump_over_prepare_gb_0;
@@ -591,7 +593,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  lod $distance_gb_01__mb; # 149
 `hyper_imem[172] <= {8'h0a,`const_15};
 ///C  wait :prepare_gb_1; # 150 # wait 15 cycles
-`hyper_imem[173] <= {8'h,`S_prepare_gb_1};
+`hyper_imem[173] <= {8'h48,`S_prepare_gb_1};
 ///Cjump_over_prepare_gb_0:
 ///C  stc $gb_0_active; # 149
 // S_jump_over_prepare_gb_0
@@ -688,7 +690,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[214] <= {8'h48,`S_grab_meta_gb_0};
 ///Cprepare_mb:
 ///C  null; # 50 in the main thread # origin of counting # /1
-// S_prepare_mb
+// S_prepare_mb_trans
 `hyper_imem[215] <= 16'h4d00;
 ///C  add 1+$cur_mb_trans_ptr;
 `hyper_imem[216] <= {8'h01,`cur_mb_trans_ptr};
@@ -768,8 +770,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  lod $delay_for_prepare_mb; # 83
 // S_waitout_untill_gb
 `hyper_imem[250] <= {8'h0a,`const_12};
-///C  wait :grab_meta_gb_1; # 84 # wait 12 cycles
-`hyper_imem[251] <= {8'h48,`S_grab_meta_gb_1};
+///C  wait :grab_meta_gb_0; # 84 # wait 12 cycles
+`hyper_imem[251] <= {8'h48,`S_grab_meta_gb_0};
 
 
 `hyper_imem[254] <= 16'h6a00;
@@ -784,11 +786,25 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
     end
 //  core.cpu.regf.RAM_A.ram.r_data[22] <= 32'hffff_ffff;
 
+// test config below
+
+`define term_place 28
+
+`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
+`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
+`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
+`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+
+  `hyper_dmem[`gb_0_active] <= 0;
+  `hyper_dmem[`const_15] <= 11;
+
+  core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
+
 end // initial begin
 
 always @(posedge CLK_n)
   begin
-    if (core.hyper_softcore.d_w_en_cpu)
+    if (core.hyper_softcore.d_w_en_cpu && 0)
       $display("w_sys %x w_cpu %x",
 	       core.hyper_softcore.d_w_en_sys,
 	       core.hyper_softcore.d_w_en_cpu);
