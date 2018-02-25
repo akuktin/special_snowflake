@@ -416,4 +416,4 @@ mb_step_indices:
 
 waitout_untill_gb:
   lod $delay_for_prepare_mb; # 83
-  wait :grab_meta_gb_1; # 84 # wait 12 cycles
+  wait :grab_meta_gb_0; # 84 # wait 12 cycles
