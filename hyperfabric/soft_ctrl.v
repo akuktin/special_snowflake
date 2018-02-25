@@ -66,7 +66,7 @@ module Gremlin(input CLK,
   wire 	      d_w_en, d_r_en;
 
   reg [15:0] accumulator, memory_operand,
-	     instr_f = 16'h4e00, instr_o = 16'h4e00, acc_output;
+	     instr_f = 16'h4d00, instr_o = 16'h4d00, acc_output;
   reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req = 2'h0, irq_strobe = 2'h0;
   reg 	     add_carry, save_carry, waitkill = 1'b0;
