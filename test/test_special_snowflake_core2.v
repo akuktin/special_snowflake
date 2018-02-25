@@ -1151,8 +1151,10 @@ module GlaDOS;
 //`include "test_lforward_prerD_store.v"
 
 //`include "test_dma_cpucomm.v"
-`include "test_gremlin_general.v"
+//`include "test_gremlin_general.v"
 //`include "test_gremlin_delay.v"
 //`include "test_gremlin_waitacc.v"
+
+`include "test_softctrl_parttest_00.v"
 
 endmodule // GlaDOS
