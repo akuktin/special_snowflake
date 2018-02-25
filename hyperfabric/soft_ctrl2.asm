@@ -157,7 +157,7 @@ exec_mb_other:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 75
-  wait :grab_meta_gb_1 # 76 # wait 20 cycles
+  wait :grab_meta_gb_1; # 76 # wait 20 cycles
 # not part of main execution
 
 continue_mb__0:
@@ -169,7 +169,7 @@ continue_mb__0:
   sto $space_left_in_page; # 80
 
   sub INDEX;
-  or  0xffff
+  or  0xffff;
   add s+0; # meant to detect a negative number, meaning more len than space
 
   cmp/ones :space_left_in_page_not_enough;
@@ -188,7 +188,7 @@ continue_mb__1:
 ## 93 to reach this point
 
 exec_transfer_mb:
-  or  (INDEX+D($mb_other_bits -> $mb_active)); # which mb_active?
+  or  (INDEX+D($mb_other_bits -> $mb_active)); # which mb_active? # your own
   o_3_mb; # 95 # nulls
 
 ## 95 instructions
@@ -248,7 +248,7 @@ continue_gb_0__0:
   o_2_gb;
   and $page_addr_submask;
   xor 0xffff;
-  and 1+$page_size;
+  add 1+$page_size;
   sto $space_left_in_page; # 125
 
   sub $gb_0_len_left;
@@ -308,9 +308,10 @@ jump_over_prepare_gb_0:
   add 0+$signal_bits_gb_0;
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq; # 160
-  cmp/nop (:+2 instructions);
+  cmp/nop :write_careof_int_gb_0;
   null;
   add $0x4000;  # mask for only ABORT
+write_careof_int_gb_0:
   stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
 
 
@@ -324,7 +325,7 @@ prepare_gb_1:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 170
-  wait :check_if_exec_mb; # 171 # wait 15 cycles
+  wait :balancing_wait; # 171 # wait 15 cycles
 # not part of main execution
 
 jump_over_prepare_gb_1:
@@ -343,13 +344,15 @@ jump_over_prepare_gb_1:
   add 0+$signal_bits_gb_1;
   and $location_of_careofint_bit; # 180
   cmp/ones :care_of_irq;
-  cmp/nop (:+2 instructions);
+  cmp/nop :write_careof_int_gb_1;
   null;
   add $0x4000;  # mask for only ABORT
+write_careof_int_gb_1:
   stc $careof_interrupt_abort_gb_1; # 185 # AKA $gb_1_careof_int_abt
 
 ## 183 instructions up to this point
 
+balancing_wait:
   lod $balancing_wait_cycles; # 186
   wait :grab_meta_gb_0; # 187 # wait 6 cycles
 
@@ -371,7 +374,7 @@ prepare_mb:
   add 0+(INDEX+D($mb_active -> $signal_bits));
   xor $0x8000;
   cmp/null :jump_over_prepare_mb;
-  add 0+(INDEX+D($len_left -> $mb_active)); # 60/10
+  add 0+(INDEX+D($signal_bits -> $mb_active)); # 60/10
   and $0x8000; # 61
 
 # not part of main execution
@@ -395,9 +398,10 @@ jump_over_prepare_mb:
   add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
-  cmp/nop (:+2 instructions);
+  cmp/nop :write_careof_int_mb;
   null; # 75
   add $0x4000;
+write_careof_int_mb:
   stc INDEX;
 
 mb_step_indices:
