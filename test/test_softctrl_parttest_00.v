@@ -1,3 +1,5 @@
+integer test_no;
+
 initial begin
 
 // add : 00
@@ -201,7 +203,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///Ccheck_irq_in_gb_0:
 ///C  and $gb_0_careof_int_abt; # 15
 // S_check_irq_in_gb_0
-`hyper_imem[9] <= {8'h0e,`gb_0_careof_int_abt};
+`hyper_imem[9] <= {8'h0d,`gb_0_careof_int_abt};
 ///C  cmp/nop :signal_irq_gb_0;  # OH THE PAIN!!!
 `hyper_imem[10] <= {8'hce,`S_signal_irq_gb_0};
 ///C  or  $gb_0_irq_desc_and_certain_01;
@@ -794,9 +796,57 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
+`hyper_dmem[`const_15] <= 11;
 
-  `hyper_dmem[`gb_0_active] <= 0;
-  `hyper_dmem[`const_15] <= 11;
+  test_no = 4;
+  case (test_no)
+    0: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+    end
+    1: begin
+      `hyper_dmem[`gb_0_active] <= 16'h8000;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0020;
+      `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+    end
+    2: begin
+      `hyper_dmem[`gb_0_active] <= 16'h8000;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0021;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h8000; // irq
+    end
+    3: begin
+      `hyper_dmem[`gb_0_active] <= 16'h8000;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0021;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h4000; // abort
+    end
+
+    4: begin
+      `hyper_dmem[`gb_0_active] <= 16'h8000;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0021;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+    end
+    default: $finish;
+  endcase // case (test_no)
 
 
 end // initial begin
@@ -808,7 +858,13 @@ always @(posedge CLK_n)
 	       core.hyper_softcore.d_w_en_sys,
 	       core.hyper_softcore.d_w_en_cpu);
     if (core.hyper_softcore.RST)
-      $display("opc_o %x", core.hyper_softcore.instr_o);
+      begin
+	$display("cc %d io %x if %x acc %x",
+		 gremlin_cycle,
+		 core.hyper_softcore.instr_o,
+		 core.hyper_softcore.instr_f,
+		 core.hyper_softcore.accumulator);
+      end
   end
 
 always @(posedge CPU_CLK)

@@ -213,7 +213,7 @@ endmodule // hyper_scheduler_mem
 
 module GlaDOS;
   reg CLK_n, CLK_dn, RST, CPU_CLK, RST_CPU, RST_CPU_pre;
-  reg [31:0] counter, minicounter, readcount, readcount2, readcount_r;
+  reg [31:0] gremlin_cycle;
 
   initial
     forever
@@ -472,7 +472,7 @@ module GlaDOS;
 
   initial
     begin
-      RST <= 0; RST_CPU <= 0; counter <= 0; readcount_r <= 0;
+      RST <= 0; RST_CPU <= 0; gremlin_cycle <= 0;
       RST_CPU_pre <= 0; SYS_RST <= 0;
       #14875 RST <= 1;
       #400000000;
@@ -546,6 +546,8 @@ module GlaDOS;
       end
     else
       begin
+	gremlin_cycle <= gremlin_cycle + core.hyper_softcore.RST;
+
         if (core.hyper_softcore.instr_o[11:8] == 4'h8)
           $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
 
