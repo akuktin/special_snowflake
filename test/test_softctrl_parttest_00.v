@@ -189,7 +189,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[4] <= {8'hce,`S_continue_grab_meta_gb_0};
 
 ///C  i_1_gb;
-`hyper_imem[5] <= 16'h4400;
+`hyper_imem[5] <= 16'h4500;
 ///C  add 0+$gb_0_begin_addr_low;
 `hyper_imem[6] <= {8'h00,`gb_0_begin_addr_low};
 
@@ -222,7 +222,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  sto $gb_0_begin_addr_high;
 `hyper_imem[17] <= {8'h46,`gb_0_begin_addr_high};
 ///C  i_1_gb;
-`hyper_imem[18] <= 16'h4400;
+`hyper_imem[18] <= 16'h4500;
 ///C  xor 0xffff;
 `hyper_imem[19] <= 16'h6f00;
 ///C  add 1+$gb_0_len_left; # 10
@@ -231,7 +231,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[21] <= {8'h46,`gb_0_len_left};
 
 ///C  cmp/i_2_gb :check_irq_in_gb_0;
-`hyper_imem[22] <= {8'he4,`S_check_irq_in_gb_0};
+`hyper_imem[22] <= {8'he5,`S_check_irq_in_gb_0};
 ///C  or  $gb_0_irq_desc_and_certain_01;
 `hyper_imem[23] <= {8'h0e,`gb_0_irq_desc_and_certain_01};
 ///C  nop; # 14
@@ -257,7 +257,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add 0+$gb_1_begin_addr_high;
 `hyper_imem[30] <= {8'h00,`gb_1_begin_addr_high};
 ///C  o_1_gb;
-`hyper_imem[31] <= 16'h4b01;
+`hyper_imem[31] <= 16'h4b05;
 
 ///C  lod $distance_gb_01__mb; # 25
 `hyper_imem[32] <= {8'h0a,`const_20};
@@ -268,7 +268,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_continue_gb_1__0
 `hyper_imem[34] <= {8'h0a,`gb_1_begin_addr_low};
 ///C  o_2_gb;
-`hyper_imem[35] <= 16'h4b02;
+`hyper_imem[35] <= 16'h4b06;
 ///C  and $page_addr_submask;
 `hyper_imem[36] <= {8'h0d,`page_addr_submask};
 ///C  xor 0xffff;
@@ -314,7 +314,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_exec_transfer_gb_1
 `hyper_imem[53] <= {8'h0e,`other_bits_gb_1};
 ///C  o_3_gb; # 45 # nulls
-`hyper_imem[54] <= 16'h0b00;
+`hyper_imem[54] <= 16'h0b04;
 
 
 ///Ccheck_if_exec_mb:
@@ -331,7 +331,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  cmp/nop :continue_grab_meta_mb; # 50
 `hyper_imem[59] <= {8'hce,`S_continue_grab_meta_mb};
 ///C  i_1_mb;
-`hyper_imem[60] <= 16'h4500;
+`hyper_imem[60] <= 16'h4400;
 ///C  add 0+INDEX;
 `hyper_imem[61] <= 16'h1000;
 ///C  lod $distance_gb_01__mb; # 53
@@ -361,7 +361,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  sto (INDEX+D($mb_begin_addr_high -> $mb_len_left)); # 55
 `hyper_imem[72] <= {8'h56,`D_mb_begin_addr_high_T_mb_len_left};
 ///C  i_1_mb;
-`hyper_imem[73] <= 16'h4500;
+`hyper_imem[73] <= 16'h4400;
 ///C  xor 0xffff;
 `hyper_imem[74] <= 16'h6f00;
 ///C  add 1+INDEX;
@@ -369,7 +369,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  sto (INDEX+D($mb_len_left -> $mb_irq_desc_and_certain_01));
 `hyper_imem[76] <= {8'h56,`D_mb_len_left_T_mb_irq_desc_and_certain_01};
 ///C  cmp/i_2_mb :check_irq_in_mb; # 60
-`hyper_imem[77] <= {8'he5,`S_check_irq_in_mb};
+`hyper_imem[77] <= {8'he4,`S_check_irq_in_mb};
 ///C  or  (INDEX+D($mb_irq_desc_and_certain_01 -> $mb_careof_int_abt));
 `hyper_imem[78] <= {8'h1e,`D_mb_irq_desc_and_certain_01_T_mb_careof_int_abt};
 ///C  nop;
@@ -396,7 +396,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add 0+(INDEX+D($mb_begin_addr_high -> $mb_begin_addr_low));
 `hyper_imem[87] <= {8'h10,`D_mb_begin_addr_high_T_mb_begin_addr_low};
 ///C  o_1_mb; # 74
-`hyper_imem[88] <= 16'h4b05;
+`hyper_imem[88] <= 16'h4b01;
 ///C  lod $distance_gb_01__mb; # 75
 `hyper_imem[89] <= {8'h0a,`const_20};
 ///C  wait :grab_meta_gb_1; # 76 # wait 20 cycles
@@ -406,7 +406,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_continue_mb__0
 `hyper_imem[91] <= {8'h1a,`D_mb_begin_addr_low_T_mb_len_left};
 ///C  o_2_mb;
-`hyper_imem[92] <= 16'h4b06;
+`hyper_imem[92] <= 16'h4b02;
 ///C  and $page_addr_submask;
 `hyper_imem[93] <= {8'h0d,`page_addr_submask};
 ///C  xor 0xffff;
@@ -448,7 +448,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_exec_transfer_mb
 `hyper_imem[110] <= {8'h1e,`D_mb_other_bits_T_mb_active};
 ///C  o_3_mb; # 95 # nulls
-`hyper_imem[111] <= 16'h0b04;
+`hyper_imem[111] <= 16'h0b00;
 
 ///Cgrab_meta_gb_1:
 ///C  lod $gb_1_active; # 96
@@ -457,7 +457,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  cmp/nop :continue_grab_meta_gb_1;
 `hyper_imem[113] <= {8'hee,`S_continue_grab_meta_gb_1};
 ///C  i_1_gb;
-`hyper_imem[114] <= 16'h4400;
+`hyper_imem[114] <= 16'h4500;
 ///C  add 0+$gb_1_begin_addr_low;
 `hyper_imem[115] <= {8'h00,`gb_1_begin_addr_low};
 ///C  lod $distance_gb_01__mb; # 100
@@ -487,7 +487,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  sto $gb_1_begin_addr_high;
 `hyper_imem[126] <= {8'h46,`gb_1_begin_addr_high};
 ///C  i_1_gb;
-`hyper_imem[127] <= 16'h4400;
+`hyper_imem[127] <= 16'h4500;
 ///C  xor 0xffff;
 `hyper_imem[128] <= 16'h6f00;
 ///C  add 1+$gb_1_len_left; # 105
@@ -495,7 +495,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  sto $gb_1_len_left;
 `hyper_imem[130] <= {8'h46,`gb_1_len_left};
 ///C  cmp/i_2_gb :check_irq_in_gb_1;
-`hyper_imem[131] <= {8'he4,`S_check_irq_in_gb_1};
+`hyper_imem[131] <= {8'he5,`S_check_irq_in_gb_1};
 ///C  or  $gb_1_irq_desc_and_certain_01;
 `hyper_imem[132] <= {8'h0e,`gb_1_irq_desc_and_certain_01};
 ///C  nop; # 109
@@ -517,7 +517,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add 0+$gb_0_begin_addr_high;
 `hyper_imem[139] <= {8'h00,`gb_0_begin_addr_high};
 ///C  o_1_gb; # 119
-`hyper_imem[140] <= 16'h4b01;
+`hyper_imem[140] <= 16'h4b05;
 ///C  lod $distance_gb_01__mb; # 120
 `hyper_imem[141] <= {8'h0a,`const_20};
 ///C  wait :prepare_mb_flipflop; # 121 # wait 20 cycles
@@ -527,7 +527,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_continue_gb_0__0
 `hyper_imem[143] <= {8'h0a,`gb_0_begin_addr_low};
 ///C  o_2_gb;
-`hyper_imem[144] <= 16'h4b02;
+`hyper_imem[144] <= 16'h4b06;
 ///C  and $page_addr_submask;
 `hyper_imem[145] <= {8'h0d,`page_addr_submask};
 ///C  xor 0xffff;
@@ -569,7 +569,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_exec_transfer_gb_0
 `hyper_imem[162] <= {8'h0e,`other_bits_gb_0};
 ///C  o_3_gb; # 140 # nulls
-`hyper_imem[163] <= 16'h0b00;
+`hyper_imem[163] <= 16'h0b04;
 ///Cprepare_mb_flipflop:
 ///C  add 0+$0x8000; # 141
 // S_prepare_mb_flipflop
@@ -789,16 +789,15 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // test config below
 
 `define term_place 28
-
 `hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
 `hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
   `hyper_dmem[`gb_0_active] <= 0;
   `hyper_dmem[`const_15] <= 11;
 
-  core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
 end // initial begin
 
