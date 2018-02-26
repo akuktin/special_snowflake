@@ -83,8 +83,8 @@ continue_gb_1__1:
 
   cmp/ones :len_for_transfer_shorter_than_block_size; # 40
   cmp/null :exec_transfer_gb_1;
-  nop;
   add 0+$block_size;
+  nop;
 
 ## 43 to reach this point
 
@@ -178,12 +178,12 @@ continue_mb__0:
   add 0+INDEX;
 continue_mb__1:
   stf $len_for_transfer__less_block_size;
-  add s+0;
+  add s+0 INDEX+D($mb_len_left -> $mb_other_bits);
 
   cmp/ones :len_for_transfer_shorter_than_block_size; # 90
   cmp/null :exec_transfer_mb;
-  nop (INDEX+D($mb_len_left -> $mb_other_bits));
   add 0+$block_size;
+  nop;
 
 ## 93 to reach this point
 
@@ -265,8 +265,8 @@ continue_gb_0__1:
 
   cmp/ones :len_for_transfer_shorter_than_block_size; # 135
   cmp/null :exec_transfer_gb_0;
-  nop;
   add 0+$block_size;
+  nop;
 
 exec_transfer_gb_0:
   or $other_bits_gb_0;

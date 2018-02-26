@@ -306,10 +306,10 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[49] <= {8'hee,`S_len_for_transfer_shorter_than_block_size};
 ///C  cmp/null :exec_transfer_gb_1;
 `hyper_imem[50] <= {8'hcd,`S_exec_transfer_gb_1};
-///C  nop;
-`hyper_imem[51] <= 16'h4e00;
 ///C  add 0+$block_size;
-`hyper_imem[52] <= {8'h00,`block_size};
+`hyper_imem[51] <= {8'h00,`block_size};
+///C  nop;
+`hyper_imem[52] <= 16'h4e00;
 
 ///Cexec_transfer_gb_1:
 ///C  or $other_bits_gb_1;
@@ -435,16 +435,16 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  stf $len_for_transfer__less_block_size;
 // S_continue_mb__1
 `hyper_imem[104] <= {8'h67,`len_for_transfer__less_block_size};
-///C  add s+0;
-`hyper_imem[105] <= 16'h4200;
+///C  add s+0 INDEX+D($mb_len_left -> $mb_other_bits);
+`hyper_imem[105] <= {8'h52,`D_mb_len_left_T_mb_other_bits};
 ///C  cmp/ones :len_for_transfer_shorter_than_block_size; # 90
 `hyper_imem[106] <= {8'hee,`S_len_for_transfer_shorter_than_block_size};
 ///C  cmp/null :exec_transfer_mb;
 `hyper_imem[107] <= {8'hcd,`S_exec_transfer_mb};
-///C  nop (INDEX+D($mb_len_left -> $mb_other_bits));
-`hyper_imem[108] <= {8'h5e,`D_mb_len_left_T_mb_other_bits};
 ///C  add 0+$block_size;
-`hyper_imem[109] <= {8'h00,`block_size};
+`hyper_imem[108] <= {8'h00,`block_size};
+///C  nop (INDEX+D($mb_len_left -> $mb_other_bits));
+`hyper_imem[109] <= 16'h4e00;
 ///Cexec_transfer_mb:
 ///C  or  (INDEX+D($mb_other_bits -> $mb_active)); # which mb_active? # your own
 // S_exec_transfer_mb
@@ -562,10 +562,10 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[158] <= {8'hee,`S_len_for_transfer_shorter_than_block_size};
 ///C  cmp/null :exec_transfer_gb_0;
 `hyper_imem[159] <= {8'hcd,`S_exec_transfer_gb_0};
-///C  nop;
-`hyper_imem[160] <= 16'h4e00;
 ///C  add 0+$block_size;
-`hyper_imem[161] <= {8'h00,`block_size};
+`hyper_imem[160] <= {8'h00,`block_size};
+///C  nop;
+`hyper_imem[161] <= 16'h4e00;
 ///Cexec_transfer_gb_0:
 ///C  or $other_bits_gb_0;
 // S_exec_transfer_gb_0
