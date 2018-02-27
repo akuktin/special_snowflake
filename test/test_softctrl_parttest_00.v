@@ -114,15 +114,14 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define len_for_transfer__less_block_size 8'h71
 `define page_addr_submask            8'h72
 `define page_size                    8'h73
-`define space_left_in_page           8'h74
-`define block_size                   8'h75
-`define next_index                   8'h76
-`define section_mask                 8'h78
-`define certain_01                   8'h79
-`define location_of_careofint_bit    8'h7a
-`define care_of_irq                  8'h7b
-`define cur_mb_trans_ptr             8'h7c
-`define cur_mb_trans_ptr_mask        8'h7d
+`define block_size                   8'h74
+`define next_index                   8'h75
+`define section_mask                 8'h76
+`define certain_01                   8'h77
+`define location_of_careofint_bit    8'h78
+`define care_of_irq                  8'h79
+`define cur_mb_trans_ptr             8'h7a
+`define cur_mb_trans_ptr_mask        8'h7b
 
 `define gb_0_active                  8'h80
 `define gb_0_begin_addr_high         8'h81
@@ -790,15 +789,21 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 
 // test config below
 
-`define term_place 28
+//`define term_place 28 // for tests 0-4 inclusive
+`define term_place 55 // for tests 5-8 inclusive
 `hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
 `hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_15] <= 11;
+`hyper_dmem[`const_20] <= 16;
 
-  test_no = 4;
+`hyper_dmem[`page_addr_submask] <= 16'h007f;
+`hyper_dmem[`page_size] <= 16'h0080;
+`hyper_dmem[`block_size] <= 16'h0008;
+
+  test_no = 8;
   case (test_no)
     0: begin
       `hyper_dmem[`gb_0_active] <= 0;
@@ -844,6 +849,60 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+    end
+
+    5: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+    end
+    6: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 16'h8000;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0021;
+      `hyper_dmem[`other_bits_gb_1] <= 0;
+
+      `hyper_dmem[`page_addr_submask] <= 16'h007f;
+      `hyper_dmem[`page_size] <= 16'h0080;
+      `hyper_dmem[`block_size] <= 16'h0008;
+      // block_size (0x0008)
+    end
+    7: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 16'h8000;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff7c;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0021;
+      `hyper_dmem[`other_bits_gb_1] <= 0;
+
+      `hyper_dmem[`page_addr_submask] <= 16'h007f;
+      `hyper_dmem[`page_size] <= 16'h0080;
+      `hyper_dmem[`block_size] <= 16'h0008;
+      // space_left_in_page (0x0004)
+    end
+    8: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 16'h8000;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0002;
+      `hyper_dmem[`other_bits_gb_1] <= 0;
+
+      `hyper_dmem[`page_addr_submask] <= 16'h007f;
+      `hyper_dmem[`page_size] <= 16'h0080;
+      `hyper_dmem[`block_size] <= 16'h0008;
+      // len_left (0x0002)
     end
     default: $finish;
   endcase // case (test_no)
