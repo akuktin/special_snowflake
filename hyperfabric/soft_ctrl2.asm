@@ -320,7 +320,7 @@ prepare_gb_1:
   xor $0x8000;
   cmp/null :jump_over_prepare_gb_1;
 
-  add 0+$signal_bits_gb_1; $ 170
+  add 0+$signal_bits_gb_1; # 170
   and $0x8000; # 171
 
 # not part of main execution
