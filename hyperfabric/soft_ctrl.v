@@ -69,7 +69,7 @@ module Gremlin(input CLK,
 	     instr_f = 16'h4d00, instr_o = 16'h4d00, acc_output;
   reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
   reg [1:0]  wrote_3_req = 2'h0, irq_strobe = 2'h0;
-  reg 	     add_carry, save_carry, waitkill = 1'b0;
+  reg 	     add_carry, save_carry, waitkill = 1'b0, advance_ip = 1'b1;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
@@ -214,7 +214,7 @@ module Gremlin(input CLK,
 
 
   assign ip_nxt = (instr_o[15] && (accumulator != 16'd0)) ?
-		  instr_o[7:0] : ip +1;
+		  instr_o[7:0] : ip + advance_ip;
 
   assign d_r_addr_sys = instr[12] ? index : instr[7:0];
   assign d_w_addr_sys = instr_o[12] ? index_capture : instr_o[7:0];
@@ -259,8 +259,9 @@ module Gremlin(input CLK,
 	  if (instr_o[11:8] != 4'hc)
 	    index_reg <= index;
 
-	  waitkill <= (instr_o[11:8] == 4'h8) || (instr_f[11:8] == 4'h8);
-	  if (waitkill)
+	  waitkill <= (instr_f[11:8] == 4'h8) || (instr_o[11:8] == 4'h8);
+	  advance_ip <= !((instr[11:8] == 4'hc) || (instr_f[11:8] == 4'hc));
+	  if (waitkill || !advance_ip)
 	    instr_f <= {1'b0,2'h2,1'b0,4'hd,8'h0}; // and 0x0000;
 	  else
 	    instr_f <= instr;
@@ -330,7 +331,7 @@ module Gremlin(input CLK,
 
 	    4'hc: begin
 	      index_reg <= accumulator[7:0];
-	      accumulator <= 0;
+	      accumulator <= 0; // superflous
 	    end
 	    4'hd: accumulator <= accumulator & memory_operand;
 	    4'he: accumulator <= accumulator | memory_operand;
