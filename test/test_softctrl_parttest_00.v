@@ -99,13 +99,13 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_mb_step_indices         8'd245
 `define S_waitout_untill_gb       8'd250
 
-`define const_5             8'h5f
-`define const_0xc000        8'h5e
-`define const_20            8'h5d
-`define const_15            8'h5c
-`define const_0x8000        8'h5b
-`define const_0x0003        8'h5a
-`define const_0x7ffc        8'h59
+`define const_5             8'h61
+`define const_0xc000        8'h60
+`define const_20            8'h5f
+`define const_15            8'h5e
+`define const_0x8000        8'h5d
+`define const_0x0003        8'h5c
+`define const_0x7ffc        8'h5b
 `define const_0x4000        8'h5a
 `define const_6             8'h59
 `define const_12            8'h58
@@ -131,9 +131,12 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define gb_0_irq_desc_and_certain_01 8'h85
 `define other_bits_gb_0              8'h86
 `define signal_bits_gb_0             8'h87
-`define len_left_gb_0                8'h88
-`define section_and_certain_01_gb_0  8'h89
-`define careof_interrupt_abort_gb_0  8'h8a
+// len_left_gb_0 === gb_0_len_left
+`define len_left_gb_0                8'h83
+// AKA gb_0_irq_desc_and_certain_01
+`define section_and_certain_01_gb_0  8'h85
+// AKA gb_0_careof_int_abt
+`define careof_interrupt_abort_gb_0  8'h84
 
 `define gb_1_active                  8'h90
 `define gb_1_begin_addr_high         8'h91
@@ -143,9 +146,12 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define gb_1_irq_desc_and_certain_01 8'h95
 `define other_bits_gb_1              8'h96
 `define signal_bits_gb_1             8'h97
-`define len_left_gb_1                8'h98
-`define section_and_certain_01_gb_1  8'h99
-`define careof_interrupt_abort_gb_1  8'h9a
+// len_left_gb_1 === gb_1_len_left
+`define len_left_gb_1                8'h93
+// AKA gb_1_irq_desc_and_certain_01
+`define section_and_certain_01_gb_1  8'h95
+// AKA gb_1_careof_int_abt
+`define careof_interrupt_abort_gb_1  8'h94
 
 `define mb_flipflop_ctrl             8'ha0
 `define TEST_mb_active           8'ha1
@@ -180,7 +186,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[1] <= {8'h00,`len_for_transfer__less_block_size};
 ///Ccare_of_irq:
 ///C  add $0xc000;  # mask for both IRQ and ABORT
-// S_care_if_irq
+// S_care_of_irq
 `hyper_imem[2] <= {8'h00,`const_0xc000};
 
 ///Cgrab_meta_gb_0:
@@ -621,7 +627,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  and $location_of_careofint_bit;
 `hyper_imem[184] <= {8'h0d,`location_of_careofint_bit};
 ///C  cmp/ones :care_of_irq;
-`hyper_imem[185] <= {8'hee,`care_of_irq};
+`hyper_imem[185] <= {8'hee,`S_care_of_irq};
 ///C  cmp/nop :write_careof_int_gb_0;
 `hyper_imem[186] <= {8'hce,`S_write_careof_int_gb_0};
 ///C  null;
@@ -790,20 +796,33 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 
 //`define term_place 28 // for tests 0-4 inclusive
 //`define term_place 55 // for tests 5-8 inclusive
-`define term_place 164 // for test 9
+//`define term_place 167 // for test 9
+`define term_place 190 // for test 10
 `hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
 `hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
-`hyper_dmem[`const_15] <= 11;
+`hyper_dmem[`const_5] <= 1;
+`hyper_dmem[`const_0xc000] <= 16'hc000;
 `hyper_dmem[`const_20] <= 16;
+`hyper_dmem[`const_15] <= 11;
+`hyper_dmem[`const_0x8000] <= 16'h8000;
+`hyper_dmem[`const_0x0003] <= 16'h0003;
+`hyper_dmem[`const_0x7ffc] <= 16'h7ffc;
+`hyper_dmem[`const_0x4000] <= 16'h4000;
+`hyper_dmem[`const_6] <= 2;
+`hyper_dmem[`const_12] <= 8;
 
 `hyper_dmem[`page_addr_submask] <= 16'h007f;
 `hyper_dmem[`page_size] <= 16'h0080;
 `hyper_dmem[`block_size] <= 16'h0008;
 
-  test_no = 9;
+`hyper_dmem[`section_mask] <= 16'h3000;
+`hyper_dmem[`certain_01] <= 16'h0400;
+`hyper_dmem[`location_of_careofint_bit] <= 16'h4000;
+
+  test_no = 10;
   case (test_no)
     0: begin
       `hyper_dmem[`gb_0_active] <= 0;
@@ -916,6 +935,21 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.index_reg <= `TEST_mb_active;
       `hyper_dmem[`TEST_mb_active] <= 0;
       `hyper_dmem[`next_index] <= `TEST_mb_active;
+    end
+    10: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'he000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h801f;
     end
     default: $finish;
   endcase // case (test_no)
