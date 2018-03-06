@@ -88,16 +88,16 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_prepare_mb_flipflop     8'd164
 `define S_prepare_gb_0            8'd167
 `define S_jump_over_prepare_gb_0  8'd174
-`define S_write_careof_int_gb_0   8'd189
-`define S_prepare_gb_1            8'd190
-`define S_jump_over_prepare_gb_1  8'd197
-`define S_write_careof_int_gb_1   8'd212
-`define S_balancing_wait          8'd213
-`define S_prepare_mb_trans        8'd215
-`define S_jump_over_prepare_mb    8'd229
-`define S_write_careof_int_mb     8'd244
-`define S_mb_step_indices         8'd245
-`define S_waitout_untill_gb       8'd250
+`define S_write_careof_int_gb_0   8'd190
+`define S_prepare_gb_1            8'd191
+`define S_jump_over_prepare_gb_1  8'd198
+`define S_write_careof_int_gb_1   8'd214
+`define S_balancing_wait          8'd215
+`define S_prepare_mb_trans        8'd218
+`define S_jump_over_prepare_mb    8'd232
+`define S_write_careof_int_mb     8'd248
+`define S_mb_step_indices         8'd249
+`define S_waitout_untill_gb       8'd254
 
 `define const_5             8'h61
 `define const_0xc000        8'h60
@@ -629,173 +629,173 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  stc $other_bits_gb_0; # 160
 `hyper_imem[183] <= {8'h47,`other_bits_gb_0};
 ///C  add 0+$signal_bits_gb_0;
-`hyper_imem[183] <= {8'h00,`signal_bits_gb_0};
+`hyper_imem[184] <= {8'h00,`signal_bits_gb_0};
 ///C  and $location_of_careofint_bit;
-`hyper_imem[184] <= {8'h0d,`location_of_careofint_bit};
+`hyper_imem[185] <= {8'h0d,`location_of_careofint_bit};
 ///C  cmp/ones :care_of_irq;
-`hyper_imem[185] <= {8'hee,`S_care_of_irq};
+`hyper_imem[186] <= {8'hee,`S_care_of_irq};
 ///C  cmp/nop :write_careof_int_gb_0;
-`hyper_imem[186] <= {8'hce,`S_write_careof_int_gb_0};
-///C  null;
-`hyper_imem[187] <= 16'h4d00;
-///C  add $0x4000; # 165 # mask for only ABORT
-`hyper_imem[188] <= {8'h00,`const_0x4000};
+`hyper_imem[187] <= {8'hce,`S_write_careof_int_gb_0};
+///C  null; # 165
+`hyper_imem[188] <= 16'h4d00;
+///C  add $0x4000; # mask for only ABORT
+`hyper_imem[189] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_gb_0:
 ///C  stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
 // S_write_careof_int_gb_0
-`hyper_imem[189] <= {8'h47,`careof_interrupt_abort_gb_0};
+`hyper_imem[190] <= {8'h47,`careof_interrupt_abort_gb_0};
 ///Cprepare_gb_1:
-///C  add 0+$gb_1_active; # 167
+///C  add 0+$gb_1_active; # 168
 // S_prepare_gb_1
-`hyper_imem[190] <= {8'h00,`gb_1_active};
+`hyper_imem[191] <= {8'h00,`gb_1_active};
 ///C  xor $0x8000;
-`hyper_imem[191] <= {8'h0f,`const_0x8000};
-///C  cmp/null :jump_over_prepare_gb_1;
-`hyper_imem[192] <= {8'hcd,`S_jump_over_prepare_gb_1};
-///C  add 0+$signal_bits_gb_1; # 170
-`hyper_imem[193] <= {8'h00,`signal_bits_gb_1};
-///C  and $0x8000; # 171
-`hyper_imem[194] <= {8'h0d,`const_0x8000};
-///C  lod $distance_gb_01__mb; # 172
-`hyper_imem[195] <= {8'h0a,`const_16};
-///C  wait :balancing_wait; # 173 # wait 16 cycles
-`hyper_imem[196] <= {8'h48,`S_balancing_wait};
+`hyper_imem[192] <= {8'h0f,`const_0x8000};
+///C  cmp/null :jump_over_prepare_gb_1; # 170
+`hyper_imem[193] <= {8'hcd,`S_jump_over_prepare_gb_1};
+///C  add 0+$signal_bits_gb_1;
+`hyper_imem[194] <= {8'h00,`signal_bits_gb_1};
+///C  and $0x8000; # 172
+`hyper_imem[195] <= {8'h0d,`const_0x8000};
+///C  lod $distance_gb_01__mb; # 173
+`hyper_imem[196] <= {8'h0a,`const_16};
+///C  wait :balancing_wait; # 174 # wait 16 cycles
+`hyper_imem[197] <= {8'h48,`S_balancing_wait};
 ///Cjump_over_prepare_gb_1:
-///C  stc $gb_1_active; # 172
+///C  stc $gb_1_active; # 173
 // S_jump_over_prepare_gb_1
-`hyper_imem[197] <= {8'h47,`gb_1_active};
+`hyper_imem[198] <= {8'h47,`gb_1_active};
 ///C  add 0+$len_left_gb_1;
-`hyper_imem[198] <= {8'h00,`len_left_gb_1};
-///C  add 0+$0x0003;
-`hyper_imem[199] <= {8'h00,`const_0x0003};
-///C  and $0x7ffc; # 175
-`hyper_imem[200] <= {8'h0d,`const_0x7ffc};
+`hyper_imem[199] <= {8'h00,`len_left_gb_1};
+///C  add 0+$0x0003; # 175
+`hyper_imem[200] <= {8'h00,`const_0x0003};
+///C  and $0x7ffc;
+`hyper_imem[201] <= {8'h0d,`const_0x7ffc};
 ///C  stc $len_left_gb_1;
-`hyper_imem[201] <= {8'h47,`len_left_gb_1};
+`hyper_imem[202] <= {8'h47,`len_left_gb_1};
 ///C  add 0+$signal_bits_gb_1;
-`hyper_imem[202] <= {8'h00,`signal_bits_gb_1};
+`hyper_imem[203] <= {8'h00,`signal_bits_gb_1};
 ///C  or  $certain_01;
-`hyper_imem[203] <= {8'h0e,`certain_01};
+`hyper_imem[204] <= {8'h0e,`certain_01};
 ///C  sto $section_and_certain_01_gb_1; # 180 # AKA $gb_0_irq_desc_and_cerain_01
-`hyper_imem[204] <= {8'h46,`section_and_certain_01_gb_1};
+`hyper_imem[205] <= {8'h46,`section_and_certain_01_gb_1};
 ///C  and $section_other_bits_mask;
-`hyper_imem[205] <= {8'h0d,`section_other_bits_mask};
+`hyper_imem[206] <= {8'h0d,`section_other_bits_mask};
 ///C  stc $other_bits_gb_1;
-`hyper_imem[206] <= {8'h47,`other_bits_gb_1};
+`hyper_imem[207] <= {8'h47,`other_bits_gb_1};
 ///C  add 0+$signal_bits_gb_1;
-`hyper_imem[206] <= {8'h00,`signal_bits_gb_1};
+`hyper_imem[208] <= {8'h00,`signal_bits_gb_1};
 ///C  and $location_of_careofint_bit;
-`hyper_imem[207] <= {8'h0d,`location_of_careofint_bit};
-///C  cmp/ones :care_of_irq;
-`hyper_imem[208] <= {8'hee,`S_care_of_irq};
+`hyper_imem[209] <= {8'h0d,`location_of_careofint_bit};
+///C  cmp/ones :care_of_irq; # 185
+`hyper_imem[210] <= {8'hee,`S_care_of_irq};
 ///C  cmp/nop :write_careof_int_gb_1;
-`hyper_imem[209] <= {8'hce,`S_write_careof_int_gb_1};
-///C  null; # 185
-`hyper_imem[210] <= 16'h4d00;
+`hyper_imem[211] <= {8'hce,`S_write_careof_int_gb_1};
+///C  null;
+`hyper_imem[212] <= 16'h4d00;
 ///C  add $0x4000;  # mask for only ABORT
-`hyper_imem[211] <= {8'h00,`const_0x4000};
+`hyper_imem[213] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_gb_1:
-///C  stc $careof_interrupt_abort_gb_1; # 187 # AKA $gb_1_careof_int_abt
+///C  stc $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
 // S_write_careof_int_gb_1
-`hyper_imem[212] <= {8'h47,`careof_interrupt_abort_gb_1};
+`hyper_imem[214] <= {8'h47,`careof_interrupt_abort_gb_1};
 ///Cbalancing_wait:
 ///C  nop; # 190
 // S_balancing_wait
-`hyper_imem[213] <= 16'h4e00;
-///C  nop; # 191
-`hyper_imem[214] <= 16'h4e00;
-///C  nop; # 192
 `hyper_imem[215] <= 16'h4e00;
+///C  nop; # 191
+`hyper_imem[216] <= 16'h4e00;
+///C  nop; # 192
+`hyper_imem[217] <= 16'h4e00;
 ///Cprepare_mb_trans:
 ///C  null; # 50 in the main thread # origin of counting # /1
 // S_prepare_mb_trans
-`hyper_imem[214] <= 16'h4d00;
+`hyper_imem[218] <= 16'h4d00;
 ///C  add 1+$cur_mb_trans_ptr;
-`hyper_imem[215] <= {8'h01,`cur_mb_trans_ptr};
+`hyper_imem[219] <= {8'h01,`cur_mb_trans_ptr};
 ///C  and $cur_mb_trans_ptr_mask;
-`hyper_imem[216] <= {8'h0d,`cur_mb_trans_ptr_mask};
+`hyper_imem[220] <= {8'h0d,`cur_mb_trans_ptr_mask};
 ///C  sto $cur_mb_trans_ptr;
-`hyper_imem[217] <= {8'h46,`cur_mb_trans_ptr};
+`hyper_imem[221] <= {8'h46,`cur_mb_trans_ptr};
 ///C  inl; # 54/5 55 56
-`hyper_imem[218] <= 16'h4c00;
+`hyper_imem[222] <= 16'h4c00;
 ///C  add 0+INDEX; # 57
-`hyper_imem[219] <= 16'h1000;
+`hyper_imem[223] <= 16'h1000;
 ///C  inl; # 58 59/10 60 # loaded with $mb_active
-`hyper_imem[220] <= 16'h4c00;
+`hyper_imem[224] <= 16'h4c00;
 ///C  add 0+(INDEX+D($mb_active -> $signal_bits));
-`hyper_imem[221] <= {8'h10,`D_mb_active_T_signal_bits};
+`hyper_imem[225] <= {8'h10,`D_mb_active_T_signal_bits};
 ///C  xor $0x8000;
-`hyper_imem[222] <= {8'h0f,`const_0x8000};
+`hyper_imem[226] <= {8'h0f,`const_0x8000};
 ///C  cmp/null :jump_over_prepare_mb;
-`hyper_imem[223] <= {8'hcd,`S_jump_over_prepare_mb};
+`hyper_imem[227] <= {8'hcd,`S_jump_over_prepare_mb};
 ///C  add 0+(INDEX+D($signal_bits -> $mb_active)); # /15
-`hyper_imem[224] <= {8'h10,`D_signal_bits_T_mb_active};
+`hyper_imem[228] <= {8'h10,`D_signal_bits_T_mb_active};
 ///C  and $0x8000; # 65/16
-`hyper_imem[225] <= {8'h0d,`const_0x8000};
+`hyper_imem[229] <= {8'h0d,`const_0x8000};
 ///C  lod $distance_gb_01__mb; # 66/17
-`hyper_imem[226] <= {8'h0a,`const_16};
+`hyper_imem[230] <= {8'h0a,`const_16};
 ///C  wait :mb_step_indices; # 67/18 # wait 16 cycles
-`hyper_imem[227] <= {8'h48,`S_mb_step_indices};
+`hyper_imem[231] <= {8'h48,`S_mb_step_indices};
 ///Cjump_over_prepare_mb:
 ///C  stc (INDEX+D($mb_active -> $len_left)); # 66/17
 // S_jump_over_prepare_mb
-`hyper_imem[228] <= {8'h57,`D_mb_active_T_len_left};
+`hyper_imem[232] <= {8'h57,`D_mb_active_T_len_left};
 ///C  add 0+INDEX;
-`hyper_imem[229] <= 16'h1000;
+`hyper_imem[233] <= 16'h1000;
 ///C  add 0+$0x0003;
-`hyper_imem[230] <= {8'h00,`const_0x0003};
+`hyper_imem[234] <= {8'h00,`const_0x0003};
 ///C  and $0x7ffc; # /20
-`hyper_imem[231] <= {8'h0d,`const_0x7ffc};
+`hyper_imem[235] <= {8'h0d,`const_0x7ffc};
 ///C  stc (INDEX+D($len_left -> $signal_bits)); # 70
-`hyper_imem[232] <= {8'h57,`D_len_left_T_signal_bits};
+`hyper_imem[236] <= {8'h57,`D_len_left_T_signal_bits};
 ///C  add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
-`hyper_imem[233] <= {8'h10,`D_signal_bits_T_mb_irq_desc_and_certain_01};
+`hyper_imem[237] <= {8'h10,`D_signal_bits_T_mb_irq_desc_and_certain_01};
 ///C  or  $certain_01;
-`hyper_imem[234] <= {8'h0e,`certain_01};
+`hyper_imem[238] <= {8'h0e,`certain_01};
 ///C  sto (INDEX+D($mb_irq_desc_and_certain_01 -> $other_bits_mb));
-`hyper_imem[235] <= {8'h56,`D_mb_irq_desc_and_certain_01_T_other_bits};
+`hyper_imem[239] <= {8'h56,`D_mb_irq_desc_and_certain_01_T_other_bits};
 ///C  and $section_other_bits_mask; # /25
-`hyper_imem[236] <= {8'h0d,`section_other_bits_mask};
+`hyper_imem[240] <= {8'h0d,`section_other_bits_mask};
 ///C  stc (INDEX+D($other_bits_mb -> $signal_bits)); # 75
-`hyper_imem[237] <= {8'h56,`D_other_bits_T_signal_bits};
-///C  add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt)); # 75
-`hyper_imem[237] <= {8'h10,`D_signal_bits_T_mb_careof_int_abt};
+`hyper_imem[241] <= {8'h56,`D_other_bits_T_signal_bits};
+///C  add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
+`hyper_imem[242] <= {8'h10,`D_signal_bits_T_mb_careof_int_abt};
 ///C  and $location_of_careofint_bit;
-`hyper_imem[238] <= {8'h0d,`location_of_careofint_bit};
+`hyper_imem[243] <= {8'h0d,`location_of_careofint_bit};
 ///C  cmp/ones :care_of_irq;
-`hyper_imem[239] <= {8'hee,`S_care_of_irq};
-///C  cmp/nop :write_careof_int_mb;
-`hyper_imem[240] <= {8'hce,`S_write_careof_int_mb};
-///C  null; # /30
-`hyper_imem[241] <= 16'h4d00;
-///C  add $0x4000; # 80
-`hyper_imem[242] <= {8'h00,`const_0x4000};
+`hyper_imem[244] <= {8'hee,`S_care_of_irq};
+///C  cmp/nop :write_careof_int_mb; # /30
+`hyper_imem[245] <= {8'hce,`S_write_careof_int_mb};
+///C  null; # 80
+`hyper_imem[246] <= 16'h4d00;
+///C  add $0x4000;
+`hyper_imem[247] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_mb:
 ///C  stc INDEX;
 // S_write_careof_int_mb
-`hyper_imem[243] <= 16'h5700;
+`hyper_imem[248] <= 16'h5700;
 ///Cmb_step_indices:
-///C  add 0+$cur_mb_trans_ptr; # 82
+///C  add 0+$cur_mb_trans_ptr; # 83
 // S_mb_step_indices
-`hyper_imem[244] <= {8'h00,`cur_mb_trans_ptr};
-///C  inl; # 83 84/35 85
-`hyper_imem[245] <= 16'h4c00;
-///C  add 0+INDEX; # 86
-`hyper_imem[246] <= 16'h1000;
-///C  swp $next_index; # 87 # a proper swap
-`hyper_imem[247] <= {8'h07,`next_index};
-///C  inl; # 88 89/40 90
-`hyper_imem[248] <= 16'h4c00;
+`hyper_imem[249] <= {8'h00,`cur_mb_trans_ptr};
+///C  inl; # 84/35 85 86
+`hyper_imem[250] <= 16'h4c00;
+///C  add 0+INDEX; # 87
+`hyper_imem[251] <= 16'h1000;
+///C  swp $next_index; # 88 # a proper swap
+`hyper_imem[252] <= {8'h07,`next_index};
+///C  inl; # 89/40 90 91
+`hyper_imem[253] <= 16'h4c00;
 ///Cwaitout_untill_gb:
-///C  lod $delay_for_prepare_mb; # 91
+///C  lod $delay_for_prepare_mb; # 92
 // S_waitout_untill_gb
-`hyper_imem[249] <= {8'h0a,`const_5};
-///C  wait :grab_meta_gb_1; # 92/43 # wait 5 cycles
-`hyper_imem[250] <= {8'h48,`S_grab_meta_gb_1};
+`hyper_imem[254] <= {8'h0a,`const_5};
+///C  wait :grab_meta_gb_1; # 93/44 # wait 5 cycles
+`hyper_imem[255] <= {8'h48,`S_grab_meta_gb_1};
 
 
-`hyper_imem[254] <= 16'h6a00;
-`hyper_imem[255] <= 16'h46ff;
+//`hyper_imem[254] <= 16'h6a00;
+//`hyper_imem[255] <= 16'h46ff;
 
 
   for (i=1; i<31; i=i+1)

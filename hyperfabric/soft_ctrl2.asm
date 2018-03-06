@@ -412,7 +412,7 @@ mb_step_indices:
   inl; # 84/35 85 86
   add 0+INDEX; # 87
   swp $next_index; # 88 # a proper swap
-  inl; # 89/90 90 91
+  inl; # 89/40 90 91
 
 # 31 instructions since origin
 
