@@ -289,7 +289,7 @@ prepare_gb_0:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 151
-  wait :prepare_gb_1; # 152 # wait 15 cycles
+  wait :prepare_gb_1; # 152 # wait 16 cycles
 # not part of main execution
 
 jump_over_prepare_gb_0:
@@ -301,57 +301,61 @@ jump_over_prepare_gb_0:
   stc $len_left_gb_0; # 155
 
   add 0+$signal_bits_gb_0;
-  and $section_mask;
   or  $certain_01;
-  stc $section_and_certain_01_gb_0; # AKA $gb_0_irq_desc_and_cerain_01
+  sto $section_and_certain_01_gb_0; # AKA $gb_0_irq_desc_and_cerain_01
+  and $section_other_bits_mask;
+  stc $other_bits_gb_0; # 160
 
-  add 0+$signal_bits_gb_0; # 160
+  add 0+$signal_bits_gb_0;
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
   cmp/nop :write_careof_int_gb_0;
-  null;
-  add $0x4000; # 165 # mask for only ABORT
+  null; # 165
+  add $0x4000; # mask for only ABORT
 write_careof_int_gb_0:
   stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
 
 
 prepare_gb_1:
-  add 0+$gb_1_active; # 167
+  add 0+$gb_1_active; # 168
   xor $0x8000;
-  cmp/null :jump_over_prepare_gb_1;
+  cmp/null :jump_over_prepare_gb_1; # 170
 
-  add 0+$signal_bits_gb_1; # 170
-  and $0x8000; # 171
+  add 0+$signal_bits_gb_1;
+  and $0x8000; # 172
 
 # not part of main execution
-  lod $distance_gb_01__mb; # 172
-  wait :balancing_wait; # 173 # wait 15 cycles
+  lod $distance_gb_01__mb; # 173
+  wait :balancing_wait; # 174 # wait 16 cycles
 # not part of main execution
 
 jump_over_prepare_gb_1:
-  stc $gb_1_active; # 172
+  stc $gb_1_active; # 173
 
   add 0+$len_left_gb_1;
-  add 0+$0x0003;
-  and $0x7ffc; # 175
+  add 0+$0x0003; # 175
+  and $0x7ffc;
   stc $len_left_gb_1;
 
   add 0+$signal_bits_gb_1;
-  and $section_mask;
   or  $certain_01;
-  stc $section_and_certain_01_gb_1; # 180 # AKA $gb_1_irq_desc_and_cerain_01
+  sto $section_and_certain_01_gb_1; # 180 # AKA $gb_0_irq_desc_and_cerain_01
+  and $section_other_bits_mask;
+  stc $other_bits_gb_1;
 
   add 0+$signal_bits_gb_1;
   and $location_of_careofint_bit;
-  cmp/ones :care_of_irq;
+  cmp/ones :care_of_irq; # 185
   cmp/nop :write_careof_int_gb_1;
-  null; # 185
+  null;
   add $0x4000;  # mask for only ABORT
 write_careof_int_gb_1:
-  stc $careof_interrupt_abort_gb_1; # 187 # AKA $gb_1_careof_int_abt
+  stc $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
 
 balancing_wait:
-  wait :grab_meta_gb_0; # 188 # wait 4 cycles
+  nop; # 190
+  nop; # 191
+  nop; # 192
 
 # NOTICE!
 # The first cycle of the following small carousel is cycle no. 0xc1 because
@@ -376,7 +380,7 @@ prepare_mb_trans:
 
 # not part of main execution
   lod $distance_gb_01__mb; # 66/17
-  wait :mb_step_indices; # 67/18 # wait 15 cycles
+  wait :mb_step_indices; # 67/18 # wait 16 cycles
 # not part of main execution
 
 jump_over_prepare_mb:
@@ -388,29 +392,30 @@ jump_over_prepare_mb:
   stc (INDEX+D($len_left -> $signal_bits)); # 70
 
   add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
-  and $section_mask;
   or  $certain_01;
-  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits)); # /25
+  sto (INDEX+D($mb_irq_desc_and_certain_01 -> $other_bits_mb));
+  and $section_other_bits_mask; # /25
+  stc (INDEX+D($other_bits_mb -> $signal_bits)); # 75
 
-  add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt)); # 75
+  add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
-  cmp/nop :write_careof_int_mb;
-  null; # /30
-  add $0x4000; # 80
+  cmp/nop :write_careof_int_mb; # /30
+  null; # 80
+  add $0x4000;
 write_careof_int_mb:
   stc INDEX;
 
 mb_step_indices:
   # step the transaction pointer
-  add 0+$cur_mb_trans_ptr; # 82
-  inl; # 83 84/35 85
-  add 0+INDEX; # 86
-  swp $next_index; # 87 # a proper swap
-  inl; # 88 89/40 90
+  add 0+$cur_mb_trans_ptr; # 83
+  inl; # 84/35 85 86
+  add 0+INDEX; # 87
+  swp $next_index; # 88 # a proper swap
+  inl; # 89/90 90 91
 
 # 31 instructions since origin
 
 waitout_untill_gb:
-  lod $delay_for_prepare_mb; # 91
-  wait :grab_meta_gb_1; # 92/43 # wait 6 cycles
+  lod $delay_for_prepare_mb; # 92
+  wait :grab_meta_gb_1; # 93/44 # wait 5 cycles
