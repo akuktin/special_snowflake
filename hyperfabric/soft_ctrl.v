@@ -315,7 +315,7 @@ module Gremlin(input CLK,
 	    end
 	    4'h9: begin
 	      irq_strobe[0] <= !irq_strobe[0]; // provisional
-	      IRQ_DESC <= accumulator[12:11]; // maybe
+	      IRQ_DESC <= accumulator[15:14]; // maybe
 	      accumulator <= 0; // probably a good idea
 	    end
 	    // fucking load instruction, bitch!
@@ -350,10 +350,10 @@ module Gremlin(input CLK,
 		      reg_page_hi_1 <= acc_output;
 		    end
 		    2'h2: begin
-		      reg_opon_data_1 <= acc_output[15];
-		      reg_rdmem_op_1 <= acc_output[14];
+		      reg_opon_data_1 <= acc_output[0];
+		      reg_rdmem_op_1 <= acc_output[1];
 		      reg_count_req_1 <= acc_output[13:2];
-		      reg_blck_sec_1 <= acc_output[1:0];
+		      reg_blck_sec_1 <= acc_output[15:14];
 		    end
 		  endcase // case (instr[1:0])
 		end
@@ -368,10 +368,10 @@ module Gremlin(input CLK,
 		      reg_page_hi_0 <= acc_output;
 		    end
 		    2'h2: begin
-		      reg_opon_data_0 <= acc_output[15];
-		      reg_rdmem_op_0 <= acc_output[14];
+		      reg_opon_data_0 <= acc_output[0];
+		      reg_rdmem_op_0 <= acc_output[1];
 		      reg_count_req_0 <= acc_output[13:2];
-		      reg_blck_sec_0 <= acc_output[1:0];
+		      reg_blck_sec_0 <= acc_output[15:14];
 		    end
 		  endcase // case (instr[1:0])
 		end
