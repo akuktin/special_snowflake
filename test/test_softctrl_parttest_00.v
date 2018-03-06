@@ -797,7 +797,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 //`define term_place 28 // for tests 0-4 inclusive
 //`define term_place 55 // for tests 5-8 inclusive
 //`define term_place 167 // for test 9
-`define term_place 190 // for test 10
+//`define term_place 190 // for test 10
+`define term_place 215 // for test 11
 `hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
 `hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
@@ -822,7 +823,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`certain_01] <= 16'h0400;
 `hyper_dmem[`location_of_careofint_bit] <= 16'h4000;
 
-  test_no = 10;
+  test_no = 11;
   case (test_no)
     0: begin
       `hyper_dmem[`gb_0_active] <= 0;
@@ -948,8 +949,26 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`TEST_mb_active] <= 0;
       `hyper_dmem[`next_index] <= `TEST_mb_active;
 
-      `hyper_dmem[`signal_bits_gb_0] <= 16'he000;
+      `hyper_dmem[`signal_bits_gb_0] <= 16'hd000;
       `hyper_dmem[`gb_0_len_left] <= 16'h801f;
+    end
+    11: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h801f;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
     end
     default: $finish;
   endcase // case (test_no)
