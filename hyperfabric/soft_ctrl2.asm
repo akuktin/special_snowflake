@@ -297,7 +297,7 @@ jump_over_prepare_gb_0:
 
   add 0+$len_left_gb_0;
   add 0+$0x0003;
-  and $0x7ffc;
+  and $0x3ffc;
   stc $len_left_gb_0; # 155
 
   add 0+$signal_bits_gb_0;
@@ -334,7 +334,7 @@ jump_over_prepare_gb_1:
 
   add 0+$len_left_gb_1;
   add 0+$0x0003; # 175
-  and $0x7ffc;
+  and $0x3ffc;
   stc $len_left_gb_1;
 
   add 0+$signal_bits_gb_1;
@@ -388,7 +388,7 @@ jump_over_prepare_mb:
 
   add 0+INDEX;
   add 0+$0x0003;
-  and $0x7ffc; # /20
+  and $0x3ffc; # /20
   stc (INDEX+D($len_left -> $signal_bits)); # 70
 
   add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));

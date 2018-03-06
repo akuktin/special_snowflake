@@ -105,7 +105,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define const_15            8'h5e
 `define const_0x8000        8'h5d
 `define const_0x0003        8'h5c
-`define const_0x7ffc        8'h5b
+`define const_0x3ffc        8'h5b
 `define const_0x4000        8'h5a
 `define const_6             8'h59
 `define const_12            8'h58
@@ -614,8 +614,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[175] <= {8'h00,`len_left_gb_0};
 ///C  add 0+$0x0003;
 `hyper_imem[176] <= {8'h00,`const_0x0003};
-///C  and $0x7ffc;
-`hyper_imem[177] <= {8'h0d,`const_0x7ffc};
+///C  and $0x3ffc;
+`hyper_imem[177] <= {8'h0d,`const_0x3ffc};
 ///C  stc $len_left_gb_0; # 155
 `hyper_imem[178] <= {8'h47,`len_left_gb_0};
 ///C  add 0+$signal_bits_gb_0;
@@ -668,8 +668,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[199] <= {8'h00,`len_left_gb_1};
 ///C  add 0+$0x0003; # 175
 `hyper_imem[200] <= {8'h00,`const_0x0003};
-///C  and $0x7ffc;
-`hyper_imem[201] <= {8'h0d,`const_0x7ffc};
+///C  and $0x3ffc;
+`hyper_imem[201] <= {8'h0d,`const_0x3ffc};
 ///C  stc $len_left_gb_1;
 `hyper_imem[202] <= {8'h47,`len_left_gb_1};
 ///C  add 0+$signal_bits_gb_1;
@@ -744,8 +744,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[233] <= 16'h1000;
 ///C  add 0+$0x0003;
 `hyper_imem[234] <= {8'h00,`const_0x0003};
-///C  and $0x7ffc; # /20
-`hyper_imem[235] <= {8'h0d,`const_0x7ffc};
+///C  and $0x3ffc; # /20
+`hyper_imem[235] <= {8'h0d,`const_0x3ffc};
 ///C  stc (INDEX+D($len_left -> $signal_bits)); # 70
 `hyper_imem[236] <= {8'h57,`D_len_left_T_signal_bits};
 ///C  add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
@@ -824,7 +824,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_15] <= 11;
 `hyper_dmem[`const_0x8000] <= 16'h8000;
 `hyper_dmem[`const_0x0003] <= 16'h0003;
-`hyper_dmem[`const_0x7ffc] <= 16'h7ffc;
+`hyper_dmem[`const_0x3ffc] <= 16'h3ffc;
 `hyper_dmem[`const_0x4000] <= 16'h4000;
 `hyper_dmem[`const_6] <= 2;
 `hyper_dmem[`const_12] <= 8;
