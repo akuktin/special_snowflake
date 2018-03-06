@@ -350,10 +350,10 @@ jump_over_prepare_gb_1:
   null;
   add $0x4000;  # mask for only ABORT
 write_careof_int_gb_1:
-  stc $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
+  stf $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
 
 balancing_wait:
-  nop; # 190
+  cmp/null :grab_meta_gb_0; # 190
   nop; # 191
   nop; # 192
 

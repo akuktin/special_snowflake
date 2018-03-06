@@ -695,13 +695,13 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add $0x4000;  # mask for only ABORT
 `hyper_imem[213] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_gb_1:
-///C  stc $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
+///C  stf $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
 // S_write_careof_int_gb_1
-`hyper_imem[214] <= {8'h47,`careof_interrupt_abort_gb_1};
+`hyper_imem[214] <= {8'h67,`careof_interrupt_abort_gb_1};
 ///Cbalancing_wait:
-///C  nop; # 190
+///C  cmp/null :grab_meta_gb_0; # 190
 // S_balancing_wait
-`hyper_imem[215] <= 16'h4e00;
+`hyper_imem[215] <= {8'hed,`S_grab_meta_gb_0};
 ///C  nop; # 191
 `hyper_imem[216] <= 16'h4e00;
 ///C  nop; # 192
@@ -811,8 +811,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 //`define term_place 28 // for tests 0-4 inclusive
 //`define term_place 55 // for tests 5-8 inclusive
 //`define term_place 167 // for test 9
-//`define term_place 190 // for test 10
-`define term_place 215 // for test 11
+//`define term_place 191 // for test 10
+`define term_place 218 // for test 11
 `hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
 `hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
 `hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
