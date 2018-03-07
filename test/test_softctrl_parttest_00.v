@@ -133,12 +133,6 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define gb_0_irq_desc_and_certain_01 8'h85
 `define other_bits_gb_0              8'h86
 `define signal_bits_gb_0             8'h87
-// len_left_gb_0 === gb_0_len_left
-`define len_left_gb_0                8'h83
-// AKA gb_0_irq_desc_and_certain_01
-`define section_and_certain_01_gb_0  8'h85
-// AKA gb_0_careof_int_abt
-`define careof_interrupt_abort_gb_0  8'h84
 
 `define gb_1_active                  8'h90
 `define gb_1_begin_addr_high         8'h91
@@ -148,12 +142,6 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define gb_1_irq_desc_and_certain_01 8'h95
 `define other_bits_gb_1              8'h96
 `define signal_bits_gb_1             8'h97
-// len_left_gb_1 === gb_1_len_left
-`define len_left_gb_1                8'h93
-// AKA gb_1_irq_desc_and_certain_01
-`define section_and_certain_01_gb_1  8'h95
-// AKA gb_1_careof_int_abt
-`define careof_interrupt_abort_gb_1  8'h94
 
 `define mb_flipflop_ctrl             8'ha0
 `define TEST_mb_active           8'ha1
@@ -172,8 +160,6 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define D_mb_other_bits_T_mb_active                      8'hxx
 `define D_mb_active_T_signal_bits                        8'hxx
 `define D_signal_bits_T_mb_active                        8'hxx
-`define D_mb_active_T_len_left                           8'hxx
-`define D_len_left_T_signal_bits                         8'hxx
 `define D_signal_bits_T_mb_irq_desc_and_certain_01       8'hxx
 `define D_mb_irq_desc_and_certain_01_T_signal_bits       8'hxx
 `define D_signal_bits_T_mb_careof_int_abt                8'hxx
@@ -610,20 +596,20 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  stc $gb_0_active; # 151
 // S_jump_over_prepare_gb_0
 `hyper_imem[174] <= {8'h47,`gb_0_active};
-///C  add 0+$len_left_gb_0;
-`hyper_imem[175] <= {8'h00,`len_left_gb_0};
+///C  add 0+$gb_0_len_left;
+`hyper_imem[175] <= {8'h00,`gb_0_len_left};
 ///C  add 0+$0x0003;
 `hyper_imem[176] <= {8'h00,`const_0x0003};
 ///C  and $0x3ffc;
 `hyper_imem[177] <= {8'h0d,`const_0x3ffc};
-///C  stc $len_left_gb_0; # 155
-`hyper_imem[178] <= {8'h47,`len_left_gb_0};
+///C  stc $gb_0_len_left; # 155
+`hyper_imem[178] <= {8'h47,`gb_0_len_left};
 ///C  add 0+$signal_bits_gb_0;
 `hyper_imem[179] <= {8'h00,`signal_bits_gb_0};
 ///C  or  $certain_01;
 `hyper_imem[180] <= {8'h0e,`certain_01};
-///C  sto $section_and_certain_01_gb_0; # AKA $gb_0_irq_desc_and_cerain_01
-`hyper_imem[181] <= {8'h46,`section_and_certain_01_gb_0};
+///C  sto $gb_0_irq_desc_and_certain_01;
+`hyper_imem[181] <= {8'h46,`gb_0_irq_desc_and_certain_01};
 ///C  and $section_other_bits_mask;
 `hyper_imem[182] <= {8'h0d,`section_other_bits_mask};
 ///C  stc $other_bits_gb_0; # 160
@@ -641,9 +627,9 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add $0x4000; # mask for only ABORT
 `hyper_imem[189] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_gb_0:
-///C  stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
+///C  stc $gb_0_careof_int_abt;
 // S_write_careof_int_gb_0
-`hyper_imem[190] <= {8'h47,`careof_interrupt_abort_gb_0};
+`hyper_imem[190] <= {8'h47,`gb_0_careof_int_abt};
 ///Cprepare_gb_1:
 ///C  add 0+$gb_1_active; # 168
 // S_prepare_gb_1
@@ -664,20 +650,20 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  stc $gb_1_active; # 173
 // S_jump_over_prepare_gb_1
 `hyper_imem[198] <= {8'h47,`gb_1_active};
-///C  add 0+$len_left_gb_1;
-`hyper_imem[199] <= {8'h00,`len_left_gb_1};
+///C  add 0+$gb_1_len_left;
+`hyper_imem[199] <= {8'h00,`gb_1_len_left};
 ///C  add 0+$0x0003; # 175
 `hyper_imem[200] <= {8'h00,`const_0x0003};
 ///C  and $0x3ffc;
 `hyper_imem[201] <= {8'h0d,`const_0x3ffc};
-///C  stc $len_left_gb_1;
-`hyper_imem[202] <= {8'h47,`len_left_gb_1};
+///C  stc $gb_1_len_left;
+`hyper_imem[202] <= {8'h47,`gb_1_len_left};
 ///C  add 0+$signal_bits_gb_1;
 `hyper_imem[203] <= {8'h00,`signal_bits_gb_1};
 ///C  or  $certain_01;
 `hyper_imem[204] <= {8'h0e,`certain_01};
-///C  sto $section_and_certain_01_gb_1; # 180 # AKA $gb_0_irq_desc_and_cerain_01
-`hyper_imem[205] <= {8'h46,`section_and_certain_01_gb_1};
+///C  sto $gb_1_irq_desc_and_certain_01; # 180
+`hyper_imem[205] <= {8'h46,`gb_1_irq_desc_and_certain_01};
 ///C  and $section_other_bits_mask;
 `hyper_imem[206] <= {8'h0d,`section_other_bits_mask};
 ///C  stc $other_bits_gb_1;
@@ -695,9 +681,9 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  add $0x4000;  # mask for only ABORT
 `hyper_imem[213] <= {8'h00,`const_0x4000};
 ///Cwrite_careof_int_gb_1:
-///C  stf $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
+///C  stf $gb_1_careof_int_abt; # 189
 // S_write_careof_int_gb_1
-`hyper_imem[214] <= {8'h67,`careof_interrupt_abort_gb_1};
+`hyper_imem[214] <= {8'h67,`gb_1_careof_int_abt};
 ///Cbalancing_wait:
 ///C  cmp/null :grab_meta_gb_0; # 190
 // S_balancing_wait
@@ -737,17 +723,17 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  wait :mb_step_indices; # 67/18 # wait 16 cycles
 `hyper_imem[231] <= {8'h48,`S_mb_step_indices};
 ///Cjump_over_prepare_mb:
-///C  stc (INDEX+D($mb_active -> $len_left)); # 66/17
+///C  stc (INDEX+D($mb_active -> $mb_len_left)); # 66/17
 // S_jump_over_prepare_mb
-`hyper_imem[232] <= {8'h57,`D_mb_active_T_len_left};
+`hyper_imem[232] <= {8'h57,`D_mb_active_T_mb_len_left};
 ///C  add 0+INDEX;
 `hyper_imem[233] <= 16'h1000;
 ///C  add 0+$0x0003;
 `hyper_imem[234] <= {8'h00,`const_0x0003};
 ///C  and $0x3ffc; # /20
 `hyper_imem[235] <= {8'h0d,`const_0x3ffc};
-///C  stc (INDEX+D($len_left -> $signal_bits)); # 70
-`hyper_imem[236] <= {8'h57,`D_len_left_T_signal_bits};
+///C  stc (INDEX+D($mb_len_left -> $signal_bits)); # 70
+`hyper_imem[236] <= {8'h57,`D_mb_len_left_T_signal_bits};
 ///C  add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
 `hyper_imem[237] <= {8'h10,`D_signal_bits_T_mb_irq_desc_and_certain_01};
 ///C  or  $certain_01;

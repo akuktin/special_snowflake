@@ -295,14 +295,14 @@ prepare_gb_0:
 jump_over_prepare_gb_0:
   stc $gb_0_active; # 151
 
-  add 0+$len_left_gb_0;
+  add 0+$gb_0_len_left;
   add 0+$0x0003;
   and $0x3ffc;
-  stc $len_left_gb_0; # 155
+  stc $gb_0_len_left; # 155
 
   add 0+$signal_bits_gb_0;
   or  $certain_01;
-  sto $section_and_certain_01_gb_0; # AKA $gb_0_irq_desc_and_cerain_01
+  sto $gb_0_irq_desc_and_certain_01;
   and $section_other_bits_mask;
   stc $other_bits_gb_0; # 160
 
@@ -313,7 +313,7 @@ jump_over_prepare_gb_0:
   null; # 165
   add $0x4000; # mask for only ABORT
 write_careof_int_gb_0:
-  stc $careof_interrupt_abort_gb_0; # AKA $gb_0_careof_int_abt
+  stc $gb_0_careof_int_abt;
 
 
 prepare_gb_1:
@@ -332,14 +332,14 @@ prepare_gb_1:
 jump_over_prepare_gb_1:
   stc $gb_1_active; # 173
 
-  add 0+$len_left_gb_1;
+  add 0+$gb_1_len_left;
   add 0+$0x0003; # 175
   and $0x3ffc;
-  stc $len_left_gb_1;
+  stc $gb_1_len_left;
 
   add 0+$signal_bits_gb_1;
   or  $certain_01;
-  sto $section_and_certain_01_gb_1; # 180 # AKA $gb_0_irq_desc_and_cerain_01
+  sto $gb_1_irq_desc_and_certain_01; # 180
   and $section_other_bits_mask;
   stc $other_bits_gb_1;
 
@@ -350,7 +350,7 @@ jump_over_prepare_gb_1:
   null;
   add $0x4000;  # mask for only ABORT
 write_careof_int_gb_1:
-  stf $careof_interrupt_abort_gb_1; # 189 # AKA $gb_1_careof_int_abt
+  stf $gb_1_careof_int_abt; # 189
 
 balancing_wait:
   cmp/null :grab_meta_gb_0; # 190
@@ -384,12 +384,12 @@ prepare_mb_trans:
 # not part of main execution
 
 jump_over_prepare_mb:
-  stc (INDEX+D($mb_active -> $len_left)); # 66/17
+  stc (INDEX+D($mb_active -> $mb_len_left)); # 66/17
 
   add 0+INDEX;
   add 0+$0x0003;
   and $0x3ffc; # /20
-  stc (INDEX+D($len_left -> $signal_bits)); # 70
+  stc (INDEX+D($mb_len_left -> $signal_bits)); # 70
 
   add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
   or  $certain_01;
