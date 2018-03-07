@@ -878,7 +878,8 @@ module GlaDOS;
  */
 
       if ((core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0) ||
-          (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0))
+          (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0) ||
+	  (core.hyper_softcore.index_reg == 16'h00b3))
 	begin
 	  $display("halting CTR %x CPUCTR %x", ctr, cpu_ctr);
           $display("acc %x",

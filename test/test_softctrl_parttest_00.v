@@ -110,6 +110,7 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define const_6             8'h59
 `define const_12            8'h58
 `define const_16            8'h57
+`define const_null          8'h56
 
 `define space_left_in_page           8'h70
 `define len_for_transfer__less_block_size 8'h71
@@ -125,48 +126,49 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define cur_mb_trans_ptr_mask        8'h7b
 `define section_other_bits_mask      8'h7c
 
-`define gb_0_active                  8'h80
-`define gb_0_begin_addr_high         8'h81
-`define gb_0_begin_addr_low          8'h82
-`define gb_0_len_left                8'h83
-`define gb_0_careof_int_abt          8'h84
-`define gb_0_irq_desc_and_certain_01 8'h85
-`define other_bits_gb_0              8'h86
-`define signal_bits_gb_0             8'h87
+`define signal_bits_gb_0             8'h00
+`define gb_0_len_left                8'h01
+`define gb_0_begin_addr_high         8'h02
+`define gb_0_begin_addr_low          8'h03
+`define gb_0_active                  8'h20
+`define gb_0_careof_int_abt          8'h21
+`define gb_0_irq_desc_and_certain_01 8'h22
+`define other_bits_gb_0              8'h23
 
-`define gb_1_active                  8'h90
-`define gb_1_begin_addr_high         8'h91
-`define gb_1_begin_addr_low          8'h92
-`define gb_1_len_left                8'h93
-`define gb_1_careof_int_abt          8'h94
-`define gb_1_irq_desc_and_certain_01 8'h95
-`define other_bits_gb_1              8'h96
-`define signal_bits_gb_1             8'h97
+`define signal_bits_gb_1             8'h04
+`define gb_1_len_left                8'h05
+`define gb_1_begin_addr_high         8'h06
+`define gb_1_begin_addr_low          8'h07
+`define gb_1_active                  8'h24
+`define gb_1_careof_int_abt          8'h25
+`define gb_1_irq_desc_and_certain_01 8'h26
+`define other_bits_gb_1              8'h27
 
 `define mb_flipflop_ctrl             8'ha0
+`define mb_trans_array               8'hb0
 `define TEST_mb_active           8'ha1
 
-`define D_mb_active_T_mb_begin_addr_low                  8'hxx
-`define D_mb_careof_int_abt_T_mb_irq_desc_and_certain_01 8'hxx
-`define D_mb_irq_desc_and_certain_01_T_mb_careof_int_abt 8'hxx
-`define D_mb_begin_addr_low_T_mb_begin_addr_high         8'hxx
-`define D_mb_begin_addr_high_T_mb_len_left               8'hxx
-`define D_mb_len_left_T_mb_irq_desc_and_certain_01       8'hxx
-`define D_mb_careof_int_abt_T_mb_active                  8'hxx
-`define D_mb_active_T_mb_begin_addr_high                 8'hxx
-`define D_mb_begin_addr_high_T_mb_begin_addr_low         8'hxx
-`define D_mb_begin_addr_low_T_mb_len_left                8'hxx
-`define D_mb_len_left_T_mb_other_bits                    8'hxx
-`define D_mb_other_bits_T_mb_active                      8'hxx
-`define D_mb_active_T_signal_bits                        8'hxx
-`define D_signal_bits_T_mb_active                        8'hxx
-`define D_signal_bits_T_mb_irq_desc_and_certain_01       8'hxx
-`define D_mb_irq_desc_and_certain_01_T_signal_bits       8'hxx
-`define D_signal_bits_T_mb_careof_int_abt                8'hxx
-`define D_mb_irq_desc_and_certain_01_T_other_bits        8'hxx
-`define D_other_bits_T_signal_bits                       8'hxx
-`define D_mb_active_T_mb_len_left                        8'hxx
-`define D_mb_len_left_T_signal_bits                      8'hxx
+`define D_mb_active_T_mb_begin_addr_high                 8'he2
+`define D_mb_active_T_mb_begin_addr_low                  8'he3
+`define D_mb_active_T_mb_len_left                        8'he1
+`define D_mb_active_T_signal_bits                        8'he0
+`define D_mb_begin_addr_high_T_mb_begin_addr_low         8'h01
+`define D_mb_begin_addr_high_T_mb_len_left               8'hff
+`define D_mb_begin_addr_low_T_mb_begin_addr_high         8'hff
+`define D_mb_begin_addr_low_T_mb_len_left                8'hfe
+`define D_mb_careof_int_abt_T_mb_active                  8'hff
+`define D_mb_careof_int_abt_T_mb_irq_desc_and_certain_01 8'h01
+`define D_mb_irq_desc_and_certain_01_T_mb_careof_int_abt 8'hff
+`define D_mb_irq_desc_and_certain_01_T_other_bits        8'h01
+`define D_mb_irq_desc_and_certain_01_T_signal_bits       8'hde
+`define D_mb_len_left_T_mb_irq_desc_and_certain_01       8'h21
+`define D_mb_len_left_T_mb_other_bits                    8'h22
+`define D_mb_len_left_T_signal_bits                      8'hff
+`define D_mb_other_bits_T_mb_active                      8'hf1
+`define D_other_bits_T_signal_bits                       8'hdd
+`define D_signal_bits_T_mb_active                        8'h20
+`define D_signal_bits_T_mb_careof_int_abt                8'h21
+`define D_signal_bits_T_mb_irq_desc_and_certain_01       8'h22
 
 ///Cspace_left_in_page_not_enough:
 ///C  add 0+$space_left_in_page;
@@ -793,6 +795,10 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
       core.cpu.regf.RAM_D.ram.r_data[i] <= 32'hxxxx_xxxx;
     end
 //  core.cpu.regf.RAM_A.ram.r_data[22] <= 32'hffff_ffff;
+  for (i=0; i<64; i=i+1)
+    begin
+      `hyper_dmem[i] <= 0;
+    end
 
 // test config below
 
@@ -800,11 +806,11 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 //`define term_place 55 // for tests 5-8 inclusive
 //`define term_place 167 // for test 9
 //`define term_place 191 // for test 10
-`define term_place 218 // for test 11
-`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
-`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
-`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
-`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+//`define term_place 218 // for test 11
+//`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
+//`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
+//`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
+//`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_5] <= 1;
 `hyper_dmem[`const_0xc000] <= 16'hc000;
@@ -817,17 +823,28 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_6] <= 2;
 `hyper_dmem[`const_12] <= 8;
 `hyper_dmem[`const_16] <= 12;
+`hyper_dmem[`const_null] <= 0;
 
 `hyper_dmem[`page_addr_submask] <= 16'h007f;
 `hyper_dmem[`page_size] <= 16'h0080;
 `hyper_dmem[`block_size] <= 16'h0008;
 `hyper_dmem[`section_other_bits_mask] <= 16'hc003;
+`hyper_dmem[`cur_mb_trans_ptr_mask] <= 16'hfff7;
 
 `hyper_dmem[`section_mask] <= 16'h3000;
 `hyper_dmem[`certain_01] <= 16'h0400;
 `hyper_dmem[`location_of_careofint_bit] <= 16'h4000;
 
-  test_no = 11;
+`hyper_dmem[((`mb_trans_array+0) & 8'hff)] <= {8'h00,`const_null};
+`hyper_dmem[((`mb_trans_array+1) & 8'hff)] <= {8'h00,`const_null};
+`hyper_dmem[((`mb_trans_array+2) & 8'hff)] <= {8'h00,8'h28};
+`hyper_dmem[((`mb_trans_array+3) & 8'hff)] <= {8'h00,8'h2c};
+`hyper_dmem[((`mb_trans_array+4) & 8'hff)] <= {8'h00,8'h30};
+`hyper_dmem[((`mb_trans_array+5) & 8'hff)] <= {8'h00,8'h34};
+`hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
+`hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
+
+  test_no = 12;
   case (test_no)
     0: begin
       `hyper_dmem[`gb_0_active] <= 0;
@@ -973,6 +990,25 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_1_len_left] <= 16'h801f;
 
       `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+    end
+    12: begin
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h801f;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
     end
     default: $finish;
   endcase // case (test_no)
