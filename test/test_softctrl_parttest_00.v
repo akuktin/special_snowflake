@@ -165,6 +165,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define D_signal_bits_T_mb_careof_int_abt                8'hxx
 `define D_mb_irq_desc_and_certain_01_T_other_bits        8'hxx
 `define D_other_bits_T_signal_bits                       8'hxx
+`define D_mb_active_T_mb_len_left                        8'hxx
+`define D_mb_len_left_T_signal_bits                      8'hxx
 
 ///Cspace_left_in_page_not_enough:
 ///C  add 0+$space_left_in_page;
