@@ -87,14 +87,11 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_exec_transfer_gb_0      8'd162
 `define S_prepare_mb_flipflop     8'd164
 `define S_prepare_gb_0            8'd167
-`define S_jump_over_prepare_gb_0  8'd174
 `define S_write_careof_int_gb_0   8'd190
 `define S_prepare_gb_1            8'd191
-`define S_jump_over_prepare_gb_1  8'd198
 `define S_write_careof_int_gb_1   8'd214
 `define S_balancing_wait          8'd215
 `define S_prepare_mb_trans        8'd218
-`define S_jump_over_prepare_mb    8'd232
 `define S_write_careof_int_mb     8'd248
 `define S_mb_step_indices         8'd249
 `define S_waitout_untill_gb       8'd254
@@ -584,24 +581,18 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 ///C  stc $mb_flipflop_ctrl; # 145
 `hyper_imem[166] <= {8'h47,`mb_flipflop_ctrl};
 ///Cprepare_gb_0:
-///C  add 0+$gb_0_active;
+///C  not 0+$gb_0_active;
 // S_prepare_gb_0
-`hyper_imem[167] <= {8'h00,`gb_0_active};
-///C  xor $location_of_active_bit;
-`hyper_imem[168] <= {8'h0f,`location_of_active_bit};
-///C  cmp/null :jump_over_prepare_gb_0;
-`hyper_imem[169] <= {8'hcd,`S_jump_over_prepare_gb_0};
-///C  add 0+$signal_bits_gb_0;
-`hyper_imem[170] <= {8'h00,`signal_bits_gb_0};
+`hyper_imem[167] <= {8'h2a,`gb_0_active};
+///C  and $signal_bits_gb_0;
+`hyper_imem[168] <= {8'h0d,`signal_bits_gb_0};
+///C  sto $signal_bits_gb_0;
+`hyper_imem[169] <= {8'h46,`signal_bits_gb_0};
+///C  or  $gb_0_active;
+`hyper_imem[170] <= {8'h0e,`gb_0_active};
 ///C  and $location_of_active_bit; # 150
 `hyper_imem[171] <= {8'h0d,`location_of_active_bit};
-///C  lod $distance_gb_01__mb; # 151
-`hyper_imem[172] <= {8'h0a,`const_16};
-///C  wait :prepare_gb_1; # 152 # wait 16 cycles
-`hyper_imem[173] <= {8'h48,`S_prepare_gb_1};
-///Cjump_over_prepare_gb_0:
 ///C  stc $gb_0_active; # 151
-// S_jump_over_prepare_gb_0
 `hyper_imem[174] <= {8'h47,`gb_0_active};
 ///C  add 0+$gb_0_len_left;
 `hyper_imem[175] <= {8'h00,`gb_0_len_left};
@@ -638,24 +629,17 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 // S_write_careof_int_gb_0
 `hyper_imem[190] <= {8'h47,`gb_0_careof_int_abt};
 ///Cprepare_gb_1:
-///C  add 0+$gb_1_active; # 168
-// S_prepare_gb_1
-`hyper_imem[191] <= {8'h00,`gb_1_active};
-///C  xor $location_of_active_bit;
-`hyper_imem[192] <= {8'h0f,`location_of_active_bit};
-///C  cmp/null :jump_over_prepare_gb_1; # 170
-`hyper_imem[193] <= {8'hcd,`S_jump_over_prepare_gb_1};
-///C  add 0+$signal_bits_gb_1;
-`hyper_imem[194] <= {8'h00,`signal_bits_gb_1};
+///C  not $gb_1_active; # 168
+`hyper_imem[191] <= {8'h2a,`gb_1_active};
+///C  and $signal_bits_gb_1;
+`hyper_imem[192] <= {8'h0d,`signal_bits_gb_1};
+///C  sto $signal_bits_gb_1; # 170
+`hyper_imem[193] <= {8'h46,`signal_bits_gb_1};
+///C  or  $gb_1_active;
+`hyper_imem[194] <= {8'h0e,`gb_1_active};
 ///C  and $location_of_active_bit; # 172
 `hyper_imem[195] <= {8'h0d,`location_of_active_bit};
-///C  lod $distance_gb_01__mb; # 173
-`hyper_imem[196] <= {8'h0a,`const_16};
-///C  wait :balancing_wait; # 174 # wait 16 cycles
-`hyper_imem[197] <= {8'h48,`S_balancing_wait};
-///Cjump_over_prepare_gb_1:
 ///C  stc $gb_1_active; # 173
-// S_jump_over_prepare_gb_1
 `hyper_imem[198] <= {8'h47,`gb_1_active};
 ///C  add 0+$gb_1_len_left;
 `hyper_imem[199] <= {8'h00,`gb_1_len_left};
@@ -715,23 +699,18 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[223] <= 16'h1000;
 ///C  inl; # 58 59/10 60 # loaded with $mb_active
 `hyper_imem[224] <= 16'h4c00;
-///C  add 0+(INDEX+D($mb_active -> $signal_bits));
-`hyper_imem[225] <= {8'h10,`D_mb_active_T_signal_bits};
-///C  xor $location_of_active_bit;
-`hyper_imem[226] <= {8'h0f,`location_of_active_bit};
-///C  cmp/null :jump_over_prepare_mb;
-`hyper_imem[227] <= {8'hcd,`S_jump_over_prepare_mb};
-///C  add 0+(INDEX+D($signal_bits -> $mb_active)); # /15
-`hyper_imem[228] <= {8'h10,`D_signal_bits_T_mb_active};
+
+///C  not (INDEX+D($mb_active -> $signal_bits));
+`hyper_imem[225] <= {8'h3a,`D_mb_active_T_signal_bits};
+///C  and INDEX;
+`hyper_imem[226] <= {8'h1d,8'h00};
+///C  sto (INDEX+D($signal_bits -> $mb_active));
+`hyper_imem[227] <= {8'h56,`D_signal_bits_T_mb_active};
+///C  or  INDEX;
+`hyper_imem[228] <= {8'h1e,8'h00};
 ///C  and $location_of_active_bit; # 65/16
 `hyper_imem[229] <= {8'h0d,`location_of_active_bit};
-///C  lod $distance_gb_01__mb; # 66/17
-`hyper_imem[230] <= {8'h0a,`const_16};
-///C  wait :mb_step_indices; # 67/18 # wait 16 cycles
-`hyper_imem[231] <= {8'h48,`S_mb_step_indices};
-///Cjump_over_prepare_mb:
 ///C  stc (INDEX+D($mb_active -> $mb_len_left)); # 66/17
-// S_jump_over_prepare_mb
 `hyper_imem[232] <= {8'h57,`D_mb_active_T_mb_len_left};
 ///C  add 0+INDEX;
 `hyper_imem[233] <= 16'h1000;
