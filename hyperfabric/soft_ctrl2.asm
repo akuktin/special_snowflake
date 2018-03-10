@@ -275,17 +275,17 @@ exec_transfer_gb_0:
 ## 140 instructions
 
 prepare_mb_flipflop:
-  add 0+$0x8000; # 143
+  add 0+$location_of_active_bit; # 143
   add 0+$mb_flipflop_ctrl;
   stc $mb_flipflop_ctrl; # 145
 
 prepare_gb_0:
   add 0+$gb_0_active;
-  xor $0x8000;
+  xor $location_of_active_bit;
   cmp/null :jump_over_prepare_gb_0;
 
   add 0+$signal_bits_gb_0;
-  and $0x8000; # 150
+  and $location_of_active_bit; # 150
 
 # not part of main execution
   lod $distance_gb_01__mb; # 151
@@ -318,11 +318,11 @@ write_careof_int_gb_0:
 
 prepare_gb_1:
   add 0+$gb_1_active; # 168
-  xor $0x8000;
+  xor $location_of_active_bit;
   cmp/null :jump_over_prepare_gb_1; # 170
 
   add 0+$signal_bits_gb_1;
-  and $0x8000; # 172
+  and $location_of_active_bit; # 172
 
 # not part of main execution
   lod $distance_gb_01__mb; # 173
@@ -373,10 +373,10 @@ prepare_mb_trans:
   inl; # 58 59/10 60 # loaded with $mb_active
 
   add 0+(INDEX+D($mb_active -> $signal_bits));
-  xor $0x8000;
+  xor $location_of_active_bit;
   cmp/null :jump_over_prepare_mb;
   add 0+(INDEX+D($signal_bits -> $mb_active)); # /15
-  and $0x8000; # 65/16
+  and $location_of_active_bit; # 65/16
 
 # not part of main execution
   lod $distance_gb_01__mb; # 66/17
