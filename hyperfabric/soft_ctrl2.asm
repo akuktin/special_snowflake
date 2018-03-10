@@ -313,7 +313,7 @@ prepare_gb_1:
   and $signal_bits_gb_1;
   sto $signal_bits_gb_1; # 170
   or  $gb_1_active;
-  and $location_of_active_bit;
+  and $location_of_active_bit; # 172
   stc $gb_1_active; # 173
 
   add 0+$gb_1_len_left;
@@ -356,11 +356,11 @@ prepare_mb_trans:
   add 0+INDEX; # 57
   inl; # 58 59/10 60 # loaded with $mb_active
 
-  not 0+(INDEX+D($mb_active -> $signal_bits));
+  not (INDEX+D($mb_active -> $signal_bits));
   and INDEX;
   sto (INDEX+D($signal_bits -> $mb_active));
-  or  INDEX;
-  and $location_of_active_bit; # 65
+  or  INDEX; # /15
+  and $location_of_active_bit; # 65/16
   stc (INDEX+D($mb_active -> $mb_len_left)); # 66/17
 
   add 0+INDEX;
