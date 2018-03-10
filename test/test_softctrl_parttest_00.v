@@ -854,12 +854,13 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
   test_no = 12;
   case (test_no)
-    0: begin
+    // tests 0-4 inclusive: test the transaction receiver
+    0: begin // trans not active
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
     end
-    1: begin
+    1: begin // terminate operation, all data transfered
       `hyper_dmem[`gb_0_active] <= 16'h1000;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -868,7 +869,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
     end
-    2: begin
+    2: begin // terminate operation, irq by the device
       `hyper_dmem[`gb_0_active] <= 16'h1000;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -878,7 +879,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
       core.hyper_softcore.input_reg_1[1] <= 16'h1000; // irq
     end
-    3: begin
+    3: begin // terminate operation, abort by the device
       `hyper_dmem[`gb_0_active] <= 16'h1000;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -889,7 +890,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[1] <= 16'h4000; // abort
     end
 
-    4: begin
+    4: begin // continuing operation, transaction continues
       `hyper_dmem[`gb_0_active] <= 16'h1000;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -900,7 +901,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
     end
 
-    5: begin
+    5: begin // trans not active
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
