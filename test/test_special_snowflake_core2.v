@@ -879,23 +879,32 @@ module GlaDOS;
 
       if ((core.cpu.regf.RAM_D.ram.r_data[31] == 32'd0) ||
           (core.hyper_softcore.data_mem.ram.r_data[255] != 16'd0) ||
-	  (core.hyper_softcore.index_reg == 16'h00b3))
+	  (core.hyper_softcore.index_reg == 16'h00b5))
 	begin
 	  $display("halting CTR %x CPUCTR %x", ctr, cpu_ctr);
           $display("acc %x",
             core.hyper_softcore.accumulator);
           $display("input_reg  %x %x       %x %x",
-        core.hyper_softcore.input_reg_0[0],core.hyper_softcore.input_reg_0[1],
-        core.hyper_softcore.input_reg_1[0],core.hyper_softcore.input_reg_1[1]);
+		   core.hyper_softcore.input_reg_0[0],
+		   core.hyper_softcore.input_reg_0[1],
+		   core.hyper_softcore.input_reg_1[0],
+		   core.hyper_softcore.input_reg_1[1]);
           $display("output_reg %x %x %x  %x %x %x",
-        {core.hyper_softcore.reg_page_lo_0,core.hyper_softcore.reg_start_0},
-        core.hyper_softcore.reg_page_hi_0,{core.hyper_softcore.reg_opon_data_0,
-        core.hyper_softcore.reg_rdmem_op_0,core.hyper_softcore.reg_count_req_0,
-        core.hyper_softcore.reg_blck_sec_0},
-        {core.hyper_softcore.reg_page_lo_1,core.hyper_softcore.reg_start_1},
-        core.hyper_softcore.reg_page_hi_1,{core.hyper_softcore.reg_opon_data_1,
-        core.hyper_softcore.reg_rdmem_op_1,core.hyper_softcore.reg_count_req_1,
-        core.hyper_softcore.reg_blck_sec_1});
+		   core.hyper_softcore.reg_page_hi_0,
+		   {core.hyper_softcore.reg_page_lo_0,
+		    core.hyper_softcore.reg_start_0},
+		   {core.hyper_softcore.reg_blck_sec_0,
+		    core.hyper_softcore.reg_count_req_0,
+		    core.hyper_softcore.reg_rdmem_op_0,
+		    core.hyper_softcore.reg_opon_data_0},
+
+		   core.hyper_softcore.reg_page_hi_1,
+		   {core.hyper_softcore.reg_page_lo_1,
+		    core.hyper_softcore.reg_start_1},
+		   {core.hyper_softcore.reg_blck_sec_1,
+		    core.hyper_softcore.reg_count_req_1,
+		    core.hyper_softcore.reg_rdmem_op_1,
+		    core.hyper_softcore.reg_opon_data_1});
           for (i=0; i<(256/8); i=i+1)
             begin
               $display("%x: %x %x %x %x  %x %x %x %x", (i*8),
