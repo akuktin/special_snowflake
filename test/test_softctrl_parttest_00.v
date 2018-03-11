@@ -806,10 +806,13 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 //`define term_place 167 // for test 9
 //`define term_place 189 // for test 10
 //`define term_place 214 // for test 11
-//`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
-//`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
-//`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
-//`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+
+`define term_place 250 // parking
+`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
+`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
+`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
+`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_5] <= 1;
 `hyper_dmem[`const_0xc000] <= 16'hc000;
@@ -846,7 +849,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
 `hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
 
-  test_no = 16;
+  test_no = 20;
   case (test_no)
     // tests 0-4 inclusive: test the transaction receiver
     0: begin // trans not active
@@ -895,7 +898,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
     end
 
-    5: begin // trans not active
+    5: begin // gb trans trans not active
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -903,7 +906,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
       `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
     end
-    6: begin
+    6: begin // gb trans block_size (0x000c)
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
@@ -913,40 +916,31 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_1_len_left] <= 16'h0021;
       `hyper_dmem[`other_bits_gb_1] <= 0;
 
-      `hyper_dmem[`page_addr_submask] <= 16'h007f;
-      `hyper_dmem[`page_size] <= 16'h0080;
-      `hyper_dmem[`block_size] <= 16'h0008;
-      // block_size (0x0008)
+      `hyper_dmem[`block_size] <= 16'h000c;
     end
-    7: begin
+    7: begin // gb trans space_left_in_page (0x0008)
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
       `hyper_dmem[`gb_1_active] <= 16'h1000;
-      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff7c;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff78;
       `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
       `hyper_dmem[`gb_1_len_left] <= 16'h0021;
       `hyper_dmem[`other_bits_gb_1] <= 0;
 
-      `hyper_dmem[`page_addr_submask] <= 16'h007f;
-      `hyper_dmem[`page_size] <= 16'h0080;
-      `hyper_dmem[`block_size] <= 16'h0008;
-      // space_left_in_page (0x0004)
+      `hyper_dmem[`block_size] <= 16'h000c;
     end
-    8: begin
+    8: begin // gb trans len_left (0x0004)
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
       `hyper_dmem[`gb_1_active] <= 16'h1000;
       `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
       `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
-      `hyper_dmem[`gb_1_len_left] <= 16'h0002;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0004;
       `hyper_dmem[`other_bits_gb_1] <= 0;
 
-      `hyper_dmem[`page_addr_submask] <= 16'h007f;
-      `hyper_dmem[`page_size] <= 16'h0080;
-      `hyper_dmem[`block_size] <= 16'h0008;
-      // len_left (0x0002)
+      `hyper_dmem[`block_size] <= 16'h000c;
     end
 
     9: begin
@@ -1126,6 +1120,147 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
       core.hyper_softcore.input_reg_0[0] <= 16'h0020;
       core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+    end
+
+    17: begin // mb trans block_size (0x000c)
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h801f;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'hb012;
+      `hyper_dmem[8'h09] <= 16'h0024;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+      `hyper_dmem[8'h10] <= 16'hb010;
+      `hyper_dmem[8'h11] <= 16'h0020;
+      `hyper_dmem[8'h12] <= 16'h0102; // haddr
+      `hyper_dmem[8'h13] <= 16'hb0c2; // laddr
+
+      core.hyper_softcore.input_reg_0[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+
+      `hyper_dmem[`block_size] <= 16'h000c;
+    end
+    18: begin // mb trans space_left_in_page (0x0008)
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h801f;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'hb012;
+      `hyper_dmem[8'h09] <= 16'h0024;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+      `hyper_dmem[8'h10] <= 16'hb010;
+      `hyper_dmem[8'h11] <= 16'h0024;
+      `hyper_dmem[8'h12] <= 16'h0102; // haddr
+      `hyper_dmem[8'h13] <= 16'hb078; // laddr
+
+      core.hyper_softcore.input_reg_0[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+
+      `hyper_dmem[`block_size] <= 16'h000c;
+    end
+    19: begin // mb trans len_left (0x0004)
+      // this test also contains a botched test for the turning off of
+      // both transaction active bits
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 0;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 0;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0fff;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'hb012;
+      `hyper_dmem[8'h09] <= 16'h0024;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+      `hyper_dmem[8'h10] <= 16'hb010;
+      `hyper_dmem[8'h11] <= 16'h0002;
+      `hyper_dmem[8'h12] <= 16'h0102; // haddr
+      `hyper_dmem[8'h13] <= 16'hb0c2; // laddr
+
+      core.hyper_softcore.input_reg_0[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+
+      `hyper_dmem[`block_size] <= 16'h000c;
+    end
+
+    20: begin // test turning off of both transaction active bits
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h1000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h1000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0fff;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'hb010;
+      `hyper_dmem[8'h09] <= 16'h0004;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+      `hyper_dmem[8'h10] <= 16'hb010;
+      `hyper_dmem[8'h11] <= 16'h0002;
+      `hyper_dmem[8'h12] <= 16'h0102; // haddr
+      `hyper_dmem[8'h13] <= 16'hb0c2; // laddr
+
+      core.hyper_softcore.input_reg_0[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+      force core.hyper_softcore.BLCK_COUNT_SENT = 10'h008;
+      force core.hyper_softcore.BLCK_IRQ = 0;
+      force core.hyper_softcore.blck_abort = 0;
+
+      `hyper_dmem[`block_size] <= 16'h000c;
     end
     default: $finish;
   endcase // case (test_no)
