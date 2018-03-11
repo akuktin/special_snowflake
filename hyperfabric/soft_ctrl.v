@@ -487,12 +487,12 @@ module Gremlin(input CLK,
 	    if (active_trans_thistrans == 1'b0)
 	      begin
 		input_reg_0[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg_0[1] <= {BLCK_IRQ,blck_abort,14'h0};
+		input_reg_0[1] <= {2'h0,BLCK_IRQ,blck_abort,12'h0};
 	      end
 	    else
 	      begin
 		input_reg_1[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg_1[1] <= {BLCK_IRQ,blck_abort,14'h0};
+		input_reg_1[1] <= {2'h0,BLCK_IRQ,blck_abort,12'h0};
 	      end
 	  end
     end

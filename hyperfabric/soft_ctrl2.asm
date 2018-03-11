@@ -4,7 +4,7 @@ space_left_in_page_not_enough:
 len_for_transfer_shorter_than_block_size:
   add 0+$len_for_transfer__less_block_size;
 care_of_irq:
-  add $0xc000;  # mask for both IRQ and ABORT
+  add $location_of_careof_int_abt;  # mask for both IRQ and ABORT
 ##############################################
 
 grab_meta_gb_0:
@@ -293,17 +293,17 @@ prepare_gb_0:
   stc $gb_0_len_left; # 155
 
   add 0+$signal_bits_gb_0;
-  or  $certain_01;
-  sto $gb_0_irq_desc_and_certain_01;
   and $section_other_bits_mask;
-  stc $other_bits_gb_0; # 160
+  sto $other_bits_gb_0;
+  or  $certain_01;
+  stc $gb_0_irq_desc_and_certain_01; # 160
 
   add 0+$signal_bits_gb_0;
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
   cmp/nop :write_careof_int_gb_0;
   null; # 165
-  add $0x4000; # mask for only ABORT
+  add $location_of_careof_abt; # mask for only ABORT
 write_careof_int_gb_0:
   stc $gb_0_careof_int_abt;
 
@@ -322,17 +322,17 @@ prepare_gb_1:
   stc $gb_1_len_left;
 
   add 0+$signal_bits_gb_1;
-  or  $certain_01;
-  sto $gb_1_irq_desc_and_certain_01; # 180
   and $section_other_bits_mask;
-  stc $other_bits_gb_1;
+  sto $other_bits_gb_1; # 180
+  or  $certain_01;
+  stc $gb_1_irq_desc_and_certain_01;
 
   add 0+$signal_bits_gb_1;
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq; # 185
   cmp/nop :write_careof_int_gb_1;
   null;
-  add $0x4000;  # mask for only ABORT
+  add $location_of_careof_abt;  # mask for only ABORT
 write_careof_int_gb_1:
   stf $gb_1_careof_int_abt; # 189
 
@@ -368,18 +368,18 @@ prepare_mb_trans:
   and $0x3ffc; # /20
   stc (INDEX+D($mb_len_left -> $signal_bits)); # 70
 
-  add 0+(INDEX+D($signal_bits -> $mb_irq_desc_and_certain_01));
-  or  $certain_01;
-  sto (INDEX+D($mb_irq_desc_and_certain_01 -> $other_bits_mb));
-  and $section_other_bits_mask; # /25
-  stc (INDEX+D($other_bits_mb -> $signal_bits)); # 75
+  add 0+(INDEX+D($signal_bits -> $other_bits_mb));
+  and $section_other_bits_mask;
+  sto (INDEX+D($other_bits_mb -> $mb_irq_desc_and_certain_01));
+  or  $certain_01; # /25
+  stc (INDEX+D($mb_irq_desc_and_certain_01 -> $signal_bits)); # 75/26
 
   add 0+(INDEX+D($signal_bits -> $mb_careof_int_abt));
   and $location_of_careofint_bit;
   cmp/ones :care_of_irq;
   cmp/nop :write_careof_int_mb; # /30
   null; # 80
-  add $0x4000;
+  add $location_of_careof_abt;
 write_careof_int_mb:
   stc INDEX;
 
