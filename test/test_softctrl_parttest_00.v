@@ -1237,7 +1237,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
       `hyper_dmem[`signal_bits_gb_0] <= 16'h1000;
       `hyper_dmem[`gb_0_len_left] <= 16'h0080;
-      `hyper_dmem[`signal_bits_gb_1] <= 16'h1000;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'hd000;
       `hyper_dmem[`gb_1_len_left] <= 16'h0fff;
 
       `hyper_dmem[`mb_flipflop_ctrl] <= 0;
