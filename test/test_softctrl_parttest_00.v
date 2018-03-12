@@ -855,12 +855,12 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`certain_01] <= 16'h0400;
 `hyper_dmem[`location_of_careofint_bit] <= 16'h2000;
 `hyper_dmem[`location_of_active_bit] <= 16'h1000;
-`hyper_dmem[`location_of_careof_int_abt] <= 16'h3000;
-`hyper_dmem[`location_of_careof_abt] <= 16'h1000;
+`hyper_dmem[`location_of_careof_int_abt] <= 16'h0300;
+`hyper_dmem[`location_of_careof_abt] <= 16'h0100;
 
 `hyper_dmem[`jiffy_buff] <= 16'h0001;
 `hyper_dmem[`jiffy_ones] <= 16'hffc1;
-`hyper_dmem[`jiffy_irq_desc] <= 16'hc000;
+`hyper_dmem[`jiffy_irq_desc] <= 16'he000;
 
 `hyper_dmem[((`mb_trans_array+0) & 8'hff)] <= {8'h00,`null_trans};
 `hyper_dmem[((`mb_trans_array+1) & 8'hff)] <= {8'h00,`null_trans};
@@ -871,7 +871,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
 `hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
 
-  test_no = 22;
+  test_no = 15;
   case (test_no)
     // tests 0-4 inclusive: test the transaction receiver
     0: begin // trans not active
@@ -893,20 +893,20 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
       `hyper_dmem[`gb_0_len_left] <= 16'h0021;
-      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'h0300;
       `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
-      core.hyper_softcore.input_reg_1[1] <= 16'h2000; // irq
+      core.hyper_softcore.input_reg_1[1] <= 16'h0200; // irq
     end
     3: begin // terminate operation, abort by the device
       `hyper_dmem[`gb_0_active] <= 16'h1000;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
       `hyper_dmem[`gb_0_len_left] <= 16'h0021;
-      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'h0300;
       `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
-      core.hyper_softcore.input_reg_1[1] <= 16'h1000; // abort
+      core.hyper_softcore.input_reg_1[1] <= 16'h0100; // abort
     end
 
     4: begin // continuing operation, transaction continues
@@ -914,7 +914,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
       `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
       `hyper_dmem[`gb_0_len_left] <= 16'h0021;
-      `hyper_dmem[`gb_0_careof_int_abt] <= 16'hc000;
+      `hyper_dmem[`gb_0_careof_int_abt] <= 16'h0300;
       `hyper_dmem[`gb_0_irq_desc_and_certain_01] <= 16'h0240;
       core.hyper_softcore.input_reg_1[0] <= 16'h0020;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
@@ -1087,7 +1087,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[8'h0b] <= 16'hb0c2;
 
       core.hyper_softcore.input_reg_0[0] <= 16'h0020;
-      core.hyper_softcore.input_reg_0[1] <= 16'h2000;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0200;
     end
     15: begin // terminate operation, abort by the device
       `hyper_dmem[`gb_0_active] <= 0;
@@ -1114,7 +1114,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[8'h0b] <= 16'hb0c2;
 
       core.hyper_softcore.input_reg_0[0] <= 16'h0020;
-      core.hyper_softcore.input_reg_0[1] <= 16'h1000;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0100;
     end
     16: begin // continuing operation, transaction continues
       `hyper_dmem[`gb_0_active] <= 0;

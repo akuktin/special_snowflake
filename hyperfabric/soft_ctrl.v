@@ -9,7 +9,7 @@ module Gremlin(input CLK,
 	       input [63:0] 	 IN_CPU,
 	       output reg [31:0] OUT_CPU,
 		    // ---------------------
-	       output reg [1:0]  IRQ_DESC,
+	       output reg [2:0]  IRQ_DESC,
 	       output 		 IRQ,
 		    // ---------------------
 
@@ -315,7 +315,7 @@ module Gremlin(input CLK,
 	    end
 	    4'h9: begin
 	      irq_strobe[0] <= !irq_strobe[0]; // provisional
-	      IRQ_DESC <= accumulator[15:14]; // maybe
+	      IRQ_DESC <= accumulator[15:13]; // maybe
 	      accumulator <= 0; // probably a good idea
 	    end
 	    // fucking load instruction, bitch!
@@ -487,12 +487,12 @@ module Gremlin(input CLK,
 	    if (active_trans_thistrans == 1'b0)
 	      begin
 		input_reg_0[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg_0[1] <= {2'h0,BLCK_IRQ,blck_abort,12'h0};
+		input_reg_0[1] <= {6'h0,BLCK_IRQ,blck_abort,8'h0};
 	      end
 	    else
 	      begin
 		input_reg_1[0] <= {8'h0,BLCK_COUNT_SENT,2'h0};
-		input_reg_1[1] <= {2'h0,BLCK_IRQ,blck_abort,12'h0};
+		input_reg_1[1] <= {6'h0,BLCK_IRQ,blck_abort,8'h0};
 	      end
 	  end
     end
