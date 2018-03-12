@@ -393,6 +393,13 @@ mb_step_indices:
 
 # 31 instructions since origin
 
-waitout_untill_gb:
-  lod $delay_for_prepare_mb; # 92
-  wait :grab_meta_gb_1; # 93/44 # wait 5 cycles
+count_jiffies:
+  add 1+$jiffy_buff; # 92
+  cmp/add 1+0 :prereset_jiffy_buff; # 93
+  sto $jiffy_buff;
+  cmp/nop :grab_meta_gb_1; # 95
+  lod $jiffy_irq_desc; # 96
+  irq; # 97
+prereset_jiffy_buff:
+  or  $jiffy_ones; # 96
+  stc $jiffy_buff; # 97
