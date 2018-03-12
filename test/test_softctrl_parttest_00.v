@@ -94,7 +94,8 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define S_prepare_mb_trans        8'd214
 `define S_write_careof_int_mb     8'd242
 `define S_mb_step_indices         8'd243
-`define S_waitout_untill_gb       8'd248
+`define S_count_jiffies           8'd248
+`define S_prereset_jiffy_buff     8'd254
 
 `define const_5             8'h61
 `define const_0xc000        8'h60
@@ -108,6 +109,10 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `define const_12            8'h58
 `define const_16            8'h57
 `define const_null          8'h56
+
+`define jiffy_irq_desc               8'h6d
+`define jiffy_ones                   8'h6e
+`define jiffy_buff                   8'h6f
 
 `define space_left_in_page           8'h70
 `define len_for_transfer__less_block_size 8'h71
@@ -771,12 +776,27 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 `hyper_imem[246] <= {8'h07,`next_index};
 ///C  inl; # 89/40 90 91
 `hyper_imem[247] <= 16'h4c00;
-///Cwaitout_untill_gb:
-///C  lod $delay_for_prepare_mb; # 92
-// S_waitout_untill_gb
-`hyper_imem[248] <= {8'h0a,`const_5};
-///C  wait :grab_meta_gb_1; # 93/44 # wait 5 cycles
-`hyper_imem[249] <= {8'h48,`S_grab_meta_gb_1};
+
+///Ccount_jiffies:
+///C  add 1+$jiffy_buff; # 92
+// S_count_jiffies
+`hyper_imem[248] <= {8'h01,`jiffy_buff};
+///C  cmp/add 1+0 :prereset_jiffy_buff; # 93
+`hyper_imem[249] <= {8'hc1,`S_prereset_jiffy_buff};
+///C  sto $jiffy_buff;
+`hyper_imem[250] <= {8'h46,`jiffy_buff};
+///C  cmp/nop :grab_meta_gb_1; # 95
+`hyper_imem[251] <= {8'hce,`S_grab_meta_gb_1};
+///C  lod $jiffy_irq_desc; # 96
+`hyper_imem[252] <= {8'h0a,`jiffy_irq_desc};
+///C  irq; # 97
+`hyper_imem[253] <= 16'h4900;
+///Cprereset_jiffy_buff:
+///C  or  $jiffy_ones; # 96
+// S_prereset_jiffy_buff
+`hyper_imem[254] <= {8'h0e,`jiffy_ones};
+///C  stc $jiffy_buff; # 97
+`hyper_imem[255] <= {8'h47,`jiffy_buff};
 
 
 //`hyper_imem[254] <= 16'h6a00;
@@ -806,12 +826,10 @@ core.i_cache.cachedat.ram.r_data[100] <= {6'o05,5'h1f,5'h1f,5'h1f,11'd11};
 //`define term_place 167 // for test 9
 //`define term_place 189 // for test 10
 //`define term_place 214 // for test 11
-
-`define term_place 250 // parking
-`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
-`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
-`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
-`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
+//`hyper_imem[((`term_place+0) & 8'hff)] <= 16'h6a00;
+//`hyper_imem[((`term_place+1) & 8'hff)] <= 16'h46ff;
+//`hyper_imem[((`term_place+2) & 8'hff)] <= 16'h46ff;
+//`hyper_imem[((`term_place+3) & 8'hff)] <= 16'h46ff;
 
 core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`const_5] <= 1;
@@ -840,6 +858,10 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[`location_of_careof_int_abt] <= 16'h3000;
 `hyper_dmem[`location_of_careof_abt] <= 16'h1000;
 
+`hyper_dmem[`jiffy_buff] <= 16'h0001;
+`hyper_dmem[`jiffy_ones] <= 16'hffc1;
+`hyper_dmem[`jiffy_irq_desc] <= 16'hc000;
+
 `hyper_dmem[((`mb_trans_array+0) & 8'hff)] <= {8'h00,`null_trans};
 `hyper_dmem[((`mb_trans_array+1) & 8'hff)] <= {8'h00,`null_trans};
 `hyper_dmem[((`mb_trans_array+2) & 8'hff)] <= {8'h00,8'h28};
@@ -849,7 +871,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
 `hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
 
-  test_no = 20;
+  test_no = 22;
   case (test_no)
     // tests 0-4 inclusive: test the transaction receiver
     0: begin // trans not active
@@ -1261,6 +1283,49 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       force core.hyper_softcore.blck_abort = 0;
 
       `hyper_dmem[`block_size] <= 16'h000c;
+    end
+
+    21: begin // test the jiffy counter, counter recovery
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0fff;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[`jiffy_buff] <= 16'hfffd;
+    end
+    22: begin // test the jiffy counter, counter trigger
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'h0000;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h0fff;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[`jiffy_buff] <= 16'hfff9;
     end
     default: $finish;
   endcase // case (test_no)
