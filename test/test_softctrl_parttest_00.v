@@ -871,7 +871,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
 `hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
 
-  test_no = 15;
+  test_no = 23;
   case (test_no)
     // tests 0-4 inclusive: test the transaction receiver
     0: begin // trans not active
@@ -1326,6 +1326,41 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
 
       `hyper_dmem[`jiffy_buff] <= 16'hfff9;
+    end
+
+    23: begin // terminate operation, all data transfered
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h1000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'hb012;
+      `hyper_dmem[8'h09] <= 16'h002f;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+
+      core.hyper_softcore.input_reg_0[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_0[1] <= 16'h0000;
+      core.hyper_softcore.input_reg_1[0] <= 16'h0020;
+      core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+      force core.hyper_softcore.BLCK_COUNT_SENT = 10'h008;
+      force core.hyper_softcore.BLCK_IRQ = 0;
+      force core.hyper_softcore.blck_abort = 0;
+
+      `hyper_dmem[`block_size] <= 16'h0020;
     end
     default: $finish;
   endcase // case (test_no)

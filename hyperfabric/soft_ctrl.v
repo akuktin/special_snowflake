@@ -68,7 +68,7 @@ module Gremlin(input CLK,
   reg [15:0] accumulator, memory_operand,
 	     instr_f = 16'h4d00, instr_o = 16'h4d00, acc_output;
   reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
-  reg [1:0]  wrote_3_req = 2'h0, irq_strobe = 2'h0;
+  reg [1:0]  trans_req = 2'h0, irq_strobe = 2'h0;
   reg 	     add_carry, save_carry, waitkill = 1'b0, advance_ip = 1'b1;
 
   wire [15:0] accumulator_adder, instr;
@@ -77,10 +77,10 @@ module Gremlin(input CLK,
 
   reg [3:0]  big_carousel = 4'h3;
   reg [7:0]  small_carousel = 8'hc1; // Out of bounds. // FIXME!!
-  reg [1:0]  issue_op = 2'h0, wrote_3_ack = 2'h0;
+  reg [1:0]  issue_op = 2'h0, trans_ack = 2'h0;
   reg [2:0]  write_output_desc;
   reg 	     trans_active = 1'b0, blck_working_prev = 1'b0,
-	     active_trans_thistrans, trans_activate = 1'b0,
+	     active_trans_thistrans,
 	     write_output_reg, issue_op_new = 1'b0, ready_trans = 1'b0,
 	     rdmem_op, opon_data, trg_gb_0 = 1'b0, trg_gb_1 = 1'b0,
 	     time_mb = 1'b0, time_rfrs = 1'b0,
@@ -89,7 +89,9 @@ module Gremlin(input CLK,
   reg 	     EN_STB_0_pre = 1'b0, EN_STB_1_pre = 1'b0,
 	     EN_STB_2_pre = 1'b0, EN_STB_3_pre = 1'b0;
 
-  wire 	     refresh_ctr_mismatch, active_trans, blck_abort;
+  wire [2:0] carousel_section;
+  wire 	     refresh_ctr_mismatch, blck_abort,
+	     carousel_section_0, carousel_section_1, carousel_section_2;
 
   reg [15:0] input_reg_0[1:0], input_reg_1[1:0];
 
@@ -323,7 +325,7 @@ module Gremlin(input CLK,
 	    4'hb: begin
 	      if ((!instr_o[14]) && (accumulator[13:2] != 0))// provisional
 		begin
-		  wrote_3_req <= wrote_3_req +1;
+		  trans_req <= trans_req ^ {instr_o[2],!instr_o[2]};
 
 		  accumulator <= 0;
 		end
@@ -380,9 +382,15 @@ module Gremlin(input CLK,
       end
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
-  assign active_trans = (trg_gb_0 || trg_gb_1);
 
   assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
+
+  assign carousel_section = small_carousel[7:5];
+  assign carousel_section_0 = (carousel_section == 3'h0);
+  assign carousel_section_1 = (carousel_section == 3'h1) ||
+			      (carousel_section == 3'h2);
+  assign carousel_section_2 = (carousel_section == 3'h3) ||
+			      (carousel_section == 3'h4);
 
   always @(posedge CLK)
     begin
@@ -428,31 +436,41 @@ module Gremlin(input CLK,
 	    end
 	end // if (RST)
 
-	trans_activate <= (wrote_3_req != wrote_3_ack);
+      if ((trans_req[1] != trans_ack[1]) &&
+	  (carousel_section_0 || carousel_section_2) &&
+	  !(trans_active || ready_trans))
+	begin
+	  rdmem_op <= reg_rdmem_op_1;
+	  opon_data <= reg_opon_data_1;
+	  BLCK_SECTION <= reg_blck_sec_1;
+	  BLCK_COUNT_REQ <= reg_count_req_1;
+	  BLCK_START <= reg_start_1;
+	  MCU_PAGE_ADDR <= {reg_page_hi_1, reg_page_lo_1};
 
-	if (trans_activate && (! (trans_active || ready_trans)) &&
-	    (trg_gb_0 || trg_gb_1 || (time_mb && !trg_gb_0)))
-	  begin
-	    rdmem_op <= active_trans ? reg_rdmem_op_1 : reg_rdmem_op_0;
-	    opon_data <= active_trans ? reg_opon_data_1 : reg_opon_data_0;
-	    ready_trans <= 1;
+	  trans_ack[1] <= !trans_ack[1];
+	  ready_trans <= 1;
+	  active_trans_thistrans <= 1;
+	end // if ((trans_req[1] != trans_ack[1]) &&...
 
-	    BLCK_SECTION <= active_trans ? reg_blck_sec_1 : reg_blck_sec_0;
-	    BLCK_COUNT_REQ <= active_trans ?
-			      reg_count_req_1 : reg_count_req_0;
-	    BLCK_START <= active_trans ? reg_start_1 : reg_start_0;
-	    MCU_PAGE_ADDR <= active_trans ?
-			     {reg_page_hi_1, reg_page_lo_1} :
-			     {reg_page_hi_0, reg_page_lo_0};
-	  end
-	else
-	  ready_trans <= 0;
+      if ((trans_req[0] != trans_ack[0]) &&
+	  carousel_section_1 && !(trans_active || ready_trans))
+	begin
+	  rdmem_op <= reg_rdmem_op_0;
+	  opon_data <= reg_opon_data_0;
+	  BLCK_SECTION <= reg_blck_sec_0;
+	  BLCK_COUNT_REQ <= reg_count_req_0;
+	  BLCK_START <= reg_start_0;
+	  MCU_PAGE_ADDR <= {reg_page_hi_0, reg_page_lo_0};
+
+	  trans_ack[0] <= !trans_ack[0];
+	  ready_trans <= 1;
+	  active_trans_thistrans <= 0;
+	end // if ((trans_req[0] != trans_ack[0]) &&...
 
 	if (ready_trans)
 	  begin
-	    active_trans_thistrans <= active_trans;
 	    trans_active <= 1;
-	    wrote_3_ack <= wrote_3_ack +1;
+	    ready_trans <= 0;
 	    issue_op_new <= !issue_op_new;
 
 	    // actually supposed to be the top usable bit in the address

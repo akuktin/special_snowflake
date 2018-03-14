@@ -550,7 +550,7 @@ module GlaDOS;
 
         if (core.hyper_softcore.instr_o[11:8] == 4'h8)
           $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
-
+/*
 	if (core.hyper_softcore.trans_activate &&
 	    (! (core.hyper_softcore.trans_active ||
 		core.hyper_softcore.ready_trans)) &&
@@ -565,6 +565,22 @@ module GlaDOS;
 			     core.hyper_softcore.time_mb,
 			     !core.hyper_softcore.trg_gb_0},
 		     core.hyper_softcore.active_trans);
+	  end // if (core.hyper_softcore.trans_activate &&...
+*/
+	if ((core.hyper_softcore.trg_gb_0 ||
+	     core.hyper_softcore.trg_gb_1) && 1)
+	  begin
+	    $display("gremlin transaction trigger %x",
+		     {core.hyper_softcore.trg_gb_1,
+		      core.hyper_softcore.trg_gb_0});
+	  end
+	if ((core.hyper_softcore.instr_o[11:8] == 4'hb) &&
+	    (!core.hyper_softcore.instr_o[14]) &&
+	    (core.hyper_softcore.accumulator[13:2] != 0) && 1)
+	  begin
+	    $display("gremlin transaction order inst/acc %x/%x",
+		     core.hyper_softcore.instr_o,
+		     core.hyper_softcore.accumulator);
 	  end
 /*
 	if (((core.hyper_softcore.MCU_REQUEST_ALIGN[0] &&
