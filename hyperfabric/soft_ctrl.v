@@ -501,13 +501,13 @@ module Gremlin(input CLK,
 	    MCU_REQUEST_ALIGN <= 0;
 	    trans_active <= 0;
 	    RST_MVBLCK <= 2'h0;
-//	    trans_ends <= 1;
-//	  end
-//	else
-//	  trans_ends <= 0;
-//
-//        if (trans_ends)
-//	  begin
+	    trans_ends <= 1;
+	  end
+	else
+	  trans_ends <= 0;
+
+        if (trans_ends)
+	  begin
 	    case (BLCK_SECTION)
 	      2'h0: EN_STB_0 <= EN_STB_0_pre;
 	      2'h1: EN_STB_1 <= EN_STB_1_pre;
