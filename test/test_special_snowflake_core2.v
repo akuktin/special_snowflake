@@ -233,6 +233,7 @@ module GlaDOS;
 
   reg record = 1'b0;
 
+  reg         transaction_just_ended;
   reg         TEST_output_lsab_cw_1, TEST_output_lsab_cw_1_dly,
 	      TEST_output_lsab_cw_1_dly2;
   reg [31:0]  TEST_output_lsab_cw_1_count;
@@ -529,8 +530,14 @@ module GlaDOS;
       if (((dUDM == 1'b0) || (dUDM == 1'b1)) ||
 	  core.d_mcu.data_driver.dqs_z_ctrl)
 	begin
-	  $display("direct observation: dqs %x dm %x data %x",
+	  $display("direct observation d dqs %x dm %x data %x",
 		   {dUDQS,dLDQS}, {dUDM,dLDM}, dDQ);
+	end
+      if (((iUDM == 1'b0) || (iUDM == 1'b1)) ||
+	  core.i_mcu.data_driver.dqs_z_ctrl)
+	begin
+	  $display("direct observation i dqs %x dm %x data %x",
+		   {iUDQS,iLDQS}, {iUDM,iLDM}, iDQ);
 	end
     end
  */
@@ -541,6 +548,7 @@ module GlaDOS;
 	ctr <= 0;
 	ph_enstb_0_prev <= 0; ph_enstb_1_prev <= 0;
 	ph_enstb_2_prev <= 0; ph_enstb_3_prev <= 0;
+	transaction_just_ended <= 0;
 	TEST_output_lsab_cw_1 <= 0; TEST_output_lsab_cw_1_count <= 0;
 	TEST_output_lsab_cw_1_dly <= 0; TEST_output_lsab_cw_1_dly2 <= 0;
       end
@@ -548,7 +556,7 @@ module GlaDOS;
       begin
 	gremlin_cycle <= gremlin_cycle + core.hyper_softcore.RST;
 
-        if (core.hyper_softcore.instr_o[11:8] == 4'h8)
+        if (core.hyper_softcore.instr_o[11:8] == 4'h8 && 0)
           $display("wait cycle   acc %x", core.hyper_softcore.accumulator);
 /*
 	if (core.hyper_softcore.trans_activate &&
@@ -570,9 +578,11 @@ module GlaDOS;
 	if ((core.hyper_softcore.trg_gb_0 ||
 	     core.hyper_softcore.trg_gb_1) && 1)
 	  begin
-	    $display("gremlin transaction trigger %x",
+	    $display("gremlin transaction trigger %x mem_req %x/%x",
 		     {core.hyper_softcore.trg_gb_1,
-		      core.hyper_softcore.trg_gb_0});
+		      core.hyper_softcore.trg_gb_0},
+		     core.hyper_softcore.MCU_REQUEST_ALIGN,
+		     core.hyper_softcore.MCU_GRANT_ALIGN);
 	  end
 	if ((core.hyper_softcore.instr_o[11:8] == 4'hb) &&
 	    (!core.hyper_softcore.instr_o[14]) &&
@@ -581,6 +591,29 @@ module GlaDOS;
 	    $display("gremlin transaction order inst/acc %x/%x",
 		     core.hyper_softcore.instr_o,
 		     core.hyper_softcore.accumulator);
+	  end
+	if (core.hyper_softcore.ready_trans)
+	  begin
+	    $display("begin trans %x addr %x start %x (%x %x %x  %x %x %x)",
+		     core.hyper_softcore.active_trans_thistrans,
+		     core.hyper_softcore.MCU_PAGE_ADDR << 1,
+		     core.hyper_softcore.BLCK_START,
+
+		     core.hyper_softcore.reg_page_hi_0,
+		     {core.hyper_softcore.reg_page_lo_0,
+		      core.hyper_softcore.reg_start_0},
+		     {core.hyper_softcore.reg_blck_sec_0,
+		      core.hyper_softcore.reg_count_req_0,
+		      core.hyper_softcore.reg_rdmem_op_0,
+		      core.hyper_softcore.reg_opon_data_0},
+
+		     core.hyper_softcore.reg_page_hi_1,
+		     {core.hyper_softcore.reg_page_lo_1,
+		      core.hyper_softcore.reg_start_1},
+		     {core.hyper_softcore.reg_blck_sec_1,
+		      core.hyper_softcore.reg_count_req_1,
+		      core.hyper_softcore.reg_rdmem_op_1,
+		      core.hyper_softcore.reg_opon_data_1});
 	  end
 /*
 	if (((core.hyper_softcore.MCU_REQUEST_ALIGN[0] &&
@@ -611,14 +644,40 @@ module GlaDOS;
 		     core.d_mcu.interdictor_tracker.port_WE_ARRAY_BULK);
 	  end
  */
+	if (core.hyper_softcore.RST && 0)
+          begin
+	    $display("i_mcu addr_r %x pWE_r %x pRAR %x GAR %x WAR %x\n      addr_b %x pWE_b %x pRAB %x GAB %x pRLB %x GLB %x pWEB %x",
+		     core.i_mcu.interdictor_tracker.ADDRESS_RAND,
+		     core.i_mcu.interdictor_tracker.port_WE_RAND,
+		     core.i_mcu.interdictor_tracker.port_REQUEST_ACCESS_RAND,
+		     core.i_mcu.interdictor_tracker.GRANT_ACCESS_RAND,
+		     core.i_mcu.interdictor_tracker.WE_ARRAY_RAND,
+
+		     core.i_mcu.interdictor_tracker.port_ADDRESS_BULK,
+		     core.i_mcu.interdictor_tracker.port_WE_BULK,
+		     core.i_mcu.interdictor_tracker.port_REQUEST_ACCESS_BULK,
+		     core.i_mcu.interdictor_tracker.GRANT_ACCESS_BULK,
+		     core.i_mcu.interdictor_tracker.port_REQUEST_ALIGN_BULK,
+		     core.i_mcu.interdictor_tracker.GRANT_ALIGN_BULK,
+		     core.i_mcu.interdictor_tracker.port_WE_ARRAY_BULK);
+	  end
+
 
 	if (core.hyper_softcore.blck_working_prev &&
 	    !core.hyper_softcore.BLCK_WORKING)
 	  begin
-//	    $display("transactions ends! CTR %x", ctr);
+	    $display("end trans %x -- %x, %x||%x",
+		     core.hyper_softcore.BLCK_COUNT_SENT,
+		     core.hyper_softcore.BLCK_IRQ,
+		     core.hyper_softcore.BLCK_ABRUPT_STOP,
+		     core.hyper_softcore.BLCK_FRDRAM_DEVERR);
+	    $display("transactions ends! CTR %x", ctr);
+	    transaction_just_ended <= 1;
 	    TEST_output_lsab_cw_1 <= 1;
 	    TEST_output_lsab_cw_1_count <= 0;
-	  end
+	  end // if (core.hyper_softcore.blck_working_prev &&...
+	else
+	  transaction_just_ended <= 0;
 	if (TEST_output_lsab_cw_1 && (w_read_fifo_cw == 2'h1))
 	  begin
 	    TEST_output_lsab_cw_1_count <= TEST_output_lsab_cw_1_count +1;
@@ -634,6 +693,11 @@ module GlaDOS;
 	if (TEST_output_lsab_cw_1_dly2)
 	  $display("lsab_cw data_out %x",
 		   TEST_output_lsab_cw_1_data);
+
+	if (transaction_just_ended && 0)
+	  begin
+	    $display("count_sent %x", core.hyper_softcore.BLCK_COUNT_SENT);
+	  end
 
 /*
 	if (core.hyper_softcore.write_output_reg)
@@ -657,7 +721,7 @@ module GlaDOS;
 		    core.hyper_softcore.low_addr_bits_w},
 		   core.hyper_softcore.from_cpu_word);
  */
-/*
+
 	if (core.fill.RST)
 	  begin
 	    if (core.fill.ISSUE && ! core.fill.am_working)
@@ -676,7 +740,7 @@ module GlaDOS;
 		       {core.fill.track_addr[11:1],1'b0},
 		       core.fill.DRAM_SEL);
 	  end
- */
+
 	if (core.empty.RST)
 	  begin
 	    if (core.empty.ISSUE && ! core.empty.am_working)
@@ -685,7 +749,7 @@ module GlaDOS;
 			 core.empty.SECTION, $time);
 	      end
 	  end
-/*
+
 	if (core.lsab_out.we)
 	  begin
 	    $display("lsab_out we %x waddr %x wdata %x",
@@ -698,7 +762,7 @@ module GlaDOS;
 		     {core.lsab_out.re,core.lsab_out.re_prev},
 		     core.lsab_out.read_addr, core.lsab_out.out_mem);
 	  end
- */
+
 	ph_enstb_0_prev <= core.ph_enstb_0;
 	ph_enstb_1_prev <= core.ph_enstb_1;
 	ph_enstb_2_prev <= core.ph_enstb_2;
@@ -794,6 +858,28 @@ module GlaDOS;
 		     core.d_mcu.data_driver.DATA_W,
 		     core.d_mcu.data_driver.dq_predriver);
 	  end // if (!core.d_mcu.interdictor_tracker.second_stroke)
+/*
+	if (!core.i_mcu.interdictor_tracker.second_stroke)
+	  begin
+	    $display("i cmd %x addr %x bank %x we %x data %x predata %x",
+//		     core.i_mcu.interdictor_tracker.command,
+//		     core.i_mcu.interdictor_tracker.address_in,
+		     core.i_mcu.interdictor_tracker.COMMAND_REG,
+		     core.i_mcu.interdictor_tracker.ADDRESS_REG,
+		     core.i_mcu.interdictor_tracker.BANK_REG,
+		     core.i_mcu.data_driver.WE_ARRAY,
+		     core.i_mcu.data_driver.DATA_W,
+		     core.i_mcu.data_driver.dq_predriver);
+	  end // if (!core.i_mcu.interdictor_tracker.second_stroke)
+ */
+	if (!core.i_mcu.interdictor_tracker.second_stroke)
+	  begin
+	    $display("i cmd %x addr %x bank %x we %x data %x predata %x",
+		     iCOMMAND, iADDRESS, iBANK,
+		     core.i_mcu.data_driver.WE_ARRAY,
+		     core.i_mcu.data_driver.DATA_W,
+		     core.i_mcu.data_driver.dq_predriver);
+	  end // if (!core.i_mcu.interdictor_tracker.second_stroke)
 
 	if (core.lsab_in.re_prev)
 	  $display("lsb_do %x swc_is %x swc_dc %x swx_os %x swc_do %x",
