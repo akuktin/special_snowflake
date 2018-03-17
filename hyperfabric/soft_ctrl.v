@@ -81,7 +81,7 @@ module Gremlin(input CLK,
   reg [1:0]  issue_op = 2'h0, trans_ack = 2'h0;
   reg [2:0]  write_output_desc;
   reg 	     trans_active = 1'b0, blck_working_prev = 1'b0,
-	     active_trans_thistrans,
+	     active_trans_thistrans, trans_ends = 1'b0,
 	     write_output_reg, issue_op_new = 1'b0, ready_trans = 1'b0,
 	     rdmem_op, opon_data, trg_gb_0 = 1'b0, trg_gb_1 = 1'b0,
 	     time_mb = 1'b0, time_rfrs = 1'b0,
@@ -501,7 +501,13 @@ module Gremlin(input CLK,
 	    MCU_REQUEST_ALIGN <= 0;
 	    trans_active <= 0;
 	    RST_MVBLCK <= 2'h0;
-
+//	    trans_ends <= 1;
+//	  end
+//	else
+//	  trans_ends <= 0;
+//
+//        if (trans_ends)
+//	  begin
 	    case (BLCK_SECTION)
 	      2'h0: EN_STB_0 <= EN_STB_0_pre;
 	      2'h1: EN_STB_1 <= EN_STB_1_pre;
