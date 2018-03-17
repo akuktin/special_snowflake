@@ -27,7 +27,7 @@ module hyper_mvblck_todram(input CLK,
 			   output reg [5:0]  COUNT_SENT,
 			   output 	     WORKING,
 			   output reg 	     IRQ_OUT,
-			   output reg 	     ABRUPT_STOP,
+			   output reg	     ABRUPT_STOP,
 			   output reg [24:0] ANCILL_OUT,
 			   // -----------------------
 			   output [8:0]      MCU_COLL_ADDRESS,
@@ -90,6 +90,7 @@ module hyper_mvblck_todram(input CLK,
       begin
 	am_working <= 0; working_pre <= 0; WORKING <= 0; LSAB_READ <= 0;
 	MCU_REQUEST_ACCESS <= 0; MCU_COLL_ADDRESS <= 0; COUNT_SENT <= 0;
+	IRQ_OUT <= 0; ABRUPT_STOP <= 0;
       end
     else
       begin

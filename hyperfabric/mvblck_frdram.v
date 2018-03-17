@@ -108,6 +108,7 @@ module hyper_mvblck_frdram(input CLK,
 	MCU_COLL_ADDRESS <= 0; COUNT_SENT <= 0;
 	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
 	DEV_2_ERR_ACK <= 0; DEV_3_ERR_ACK <= 0;
+	DEVICE_ERROR <= 0; ABRUPT_STOP <= 0;
       end
     else
       begin
