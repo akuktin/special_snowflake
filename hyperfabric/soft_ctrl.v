@@ -69,7 +69,8 @@ module Gremlin(input CLK,
 	     instr_f = 16'h4d00, instr_o = 16'h4d00, acc_output;
   reg [7:0]  ip = 8'd0, index, index_reg, index_capture;
   reg [1:0]  trans_req = 2'h0, irq_strobe = 2'h0;
-  reg 	     add_carry, save_carry, waitkill = 1'b0, advance_ip = 1'b1;
+  reg 	     add_carry, save_carry, waitkill = 1'b0, advance_ip = 1'b1,
+	     issue_trans_ack = 1'b0, issue_trans_req = 1'b0;
 
   wire [15:0] accumulator_adder, instr;
   wire [7:0] ip_nxt, d_r_addr_sys, d_w_addr_sys;
@@ -325,8 +326,7 @@ module Gremlin(input CLK,
 	    4'hb: begin
 	      if ((!instr_o[14]) && (accumulator[13:2] != 0))// provisional
 		begin
-		  trans_req <= trans_req ^ {instr_o[2],!instr_o[2]};
-
+		  issue_trans_req <= !issue_trans_req;
 		  accumulator <= 0;
 		end
 	    end
@@ -341,6 +341,12 @@ module Gremlin(input CLK,
 	  endcase // case (instr_o[11:8])
 	  if (write_output_reg)
 	    begin
+	      if (issue_trans_req != issue_trans_ack)
+		begin
+		  issue_trans_ack <= issue_trans_req;
+		  trans_req <= trans_req ^ {write_output_desc[2],
+					    !write_output_desc[2]};
+		end
 	      if (write_output_desc[2] == 1'b1)
 		begin
 		  case (write_output_desc[1:0])
@@ -453,7 +459,8 @@ module Gremlin(input CLK,
 	end // if ((trans_req[1] != trans_ack[1]) &&...
 
       if ((trans_req[0] != trans_ack[0]) &&
-	  carousel_section_1 && !(trans_active || ready_trans))
+	  carousel_section_1 && time_mb &&
+	  !(trans_active || ready_trans))
 	begin
 	  rdmem_op <= reg_rdmem_op_0;
 	  opon_data <= reg_opon_data_0;
