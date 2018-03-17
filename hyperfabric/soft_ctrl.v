@@ -319,21 +319,21 @@ module Gremlin(input CLK,
 	    4'h9: begin
 	      irq_strobe[0] <= !irq_strobe[0]; // provisional
 	      IRQ_DESC <= accumulator[15:13]; // maybe
-	      accumulator <= 0; // probably a good idea
+	      accumulator <= memory_operand;
 	    end
 	    // fucking load instruction, bitch!
 	    4'ha: accumulator <= memory_operand;
 	    4'hb: begin
-	      if ((!instr_o[14]) && (accumulator[13:2] != 0))// provisional
+	      if ((!instr_o[13]) && (accumulator[13:2] != 0))// provisional
 		begin
 		  issue_trans_req <= !issue_trans_req;
-		  accumulator <= 0;
+		  accumulator <= memory_operand;
 		end
 	    end
 
 	    4'hc: begin
 	      index_reg <= accumulator[7:0];
-	      accumulator <= 0; // superflous
+	      accumulator <= memory_operand;
 	    end
 	    4'hd: accumulator <= accumulator & memory_operand;
 	    4'he: accumulator <= accumulator | memory_operand;
