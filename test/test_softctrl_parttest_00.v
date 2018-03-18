@@ -1381,7 +1381,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[8'h09] <= 16'h001f;
       `hyper_dmem[8'h0a] <= 16'h0102;
       `hyper_dmem[8'h0b] <= 16'hb0c2;
-//      `hyper_dmem[8'h0b] <= 16'hb0c2; // x variant of the test
+//      `hyper_dmem[8'h0b] <= 16'hb0c3; // x variant of the test
 
       core.hyper_softcore.input_reg_1[0] <= 16'h0000;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
@@ -1420,7 +1420,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       `hyper_dmem[8'h09] <= 16'h002f;
       `hyper_dmem[8'h0a] <= 16'h0102;
       `hyper_dmem[8'h0b] <= 16'hb0c2;
-//      `hyper_dmem[8'h0b] <= 16'hb0c2; // x variant of the test
+//      `hyper_dmem[8'h0b] <= 16'hb0c3; // x variant of the test
       `hyper_dmem[8'h0c] <= 16'h5000;
       `hyper_dmem[8'h0d] <= 16'h002f;
       `hyper_dmem[8'h0e] <= 16'h0102;
