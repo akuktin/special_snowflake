@@ -871,7 +871,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 `hyper_dmem[((`mb_trans_array+6) & 8'hff)] <= {8'h00,8'h38};
 `hyper_dmem[((`mb_trans_array+7) & 8'hff)] <= {8'h00,8'h3c};
 
-  test_no = 24;
+  test_no = 25;
   case (test_no)
     // tests 0-4 inclusive: test the transaction receiver
     0: begin // trans not active
@@ -1357,7 +1357,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
 
       `hyper_dmem[`block_size] <= 16'h0020;
-    end
+    end 
     24: begin // single full transaction block, fill RAM
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
@@ -1388,13 +1388,57 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
 
       `hyper_dmem[`block_size] <= 16'h0020;
 
-      core.lsab_in.read_addr_0 <= 6'h10;
+      core.lsab_in.write_addr_0 <= 6'he;
       core.lsab_in.len_0 <= 6'he;
       core.lsab_in.EMPTY_0 <= 0;
       core.lsab_in.STOP_0 <= 0;
       for (i=0; i<256; i=i+1)
 	begin
-	  core.lsab_in.lsab_sram.ram.r_data[i] <= 0;
+	  core.lsab_in.lsab_sram.ram.r_data[i] <= (i + 32'he21f_1200);
+	end
+    end
+    25: begin // two full transaction, RAM turnover
+      `hyper_dmem[`gb_0_active] <= 0;
+      `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
+      `hyper_dmem[`gb_0_begin_addr_high] <= 16'h0eef;
+      `hyper_dmem[`gb_1_active] <= 0;
+      `hyper_dmem[`gb_1_begin_addr_low] <= 16'hff0f;
+      `hyper_dmem[`gb_1_begin_addr_high] <= 16'h00ef;
+      core.hyper_softcore.index_reg <= `TEST_mb_active;
+      `hyper_dmem[`TEST_mb_active] <= 0;
+      `hyper_dmem[`next_index] <= `TEST_mb_active;
+
+      `hyper_dmem[`signal_bits_gb_0] <= 16'h0000;
+      `hyper_dmem[`gb_0_len_left] <= 16'h0080;
+      `hyper_dmem[`signal_bits_gb_1] <= 16'h0000;
+      `hyper_dmem[`gb_1_len_left] <= 16'h801f;
+
+      `hyper_dmem[`mb_flipflop_ctrl] <= 0;
+      `hyper_dmem[`cur_mb_trans_ptr] <= `mb_trans_array;
+
+      `hyper_dmem[8'h08] <= 16'h1002;
+      `hyper_dmem[8'h09] <= 16'h002f;
+      `hyper_dmem[8'h0a] <= 16'h0102;
+      `hyper_dmem[8'h0b] <= 16'hb0c2;
+//      `hyper_dmem[8'h0b] <= 16'hb0c2; // x variant of the test
+      `hyper_dmem[8'h0c] <= 16'h5000;
+      `hyper_dmem[8'h0d] <= 16'h002f;
+      `hyper_dmem[8'h0e] <= 16'h0102;
+      `hyper_dmem[8'h0f] <= 16'hb0c2;
+//      `hyper_dmem[8'h0f] <= 16'hb0c3; // x variant of the test
+
+      core.hyper_softcore.input_reg_1[0] <= 16'h0000;
+      core.hyper_softcore.input_reg_1[1] <= 16'h0000;
+
+      `hyper_dmem[`block_size] <= 16'h0028;
+
+      core.lsab_in.write_addr_0 <= 6'he;
+      core.lsab_in.len_0 <= 6'he;
+      core.lsab_in.EMPTY_0 <= 0;
+      core.lsab_in.STOP_0 <= 0;
+      for (i=0; i<256; i=i+1)
+	begin
+	  core.lsab_in.lsab_sram.ram.r_data[i] <= (i + 32'h021f_1200);
 	end
     end
     default: $finish;
