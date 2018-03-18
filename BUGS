@@ -11,3 +11,14 @@
 
 [hyper] When issuing DMA transactions, the low 5 bits of the address are masked
         out.
+
+[hyper] After issuing the transaction, you must read the signal bits (top 16
+        bits of the data) to verify the transaction has been acknowledged.
+        The firmware reads signal bits and then writes them back.
+  FIX: firmware should NEVER-EVER write into signal bits, except at the end
+       of the transaction - to signal the outcome to the CPU.
+
+[hyper] All transactions must be at least longer then a single transaction
+        block. Otherwise, the firmware will never notice it already executed
+        the transaction.
+        Namely, the transaction is never marked as "started executing it".
