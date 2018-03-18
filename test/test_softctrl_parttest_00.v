@@ -1357,7 +1357,7 @@ core.hyper_softcore.ip <= `S_grab_meta_gb_0 -1;
       core.hyper_softcore.input_reg_1[1] <= 16'h0000;
 
       `hyper_dmem[`block_size] <= 16'h0020;
-    end 
+    end
     24: begin // single full transaction block, fill RAM
       `hyper_dmem[`gb_0_active] <= 0;
       `hyper_dmem[`gb_0_begin_addr_low] <= 16'hffff;
