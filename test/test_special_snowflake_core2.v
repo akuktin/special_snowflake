@@ -576,7 +576,7 @@ module GlaDOS;
 	  end // if (core.hyper_softcore.trans_activate &&...
 */
 	if ((core.hyper_softcore.trg_gb_0 ||
-	     core.hyper_softcore.trg_gb_1) && 1)
+	     core.hyper_softcore.trg_gb_1) && 0)
 	  begin
 	    $display("gremlin transaction trigger %x mem_req %x/%x",
 		     {core.hyper_softcore.trg_gb_1,
@@ -586,13 +586,13 @@ module GlaDOS;
 	  end
 	if ((core.hyper_softcore.instr_o[11:8] == 4'hb) &&
 	    (!core.hyper_softcore.instr_o[14]) &&
-	    (core.hyper_softcore.accumulator[13:2] != 0) && 1)
+	    (core.hyper_softcore.accumulator[13:2] != 0) && 0)
 	  begin
 	    $display("gremlin transaction order inst/acc %x/%x",
 		     core.hyper_softcore.instr_o,
 		     core.hyper_softcore.accumulator);
 	  end
-	if (core.hyper_softcore.ready_trans)
+	if (core.hyper_softcore.ready_trans && 0)
 	  begin
 	    $display("begin trans %x addr %x start %x (%x %x %x  %x %x %x)",
 		     core.hyper_softcore.active_trans_thistrans,
@@ -721,7 +721,7 @@ module GlaDOS;
 		    core.hyper_softcore.low_addr_bits_w},
 		   core.hyper_softcore.from_cpu_word);
  */
-
+/*
 	if (core.fill.RST)
 	  begin
 	    if (core.fill.ISSUE && ! core.fill.am_working)
@@ -762,6 +762,7 @@ module GlaDOS;
 		     {core.lsab_out.re,core.lsab_out.re_prev},
 		     core.lsab_out.read_addr, core.lsab_out.out_mem);
 	  end
+ */
 
 	ph_enstb_0_prev <= core.ph_enstb_0;
 	ph_enstb_1_prev <= core.ph_enstb_1;
@@ -858,7 +859,8 @@ module GlaDOS;
 		     core.d_mcu.data_driver.DATA_W,
 		     core.d_mcu.data_driver.dq_predriver);
 	  end // if (!core.d_mcu.interdictor_tracker.second_stroke)
-/*
+
+
 	if (!core.i_mcu.interdictor_tracker.second_stroke)
 	  begin
 	    $display("i cmd %x addr %x bank %x we %x data %x predata %x",
@@ -871,7 +873,8 @@ module GlaDOS;
 		     core.i_mcu.data_driver.DATA_W,
 		     core.i_mcu.data_driver.dq_predriver);
 	  end // if (!core.i_mcu.interdictor_tracker.second_stroke)
- */
+
+/*
 	if (!core.i_mcu.interdictor_tracker.second_stroke)
 	  begin
 	    $display("i cmd %x addr %x bank %x we %x data %x predata %x",
@@ -913,7 +916,7 @@ module GlaDOS;
 		     core.d_mcu.interdictor_tracker.refresh_time);
             $display("-----------------------------------------------------");
           end
-
+ */
       end
 
   always @(posedge CPU_CLK)
@@ -984,8 +987,10 @@ module GlaDOS;
 	  (core.hyper_softcore.index_reg == 16'h00b5))
 	begin
 	  $display("halting CTR %x CPUCTR %x", ctr, cpu_ctr);
-          $display("acc %x",
-            core.hyper_softcore.accumulator);
+          $display("acc %x bc %x sc %x",
+		   core.hyper_softcore.accumulator,
+		   core.hyper_softcore.big_carousel,
+		   core.hyper_softcore.small_carousel);
           $display("input_reg  %x %x       %x %x",
 		   core.hyper_softcore.input_reg_0[0],
 		   core.hyper_softcore.input_reg_0[1],
@@ -1225,7 +1230,7 @@ module GlaDOS;
 //`include "test_memops.v"
 //`include "test_dmaops0.v"
 //`include "test_dmaops2.v"
-//`include "test_dmaops3.v"
+`include "test_dmaops3.v"
 
 //`include "test_tt_00.v"
 //`include "test_tt_01.v"
@@ -1269,6 +1274,6 @@ module GlaDOS;
 //`include "test_gremlin_delay.v"
 //`include "test_gremlin_waitacc.v"
 
-`include "test_softctrl_parttest_00.v"
+//`include "test_softctrl_parttest_00.v"
 
 endmodule // GlaDOS
