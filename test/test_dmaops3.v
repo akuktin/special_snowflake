@@ -68,7 +68,7 @@ core.hyper_softcore.prog_mem.ram.r_data[0] <= 16'h4e00;
 core.hyper_softcore.data_mem.ram.r_data[0] <= 16'h0018; //// DATA !
 core.hyper_softcore.data_mem.ram.r_data[128] <= 16'h0001;
 core.hyper_softcore.data_mem.ram.r_data[129] <= 16'h0000;
-core.hyper_softcore.data_mem.ram.r_data[130] <= 16'h800d;
+core.hyper_softcore.data_mem.ram.r_data[130] <= 16'h400d;
 //// DATA !
 core.hyper_softcore.prog_mem.ram.r_data[4] <= 16'h4a00;
 core.hyper_softcore.prog_mem.ram.r_data[5] <= 16'h4605;
