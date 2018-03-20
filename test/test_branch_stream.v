@@ -123,7 +123,7 @@ always @(posedge CPU_CLK)
 	         core.cpu.ibuf.xOPC, core.cpu.bpcu.rPC,
 		 {core.cpu.bpcu.fSKIP,core.cpu.bpcu.dSKIP,
 		  core.cpu.bpcu.xSKIP}, core.cpu.ctrl.fSTALL,
-		 {core.cpu.ibuf.d_en,core.cpu.ibuf.x_en},
+		 {core.cpu.bpcu.d_en,core.cpu.bpcu.x_en},
 		 core.i_cache_pc_addr, core.cpu.bpcu.xBRA);
       end
   end
