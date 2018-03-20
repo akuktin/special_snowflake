@@ -650,7 +650,6 @@ module GlaDOS;
 		     .cache_precycle_force_miss(1'b0),
 //--------------------------------------------------
 //--------------------------------------------------
-		     .dma_mcu_access(1'b1),
 		     .mem_addr(user_req_address),
 		     .mem_we(user_req_we),
 		     .mem_we_array(user_req_we_array),
