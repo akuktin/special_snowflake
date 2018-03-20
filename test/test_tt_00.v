@@ -68,5 +68,6 @@ core.i_cache.cachedat.ram.r_data[24] <= {6'o42,5'h1f,5'h1f,5'h1f,11'd0};
 //core.hyper_softcore.small_carousel <= 8'h78; // refreshes realign
 
 // start 8'h84 stop 8'h77
+`define CHANGER 6'h77
 
-core.hyper_softcore.small_carousel <= 8'h77;
+core.hyper_softcore.small_carousel <= `CHANGER;
