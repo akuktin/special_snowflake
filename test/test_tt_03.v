@@ -107,14 +107,14 @@ core.hyper_softcore.prog_mem.ram.r_data[27] <= 16'hce18;
 core.d_cache.cachetag.ram.r_data[3] <= 16'hffff;
 core.d_cache.cachetag.ram.r_data[4] <= 16'hffff;
 
-core.hyper_softcore.big_carousel <= 4'h4;
+core.hyper_softcore.big_carousel <= 4'h5;
 //core.hyper_softcore.small_carousel <= 8'h5b; // all is fine
 //core.hyper_softcore.small_carousel <= 8'h5c; // ERROR!!!
 //core.hyper_softcore.small_carousel <= 8'h5e; // wrong transaction (Mbps)
 //core.hyper_softcore.small_carousel <= 8'h5e; // (other cycle)
 
 // start 8'h5a stop 8'h5f
-force core.hyper_softcore.time_mb = 0;
-`define CHANGER 8'h5a
+//force core.hyper_softcore.time_mb = 0;
+`define CHANGER 8'h77
 
 core.hyper_softcore.small_carousel <= `CHANGER;
