@@ -223,13 +223,9 @@ module state2(input CLK,
 	  end
 
 	ADDRESS_REG <= address;
-	if ((!(SOME_PAGE_ACTIVE &&
-	       (! correct_page_rdy))) &&
-	    (issue_com))
-	  begin
-	    page_current <= page;
-	    BANK_REG <= bank_addr;
-	  end
+	if (!(SOME_PAGE_ACTIVE &&
+	      (! correct_page_rdy)))
+	  BANK_REG <= address_in[11:9];
 
 	// The below used to be in the state tracker
 	// -----------------------------------------
@@ -238,7 +234,10 @@ module state2(input CLK,
 	if (!second_stroke)
 	  begin
 	    if (command_reg2 == `ACTV)
-	      SOME_PAGE_ACTIVE <= 1;
+	      begin
+		SOME_PAGE_ACTIVE <= 1;
+		page_current <= address_in[25:9];
+	      end
 	    if (command_reg2 == `PRCH)
 	      SOME_PAGE_ACTIVE <= 0;
 	    if (command_reg2 == `WRTE)
