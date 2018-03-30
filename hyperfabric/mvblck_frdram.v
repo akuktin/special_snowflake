@@ -1,20 +1,10 @@
 /* Reads a block from DRAM and writes it to lsab_cw. */
 module hyper_mvblck_frdram(input CLK,
 			   input 	    RST,
-			   /* begin DEVICE ERR */
-			   input 	    DEV_0_ERR,
-			   input 	    DEV_1_ERR,
-			   input 	    DEV_2_ERR,
-			   input 	    DEV_3_ERR,
-			   output 	    DEV_0_ERR_ACK,
-			   output 	    DEV_1_ERR_ACK,
-			   output 	    DEV_2_ERR_ACK,
-			   output 	    DEV_3_ERR_ACK,
 			   /* begin LSAB */
-			   input 	    LSAB_0_FULL,
-			   input 	    LSAB_1_FULL,
-			   input 	    LSAB_2_FULL,
-			   input 	    LSAB_3_FULL,
+			   input 	    LSAB_FULL,
+			   input 	    LSAB_DEVERR,
+			   output 	    LSAB_DEVERRACK,
 			   // -----------------------
 			   output 	    LSAB_WRITE,
 			   output reg [1:0] LSAB_SECTION,
@@ -35,14 +25,10 @@ module hyper_mvblck_frdram(input CLK,
   reg [8:0] 				    MCU_COLL_ADDRESS = 9'd0;
   reg 					    LSAB_WRITE = 1'b0,
 					    WORKING = 1'b0,
-					    DEV_0_ERR_ACK = 1'b0,
-					    DEV_1_ERR_ACK = 1'b0,
-					    DEV_2_ERR_ACK = 1'b0,
-					    DEV_3_ERR_ACK = 1'b0;
+					    LSAB_DEVERRACK = 1'b0;
 
   reg 					     am_working = 1'b0,
-					     abrupt_stop_n,
-					     wr_device_error, read_more,
+					     read_more,
 					     release_trigger = 1'b1,
 					     we_trigger = 1'b0,
 					     LSAB_WRITE_pre = 1'b0;
@@ -50,7 +36,8 @@ module hyper_mvblck_frdram(input CLK,
 					     release_counter = 3'd0;
   reg [5:0] 				     len_left;
 
-  wire 					     uneven_len;
+  wire 					     uneven_len,
+					     abrupt_stop_n;
   wire [5:0] 				     compute_len, assign_len;
 
   /* This signal used to be a normal, proper register whose logic was
@@ -70,33 +57,7 @@ module hyper_mvblck_frdram(input CLK,
   assign compute_len = COUNT_REQ + {5'h0,uneven_len} + 1;
   assign assign_len = {compute_len[5:1],1'b0};
 
-  always @(LSAB_0_FULL or LSAB_1_FULL or
-	   LSAB_2_FULL or LSAB_3_FULL or
-	   DEV_0_ERR or DEV_1_ERR or
-	   DEV_2_ERR or DEV_3_ERR or
-	   LSAB_SECTION)
-    case (LSAB_SECTION)
-      2'b00: begin
-	abrupt_stop_n <= !(LSAB_0_FULL || DEV_0_ERR);
-	wr_device_error <= DEV_0_ERR;
-      end
-      2'b01: begin
-	abrupt_stop_n <= !(LSAB_1_FULL || DEV_1_ERR);
-	wr_device_error <= DEV_1_ERR;
-      end
-      2'b10: begin
-	abrupt_stop_n <= !(LSAB_2_FULL || DEV_2_ERR);
-	wr_device_error <= DEV_2_ERR;
-      end
-      2'b11: begin
-	abrupt_stop_n <= !(LSAB_3_FULL || DEV_3_ERR);
-	wr_device_error <= DEV_3_ERR;
-      end
-      default: begin
-	abrupt_stop_n <= 1'bx;
-	wr_device_error <= 1'bx;
-      end
-    endcase
+  assign abrupt_stop_n = !(LSAB_FULL || LSAB_DEVERR);
 
   always @(posedge CLK)
     if (!RST)
@@ -106,8 +67,7 @@ module hyper_mvblck_frdram(input CLK,
 	release_trigger <= 1; we_trigger <= 0;
 	WORKING <= 0; am_working <= 0;
 	MCU_COLL_ADDRESS <= 0; COUNT_SENT <= 0;
-	DEV_0_ERR_ACK <= 0; DEV_1_ERR_ACK <= 0;
-	DEV_2_ERR_ACK <= 0; DEV_3_ERR_ACK <= 0;
+	LSAB_DEVERRACK <= 0;
 	DEVICE_ERROR <= 0; ABRUPT_STOP <= 0;
       end
     else
@@ -142,14 +102,8 @@ module hyper_mvblck_frdram(input CLK,
 	    else
 	      begin
 		ABRUPT_STOP <= !abrupt_stop_n;
-		DEVICE_ERROR <= wr_device_error;
-
-		case (LSAB_SECTION)
-		  2'b00: DEV_0_ERR_ACK <= DEV_0_ERR;
-		  2'b01: DEV_1_ERR_ACK <= DEV_1_ERR;
-		  2'b10: DEV_2_ERR_ACK <= DEV_2_ERR;
-		  2'b11: DEV_3_ERR_ACK <= DEV_3_ERR;
-		endcase // case (LSAB_SECTION)
+		DEVICE_ERROR <= LSAB_DEVERR;
+		LSAB_DEVERRACK <= LSAB_DEVERR;
 
 		am_working <= 0;
 		read_more <= 0;

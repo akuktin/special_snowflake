@@ -393,19 +393,30 @@ module lsab_cw(input CLK,
               output [31:0] OUT_1,
               output [31:0] OUT_2,
               output [31:0] OUT_3,
-	      output 	    BFULL_0,
-	      output 	    BFULL_1,
-	      output 	    BFULL_2,
-	      output 	    BFULL_3);
+	      output 	    BFULL,
+	       /* begin DEVICE ERR */
+	      input 	    DEV_0_ERR,
+	      input 	    DEV_1_ERR,
+	      input 	    DEV_2_ERR,
+	      input 	    DEV_3_ERR,
+	      output 	    DEV_0_ERR_ACK,
+	      output 	    DEV_1_ERR_ACK,
+	      output 	    DEV_2_ERR_ACK,
+	      output 	    DEV_3_ERR_ACK);
   reg [31:0] 		    OUT_0 = 32'd0, OUT_1 = 32'd0,
 			    OUT_2 = 32'd0, OUT_3 = 32'd0;
-  reg 			    BFULL_0 = 1'b0, BFULL_1 = 1'b0,
-			    BFULL_2 = 1'b0, BFULL_3 = 1'b0;
+  reg 			    BFULL = 1'b0;
+  reg 			    DEV_0_ERR_ACK = 1'b0,
+			    DEV_1_ERR_ACK = 1'b0,
+			    DEV_2_ERR_ACK = 1'b0,
+			    DEV_3_ERR_ACK = 1'b0;
 
   reg               empty_0 = 1'b1, empty_1 = 1'b1,
 		    empty_2 = 1'b1, empty_3 = 1'b1;
   reg               full_0 = 1'b0, full_1 = 1'b0,
 		    full_2 = 1'b0, full_3 = 1'b0;
+  reg               bfull_0 = 1'b0, bfull_1 = 1'b0,
+                    bfull_2 = 1'b0, bfull_3 = 1'b0;
   reg [5:0]         len_0 = 6'd0, len_1 = 6'd0, len_2 = 6'd0, len_3 = 6'd0;
   reg [5:0]         write_addr_0 = 6'd0, write_addr_1 = 6'd0,
                     write_addr_2 = 6'd0, write_addr_3 = 6'd0;
@@ -423,8 +434,8 @@ module lsab_cw(input CLK,
                     become_empty_2, become_empty_3;
   reg               become_full_0, become_full_1,
                     become_full_2, become_full_3;
-  reg               become_BFULL_0, become_BFULL_1,
-                    become_BFULL_2, become_BFULL_3;
+  reg               become_bfull_0, become_bfull_1,
+                    become_bfull_2, become_bfull_3;
   reg [5:0]         become_len_0, become_len_1,
                     become_len_2, become_len_3;
 
@@ -452,107 +463,107 @@ module lsab_cw(input CLK,
   assign do_read_2 = empty_2 ? 0 : read_2;
   assign do_read_3 = empty_3 ? 0 : read_3;
 
-  always @(len_0 or do_read_0 or do_write_0 or full_0 or empty_0 or BFULL_0)
+  always @(len_0 or do_read_0 or do_write_0 or full_0 or empty_0 or bfull_0)
     case ({len_0,do_read_0,do_write_0})
       {6'h3f,2'b10}: begin
-	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 1;
+	become_full_0 <= 0; become_empty_0 <= 0; become_bfull_0 <= 1;
       end
       {6'h3e,2'b01}: begin
-	become_full_0 <= 1; become_empty_0 <= 0; become_BFULL_0 <= 1;
+	become_full_0 <= 1; become_empty_0 <= 0; become_bfull_0 <= 1;
       end
       {6'h37,2'b10}: begin
-	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 0;
+	become_full_0 <= 0; become_empty_0 <= 0; become_bfull_0 <= 0;
       end
       {6'h36,2'b01}: begin
-	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 1;
+	become_full_0 <= 0; become_empty_0 <= 0; become_bfull_0 <= 1;
       end
       {6'h01,2'b10}: begin
-	become_full_0 <= 0; become_empty_0 <= 1; become_BFULL_0 <= 0;
+	become_full_0 <= 0; become_empty_0 <= 1; become_bfull_0 <= 0;
       end
       {6'h00,2'b01}: begin
-	become_full_0 <= 0; become_empty_0 <= 0; become_BFULL_0 <= 0;
+	become_full_0 <= 0; become_empty_0 <= 0; become_bfull_0 <= 0;
       end
       default: begin
 	become_full_0 <= full_0; become_empty_0 <= empty_0;
-	become_BFULL_0 <= BFULL_0;
+	become_bfull_0 <= bfull_0;
       end
     endcase // case ({len_0,do_read_0,do_write_0})
 
-  always @(len_1 or do_read_1 or do_write_1 or full_1 or empty_1 or BFULL_1)
+  always @(len_1 or do_read_1 or do_write_1 or full_1 or empty_1 or bfull_1)
     case ({len_1,do_read_1,do_write_1})
       {6'h3f,2'b10}: begin
-	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 1;
+	become_full_1 <= 0; become_empty_1 <= 0; become_bfull_1 <= 1;
       end
       {6'h3e,2'b01}: begin
-	become_full_1 <= 1; become_empty_1 <= 0; become_BFULL_1 <= 1;
+	become_full_1 <= 1; become_empty_1 <= 0; become_bfull_1 <= 1;
       end
       {6'h37,2'b10}: begin
-	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 0;
+	become_full_1 <= 0; become_empty_1 <= 0; become_bfull_1 <= 0;
       end
       {6'h36,2'b01}: begin
-	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 1;
+	become_full_1 <= 0; become_empty_1 <= 0; become_bfull_1 <= 1;
       end
       {6'h01,2'b10}: begin
-	become_full_1 <= 0; become_empty_1 <= 1; become_BFULL_1 <= 0;
+	become_full_1 <= 0; become_empty_1 <= 1; become_bfull_1 <= 0;
       end
       {6'h00,2'b01}: begin
-	become_full_1 <= 0; become_empty_1 <= 0; become_BFULL_1 <= 0;
+	become_full_1 <= 0; become_empty_1 <= 0; become_bfull_1 <= 0;
       end
       default: begin
 	become_full_1 <= full_1; become_empty_1 <= empty_1;
-	become_BFULL_1 <= BFULL_1;
+	become_bfull_1 <= bfull_1;
       end
     endcase // case ({len_1,do_read_1,do_write_1})
 
-  always @(len_2 or do_read_2 or do_write_2 or full_2 or empty_2 or BFULL_2)
+  always @(len_2 or do_read_2 or do_write_2 or full_2 or empty_2 or bfull_2)
     case ({len_2,do_read_2,do_write_2})
       {6'h3f,2'b10}: begin
-	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 1;
+	become_full_2 <= 0; become_empty_2 <= 0; become_bfull_2 <= 1;
       end
       {6'h3e,2'b01}: begin
-	become_full_2 <= 1; become_empty_2 <= 0; become_BFULL_2 <= 1;
+	become_full_2 <= 1; become_empty_2 <= 0; become_bfull_2 <= 1;
       end
       {6'h37,2'b10}: begin
-	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 0;
+	become_full_2 <= 0; become_empty_2 <= 0; become_bfull_2 <= 0;
       end
       {6'h36,2'b01}: begin
-	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 1;
+	become_full_2 <= 0; become_empty_2 <= 0; become_bfull_2 <= 1;
       end
       {6'h01,2'b10}: begin
-	become_full_2 <= 0; become_empty_2 <= 1; become_BFULL_2 <= 0;
+	become_full_2 <= 0; become_empty_2 <= 1; become_bfull_2 <= 0;
       end
       {6'h00,2'b01}: begin
-	become_full_2 <= 0; become_empty_2 <= 0; become_BFULL_2 <= 0;
+	become_full_2 <= 0; become_empty_2 <= 0; become_bfull_2 <= 0;
       end
       default: begin
 	become_full_2 <= full_2; become_empty_2 <= empty_2;
-	become_BFULL_2 <= BFULL_2;
+	become_bfull_2 <= bfull_2;
       end
     endcase // case ({len_2,do_read_2,do_write_2})
 
-  always @(len_3 or do_read_3 or do_write_3 or full_3 or empty_3 or BFULL_3)
+  always @(len_3 or do_read_3 or do_write_3 or full_3 or empty_3 or bfull_3)
     case ({len_3,do_read_3,do_write_3})
       {6'h3f,2'b10}: begin
-	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 1;
+	become_full_3 <= 0; become_empty_3 <= 0; become_bfull_3 <= 1;
       end
       {6'h3e,2'b01}: begin
-	become_full_3 <= 1; become_empty_3 <= 0; become_BFULL_3 <= 1;
+	become_full_3 <= 1; become_empty_3 <= 0; become_bfull_3 <= 1;
       end
       {6'h37,2'b10}: begin
-	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 0;
+	become_full_3 <= 0; become_empty_3 <= 0; become_bfull_3 <= 0;
       end
       {6'h36,2'b01}: begin
-	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 1;
+	become_full_3 <= 0; become_empty_3 <= 0; become_bfull_3 <= 1;
       end
       {6'h01,2'b10}: begin
-	become_full_3 <= 0; become_empty_3 <= 1; become_BFULL_3 <= 0;
+	become_full_3 <= 0; become_empty_3 <= 1; become_bfull_3 <= 0;
       end
       {6'h00,2'b01}: begin
-	become_full_3 <= 0; become_empty_3 <= 0; become_BFULL_3 <= 0;
+	become_full_3 <= 0; become_empty_3 <= 0; become_bfull_3 <= 0;
       end
       default: begin
 	become_full_3 <= full_3; become_empty_3 <= empty_3;
-	become_BFULL_3 <= BFULL_3;
+	become_bfull_3 <= bfull_3;
       end
     endcase // case ({len_3,do_read_3,do_write_3})
 
@@ -643,10 +654,40 @@ module lsab_cw(input CLK,
   always @(posedge CLK)
     if (RST)
       begin
-	BFULL_0 <= become_BFULL_0;
-	BFULL_1 <= become_BFULL_1;
-	BFULL_2 <= become_BFULL_2;
-	BFULL_3 <= become_BFULL_3;
+	case (WRITE_FIFO) // gate depth of this construct was not modeled
+	  2'h0: begin
+	    BFULL <= become_bfull_0;
+	    DEVERR <= DEV_0_ERR;
+	    DEV_0_ERR_ACK <= DEVERRACK;
+	    DEV_1_ERR_ACK <= 0;
+	    DEV_2_ERR_ACK <= 0;
+	    DEV_3_ERR_ACK <= 0;
+	  end
+	  2'h1: begin
+	    BFULL <= become_bfull_1;
+	    DEVERR <= DEV_1_ERR;
+	    DEV_0_ERR_ACK <= 0;
+	    DEV_1_ERR_ACK <= DEVERRACK;
+	    DEV_2_ERR_ACK <= 0;
+	    DEV_3_ERR_ACK <= 0;
+	  end
+	  2'h2: begin
+	    BFULL <= become_bfull_2;
+	    DEVERR <= DEV_2_ERR;
+	    DEV_0_ERR_ACK <= 0;
+	    DEV_1_ERR_ACK <= 0;
+	    DEV_2_ERR_ACK <= DEVERRACK;
+	    DEV_3_ERR_ACK <= 0;
+	  end
+	  2'h3: begin
+	    BFULL <= become_bfull_3;
+	    DEVERR <= DEV_3_ERR;
+	    DEV_0_ERR_ACK <= 0;
+	    DEV_1_ERR_ACK <= 0;
+	    DEV_2_ERR_ACK <= 0;
+	    DEV_3_ERR_ACK <= DEVERRACK;
+	  end
+	endcase // case (WRITE_FIFO)
 
        empty_0 <= become_empty_0;
        full_0 <= become_full_0;

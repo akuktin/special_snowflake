@@ -108,7 +108,7 @@ module special_snowflake_core(input RST_MASTER,
   wire 	      w_s0_cr, w_s1_cr, w_s2_cr, w_s3_cr;
   wire 	      w_e0_cr, w_e1_cr, w_e2_cr, w_e3_cr;
   wire 	      w_i0_cr, w_i1_cr, w_i2_cr, w_i3_cr;
-  wire 	      w_f0_cw, w_f1_cw, w_f2_cw, w_f3_cw;
+  wire 	      w_bfull_cw, w_err_cw, w_errack_cw;
 
   wire [31:0] i_mcu_data_into, d_mcu_data_into;
 
@@ -413,25 +413,23 @@ module special_snowflake_core(input RST_MASTER,
 		   .OUT_1(data1_cw),
 		   .OUT_2(data2_cw),
 		   .OUT_3(data3_cw),
-		   .BFULL_0(w_f0_cw),
-		   .BFULL_1(w_f1_cw),
-		   .BFULL_2(w_f2_cw),
-		   .BFULL_3(w_f3_cw));
+		   .BFULL(w_bfull_cw),
+		   .DEV_0_ERR(err0_cw),
+		   .DEV_1_ERR(err1_cw),
+		   .DEV_2_ERR(err2_cw),
+		   .DEV_3_ERR(err3_cw),
+		   .DEV_0_ERR_ACK(errack0_cw),
+		   .DEV_1_ERR_ACK(errack1_cw),
+		   .DEV_2_ERR_ACK(errack2_cw),
+		   .DEV_3_ERR_ACK(errack3_cw),
+		   .DEVERR(w_err_cw),
+		   .DEVERRACK(w_errack_cw));
 
   hyper_mvblck_frdram empty(.CLK(CLK_n),
 			  .RST(mvblck_RST_empty),
-			  .LSAB_0_FULL(w_f0_cw),
-			  .LSAB_1_FULL(w_f1_cw),
-			  .LSAB_2_FULL(w_f2_cw),
-			  .LSAB_3_FULL(w_f3_cw),
-			  .DEV_0_ERR(err0_cw),
-			  .DEV_1_ERR(err1_cw),
-			  .DEV_2_ERR(err2_cw),
-			  .DEV_3_ERR(err3_cw),
-			  .DEV_0_ERR_ACK(errack0_cw),
-			  .DEV_1_ERR_ACK(errack1_cw),
-			  .DEV_2_ERR_ACK(errack2_cw),
-			  .DEV_3_ERR_ACK(errack3_cw),
+			  .LSAB_FULL(w_bfull_cw),
+			  .LSAB_DEVERR(w_err_cw),
+			  .LSAB_DEVERRACK(w_errack_cw),
 			  .LSAB_WRITE(w_write_cw),
 			  .LSAB_SECTION(w_write_fifo_cw),
 			  .START_ADDRESS(w_start_address),
