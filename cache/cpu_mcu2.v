@@ -45,7 +45,6 @@ module snowball_cache(input CPU_CLK,
 			    cache_en_sticky = 1'b0, cache_busy_real = 1'b0;
   reg 			    mcu_responded = 1'b0, mcu_responded_reg = 1'b0;
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
-  reg [31:0] 		    prev_paddr_block;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we = 1'b0, tlb_we_reg = 1'b0,
 			    mem_do_act_reg, mcu_active_delay = 1'b0,
