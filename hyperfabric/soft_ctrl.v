@@ -246,146 +246,144 @@ module Gremlin(input CLK,
 
   always @(posedge CLK)
     if (RST)
-      begin
-	irq_strobe[1] <= irq_strobe[0];
+    begin
+      irq_strobe[1] <= irq_strobe[0];
 
-	begin
-	  ip <= ip_nxt;
-	  case (instr_f[14:13])
-	    2'h0: memory_operand <= d_r_data;
-	    2'h1: memory_operand <= ~d_r_data;
-	    2'h2: memory_operand <= 0; // together with 0xe, fakes a NOP
-	    2'h3: memory_operand <= 16'hffff;
-	  endcase // case (instr_f[14:13])
+      ip <= ip_nxt;
+      case (instr_f[14:13])
+	2'h0: memory_operand <= d_r_data;
+	2'h1: memory_operand <= ~d_r_data;
+	2'h2: memory_operand <= 0; // together with 0xe, fakes a NOP
+	2'h3: memory_operand <= 16'hffff;
+      endcase // case (instr_f[14:13])
 
-	  index_capture <= index_reg;
-	  if (instr_o[11:8] != 4'hc)
-	    index_reg <= index;
+      index_capture <= index_reg;
+      if (instr_o[11:8] != 4'hc)
+	index_reg <= index;
 
-	  waitkill <= (instr_f[11:8] == 4'h8) || (instr_o[11:8] == 4'h8);
-	  advance_ip <= !((instr[11:8] == 4'hc) || (instr_f[11:8] == 4'hc));
-	  if (waitkill || !advance_ip)
-	    instr_f <= {1'b0,2'h2,1'b0,4'hd,8'h0}; // and 0x0000;
-	  else
-	    instr_f <= instr;
-	  if (instr_o[11:8] != 4'h8)
-	    instr_o <= instr_f;
-	  else
-	    if (accumulator == 0)
-		// accumulator will be nonzero by the time the instruction
-		// hits execution
+      waitkill <= (instr_f[11:8] == 4'h8) || (instr_o[11:8] == 4'h8);
+      advance_ip <= !((instr[11:8] == 4'hc) || (instr_f[11:8] == 4'hc));
+      if (waitkill || !advance_ip)
+	instr_f <= {1'b0,2'h2,1'b0,4'hd,8'h0}; // and 0x0000;
+      else
+	instr_f <= instr;
+      if (instr_o[11:8] != 4'h8)
+	instr_o <= instr_f;
+      else
+	if (accumulator == 0)
+	  // accumulator will be nonzero by the time the instruction
+	  // hits execution
 
-		// cmp/and 0x0000 {instr_o[7:0]};
-		instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
+	  // cmp/and 0x0000 {instr_o[7:0]};
+	  instr_o <= {1'b1,2'h2,1'b0,4'hd,instr_o[7:0]};
 
-	  write_output_reg <= (instr_o[11:8] == 4'hb);
-	  write_output_desc <= instr_o[2:0];
-	  acc_output <= accumulator;
+      write_output_reg <= (instr_o[11:8] == 4'hb);
+      write_output_desc <= instr_o[2:0];
+      acc_output <= accumulator;
 
-	  case (instr_f[11:8])
-	    4'h0: add_carry <= 0;
-	    4'h1: add_carry <= 1;
-	    4'h2: add_carry <= save_carry;
-	    4'h3: add_carry <= cur_carry;
-	  endcase // case (instr_f[11:8])
-	  case (instr_o[11:8])
-	    4'h0: begin
-	      accumulator <= accumulator_adder;
-	      save_carry <= cur_carry;
-	    end
-	    4'h1: begin
-	      accumulator <= accumulator_adder;
-	      save_carry <= cur_carry;
-	    end
-	    4'h2: begin
-	      accumulator <= accumulator_adder;
-	      save_carry <= cur_carry;
-	    end
-	    4'h3: begin
-	      accumulator <= accumulator_adder;
-	      save_carry <= cur_carry;
-	    end
+      case (instr_f[11:8])
+	4'h0: add_carry <= 0;
+	4'h1: add_carry <= 1;
+	4'h2: add_carry <= save_carry;
+	4'h3: add_carry <= cur_carry;
+      endcase // case (instr_f[11:8])
+      case (instr_o[11:8])
+	4'h0: begin
+	  accumulator <= accumulator_adder;
+	  save_carry <= cur_carry;
+	end
+	4'h1: begin
+	  accumulator <= accumulator_adder;
+	  save_carry <= cur_carry;
+	end
+	4'h2: begin
+	  accumulator <= accumulator_adder;
+	  save_carry <= cur_carry;
+	end
+	4'h3: begin
+	  accumulator <= accumulator_adder;
+	  save_carry <= cur_carry;
+	end
 
-	    4'h4: accumulator <= input_reg_0[instr_o[13]];
-	    4'h5: accumulator <= input_reg_1[instr_o[13]];
-//	    4'h6 // store
-	    4'h7: begin // swap (store and read)
-	      accumulator <= memory_operand;
-	    end
+	4'h4: accumulator <= input_reg_0[instr_o[13]];
+	4'h5: accumulator <= input_reg_1[instr_o[13]];
+//	4'h6 // store
+	4'h7: begin // swap (store and read)
+	  accumulator <= memory_operand;
+	end
 
-	    4'h8: begin // wait
-	      accumulator <= accumulator -1;
-	    end
-	    4'h9: begin
-	      irq_strobe[0] <= !irq_strobe[0]; // provisional
-	      IRQ_DESC <= accumulator[15:13]; // maybe
-	      accumulator <= memory_operand;
-	    end
-	    // fucking load instruction, bitch!
-	    4'ha: accumulator <= memory_operand;
-	    4'hb: begin
-	      if ((!instr_o[13]) && (accumulator[13:2] != 0))// provisional
-		begin
-		  issue_trans_req <= !issue_trans_req;
-		  accumulator <= memory_operand;
-		end
-	    end
-
-	    4'hc: begin
-	      index_reg <= accumulator[7:0];
-	      accumulator <= memory_operand;
-	    end
-	    4'hd: accumulator <= accumulator & memory_operand;
-	    4'he: accumulator <= accumulator | memory_operand;
-	    4'hf: accumulator <= accumulator ^ memory_operand;
-	  endcase // case (instr_o[11:8])
-	  if (write_output_reg)
+	4'h8: begin // wait
+	  accumulator <= accumulator -1;
+	end
+	4'h9: begin
+	  irq_strobe[0] <= !irq_strobe[0]; // provisional
+	  IRQ_DESC <= accumulator[15:13]; // maybe
+	  accumulator <= memory_operand;
+	end
+	// fucking load instruction, bitch!
+	4'ha: accumulator <= memory_operand;
+	4'hb: begin
+	  if ((!instr_o[13]) && (accumulator[13:2] != 0))// provisional
 	    begin
-	      if (issue_trans_req != issue_trans_ack)
-		begin
-		  issue_trans_ack <= issue_trans_req;
-		  trans_req <= trans_req ^ {write_output_desc[2],
-					    !write_output_desc[2]};
-		end
-	      if (write_output_desc[2] == 1'b1)
-		begin
-		  case (write_output_desc[1:0])
-		    2'h0: begin
-		      reg_page_lo_1 <= acc_output[15:9];
-		      reg_start_1 <= acc_output[8:0];
-		    end
-		    2'h1: begin
-		      reg_page_hi_1 <= acc_output;
-		    end
-		    2'h2: begin
-		      reg_opon_data_1 <= acc_output[0];
-		      reg_rdmem_op_1 <= acc_output[1];
-		      reg_count_req_1 <= acc_output[13:2];
-		      reg_blck_sec_1 <= acc_output[15:14];
-		    end
-		  endcase // case (instr[1:0])
-		end
-	      else
-		begin
-		  case (write_output_desc[1:0])
-		    2'h0: begin
-		      reg_page_lo_0 <= acc_output[15:9];
-		      reg_start_0 <= acc_output[8:0];
-		    end
-		    2'h1: begin
-		      reg_page_hi_0 <= acc_output;
-		    end
-		    2'h2: begin
-		      reg_opon_data_0 <= acc_output[0];
-		      reg_rdmem_op_0 <= acc_output[1];
-		      reg_count_req_0 <= acc_output[13:2];
-		      reg_blck_sec_0 <= acc_output[15:14];
-		    end
-		  endcase // case (instr[1:0])
-		end
+	      issue_trans_req <= !issue_trans_req;
+	      accumulator <= memory_operand;
 	    end
 	end
-      end
+
+	4'hc: begin
+	  index_reg <= accumulator[7:0];
+	  accumulator <= memory_operand;
+	end
+	4'hd: accumulator <= accumulator & memory_operand;
+	4'he: accumulator <= accumulator | memory_operand;
+	4'hf: accumulator <= accumulator ^ memory_operand;
+      endcase // case (instr_o[11:8])
+      if (write_output_reg)
+	begin
+	  if (issue_trans_req != issue_trans_ack)
+	    begin
+	      issue_trans_ack <= issue_trans_req;
+	      trans_req <= trans_req ^ {write_output_desc[2],
+					!write_output_desc[2]};
+	    end
+	  if (write_output_desc[2] == 1'b1)
+	    begin
+	      case (write_output_desc[1:0])
+		2'h0: begin
+		  reg_page_lo_1 <= acc_output[15:9];
+		  reg_start_1 <= acc_output[8:0];
+		end
+		2'h1: begin
+		  reg_page_hi_1 <= acc_output;
+		end
+		2'h2: begin
+		  reg_opon_data_1 <= acc_output[0];
+		  reg_rdmem_op_1 <= acc_output[1];
+		  reg_count_req_1 <= acc_output[13:2];
+		  reg_blck_sec_1 <= acc_output[15:14];
+		end
+	      endcase // case (instr[1:0])
+	    end
+	  else
+	    begin
+	      case (write_output_desc[1:0])
+		2'h0: begin
+		  reg_page_lo_0 <= acc_output[15:9];
+		  reg_start_0 <= acc_output[8:0];
+		end
+		2'h1: begin
+		  reg_page_hi_0 <= acc_output;
+		end
+		2'h2: begin
+		  reg_opon_data_0 <= acc_output[0];
+		  reg_rdmem_op_0 <= acc_output[1];
+		  reg_count_req_0 <= acc_output[13:2];
+		  reg_blck_sec_0 <= acc_output[15:14];
+		end
+	      endcase // case (instr[1:0])
+	    end // else: !if(write_output_desc[2] == 1'b1)
+	end // if (write_output_reg)
+    end // if (RST)
 
   assign BLCK_ISSUE = issue_op[0] ^ issue_op[1];
 
