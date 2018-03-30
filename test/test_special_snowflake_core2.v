@@ -1230,7 +1230,7 @@ module GlaDOS;
 //`include "test_memops.v"
 //`include "test_dmaops0.v"
 //`include "test_dmaops2.v"
-`include "test_dmaops3.v"
+//`include "test_dmaops3.v"
 
 //`include "test_tt_00.v"
 //`include "test_tt_01.v"
@@ -1274,6 +1274,6 @@ module GlaDOS;
 //`include "test_gremlin_delay.v"
 //`include "test_gremlin_waitacc.v"
 
-//`include "test_softctrl_parttest_00.v"
+`include "test_softctrl_parttest_00.v"
 
 endmodule // GlaDOS

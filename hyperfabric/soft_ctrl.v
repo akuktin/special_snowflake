@@ -91,8 +91,8 @@ module Gremlin(input CLK,
 	     EN_STB_2_pre = 1'b0, EN_STB_3_pre = 1'b0;
 
   wire [2:0] carousel_section;
-  wire 	     refresh_ctr_mismatch, blck_abort,
-	     carousel_section_0, carousel_section_1, carousel_section_2;
+  wire 	     refresh_ctr_mismatch, blck_abort;
+  reg 	     carousel_section_02, carousel_section_1mb;
 
   reg [15:0] input_reg_0[1:0], input_reg_1[1:0];
 
@@ -392,11 +392,6 @@ module Gremlin(input CLK,
   assign blck_abort = BLCK_ABRUPT_STOP || BLCK_FRDRAM_DEVERR;
 
   assign carousel_section = small_carousel[7:5];
-  assign carousel_section_0 = (carousel_section == 3'h0);
-  assign carousel_section_1 = (carousel_section == 3'h1) ||
-			      (carousel_section == 3'h2);
-  assign carousel_section_2 = (carousel_section == 3'h3) ||
-			      (carousel_section == 3'h4);
 
   always @(posedge CLK)
     begin
@@ -435,16 +430,21 @@ module Gremlin(input CLK,
           if (trg_gb_0 && time_rfrs)
             refresh_req <= !refresh_req;
 
-	  if (refresh_ctr_mismatch &&
-	      ! (trans_active || ready_trans))
+	  if (refresh_ctr_mismatch && !trans_active)
 	    begin
 	      MCU_REFRESH_STROBE <= !MCU_REFRESH_STROBE;
 	    end
 	end // if (RST)
 
+      carousel_section_02 <= (carousel_section == 3'h0) ||
+			     ((carousel_section == 3'h3) ||
+			      (carousel_section == 3'h4));
+      carousel_section_1mb <= ((carousel_section == 3'h1) ||
+			       (carousel_section == 3'h2)) &&
+			      time_mb;
+
       if ((trans_req[1] != trans_ack[1]) &&
-	  (carousel_section_0 || carousel_section_2) &&
-	  !(trans_active || ready_trans))
+	  carousel_section_02 && !trans_active)
 	begin
 	  rdmem_op <= reg_rdmem_op_1;
 	  opon_data <= reg_opon_data_1;
@@ -455,12 +455,12 @@ module Gremlin(input CLK,
 
 	  trans_ack[1] <= !trans_ack[1];
 	  ready_trans <= 1;
+	  trans_active <= 1;
 	  active_trans_thistrans <= 1;
 	end // if ((trans_req[1] != trans_ack[1]) &&...
 
       if ((trans_req[0] != trans_ack[0]) &&
-	  carousel_section_1 && time_mb &&
-	  !(trans_active || ready_trans))
+	  carousel_section_1mb && !trans_active)
 	begin
 	  rdmem_op <= reg_rdmem_op_0;
 	  opon_data <= reg_opon_data_0;
@@ -471,12 +471,12 @@ module Gremlin(input CLK,
 
 	  trans_ack[0] <= !trans_ack[0];
 	  ready_trans <= 1;
+	  trans_active <= 1;
 	  active_trans_thistrans <= 0;
 	end // if ((trans_req[0] != trans_ack[0]) &&...
 
 	if (ready_trans)
 	  begin
-	    trans_active <= 1;
 	    ready_trans <= 0;
 	    issue_op_new <= !issue_op_new;
 
