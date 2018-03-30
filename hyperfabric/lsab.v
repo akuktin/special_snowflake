@@ -402,7 +402,9 @@ module lsab_cw(input CLK,
 	      output 	    DEV_0_ERR_ACK,
 	      output 	    DEV_1_ERR_ACK,
 	      output 	    DEV_2_ERR_ACK,
-	      output 	    DEV_3_ERR_ACK);
+	      output 	    DEV_3_ERR_ACK,
+	      output 	    DEVERR,
+	      input 	    DEVERRACK);
   reg [31:0] 		    OUT_0 = 32'd0, OUT_1 = 32'd0,
 			    OUT_2 = 32'd0, OUT_3 = 32'd0;
   reg 			    BFULL = 1'b0;
@@ -410,6 +412,7 @@ module lsab_cw(input CLK,
 			    DEV_1_ERR_ACK = 1'b0,
 			    DEV_2_ERR_ACK = 1'b0,
 			    DEV_3_ERR_ACK = 1'b0;
+  reg 			    DEVERR = 1'b0;
 
   reg               empty_0 = 1'b1, empty_1 = 1'b1,
 		    empty_2 = 1'b1, empty_3 = 1'b1;
