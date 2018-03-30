@@ -134,7 +134,7 @@ module data_encload(input CLK,
 
 	preamble_counter <= 0;
 	crc_counter <= 0;
-	data_conter <= 2'h1; // notice the dislocation
+	data_counter <= 2'h1; // notice the dislocation
       end
     else
       if (DO_GO)
@@ -245,6 +245,7 @@ module send_integration(input CLK,
   wire			run_enc, octet, end_data;
   wire			bit_interconnect, endofshow;
   wire [31:0]		data_interconnect;
+  reg 			DONE;
 
   assign CRC_RST = RST;
 
