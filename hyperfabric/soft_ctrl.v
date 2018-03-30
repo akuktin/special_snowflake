@@ -245,11 +245,14 @@ module Gremlin(input CLK,
   reg [1:0]  reg_blck_sec_0, reg_blck_sec_1;
 
   always @(posedge CLK)
-    if (RST)
     begin
-      irq_strobe[1] <= irq_strobe[0];
+      if (RST)
+        begin
+          ip <= ip_nxt;
+          advance_ip <= !((instr[11:8] == 4'hc) || (instr_f[11:8] == 4'hc));
+        end
 
-      ip <= ip_nxt;
+      irq_strobe[1] <= irq_strobe[0];
       case (instr_f[14:13])
 	2'h0: memory_operand <= d_r_data;
 	2'h1: memory_operand <= ~d_r_data;
@@ -262,7 +265,6 @@ module Gremlin(input CLK,
 	index_reg <= index;
 
       waitkill <= (instr_f[11:8] == 4'h8) || (instr_o[11:8] == 4'h8);
-      advance_ip <= !((instr[11:8] == 4'hc) || (instr_f[11:8] == 4'hc));
       if (waitkill || !advance_ip)
 	instr_f <= {1'b0,2'h2,1'b0,4'hd,8'h0}; // and 0x0000;
       else
