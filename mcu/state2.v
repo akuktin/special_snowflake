@@ -349,7 +349,7 @@ module outputs(input 		 CLK_n,
 	data_gapholder <= DATA_W;
 	dq_predriver <= data_gapholder;
 
-	we_gapholder <= WE_ARRAY;
+	we_gapholder <= ~WE_ARRAY;
 	we_longholder <= we_gapholder[1:0];
 
 	high_bits <= did_issue_write;
@@ -427,8 +427,8 @@ module ddr_data_pins(input CLK_n,
 	     .INPUT_CLK(1'b0),
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
-	     .D_OUT_0(!dm_predriver[1]),
-	     .D_OUT_1(!dm_predriver[0]),
+	     .D_OUT_0(dm_predriver[1]),
+	     .D_OUT_1(dm_predriver[0]),
 	     .D_IN_0(),
 	     .D_IN_1());
 
@@ -440,8 +440,8 @@ module ddr_data_pins(input CLK_n,
 	     .INPUT_CLK(1'b0),
 	     .OUTPUT_CLK(CLK_dn),
 	     .OUTPUT_ENABLE(dqdm_z_prectrl),
-	     .D_OUT_0(!dm_predriver[1]),
-	     .D_OUT_1(!dm_predriver[0]),
+	     .D_OUT_0(dm_predriver[1]),
+	     .D_OUT_1(dm_predriver[0]),
 	     .D_IN_0(),
 	     .D_IN_1());
 
