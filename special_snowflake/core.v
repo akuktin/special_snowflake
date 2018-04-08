@@ -88,8 +88,10 @@ module special_snowflake_core(input RST_MASTER,
   // --------------------------------------------------------
   reg 		rst_cpu_pre = 1'b0 /* synthesis syn_preserve=1 */;
   reg 		rst_cpu = 1'b0 /* synthesis syn_preserve=1 */;
-  reg 		rst_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
-  reg		rst_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg 		rst_sys_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_sys_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg 		rst_cpu_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
+  reg		rst_cpu_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
   reg 		rst_i_mcu = 1'b0 /* synthesis syn_preserve=1 */;
   reg		rst_d_mcu = 1'b0 /* synthesis syn_preserve=1 */;
   reg		rst_lsab_in = 1'b0 /* synthesis syn_preserve=1 */;
@@ -241,7 +243,8 @@ module special_snowflake_core(input RST_MASTER,
 
   snowball_cache i_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
-			 .RST(rst_i_cache),
+			 .RST_CPU(rst_cpu_i_cache),
+			 .RST_SYS(rst_sys_i_cache),
 			 .cache_precycle_addr(i_cache_pc_addr),
 			 .cache_datao(0), // CPU perspective
 			 .cache_datai(i_cache_datai), // CPU perspective
@@ -274,7 +277,8 @@ module special_snowflake_core(input RST_MASTER,
 
   snowball_cache d_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
-			 .RST(rst_d_cache),
+			 .RST_CPU(rst_cpu_i_cache), // wonky signal, best
+			 .RST_SYS(rst_sys_i_cache), // wonky signal, best
 			 .cache_precycle_addr(d_cache_pc_addr),
 			 .cache_datao(d_cache_datao), // CPU perspective
 			 .cache_datai(d_cache_datai), // CPU perspective
@@ -517,6 +521,7 @@ module special_snowflake_core(input RST_MASTER,
 	rst_i_mcu <= 1; rst_d_mcu <= 1;
 	rst_lsab_in <= 1; rst_lsab_out <= 1;
 	rst_soft_core <= 1;
+	rst_sys_i_cache <= 1; rst_sys_d_cache <= 1;
       end
 
   always @(posedge CPU_CLK)
@@ -524,8 +529,8 @@ module special_snowflake_core(input RST_MASTER,
       rst_cpu_pre <= RST_CPU_TRANS;
 
       rst_cpu <= rst_cpu_pre;
-      rst_i_cache <= rst_cpu_pre;
-      rst_d_cache <= rst_cpu_pre;
+      rst_cpu_i_cache <= rst_cpu_pre;
+      rst_cpu_d_cache <= rst_cpu_pre;
 
       irq_strobe_slow <= irq_strobe;
       irq_strobe_slow_prev <= irq_strobe_slow;
