@@ -503,7 +503,7 @@ module Steelhorse(input sampler_CLK,
   reg [15:0]		rnd, intrfc_reg_send;
   reg [9:0]		intrfc;
   reg			signal1, signal2;
-  reg 			intRUN;
+  reg 			intRUN, RUN_recv;
 
   wire			rnd_first, abandon, sendreg_an;
   wire [10:0]		recv_len;
@@ -543,15 +543,19 @@ module Steelhorse(input sampler_CLK,
 	intrfc <= 0;
 	signal1 <= 0;
 	intRUN <= 0;
+	RUN_recv <= 0;
       end
     else
+      begin
+      RUN_recv <= RUN;
       if ((signal1 == signal2) &&
-	  (RUN != intRUN))
+	  (RUN_recv != intRUN))
 	begin
 	  intrfc <= INTRFC_DATAIN[9:0];
 	  signal1 <= ~signal1;
 	  intRUN <= ~intRUN;
 	end
+      end
 
   always @(posedge send_CLK)
     if (!RST)
