@@ -377,16 +377,15 @@ module outputs(input 		 CLK_n,
 	  dqs_z_prectrl <= 0;
 	else
 	  dqs_z_prectrl <= 1;
+
+	dq_data_r <= dq_data_w[31:16];
       end
 
   always @(negedge CLK_n)
-      DATA_R <= {dq_data_w[31:16],dq_data_r};
+      DATA_R <= {dq_data_r,dq_data_w[15:0]};
 
   always @(negedge CLK_dn)
-    begin
       dqs_z_ctrl <= dqs_z_prectrl;
-      dq_data_r <= dq_data_w[15:0];
-    end
 
 endmodule // outputs
 
