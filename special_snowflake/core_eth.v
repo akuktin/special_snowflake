@@ -121,7 +121,7 @@ module clockblock(input REF_CLK,
                     .RESET(pll_rst),
                     .LOCK(frst_rst));
 
-  ss_pll_1_02 pll_1(.REFERENCECLK(REF_CLK),
+  ss_pll_1_03 pll_1(.REFERENCECLK(REF_CLK),
                     .PLLOUTCORE(CPU_CLK),
                     .PLLOUTGLOBAL(),
                     .RESET(pll_rst),
