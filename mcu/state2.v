@@ -347,8 +347,6 @@ module outputs(input 		 CLK_n,
   always @(posedge CLK_n)
       begin
 	DATA_W <= port_DATA_W;
-	data_gapholder <= DATA_W;
-	dq_predriver <= data_gapholder;
 
 	we_gapholder <= ~WE_ARRAY;
 	we_longholder <= we_gapholder[1:0];
@@ -385,7 +383,15 @@ module outputs(input 		 CLK_n,
       DATA_R <= {dq_data_r,dq_data_w[15:0]};
 
   always @(negedge CLK_dn)
+    begin
       dqs_z_ctrl <= dqs_z_prectrl;
+
+      data_gapholder <= DATA_W;
+      dq_predriver[15:0] <= data_gapholder[15:0];
+    end
+
+  always @(posedge CLK_dn)
+    dq_predriver[31:16] <= data_gapholder[31:16];
 
 endmodule // outputs
 
