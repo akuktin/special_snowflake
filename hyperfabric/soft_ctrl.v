@@ -484,7 +484,7 @@ module Gremlin(input CLK,
 	    MCU_REQUEST_ALIGN <= {opon_data,~opon_data};
 	    // perhaps
 	    RST_MVBLCK <= {rdmem_op,~rdmem_op};
-	    SWCH_ISEL <= rdmem_op ? 3'b100 : {1'b0,opon_data,~opon_data};
+	    SWCH_ISEL <= rdmem_op ? 3'b001 : {2'b01,~opon_data};
 	    SWCH_OSEL <= rdmem_op ? {1'b0,opon_data,~opon_data} : 3'b100;
 	  end // if (trans_activate &&...
 

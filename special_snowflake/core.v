@@ -328,7 +328,7 @@ module special_snowflake_core(input RST_MASTER,
 		 .aexm_icache_cache_busy(i_cache_busy),
 		 .aexm_dcache_cache_busy(d_cache_busy));
 
-  trans_lsab hyperfabric_switch(.CLK(CLK_n),
+  trans_fast hyperfabric_switch(.CLK(CLK_n),
 				.out_0(i_mcu_data_into),
 				.out_1(d_mcu_data_into),
 				.out_2(w_in_cw),
@@ -339,9 +339,6 @@ module special_snowflake_core(input RST_MASTER,
 				.in_1(d_user_req_dataout),
 				.in_2(w_out_cr),
 				.in_3(0),
-				.in_4(0), .in_5(0),
-				.in_6(0), .in_7(0),
-				.lsab(0),
 				.isel({5'h0,w_isel}),
 				.osel({8'hff,5'h0,w_osel}));
 
