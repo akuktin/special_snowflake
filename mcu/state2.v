@@ -308,9 +308,6 @@ module outputs(input 		 CLK_n,
 	       output [31:0] DATA_R,
 	       output 	     UDM,
 	       output 	     LDM);
-  reg [31:0] 		     DATA_R = 32'd0;
-
-
   reg [31:0] 			 data_gapholder, dq_predriver,
 				 DATA_W;
   reg [3:0] 			 we_gapholder;
@@ -375,12 +372,14 @@ module outputs(input 		 CLK_n,
 	  dqs_z_prectrl <= 0;
 	else
 	  dqs_z_prectrl <= 1;
-
-	dq_data_r <= dq_data_w[31:16];
       end
 
+  assign DATA_R = {dq_data_r,dq_data_w[15:0]};
+
   always @(negedge CLK_n)
-      DATA_R <= {dq_data_r,dq_data_w[15:0]};
+    begin
+      dq_data_r <= dq_data_w[31:16];
+    end
 
   always @(negedge CLK_dn)
     begin

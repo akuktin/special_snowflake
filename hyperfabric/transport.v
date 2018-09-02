@@ -218,7 +218,8 @@ module trans_fast(input CLK,
   wire [31:0] 		out_block_0, out_block_1, out_block_2, out_block_3,
 			out_block_4, out_block_5, out_block_6, out_block_7;
 
-  wire [31:0] 		s_gate, f_gate;
+  wire [31:0] 		s_gate /* synthesis syn_keep=1 */;
+  wire [31:0] 		f_gate /* synthesis syn_keep=1 */;
   wire 			sel_high, sel_low;
 
   assign osel_0 = osel[0]; assign omux_0 = osel[8];
