@@ -32,7 +32,7 @@ module snowball_cache(input CPU_CLK,
 		      output 	    MMU_FAULT,
 		      input 	    WE_TLB);
   reg 					MMU_FAULT = 1'b0, cache_busy = 1'b0,
-					mem_do_act = 1'b0,
+					mem_do_act = 1'b0, mem_we = 1'b0,
 					dma_wrte = 1'b0, dma_read = 1'b0;
   reg [31:0] 				cache_datai = 32'd0,
 					mem_addr = 32'd0,
@@ -56,7 +56,7 @@ module snowball_cache(input CPU_CLK,
 			    mandatory_lookup_exp = 1'b0,
 			    mandatory_lookup_capture, datain_mux_dma,
 			    cache_prev_we = 1'b0, mcu_active = 1'b0,
-			    mcu_active_reg = 1'b0, op_type_w = 1'b0,
+			    mcu_active_reg = 1'b0,
 			    cache_cycle_force_miss_n;
   reg [2:0] 		    read_counter = 3'h0;
   reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
@@ -266,7 +266,6 @@ module snowball_cache(input CPU_CLK,
 	mandatory_lookup_sig_recv <= mandatory_lookup_sig;
       end
 
-  assign mem_we = (op_type_w) && (!mem_ack);
   assign mem_dataintocpu = datain_mux_dma ?
 			   dma_data_read_reg : mem_datafrommem;
 
@@ -322,7 +321,7 @@ module snowball_cache(input CPU_CLK,
 	    mem_addr <= w_addr_recv;
 	    mcu_we <= w_we_recv;
 	    tlb_we_reg <= w_tlb_recv;
-	    op_type_w <= w_we_recv || w_tlb_recv;
+	    mem_we <= w_we_recv || w_tlb_recv;
 	  end
 	else
 	  begin
@@ -331,6 +330,8 @@ module snowball_cache(input CPU_CLK,
 		mem_do_act <= 0;
 		mem_dataintomem <= 0;
 	      end
+	    if (mem_ack)
+	      mem_we <= 0;
 	    if (dma_wrte_ack)
 	      dma_wrte <= 0;
 	    if (dma_read_ack)
@@ -340,7 +341,7 @@ module snowball_cache(input CPU_CLK,
 	mem_do_act_reg <= mem_do_act;
 
 	if ((mem_ack || dma_read_ack) &&
-	    (! op_type_w))
+	    (! mem_we))
 	  read_counter <= 3'd3;
 	else
 	  if (read_counter != 3'd0)
@@ -364,7 +365,7 @@ module snowball_cache(input CPU_CLK,
 	      dma_data_read_reg <= dma_data_read;
 	  end
 
-	if (((mem_ack || dma_wrte_ack) && op_type_w) ||
+	if (((mem_ack || dma_wrte_ack) && mem_we) ||
 	    (capture_data))
 	  mcu_responded_trans <= !mcu_responded_trans;
       end
