@@ -62,8 +62,6 @@ module snowball_cache(input CPU_CLK,
 			    w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv, dma_data_read_reg = 0;
   reg [7:0] 		    w_addr, cache_prev_idx;
-  reg [23:0] 		    wctag_data_forread_trans,
-			    wctag_data_forread_recv, wctag_data_forread;
 
   wire [31:0] 		    data_cache, wdata_data, wctag_data,
 			    mem_dataintocpu;
@@ -208,7 +206,6 @@ module snowball_cache(input CPU_CLK,
 	  w_data_trans <= data_tomem_trans;
 	  w_we_trans <= cache_cycle_we;
 	  w_tlb_trans <= tlb_cycle_we;
-	  wctag_data_forread_trans <= {vmem_rsp_tag,tlb_idx};
 	end
 
 	if (mem_lookup) // 4 signals and 3 compounds
@@ -274,11 +271,11 @@ module snowball_cache(input CPU_CLK,
 
   assign wdata_data = mem_dataintomem | mem_dataintocpu;
   /* BRAINWAVE: wdata_we could actually be just mcu_active_delay, and
-   *            wctag_data could just be mem_addr[31:8]. Much simpler,
-   *            same overall functionality. */
-  assign wdata_we = (mcu_active_delay && mcu_we) ||
+   *            wctag_data could just be mem_addr[31:8] (implemented).
+   *            Much simpler, same overall functionality. */
+  assign wdata_we = (mcu_active_delay) ||
 		    (mcu_valid_data);
-  assign wctag_data = mcu_we ? mem_addr[31:8] : wctag_data_forread;
+  assign wctag_data = mem_addr[31:8];
   assign tlb_we = mcu_active_delay && tlb_we_reg;
   assign op_type_w = (mcu_we || tlb_we_reg);
 
@@ -308,7 +305,6 @@ module snowball_cache(input CPU_CLK,
 	  w_addr_recv <= w_addr_trans;
 	  w_we_recv <= w_we_trans;
 	  w_tlb_recv <= w_tlb_trans;
-	  wctag_data_forread_recv <= wctag_data_forread_trans;
 	end
 
 	if (mcu_active)
@@ -326,7 +322,6 @@ module snowball_cache(input CPU_CLK,
 	    mem_addr <= w_addr_recv;
 	    mcu_we <= w_we_recv;
 	    tlb_we_reg <= w_tlb_recv;
-	    wctag_data_forread <= wctag_data_forread_recv;
 	  end
 	else
 	  begin
