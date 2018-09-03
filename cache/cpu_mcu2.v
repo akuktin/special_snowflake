@@ -335,17 +335,15 @@ module snowball_cache(input CPU_CLK,
 		mem_do_act <= 0;
 		mem_dataintomem <= 0;
 	      end
-	    if (dma_wrte && dma_wrte_ack) // do I really need this?
-                                          // maybe just use the ack signal??
+	    if (dma_wrte_ack)
 	      dma_wrte <= 0;
-	    if (dma_read && dma_read_ack) // DIRNT ?
+	    if (dma_read_ack)
 	      dma_read <= 0;
 	  end
 
 	mem_do_act_reg <= mem_do_act;
 
-	if (((mem_do_act_reg && mem_ack) || // DIRNT ?
-	     (dma_read && dma_read_ack)) && // DIRNT ?
+	if ((mem_ack || dma_read_ack) &&
 	    (! op_type_w))
 	  read_counter <= 3'd3;
 	else
@@ -366,12 +364,11 @@ module snowball_cache(input CPU_CLK,
 	    if (mcu_valid_data)
 	      data_mcu_trans_other <= mem_dataintocpu;
 
-	    if (dma_read && dma_read_ack) // DIRNT ?
+	    if (dma_read_ack)
 	      dma_data_read_reg <= dma_data_read;
 	  end
 
-	if ((((mem_do_act && mem_ack) || // DIRNT ?
-	      (dma_wrte && dma_wrte_ack)) && op_type_w) || // DIRNT ?
+	if (((mem_ack || dma_wrte_ack) && op_type_w) ||
 	    (capture_data))
 	  mcu_responded_trans <= !mcu_responded_trans;
       end

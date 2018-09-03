@@ -3,8 +3,8 @@ module Gremlin(input CLK,
 		    // ---------------------
 	       input 		 READ_CPU,
 	       input 		 WRITE_CPU,
-	       output reg 	 READ_CPU_ACK,
-	       output reg 	 WRITE_CPU_ACK,
+	       output 		 READ_CPU_ACK,
+	       output 		 WRITE_CPU_ACK,
 	       input [2:0] 	 ADDR_CPU,
 	       input [63:0] 	 IN_CPU,
 	       output reg [31:0] OUT_CPU,
@@ -48,6 +48,9 @@ module Gremlin(input CLK,
 	       output reg [23:0] LEN_3,
 	       output reg 	 DIR_3,
 	       output 		 EN_STB_3);
+  reg 				 READ_CPU_ACK = 1'b0,
+				 WRITE_CPU_ACK = 1'b0;
+
   assign CAREOF_INT = 1'b1;
   reg [1:0] 			 RST_MVBLCK = 2'h0,
 				 MCU_REQUEST_ALIGN = 2'h0;
@@ -55,7 +58,7 @@ module Gremlin(input CLK,
   reg 				 EN_STB_0 = 1'b0, EN_STB_1 = 1'b0,
 				 EN_STB_2 = 1'b0, EN_STB_3 = 1'b0;
 
-  reg        d_r_en_cpu = 1'b0, d_r_en_cpu_delay,
+  reg        d_r_en_cpu = 1'b0, d_r_en_cpu_delay = 1'b0,
 	     d_w_en_cpu = 1'b0,
 	     READ_CPU_r = 1'b1, WRITE_CPU_r = 1'b1, low_addr_bits_r;
   reg [1:0]  low_addr_bits_w = 2'd0;
