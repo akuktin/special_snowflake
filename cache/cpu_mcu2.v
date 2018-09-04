@@ -56,10 +56,10 @@ module snowball_cache(input CPU_CLK,
 			    mandatory_lookup_exp = 1'b0,
 			    mandatory_lookup_capture, datain_mux_dma,
 			    cache_prev_we = 1'b0, mcu_active = 1'b0,
-			    mcu_active_reg = 1'b0,
+			    mcu_active_reg = 1'b0, write_other = 1'b1,
 			    cache_cycle_force_miss_n;
   reg [2:0] 		    read_counter = 3'h0;
-  reg [31:0] 		    data_mcu_trans, data_mcu_trans_other,
+  reg [31:0] 		    data_mcu_trans = 0, data_mcu_trans_other = 0,
 			    w_addr_trans, w_data_trans,
 			    w_addr_recv, w_data_recv, dma_data_read_reg = 0;
   reg [7:0] 		    w_addr, cache_prev_idx;
@@ -269,17 +269,16 @@ module snowball_cache(input CPU_CLK,
   assign mem_dataintocpu = datain_mux_dma ?
 			   dma_data_read_reg : mem_datafrommem;
 
-  assign wdata_data = mem_dataintomem | mem_dataintocpu;
-  /* BRAINWAVE: wdata_we could actually be just mcu_active_delay, and
-   *            wctag_data could just be mem_addr[31:8] (implemented).
-   *            Much simpler, same overall functionality. */
-  assign wdata_we = (mcu_active_delay) ||
-		    (mcu_valid_data);
+  assign wdata_data = mem_dataintomem | (write_other ?
+					 data_mcu_trans_other :
+					 data_mcu_trans);
+  assign wdata_we = mcu_active_delay || mcu_valid_data;
   assign wctag_data = mem_addr[31:8];
 
   always @(read_counter)
     case (read_counter)
-      3'd6: begin mcu_valid_data <= 1; capture_data <= 1; end
+      3'd5: begin mcu_valid_data <= 0; capture_data <= 1; end
+      3'd6: begin mcu_valid_data <= 1; capture_data <= 0; end
       3'd7: begin mcu_valid_data <= 1; capture_data <= 0; end
       default: begin mcu_valid_data <= 0; capture_data <= 0; end
     endcase // case (read_counter)
@@ -342,27 +341,37 @@ module snowball_cache(input CPU_CLK,
 
 	if ((mem_ack || dma_read_ack) &&
 	    (! mem_we))
-	  read_counter <= 3'd3;
+	  read_counter <= 3'd2;
 	else
 	  if (read_counter != 3'd0)
 	    read_counter <= read_counter +1;
 
-	if (capture_data)
+	if (mcu_active)
 	  begin
-	    data_mcu_trans <= mem_dataintocpu;
-	    w_addr <= {w_addr[7:1],(~w_addr[0])};
+	    data_mcu_trans_other <= 0;
 	    dma_data_read_reg <= 0;
+	    w_addr <= w_addr_recv[7:0];
 	  end
 	else
 	  begin
-	    if (mcu_active)
-	      w_addr <= w_addr_recv[7:0];
-
-	    if (mcu_valid_data)
-	      data_mcu_trans_other <= mem_dataintocpu;
+	    if (!write_other)
+	      begin
+		data_mcu_trans_other <= mem_dataintocpu;
+		w_addr <= {w_addr[7:1],(~w_addr[0])};
+	      end
 
 	    if (dma_read_ack)
 	      dma_data_read_reg <= dma_data_read;
+	  end
+
+	if (capture_data)
+	  begin
+	    data_mcu_trans <= mem_dataintocpu;
+	    write_other <= 0;
+	  end
+	else
+	  begin
+	    write_other <= 1;
 	  end
 
 	if (((mem_ack || dma_wrte_ack) && mem_we) ||
