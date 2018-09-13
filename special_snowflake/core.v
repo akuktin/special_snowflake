@@ -88,8 +88,6 @@ module special_snowflake_core(input RST_MASTER,
   // --------------------------------------------------------
   reg 		rst_cpu_pre = 1'b0 /* synthesis syn_preserve=1 */;
   reg 		rst_cpu = 1'b0 /* synthesis syn_preserve=1 */;
-  reg 		rst_sys_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
-  reg		rst_sys_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
   reg 		rst_cpu_i_cache = 1'b0 /* synthesis syn_preserve=1 */;
   reg		rst_cpu_d_cache = 1'b0 /* synthesis syn_preserve=1 */;
   reg 		rst_i_mcu = 1'b0 /* synthesis syn_preserve=1 */;
@@ -244,7 +242,6 @@ module special_snowflake_core(input RST_MASTER,
   snowball_cache i_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
 			 .RST_CPU(rst_cpu_i_cache),
-			 .RST_SYS(rst_sys_i_cache),
 			 .cache_precycle_addr(i_cache_pc_addr),
 			 .cache_datao(0), // CPU perspective
 			 .cache_datai(i_cache_datai), // CPU perspective
@@ -278,7 +275,6 @@ module special_snowflake_core(input RST_MASTER,
   snowball_cache d_cache(.CPU_CLK(CPU_CLK),
 			 .MCU_CLK(CLK_n),
 			 .RST_CPU(rst_cpu_i_cache), // wonky signal, best
-			 .RST_SYS(rst_sys_i_cache), // wonky signal, best
 			 .cache_precycle_addr(d_cache_pc_addr),
 			 .cache_datao(d_cache_datao), // CPU perspective
 			 .cache_datai(d_cache_datai), // CPU perspective
@@ -518,7 +514,6 @@ module special_snowflake_core(input RST_MASTER,
 	rst_i_mcu <= 1; rst_d_mcu <= 1;
 	rst_lsab_in <= 1; rst_lsab_out <= 1;
 	rst_soft_core <= 1;
-	rst_sys_i_cache <= 1; rst_sys_d_cache <= 1;
       end
 
   always @(posedge CPU_CLK)

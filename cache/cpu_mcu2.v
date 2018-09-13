@@ -1,7 +1,6 @@
 module snowball_cache(input CPU_CLK,
 		      input 	    MCU_CLK,
 		      input 	    RST_CPU,
-		      input 	    RST_SYS,
 		      input [31:0]  cache_precycle_addr,
 		      input [31:0]  cache_datao, // CPU perspective
 		      output [31:0] cache_datai, // CPU perspective
