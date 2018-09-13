@@ -48,7 +48,7 @@ module snowball_cache(input CPU_CLK,
   reg [31:0] 		    cache_cycle_addr, data_tomem_trans;
   reg 			    cache_cycle_we, tlb_cycle_we;
   reg 			    mcu_we = 1'b0, tlb_we = 1'b0,
-			    mem_do_act_reg, mcu_active_delay = 1'b0,
+			    mem_do_act_reg = 1'b0, mcu_active_delay = 1'b0,
 			    w_we_trans, w_tlb_trans, w_we_recv, w_tlb_recv,
 			    mandatory_lookup_sig = 1'b0,
 			    mandatory_lookup_pre_sig = 1'b0,
@@ -284,7 +284,6 @@ module snowball_cache(input CPU_CLK,
     endcase // case (read_counter)
 
   always @(posedge MCU_CLK)
-    if (RST_SYS)
       begin
 	// Ofcourse, if it gliches, then we have a problem.
 	mcu_active <= (mcu_active_trans ^ mcu_active_reg) && !mcu_active;
