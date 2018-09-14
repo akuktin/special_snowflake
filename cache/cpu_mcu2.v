@@ -1,6 +1,5 @@
 module snowball_cache(input CPU_CLK,
 		      input 	    MCU_CLK,
-		      input 	    RST_CPU,
 		      input [31:0]  cache_precycle_addr,
 		      input [31:0]  cache_datao, // CPU perspective
 		      output [31:0] cache_datai, // CPU perspective
@@ -176,7 +175,6 @@ module snowball_cache(input CPU_CLK,
 		      cache_tlb;
 
   always @(posedge CPU_CLK)
-    if (RST_CPU)
       begin
 	vmem <= VMEM_ACT;
 	MMU_FAULT <= w_MMU_FAULT;

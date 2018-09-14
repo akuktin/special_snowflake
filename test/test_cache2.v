@@ -640,8 +640,6 @@ module GlaDOS;
   snowball_cache
     cache_under_test(.CPU_CLK(CPU_CLK),
 		     .MCU_CLK(CLK_n),
-		     .RST_CPU(SYS_RST),
-		     .RST_SYS(SYS_RST),
 		     .cache_precycle_addr(test_cache_addr),
 		     .cache_datao(test_cache_datao), // CPU perspective
 		     .cache_datai(cache_datai), // CPU perspective
