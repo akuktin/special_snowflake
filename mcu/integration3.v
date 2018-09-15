@@ -39,8 +39,7 @@ module ddr_memory_controler(input CLK_n,
   wire [3:0] 					 internal_com_lat,
 						 internal_we_array;
   wire 						 internal_data_mux,
-						 internal_data_mux_invert,
-						 rst_user;
+						 internal_data_mux_invert;
 
   assign CS = 1'b0; // Always on.
   assign user_req_datain = (internal_data_mux_invert ?
@@ -60,11 +59,9 @@ module ddr_memory_controler(input CLK_n,
 			    .BANK_PIN(BANK),
 			    .COMMAND_USER(command_user),
 			    .ADDRESS_USER(address_user),
-			    .BANK_USER(bank_user),
-			    .RST_USER(rst_user));
+			    .BANK_USER(bank_user));
 
   state2 interdictor_tracker(.CLK(CLK_n),
-			     .RST(rst_user),
 			     .REFRESH_STROBE(refresh_strobe),
 
 			     .ADDRESS_RAND(rand_req_address),

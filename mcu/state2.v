@@ -8,7 +8,6 @@
 `define MRST 3'b000 /* mode register set */
 
 module state2(input CLK,
-	      input 		RST,
 	      input 		REFRESH_STROBE,
 	      /* random port */
 	      input [25:0] 	ADDRESS_RAND,
@@ -39,24 +38,26 @@ module state2(input CLK,
 				INTERNAL_DATA_MUX = 1'b0,
 				INTERNAL_DATA_MUX_INVERT = 1'b0;
 
-  reg 				     change_possible_n = 1'b1,
+  reg 				     change_possible_n = 1'b0,
 				     state_is_readwrite = 1'b0,
 				     refresh_strobe_ack = 1'b0,
 				     state_is_write,
 				     SOME_PAGE_ACTIVE = 1'b0,
 				     second_stroke = 1'b1,
 				     refresh_time = 1'b0,
-				     REQUEST_ALIGN_BULK_dly,
-				     REQUEST_ACCESS_RAND, WE_RAND,
-				     REQUEST_ACCESS_BULK, WE_BULK,
-				     REQUEST_ALIGN_BULK,
+				     REQUEST_ALIGN_BULK_dly = 1'b0,
+				     REQUEST_ACCESS_RAND = 1'b0,
+				     REQUEST_ACCESS_BULK = 1'b0,
+				     WE_RAND = 1'b0,
+				     WE_BULK = 1'b0,
+				     REQUEST_ALIGN_BULK = 1'b0,
 				     correct_page_rand = 1'b0,
 				     correct_page_algn = 1'b0,
 //				     correct_page_rdy,
-				     do_extra_pass = 1'b1;
+				     do_extra_pass = 1'b0;
   reg [2:0] 			     command_reg2 = `NOOP,
 				     actv_timeout = 3'h7;
-  reg [3:0] 			     counter = 4'h1, WE_ARRAY_BULK;
+  reg [3:0] 			     counter = 4'h0, WE_ARRAY_BULK;
   reg [16:0] 			     page_current;
   reg [25:0] 			     ADDRESS_BULK;
 
@@ -70,8 +71,7 @@ module state2(input CLK,
 				     want_PRCH_delayable,
 				     issue_enable_override,
 				     issue_enable_on_page;
-  wire [2:0] 			     bank_addr,
-				     bank_request_live_bulk,
+  wire [2:0] 			     bank_request_live_bulk,
 				     bank_request_live_rand;
   wire [2:0] 			     command, command_wr;
   wire [3:0] 			     we_array;
@@ -168,9 +168,6 @@ module state2(input CLK,
   assign page = correct_page_rdy ?
 		page_current :
 		address_in[25:9];
-  assign bank_addr = correct_page_rdy ?
-		     BANK_REG :
-		     address_in[11:9];
 
   assign timeout_norm_comp_n = !((counter == 4'he) || (counter == 4'hd) ||
 				 (counter == 4'hf) || (counter == 4'h0));
@@ -187,7 +184,6 @@ module state2(input CLK,
   assign we_array = REQUEST_ACCESS_BULK ? WE_ARRAY_BULK : WE_ARRAY_RAND;
 
   always @(posedge CLK)
-    if (RST)
       begin
 	REQUEST_ACCESS_RAND <= port_REQUEST_ACCESS_RAND;
 	REQUEST_ACCESS_BULK <= port_REQUEST_ACCESS_BULK;
