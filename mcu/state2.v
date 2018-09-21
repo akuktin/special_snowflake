@@ -348,22 +348,6 @@ module outputs(input 		 CLK_n,
 
 	active <= {active[0],did_issue_write};
 
-	if (high_bits)
-	  dm_predriver <= we_gapholder[3:2];
-	else
-	  dm_predriver <= we_longholder;
-
-	if (active == 2'b00)
-	  begin
-	    dqdm_z_prectrl <= 0;
-	    dqs_predriver <= 2'h0;
-	  end
-	else
-	  begin
-	    dqdm_z_prectrl <= 1;
-	    dqs_predriver <= 2'h2;
-	  end
-
 	if ({did_issue_write,active} == 3'b000)
 	  dqs_z_prectrl <= 0;
 	else
@@ -383,6 +367,22 @@ module outputs(input 		 CLK_n,
 
       data_gapholder <= DATA_W;
       dq_predriver[15:0] <= data_gapholder[15:0];
+
+      if (high_bits)
+	dm_predriver <= we_gapholder[3:2];
+      else
+	dm_predriver <= we_longholder;
+
+      if (active == 2'b00)
+	begin
+	  dqdm_z_prectrl <= 0;
+	  dqs_predriver <= 2'h0;
+	end
+      else
+	begin
+	  dqdm_z_prectrl <= 1;
+	  dqs_predriver <= 2'h2;
+	end
     end
 
   always @(posedge CLK_dn)
