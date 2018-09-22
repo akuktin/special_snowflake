@@ -320,13 +320,12 @@ module snowball_cache(input CPU_CLK,
 	else
 	  begin
 	    tlb_we <= 0;
-	    if (mem_do_act_reg && mem_ack)
+	    if (mem_ack)
 	      begin
 		mem_do_act <= 0;
 		mem_dataintomem <= 0;
+		mem_we <= 0;
 	      end
-	    if (mem_ack)
-	      mem_we <= 0;
 	    if (dma_wrte_ack)
 	      dma_wrte <= 0;
 	    if (dma_read_ack)
